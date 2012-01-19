@@ -10,7 +10,7 @@
   <description>
     The Toto To-Do List Manager
   </description>
-<!--
+
   <context-param>
     <param-name>contextConfigLocation</param-name>
     <param-value>WEB-INF/spring-servlet.xml</param-value>
@@ -28,7 +28,6 @@
     <servlet-name>spring</servlet-name>
     <url-pattern>/</url-pattern>
   </servlet-mapping>
--->
 
   <servlet>
     <servlet-name>classpath</servlet-name>
@@ -42,4 +41,5 @@
     <servlet-name>classpath</servlet-name>
     <url-pattern>/classpath</url-pattern>
   </servlet-mapping>
+
 </web-app>
