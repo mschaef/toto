@@ -4,6 +4,15 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 public class TodoItem
 {
+    public static TodoItem make(String description)
+    {
+        TodoItem item = new TodoItem();
+
+        item.setDescription(description);
+
+        return item;
+    }
+
     String description = null;
 
     public void setDescription(String description)
