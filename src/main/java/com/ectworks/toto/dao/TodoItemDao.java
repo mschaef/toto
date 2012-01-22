@@ -1,5 +1,8 @@
 package com.ectworks.toto.dao;
 
+import java.util.Iterator;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.List;
 import java.util.LinkedList;
 
@@ -10,41 +13,48 @@ import com.ectworks.toto.domain.TodoItem;
 
 public class TodoItemDao
 {
-    Logger log = LoggerFactory.getLogger(TodoItemDao.class);
+    static Logger log = LoggerFactory.getLogger(TodoItemDao.class);
 
-    List<TodoItem> items = new LinkedList<TodoItem>();
+    int nextId = 1;
+
+    Map<Integer, TodoItem> items = new HashMap<Integer, TodoItem>();
 
     public void addItem(TodoItem item)
     {
+        item.setId(nextId);
+        nextId++;
+
         log.debug("Adding: {}", item);
 
-        items.add(item);
+        items.put(item.getId(), item);
     }
 
-    public void removeItem(TodoItem item)
+    public void removeItem(int itemId)
     {
-        log.debug("Removing: {}", item);
+        log.debug("Removing item ID: {}", itemId);
 
-        if (!items.contains(item)) {
-            log.warn("Attempt to remove unknown item: {}", item);
+        if (!items.containsKey(itemId)) {
+            log.warn("Attempt to remove unknown item ID: {}", itemId);
             return;
         }
+
+        items.remove(itemId);
     }
 
-    public List<TodoItem> allItems()
+    public Iterable<TodoItem> allItems()
     {
         log.debug("Finding all items.");
 
-        return new LinkedList<TodoItem>(items);
+        return items.values();
     }
 
-    public List<TodoItem> pendingItems()
+    public Iterable<TodoItem> pendingItems()
     {
         log.debug("Finding pending items.");
 
         List<TodoItem> pending = new LinkedList<TodoItem>();
 
-        for(TodoItem item : items) {
+        for(TodoItem item : allItems()) {
             if (item.getCompleted())
                 continue;
 

@@ -18,7 +18,7 @@ import com.ectworks.toto.dao.TodoItemDao;
 @RequestMapping("/todo")
 public class TodoListController
 {
-    Logger log = LoggerFactory.getLogger(TodoItemDao.class);
+    static Logger log = LoggerFactory.getLogger(TodoItemDao.class);
 
     @Autowired(required = true)
     TodoItemDao todoDao;
