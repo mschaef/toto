@@ -5,8 +5,10 @@
 <table border="0">
   <#list todoItems as item>
     <tr>
+      <td>${item.id}</td>
       <td>${item.description}</td>
-
+      <td>Complete</td>
+      <td>Remove</td>
     </tr>
   </#list>
 </table>
