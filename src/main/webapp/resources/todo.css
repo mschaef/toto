@@ -1,0 +1,16 @@
+/* todo.css */
+
+h3, td {
+    font-family: arial, verdana, sans-serif;
+}
+
+div.button {
+    cursor: pointer;
+    border-width: 1px; 
+    border-style: dotted; 
+    border-color: black; 
+}
+
+div.button:hover {
+    background-color:rgb(240,240,240);
+}
