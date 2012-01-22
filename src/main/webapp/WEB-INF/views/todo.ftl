@@ -5,16 +5,12 @@
 <script type="text/javascript">
 function completeItem(id)
 {
-$.post("/complete", { itemId:id}, function(xml) {
-     alert("Complete " + id);
-     });
+$.post("/complete", { itemId:id });
 }
 
 function removeItem(id)
 {
-$.post("/remove", { itemId:id}, function(xml) {
-     alert("Complete " + id);
-     });
+$.post("/remove", { itemId:id} );
 }
 </script>
 
@@ -29,8 +25,8 @@ $.post("/remove", { itemId:id}, function(xml) {
     <tr>
       <td>${item.id}</td>
       <td>${item.description}</td>
-      <td><a href="" onclick="completeItem(${item.id})">Complete</a></td>
-      <td><a href="" onclick="removeItem(${item.id})">Remove</a></td>
+      <td><div onclick="completeItem(${item.id})" style="cursor:pointer">Complete</div></td>
+      <td><div onclick="removeItem(${item.id})" style="cursor:pointer">Remove</div></td>
     </tr>
   </#list>
 </table>

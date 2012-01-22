@@ -3,6 +3,8 @@ package com.ectworks.toto.web.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.ui.Model;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -47,25 +49,27 @@ public class TodoListController
 
     @RequestMapping(value = "/remove",
                     method = RequestMethod.POST)
-    public String removeTodoItem(Model model,
-                                 @RequestParam(required = true) int itemId)
+    public void removeTodoItem(Model model,
+                               @RequestParam(required = true) int itemId,
+                               HttpServletResponse response)
     {
         log.debug("Removing Todo Item: {}");
 
         todoDao.removeItem(itemId);
 
-        return "redirect:/todo";
+        response.setStatus(HttpServletResponse.SC_OK);
     }
 
     @RequestMapping(value = "/complete",
                     method = RequestMethod.POST)
-    public String completeTodoItem(Model model,
-                                   @RequestParam(required = true) int itemId)
+    public void completeTodoItem(Model model,
+                                 @RequestParam(required = true) int itemId,
+                                 HttpServletResponse response)
     {
         log.debug("Completing Todo Item: {}");
 
         todoDao.completeItem(itemId);
 
-        return "redirect:/todo";
+        response.setStatus(HttpServletResponse.SC_OK);
     }
 }
