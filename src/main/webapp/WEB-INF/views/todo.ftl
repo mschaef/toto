@@ -2,11 +2,14 @@
 <body>
 <h3>Todo Items</h3>
 
-<list>
+<table border="0">
   <#list todoItems as item>
-    <li>${item.description}
+    <tr>
+      <td>${item.description}</td>
+
+    </tr>
   </#list>
-</list>
+</table>
 
 <form id="todo" action="/todo" method="post">
    <input type="text" name="desc" id="desc">
