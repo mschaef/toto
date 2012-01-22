@@ -3,14 +3,15 @@
 <script type="text/javascript" src="resources/jquery-1.7.1.js"></script>
 
 <script type="text/javascript">
+  function reloadPage() { window.location.reload(); }
 function completeItem(id)
 {
-$.post("/complete", { itemId:id });
+$.post("/complete", { itemId:id }); reloadPage();
 }
 
 function removeItem(id)
 {
-$.post("/remove", { itemId:id} );
+$.post("/remove", { itemId:id} ); reloadPage();
 }
 </script>
 
