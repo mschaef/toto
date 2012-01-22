@@ -3,11 +3,19 @@
 <script type="text/javascript" src="resources/jquery-1.7.1.js"></script>
 
 <script type="text/javascript">
- $(document).ready(function() {
-   $("a").click(function() {
-     alert("Hello world!");
-   });
- });
+function completeItem(id)
+{
+$.post("/complete", { itemId:id}, function(xml) {
+     alert("Complete " + id);
+     });
+}
+
+function removeItem(id)
+{
+$.post("/remove", { itemId:id}, function(xml) {
+     alert("Complete " + id);
+     });
+}
 </script>
 
 <head>
@@ -21,8 +29,8 @@
     <tr>
       <td>${item.id}</td>
       <td>${item.description}</td>
-      <td><a href="">Complete</a></td>
-      <td><a href="">Remove</a></td>
+      <td><a href="" onclick="completeItem(${item.id})">Complete</a></td>
+      <td><a href="" onclick="removeItem(${item.id})">Remove</a></td>
     </tr>
   </#list>
 </table>

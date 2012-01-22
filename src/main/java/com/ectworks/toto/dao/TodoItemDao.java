@@ -29,6 +29,25 @@ public class TodoItemDao
         items.put(item.getId(), item);
     }
 
+    public TodoItem getItem(int itemId)
+    {
+        log.debug("Getting item ID: {}", itemId);
+
+        if (!items.containsKey(itemId)) {
+            log.warn("Attempt to remove unknown item ID: {}", itemId);
+            return null;
+        }
+
+        return items.get(itemId);
+    }
+
+    public void completeItem(int itemId)
+    {
+        log.debug("Completing item ID: {}", itemId);
+
+        getItem(itemId).setCompleted(true);
+    }
+
     public void removeItem(int itemId)
     {
         log.debug("Removing item ID: {}", itemId);

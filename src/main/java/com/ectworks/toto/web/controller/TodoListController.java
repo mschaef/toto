@@ -15,7 +15,6 @@ import com.ectworks.toto.domain.TodoItem;
 import com.ectworks.toto.dao.TodoItemDao;
 
 @Controller
-@RequestMapping("/todo")
 public class TodoListController
 {
     static Logger log = LoggerFactory.getLogger(TodoItemDao.class);
@@ -23,24 +22,49 @@ public class TodoListController
     @Autowired(required = true)
     TodoItemDao todoDao;
 
-    @RequestMapping(method = RequestMethod.GET)
-    public String todo(Model model)
+    @RequestMapping(value = "/todo",
+                    method = RequestMethod.GET)
+    public String showTodoList(Model model)
     {
         log.debug("Fetching Todo List");
 
-        model.addAttribute("todoItems",
-                           todoDao.pendingItems());
+        model.addAttribute("todoItems", todoDao.pendingItems());
 
         return "todo";
     }
 
-    @RequestMapping(method = RequestMethod.POST)
-    public String todo(Model model,
-                       @RequestParam(required = true) String desc)
+    @RequestMapping(value = "/todo",
+                    method = RequestMethod.POST)
+    public String addTodoItem(Model model,
+                              @RequestParam(required = true) String desc)
     {
         log.debug("Posting Todo Item");
 
         todoDao.addItem(TodoItem.make(desc));
+
+        return "redirect:/todo";
+    }
+
+    @RequestMapping(value = "/remove",
+                    method = RequestMethod.POST)
+    public String removeTodoItem(Model model,
+                                 @RequestParam(required = true) int itemId)
+    {
+        log.debug("Removing Todo Item: {}");
+
+        todoDao.removeItem(itemId);
+
+        return "redirect:/todo";
+    }
+
+    @RequestMapping(value = "/complete",
+                    method = RequestMethod.POST)
+    public String completeTodoItem(Model model,
+                                   @RequestParam(required = true) int itemId)
+    {
+        log.debug("Completing Todo Item: {}");
+
+        todoDao.completeItem(itemId);
 
         return "redirect:/todo";
     }
