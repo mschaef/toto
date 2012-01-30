@@ -19,7 +19,7 @@ import com.ectworks.toto.dao.TodoItemDao;
 @Controller
 public class TodoListController
 {
-    static Logger log = LoggerFactory.getLogger(TodoItemDao.class);
+    static Logger log = LoggerFactory.getLogger(TodoListController.class);
 
     @Autowired(required = true)
     TodoItemDao todoDao;

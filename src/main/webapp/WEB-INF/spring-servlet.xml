@@ -24,8 +24,10 @@
     <property name="exposeSpringMacroHelpers" value="true"/>
   </bean>
 
-  <bean id="todoDao"
+  <bean id="todoItemDao"
         class="com.ectworks.toto.dao.TodoItemDao"/>
+  <bean id="userDao"
+        class="com.ectworks.toto.dao.UserDao"/>
 
   <mvc:resources mapping="/resources/**" location="/resources/" />
 
