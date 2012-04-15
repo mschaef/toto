@@ -7,7 +7,7 @@ create table user (
 );
 
 drop table if exists todo_list;
-create table list (
+create table todo_list (
    list_id bigint identity,
    name varchar(255)
 );
