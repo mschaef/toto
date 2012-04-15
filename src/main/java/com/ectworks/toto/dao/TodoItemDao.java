@@ -6,9 +6,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.LinkedList;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import javax.sql.DataSource;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,10 +27,6 @@ public class TodoItemDao
     public void setDataSource(DataSource dataSource) {
         jdbc = new JdbcTemplate(dataSource);
     }
-
-    int nextId = 1;
-
-    Map<Integer, TodoItem> items = new HashMap<Integer, TodoItem>();
 
     public void addItem(TodoItem item)
     {
@@ -47,57 +46,66 @@ public class TodoItemDao
         item.setId(id);
     }
 
+    RowMapper<TodoItem> todoItemMapper()
+    {
+        return new RowMapper<TodoItem>() {
+            public TodoItem mapRow(ResultSet rs, int rowNum)
+                throws SQLException
+            {
+                TodoItem item = new TodoItem();
+                item.setId(rs.getInt("item_id"));
+                item.setDescription(rs.getString("desc"));
+                item.setCompleted(rs.getBoolean("completed"));
+                return item;
+            }
+        };
+    }
+
     public TodoItem getItem(int itemId)
     {
         log.debug("Getting item ID: {}", itemId);
 
-        if (!items.containsKey(itemId)) {
-            log.warn("Attempt to remove unknown item ID: {}", itemId);
-            return null;
-        }
+        String sql = "select * from todo_item where item_id = ?";
 
-        return items.get(itemId);
+        return jdbc.queryForObject(sql, new Object[] { itemId },
+                                   todoItemMapper());
     }
 
     public void completeItem(int itemId)
     {
         log.debug("Completing item ID: {}", itemId);
 
-        getItem(itemId).setCompleted(true);
+        String sql = "update todo_item"
+            + " set completed = true"
+            + " where item_id = ?";
+
+        int rows = jdbc.update(sql, new Object[] { itemId });
+
+        if (rows < 1)
+            log.warn("Attempt to complete unknown item ID: {}", itemId);
     }
 
     public void removeItem(int itemId)
     {
-        log.debug("Removing item ID: {}", itemId);
+        String sql = "delete from todo_item where item_id = ?";
 
-        if (!items.containsKey(itemId)) {
+        int rows = jdbc.update(sql, new Object[] { itemId });
+
+        if (rows < 1)
             log.warn("Attempt to remove unknown item ID: {}", itemId);
-            return;
-        }
-
-        items.remove(itemId);
     }
 
     public Iterable<TodoItem> allItems()
     {
-        log.debug("Finding all items.");
+        String sql = "select * from todo_item";
 
-        return items.values();
+        return jdbc.query(sql, todoItemMapper());
     }
 
     public Iterable<TodoItem> pendingItems()
     {
-        log.debug("Finding pending items.");
+        String sql = "select * from todo_item where completed = false";
 
-        List<TodoItem> pending = new LinkedList<TodoItem>();
-
-        for(TodoItem item : allItems()) {
-            if (item.getCompleted())
-                continue;
-
-            pending.add(item);
-        }
-
-        return pending;
+        return jdbc.query(sql, todoItemMapper());
     }
 }
