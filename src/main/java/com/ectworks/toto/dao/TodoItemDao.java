@@ -46,19 +46,16 @@ public class TodoItemDao
         item.setId(id);
     }
 
-    RowMapper<TodoItem> todoItemMapper()
-    {
-        return new RowMapper<TodoItem>() {
-            public TodoItem mapRow(ResultSet rs, int rowNum)
-                throws SQLException
-            {
-                TodoItem item = new TodoItem();
-                item.setId(rs.getInt("item_id"));
-                item.setDescription(rs.getString("desc"));
-                item.setCompleted(rs.getBoolean("completed"));
-                return item;
-            }
-        };
+    static class TodoItemMapper implements RowMapper<TodoItem> {
+        public TodoItem mapRow(ResultSet rs, int rowNum)
+            throws SQLException
+        {
+            TodoItem item = new TodoItem();
+            item.setId(rs.getInt("item_id"));
+            item.setDescription(rs.getString("desc"));
+            item.setCompleted(rs.getBoolean("completed"));
+            return item;
+        }
     }
 
     public TodoItem getItem(int itemId)
@@ -68,7 +65,7 @@ public class TodoItemDao
         String sql = "select * from todo_item where item_id = ?";
 
         return jdbc.queryForObject(sql, new Object[] { itemId },
-                                   todoItemMapper());
+                                   new TodoItemMapper());
     }
 
     public void completeItem(int itemId)
@@ -99,13 +96,13 @@ public class TodoItemDao
     {
         String sql = "select * from todo_item";
 
-        return jdbc.query(sql, todoItemMapper());
+        return jdbc.query(sql, new TodoItemMapper());
     }
 
     public Iterable<TodoItem> pendingItems()
     {
         String sql = "select * from todo_item where completed = false";
 
-        return jdbc.query(sql, todoItemMapper());
+        return jdbc.query(sql, new TodoItemMapper());
     }
 }
