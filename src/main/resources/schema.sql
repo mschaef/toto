@@ -20,7 +20,7 @@ create table user_lists (
 
 drop table if exists item;
 create table todo_item (
-   item_id bigint identity,
+   item_id identity,
    list_id bigint,
    name varchar(255),
    completed boolean

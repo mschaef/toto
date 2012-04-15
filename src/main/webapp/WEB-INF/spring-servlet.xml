@@ -27,7 +27,8 @@
     <property name="exposeSpringMacroHelpers" value="true"/>
   </bean>
 
-  <bean id="datasource" class="org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy">
+  <bean id="datasource"
+        class="org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy">
     <constructor-arg>
       <bean class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
         <property name="driverClass" value="org.h2.Driver" />
@@ -38,7 +39,7 @@
   </bean>
 
   <!-- provides a H2 console to look into the db if necessary -->
-  <bean id="h2Console" class="org.h2.tools.Server" 
+  <bean id="h2console" class="org.h2.tools.Server" 
         factory-method="createWebServer" depends-on="datasource" 
         init-method="start" lazy-init="false">
     <constructor-arg value="-web,-webPort,11111" />
