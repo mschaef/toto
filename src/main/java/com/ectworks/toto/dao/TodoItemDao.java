@@ -6,6 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.LinkedList;
 
+import javax.sql.DataSource;
+
+import org.springframework.jdbc.core.JdbcTemplate;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,18 +19,32 @@ public class TodoItemDao
 {
     static Logger log = LoggerFactory.getLogger(TodoItemDao.class);
 
+    private JdbcTemplate jdbc;
+
+    public void setDataSource(DataSource dataSource) {
+        jdbc = new JdbcTemplate(dataSource);
+    }
+
     int nextId = 1;
 
     Map<Integer, TodoItem> items = new HashMap<Integer, TodoItem>();
 
     public void addItem(TodoItem item)
     {
-        item.setId(nextId);
-        nextId++;
-
         log.debug("Adding: {}", item);
 
-        items.put(item.getId(), item);
+        String sql = "insert into todo_item (list_id, desc, completed)"
+            + " values(?, ?, ?)";
+
+        jdbc.update(sql, new Object[] {
+                0,
+                item.getDescription(),
+                false
+            });
+
+        int id = jdbc.queryForInt("call identity()");
+
+        item.setId(id);
     }
 
     public TodoItem getItem(int itemId)

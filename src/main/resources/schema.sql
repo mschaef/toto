@@ -18,11 +18,11 @@ create table user_lists (
    list_id bigint
 );
 
-drop table if exists item;
+drop table if exists todo_item;
 create table todo_item (
    item_id identity,
    list_id bigint,
-   name varchar(255),
+   desc varchar(255),
    completed boolean
 );
 
