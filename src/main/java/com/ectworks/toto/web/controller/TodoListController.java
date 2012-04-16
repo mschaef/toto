@@ -40,7 +40,7 @@ public class TodoListController
     public String addTodoItem(Model model,
                               @RequestParam(required = true) String desc)
     {
-        log.debug("Posting Todo Item");
+        log.debug("Posting Todo Item, desc: {}", desc);
 
         todoDao.addItem(TodoItem.make(desc));
 
@@ -53,7 +53,7 @@ public class TodoListController
                                @RequestParam(required = true) int itemId,
                                HttpServletResponse response)
     {
-        log.debug("Removing Todo Item: {}");
+        log.debug("Removing Todo Item: {}", itemId);
 
         todoDao.removeItem(itemId);
 
@@ -66,7 +66,7 @@ public class TodoListController
                                  @RequestParam(required = true) int itemId,
                                  HttpServletResponse response)
     {
-        log.debug("Completing Todo Item: {}");
+        log.debug("Completing Todo Item: {}", itemId);
 
         todoDao.completeItem(itemId);
 
