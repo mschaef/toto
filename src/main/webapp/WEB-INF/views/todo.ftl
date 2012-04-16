@@ -12,12 +12,12 @@
 
   function completeItem(id)
   {
-    $.post("/complete", { itemId:id }, reloadPage());
+    $.post("/complete", { itemId:id }, reloadPage);
   }
 
   function removeItem(id)
   {
-    $.post("/remove", { itemId:id }, reloadPage());
+    $.post("/remove", { itemId:id }, reloadPage);
   }
 </script>
 
@@ -59,7 +59,6 @@
       </td>
     </tr>
 </table>
-
 
 </body>
 </html>

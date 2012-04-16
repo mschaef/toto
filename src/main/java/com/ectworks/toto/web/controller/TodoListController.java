@@ -26,9 +26,13 @@ public class TodoListController
 
     @RequestMapping(value = "/todo",
                     method = RequestMethod.GET)
-    public String showTodoList(Model model)
+    public String showTodoList(Model model,
+                               HttpServletResponse response)
     {
         log.debug("Fetching Todo List");
+
+        response.setHeader("Cache-Control", "private, no-store, no-cache, must-revalidate");
+        response.setHeader("Pragma", "no-cache");
 
         model.addAttribute("todoItems", todoDao.pendingItems());
 
