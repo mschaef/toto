@@ -38,6 +38,7 @@
       <artifactId>commons-lang3</artifactId>
       <version>3.1</version>
     </dependency>
+
     <!-- Apache Commons -->
     <dependency>
       <groupId>commons-io</groupId>
@@ -97,6 +98,23 @@
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
       <version>${org.springframework.version}</version>
+    </dependency>
+
+    <!-- Shiro Security -->
+    <dependency>
+      <groupId>org.apache.shiro</groupId>
+      <artifactId>shiro-core</artifactId>
+      <version>1.2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.shiro</groupId>
+      <artifactId>shiro-web</artifactId>
+      <version>1.2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.shiro</groupId>
+      <artifactId>shiro-spring</artifactId>
+      <version>1.2.0</version>
     </dependency>
 
     <!-- Database -->
