@@ -3,6 +3,7 @@ drop table if exists user;
 create table user (
    user_id bigint identity,
    name varchar(255),
+   password varchar(255),
    email_addr varchar(255)
 );
 
