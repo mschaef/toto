@@ -9,6 +9,18 @@ public class User
 {
     static Logger log = LoggerFactory.getLogger(User.class);
 
+    long id = -1;
+
+    public void setId(long id)
+    {
+        this.id = id;
+    }
+
+    public long getId()
+    {
+        return id;
+    }
+
     String name = null;
 
     public void setName(String name)
@@ -19,6 +31,30 @@ public class User
     public String getName()
     {
         return name;
+    }
+
+    String password = null;
+
+    public void setPassword(String password)
+    {
+        this.password = password;
+    }
+
+    public String getPassword()
+    {
+        return password;
+    }
+
+    String email = null;
+
+    public void setEmail(String email)
+    {
+        this.email = email;
+    }
+
+    public String getEmail()
+    {
+        return email;
     }
 
     public String toString()
