@@ -36,6 +36,8 @@ public class UserDaoRealm extends AuthorizingRealm
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token)
         throws AuthenticationException
     {
+        log.debug("doGetAuthenticationInfo: {}", token);
+
         UsernamePasswordToken upToken = (UsernamePasswordToken) token;
         String username = upToken.getUsername();
 
@@ -57,6 +59,8 @@ public class UserDaoRealm extends AuthorizingRealm
 
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals)
     {
+        log.debug("doGetAuthorizationInfo: {}", principals);
+
         Set<String> roleNames = new HashSet<String>();
 
         roleNames.add("access");
