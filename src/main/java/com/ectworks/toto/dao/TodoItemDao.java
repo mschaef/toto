@@ -105,15 +105,26 @@ public class TodoItemDao
 
     public Iterable<TodoItem> allItems()
     {
-        String sql = "select * from todo_item";
+        User user = userDao.getCurrentUser();
 
-        return jdbc.query(sql, new TodoItemMapper());
+        String sql = "select * from todo_item "
+                   + " where user_id = ?";
+
+        return jdbc.query(sql,
+                          new Object[] { user.getId() },
+                          new TodoItemMapper());
     }
 
     public Iterable<TodoItem> pendingItems()
     {
-        String sql = "select * from todo_item where completed = false";
+        User user = userDao.getCurrentUser();
 
-        return jdbc.query(sql, new TodoItemMapper());
+        String sql = "select * from todo_item "
+                   + "where user_id = ? "
+                   + "  and completed = false";
+
+        return jdbc.query(sql,
+                          new Object[] { user.getId() },
+                          new TodoItemMapper());
     }
 }
