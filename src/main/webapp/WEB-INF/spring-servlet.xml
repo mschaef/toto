@@ -59,6 +59,10 @@
         class="com.ectworks.toto.web.controller.LoginController"
         p:realm-ref="userDaoRealm"/>
 
+  <bean id="userController"
+        class="com.ectworks.toto.web.controller.UserController"
+        p:userDao-ref="userDao"/>
+
   <bean id="testController"
         class="com.ectworks.toto.web.controller.HelloWorldController"/>
 
@@ -76,6 +80,7 @@
     <property name="filterChainDefinitions">
       <value>
         / = anon
+        /add-user = anon
         /unauthorized = anon
         /login = anon
         /classpath = anon
