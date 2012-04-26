@@ -27,5 +27,7 @@
    <font color="red">Login Failed</a>
 </#if>
 
+<a href="/add-user">Add a new user account</a>
+
 </body>
 </html>
