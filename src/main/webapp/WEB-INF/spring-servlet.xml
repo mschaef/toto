@@ -47,12 +47,12 @@
   </bean>
 
   <bean id="todoItemDao"
-        class="com.ectworks.toto.dao.TodoItemDao">
-    <property name="dataSource" ref="dataSource"/>
-  </bean>
+        class="com.ectworks.toto.dao.TodoItemDao"
+        p:dataSource-ref="dataSource"/>
 
   <bean id="userDao"
-        class="com.ectworks.toto.dao.UserDao"/>
+        class="com.ectworks.toto.dao.UserDao"
+        p:dataSource-ref="dataSource"/>
 
   <bean id="loginController"
         class="com.ectworks.toto.web.controller.LoginController"
