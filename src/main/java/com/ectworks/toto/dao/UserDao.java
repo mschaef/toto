@@ -30,15 +30,50 @@ public class UserDao
 
     public void addUser(User user)
     {
+        log.debug("Adding: {}", user);
+
+        String sql = "insert into user (name, password, email_addr)"
+            + " values(?, ?, ?)";
+
+        jdbc.update(sql, new Object[] {
+                user.getName(),
+                user.getPassword(),
+                user.getEmail()
+            });
+
+        int id = jdbc.queryForInt("call identity()");
+
+        user.setId(id);
+    }
+
+    static class UserMapper implements RowMapper<User> {
+        public User mapRow(ResultSet rs, int rowNum)
+            throws SQLException
+        {
+            User user = new User();
+            user.setId(rs.getInt("user_id"));
+            user.setName(rs.getString("name"));
+            user.setPassword(rs.getString("password"));
+            user.setEmail(rs.getString("email_addr"));
+            return user;
+        }
     }
 
     public User getUserByName(String name)
     {
-        return null;
+        log.debug("Getting user by name: {}", name);
+
+        String sql = "select * from user where name = ?";
+
+        return jdbc.queryForObject(sql,
+                                   new Object[] { name },
+                                   new UserMapper());
     }
 
     public Iterable<User> allUsers()
     {
-        return null;
+        String sql = "select * from user";
+
+        return jdbc.query(sql, new UserMapper());
     }
 }
