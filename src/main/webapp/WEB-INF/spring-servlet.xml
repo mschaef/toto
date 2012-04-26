@@ -74,7 +74,14 @@
 
     <property name="filterChainDefinitions">
       <value>
-        /** = anon
+        / = anon
+        /unauthorized = anon
+        /login = anon
+        /classpath = anon
+        /favicon.ico = anon
+
+        /todo = authc
+
         # some example chain definitions:
         # /admin/** = authc, roles[admin]
         # /docs/** = authc, perms[document:read]
