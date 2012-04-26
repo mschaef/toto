@@ -60,5 +60,7 @@
     </tr>
 </table>
 
+<a href="/logout">Log out</a>
+
 </body>
 </html>
