@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
+
+import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.util.WebUtils;
 
 import org.apache.shiro.realm.Realm;
@@ -67,14 +70,14 @@ public class LoginController
             SecurityUtils.getSubject().login(token);
 
             authenticationSucceeded = true;
-        } catch (AuthenticationException e) {
-            log.info("Error authenticating " + username + "..." + e.getMessage());
+        } catch (AuthenticationException ex) {
+            log.error("Error authenticating user: " + username, ex);
         }
 
         log.debug("authenticationSucceeded: {}", authenticationSucceeded);
 
         if (authenticationSucceeded) {
-            WebUtils.redirectToSavedRequest(request,response,"/todo");
+            WebUtils.redirectToSavedRequest(request,response,"todo");
             return null;
         } else
             model.addAttribute("failed", "true");
@@ -82,4 +85,15 @@ public class LoginController
         return "login";
     }
 
+    @RequestMapping(value="/logout", method=RequestMethod.GET)
+    public String logout(Model model,
+                         HttpSession session)
+    {
+        Subject subject = SecurityUtils.getSubject();
+
+        log.info("logging out user: {}", subject.getPrincipal());
+        subject.logout();
+
+        return "redirect:login";
+    }
 }
