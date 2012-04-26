@@ -21,8 +21,12 @@ public class TodoListController
 {
     static Logger log = LoggerFactory.getLogger(TodoListController.class);
 
-    @Autowired(required = true)
-    TodoItemDao todoDao;
+    private TodoItemDao todoItemDao;
+
+    public void setTodoItemDao(TodoItemDao todoItemDao)
+    {
+        this.todoItemDao = todoItemDao;
+    }
 
     @RequestMapping(value = "/todo",
                     method = RequestMethod.GET)
@@ -34,7 +38,7 @@ public class TodoListController
         response.setHeader("Cache-Control", "private, no-store, no-cache, must-revalidate");
         response.setHeader("Pragma", "no-cache");
 
-        model.addAttribute("todoItems", todoDao.pendingItems());
+        model.addAttribute("todoItems", todoItemDao.pendingItems());
 
         return "todo";
     }
@@ -46,7 +50,7 @@ public class TodoListController
     {
         log.debug("Posting Todo Item, desc: {}", desc);
 
-        todoDao.addItem(TodoItem.make(desc));
+        todoItemDao.addItem(TodoItem.make(desc));
 
         return "redirect:/todo";
     }
@@ -59,7 +63,7 @@ public class TodoListController
     {
         log.debug("Removing Todo Item: {}", itemId);
 
-        todoDao.removeItem(itemId);
+        todoItemDao.removeItem(itemId);
 
         response.setStatus(HttpServletResponse.SC_OK);
     }
@@ -72,7 +76,7 @@ public class TodoListController
     {
         log.debug("Completing Todo Item: {}", itemId);
 
-        todoDao.completeItem(itemId);
+        todoItemDao.completeItem(itemId);
 
         response.setStatus(HttpServletResponse.SC_OK);
     }

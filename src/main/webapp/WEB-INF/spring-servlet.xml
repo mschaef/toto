@@ -54,9 +54,16 @@
   <bean id="userDao"
         class="com.ectworks.toto.dao.UserDao"/>
 
-  <mvc:resources mapping="/resources/**" location="/resources/" />
+  <bean id="loginController"
+        class="com.ectworks.toto.web.controller.LoginController"
+        p:realm-ref="userDaoRealm"/>
 
-  <context:component-scan base-package="com.ectworks.toto.web.controller" />
+  <bean id="testController"
+        class="com.ectworks.toto.web.controller.HelloWorldController"/>
+
+  <bean id="todoListController"
+        class="com.ectworks.toto.web.controller.TodoListController"
+        p:todoItemDao-ref="todoItemDao"/>
 
 
   <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">

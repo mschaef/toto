@@ -13,16 +13,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.ectworks.toto.domain.User;;
-import com.ectworks.toto.dao.UserDao;
+import com.ectworks.toto.domain.User;
+
+import com.ectworks.toto.auth.UserDaoRealm;
 
 @Controller
 public class LoginController
 {
     static Logger log = LoggerFactory.getLogger(LoginController.class);
 
-    @Autowired(required = true)
-    UserDao todoDao;
+    private UserDaoRealm realm;
+
+    public void setRealm(UserDaoRealm realm)
+    {
+        this.realm = realm;
+    }
 
     @RequestMapping(value = "/login",
                     method = RequestMethod.GET)
