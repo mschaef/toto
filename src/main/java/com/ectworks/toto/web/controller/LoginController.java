@@ -72,7 +72,8 @@ public class LoginController
     {
         log.debug("Accepting Credentials");
 
-        UsernamePasswordToken token = new UsernamePasswordToken(username, password);
+        UsernamePasswordToken token =
+            new UsernamePasswordToken(username, password);
 
         boolean authenticationSucceeded = false;
 
@@ -102,6 +103,7 @@ public class LoginController
         Subject subject = SecurityUtils.getSubject();
 
         log.info("logging out user: {}", subject.getPrincipal());
+
         subject.logout();
 
         return "redirect:login";

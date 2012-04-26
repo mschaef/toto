@@ -1,5 +1,8 @@
 package com.ectworks.toto.dao;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Iterator;
 import java.util.Map;
 import java.util.HashMap;
@@ -10,13 +13,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.sql.DataSource;
 
+import org.apache.shiro.SecurityUtils;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.ectworks.toto.domain.User;
+
 
 public class UserDao
 {
@@ -96,5 +99,17 @@ public class UserDao
         String sql = "select * from user";
 
         return jdbc.query(sql, new UserMapper());
+    }
+
+    public User getCurrentUser()
+    {
+        String userName =
+            (String)SecurityUtils.getSubject().getPrincipal();
+
+        User user = getUserByName(userName);
+
+        log.debug("Current userName: {}, user: {}", userName, user);
+
+        return user;
     }
 }

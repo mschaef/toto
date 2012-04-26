@@ -46,13 +46,14 @@
     <constructor-arg value="-web,-webPort,11111" />
   </bean>
 
-  <bean id="todoItemDao"
-        class="com.ectworks.toto.dao.TodoItemDao"
-        p:dataSource-ref="dataSource"/>
-
   <bean id="userDao"
         class="com.ectworks.toto.dao.UserDao"
         p:dataSource-ref="dataSource"/>
+
+  <bean id="todoItemDao"
+        class="com.ectworks.toto.dao.TodoItemDao"
+        p:dataSource-ref="dataSource"
+        p:userDao-ref="userDao"/>
 
   <bean id="loginController"
         class="com.ectworks.toto.web.controller.LoginController"

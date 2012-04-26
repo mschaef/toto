@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ectworks.toto.domain.TodoItem;
+import com.ectworks.toto.domain.User;
 
 public class TodoItemDao
 {
@@ -28,15 +29,25 @@ public class TodoItemDao
         jdbc = new JdbcTemplate(dataSource);
     }
 
+    UserDao userDao;
+
+    public void setUserDao(UserDao userDao)
+    {
+        this.userDao = userDao;
+    }
+
+
     public void addItem(TodoItem item)
     {
         log.debug("Adding: {}", item);
 
-        String sql = "insert into todo_item (list_id, desc, completed)"
+        String sql = "insert into todo_item (user_id, desc, completed)"
             + " values(?, ?, ?)";
 
+        User user = userDao.getCurrentUser();
+
         jdbc.update(sql, new Object[] {
-                0,
+                user.getId(),
                 item.getDescription(),
                 false
             });
