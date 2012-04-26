@@ -13,9 +13,17 @@
 
 <h3>Login</h3>
 
-<form id="login" action="/post_login" method="post">
-  User Name: <input type="text" name="userName" id="userName">
+<form id="login" action="/login" method="post">
+  User Name: <input type="text" name="username" id="username">
+<br>
+  Password: <input type="text" name="password" id="password">
+<br>
+          <input type="submit" value="Submit" />
 </form>
+
+<#if failed??>
+   <font color="red">Login Failed</a>
+</#if>
 
 </body>
 </html>

@@ -3,6 +3,9 @@ package com.ectworks.toto.web.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.ui.Model;
@@ -13,6 +16,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.web.util.WebUtils;
+
+import org.apache.shiro.realm.Realm;
+
 import com.ectworks.toto.domain.User;
 
 import com.ectworks.toto.auth.UserDaoRealm;
@@ -22,18 +32,52 @@ public class LoginController
 {
     static Logger log = LoggerFactory.getLogger(LoginController.class);
 
-    private UserDaoRealm realm;
+    private Realm realm;
 
-    public void setRealm(UserDaoRealm realm)
+    public void setRealm(Realm realm)
     {
         this.realm = realm;
     }
 
     @RequestMapping(value = "/login",
                     method = RequestMethod.GET)
-    public String showTodoList(Model model)
+    public String showLogin(Model model)
     {
-        log.debug("Logging in");
+        log.debug("Displaying Login Page");
+
+        return "login";
+    }
+
+    @RequestMapping(value = "/login",
+                    method = RequestMethod.POST)
+    public String showTodoList(Model model,
+                               HttpServletRequest request,
+                               HttpServletResponse response,
+                               @RequestParam(required = true) String username,
+                               @RequestParam(required = true) String password)
+        throws IOException
+    {
+        log.debug("Accepting Credentials");
+
+        UsernamePasswordToken token = new UsernamePasswordToken(username, password);
+
+        boolean authenticationSucceeded = false;
+
+        try {
+            SecurityUtils.getSubject().login(token);
+
+            authenticationSucceeded = true;
+        } catch (AuthenticationException e) {
+            log.info("Error authenticating " + username + "..." + e.getMessage());
+        }
+
+        log.debug("authenticationSucceeded: {}", authenticationSucceeded);
+
+        if (authenticationSucceeded) {
+            WebUtils.redirectToSavedRequest(request,response,"/todo");
+            return null;
+        } else
+            model.addAttribute("failed", "true");
 
         return "login";
     }
