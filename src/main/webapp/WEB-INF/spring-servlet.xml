@@ -46,6 +46,8 @@
     <constructor-arg value="-web,-webPort,11111" />
   </bean>
 
+  <mvc:resources mapping="/resources/**" location="/resources/" />
+  
   <bean id="userDao"
         class="com.ectworks.toto.dao.UserDao"
         p:dataSource-ref="dataSource"/>
@@ -85,22 +87,12 @@
         /login = anon
         /classpath = anon
         /favicon.ico = anon
-
+        /resources/** = anon
         /todo = authc
-
-        # some example chain definitions:
-        # /admin/** = authc, roles[admin]
-        # /docs/** = authc, perms[document:read]
-        # /** = authc
-        # /login = anon
-        # /resources/** = anon
-        # /workspace/** = authc, roles[workspace]
-
-        # more URL-to-FilterChain definitions here
       </value>
     </property>
   </bean>
-  
+
   <bean id="securityManager"
         class="org.apache.shiro.web.mgt.DefaultWebSecurityManager"
         p:realm-ref="userDaoRealm"/>
