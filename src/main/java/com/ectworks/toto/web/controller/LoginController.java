@@ -42,6 +42,16 @@ public class LoginController
         this.realm = realm;
     }
 
+    @RequestMapping(value = "/unauthorized",
+                    method = RequestMethod.GET)
+    public String showUnauthorized(Model model)
+    {
+        log.debug("Displaying Unauthorized Access Page");
+
+        return "unauthorized";
+    }
+
+
     @RequestMapping(value = "/login",
                     method = RequestMethod.GET)
     public String showLogin(Model model)
