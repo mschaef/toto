@@ -7,6 +7,8 @@
 <script type="text/javascript">
 </script>
 
+<title>Login to Toto</title>
+
 <head>
 
 <body>
