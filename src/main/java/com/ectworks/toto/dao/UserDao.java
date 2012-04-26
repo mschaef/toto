@@ -59,9 +59,30 @@ public class UserDao
         }
     }
 
+    boolean isValidUser(String name)
+    {
+        log.debug("Determining if user is valid: {}", name);
+
+        String sql = "select count(*) from user where name = ?";
+
+        int count = jdbc.queryForInt(sql, new Object[] { name });
+
+        if (count == 0) {
+            log.debug("User IS NOT valid: {}", name);
+            return false;
+        }
+
+        log.debug("User IS valid: {}", name);
+
+        return true;
+    }
+
     public User getUserByName(String name)
     {
         log.debug("Getting user by name: {}", name);
+
+        if (!isValidUser(name))
+            return null;
 
         String sql = "select * from user where name = ?";
 
