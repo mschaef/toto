@@ -30,6 +30,8 @@ import com.ectworks.toto.domain.User;
 
 import com.ectworks.toto.dao.UserDao;
 
+import com.ectworks.toto.auth.Password;
+
 @Controller
 public class UserController
 {
@@ -82,7 +84,7 @@ public class UserController
         User user = new User();
 
         user.setName(username);
-        user.setPassword(password1);
+        user.setPassword(Password.hash(password1));
         user.setEmail(email);
 
         userDao.addUser(user);

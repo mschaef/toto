@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,6 +28,7 @@ import org.apache.shiro.realm.Realm;
 import com.ectworks.toto.domain.User;
 
 import com.ectworks.toto.auth.UserDaoRealm;
+import com.ectworks.toto.auth.Password;
 
 @Controller
 public class LoginController
@@ -73,7 +73,7 @@ public class LoginController
         log.debug("Accepting Credentials");
 
         UsernamePasswordToken token =
-            new UsernamePasswordToken(username, password);
+            new UsernamePasswordToken(username, Password.hash(password));
 
         boolean authenticationSucceeded = false;
 
