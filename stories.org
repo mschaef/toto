@@ -5,8 +5,6 @@
 * A user can create multiple named todo lists and select between them.
 * A user can share a todo list with another user.
 * A user can display a list of all items on their todo lists.
-* The user creation web page requires that passwords be double entered.
-* The user creation web page verifies that the username does not already exist and reports an error if it does.
 * Add a means to allow a user to change their existing password.
 * A user can display a list of all todo list items, even if they have been completed.
 * A user can denote that a todo item should be deferred until a given date.

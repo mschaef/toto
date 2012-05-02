@@ -62,7 +62,7 @@ public class UserDao
         }
     }
 
-    boolean isValidUser(String name)
+    public boolean isValidUser(String name)
     {
         log.debug("Determining if user is valid: {}", name);
 

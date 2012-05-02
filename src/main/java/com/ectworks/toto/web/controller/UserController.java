@@ -55,15 +55,34 @@ public class UserController
                     method = RequestMethod.POST)
     public String doAddUser(Model model,
                             @RequestParam(required = true) String username,
-                            @RequestParam(required = true) String password,
+                            @RequestParam(required = true) String password1,
+                            @RequestParam(required = true) String password2,
                             @RequestParam(required = true) String email)
         throws IOException
     {
         log.debug("Accepting User");
 
+        username = username.trim();
+
+        if (userDao.isValidUser(username)) {
+            model.addAttribute("failed", "User already exists: " + username);
+            return "add-user";
+        }
+
+        if (username.equals("")) {
+            model.addAttribute("failed", "Missing username.");
+            return "add-user";
+        }
+
+        if (!password1.equals(password2)) {
+            model.addAttribute("failed", "Passwords don't match.");
+            return "add-user";
+        }
+
         User user = new User();
+
         user.setName(username);
-        user.setPassword(password);
+        user.setPassword(password1);
         user.setEmail(email);
 
         userDao.addUser(user);
