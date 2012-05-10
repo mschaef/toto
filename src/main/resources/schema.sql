@@ -7,7 +7,8 @@ create table user (
    email_addr varchar(255)
 );
 
-insert into user(name, password, email_addr) values('mschaef', '', 'schaeffer.michael.a@gmail.com');
+insert into user(name, password, email_addr)
+  values('mschaef', '14d5b8f25f499c041a12508a9be7b87e52db818e3a06bf6fe970a7fe7d39a1e5', 'schaeffer.michael.a@gmail.com');
 
 drop table if exists todo_item;
 create table todo_item (
