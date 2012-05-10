@@ -13,7 +13,7 @@ insert into user(name, password, email_addr)
 drop table if exists todo_item;
 create table todo_item (
    item_id identity,
-   user_id bigint,
+   user_id bigint references user(user_id),
    desc varchar(255),
    completed boolean
 );
