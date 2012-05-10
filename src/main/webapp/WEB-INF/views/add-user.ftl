@@ -18,9 +18,9 @@
 <form id="add-user" action="/add-user" method="post">
   User Name: <input type="text" name="username" id="username">
 <br>
-  Password: <input type="text" name="password1" id="password1">
+  Password: <input type="password" name="password1" id="password1">
 <br>
-  Repeat Password: <input type="text" name="password2" id="password2">
+  Repeat Password: <input type="password" name="password2" id="password2">
 <br>
   e-mail: <input type="text" name="email" id="email">
 <br>
