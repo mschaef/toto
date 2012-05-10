@@ -18,3 +18,4 @@ create table todo_item (
    completed boolean
 );
 
+exit;
