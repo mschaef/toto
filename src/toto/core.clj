@@ -1,7 +1,8 @@
 (ns toto.core
   (:use hiccup.core)
   (:use clojure.set)
-  (:require [clj-http.client :as client]))
+  (:require [clj-http.client :as client]
+            [toto.data :as data]))
 
 (defn -main [& args]
   (println "
@@ -25,5 +26,9 @@ table."
          (str "<!-- Access Count:"  (deref access-count)  " -->")
          [:title page-title]
          [:body
-          [:p "We're not in Kansas anymore."]]]))
+          [:p "We're not in Kansas anymore."]
+          [:list
+           (map (fn [table-name]
+                  [:li table-name])
+                (data/all-table-names))]]]))
 

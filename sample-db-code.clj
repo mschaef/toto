@@ -24,7 +24,7 @@
   (sql/with-connection hsql-db
     (sql/with-query-results rows
       ["select table_name from information_schema.tables order by table_name"]
-      (doall rows))))
+      (doall (map :table_name rows)))))
 
 (defn tramway-db []
   (println (sql/with-connection hsql-db (sql/create-table
