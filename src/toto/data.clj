@@ -14,6 +14,12 @@
       ["select table_name from information_schema.tables order by table_name"]
       (doall (map :table_name rows)))))
 
+(defn table-info [table-name]
+  (sql/with-connection hsql-db
+    (sql/with-query-results rows
+      ["select * from information_schema.tables where table_name=?" table-name]
+      (doall rows)))
+)
 
 (defn setup-schema []
  (sql/with-connection hsql-db
@@ -36,3 +42,48 @@
     {:name "mschaef"
      :password "14d5b8f25f499c041a12508a9be7b87e52db818e3a06bf6fe970a7fe7d39a1e5"
      :email_addr "schaeffer.michael.a@gmail.com"})))
+
+
+(defn add-user [name password email-addr]
+  (sql/with-connection hsql-db
+    (:user_id (first
+               (sql/insert-records
+                :user
+                {:name name
+                 :password password
+                 :email_addr email-addr})))))
+
+(defn get-user-by-name [ user-name ]
+  (sql/with-connection hsql-db
+    (sql/with-query-results rows
+      ["select * from user where name=?" user-name]
+      (doall rows))))
+
+(defn add-todo-item [ user-id desc completed ]
+  (sql/with-connection hsql-db
+    (:item_id (first
+               (sql/insert-records
+                :todo_item
+                {:user_id user-id
+                 :desc desc
+                 :completed completed})))))
+
+(defn get-item-by-id [ item-id ]
+  (sql/with-connection hsql-db
+    (sql/with-query-results rows
+      ["select * from todo_item where item_id=?" item-id ]
+      (doall rows))))
+
+(defn complete-item-by-id [ item-id ]
+  (sql/with-connection hsql-db
+    (sql/update-values
+     :todo_item
+     [ "item_id=?" item-id]
+     { :completed true })))
+
+;; (defn remove-item-by-id [ item-id ]
+;;   (sql/with-connection hsql-db
+;;     (sql/delete
+;;      :todo_item
+;;      [ "item_id=?" item-id])))
+
