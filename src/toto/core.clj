@@ -27,8 +27,8 @@ table."
          [:title page-title]
          [:body
           [:p "We're not in Kansas anymore."]
-          [:list
+          [:table
            (map (fn [table-name]
-                  [:li table-name])
+                  [:tr [:td table-name]])
                 (data/all-table-names))]]]))
 
