@@ -18,8 +18,7 @@
   (sql/with-connection hsql-db
     (sql/with-query-results rows
       ["select * from information_schema.tables where table_name=?" table-name]
-      (doall rows)))
-)
+      (doall rows))))
 
 (defn setup-schema []
  (sql/with-connection hsql-db
