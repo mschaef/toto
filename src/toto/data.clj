@@ -61,7 +61,7 @@
   (sql/with-connection hsql-db
     (sql/with-query-results rows
       ["select * from user where name=?" user-name]
-      (doall rows))))
+      (first rows))))
 
 (defn add-todo-item [ user-id desc completed ]
   (sql/with-connection hsql-db

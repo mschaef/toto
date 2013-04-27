@@ -31,5 +31,15 @@ table."
   (render-page [:h1 "List of Users"]
                [:ul
                 (map (fn [user-name]
-                       [:li user-name])
+                       [:li [:a {:href (str "/user/" user-name)} user-name]])
                      (data/all-user-names))]))
+
+(defn render-user [name]
+  (let [user-info (data/get-user-by-name name)]
+    (println name)
+    (println user-info)
+    (render-page [:h1 (str "User: " (user-info :name))]
+                 [:table
+                  [:tr [:td "Name"] [:td (user-info :name)]]
+                  [:tr [:td "e-mail"] [:td (user-info :email_addr)]]
+                  [:tr [:td "password"] [:td (user-info :password)]]])))
