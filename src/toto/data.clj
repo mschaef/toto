@@ -14,6 +14,12 @@
       ["select table_name from information_schema.tables order by table_name"]
       (doall (map :table_name rows)))))
 
+(defn all-user-names []
+  (sql/with-connection hsql-db
+    (sql/with-query-results rows
+      ["select name from user order by name"]
+      (doall (map :name rows)))))
+
 (defn table-info [table-name]
   (sql/with-connection hsql-db
     (sql/with-query-results rows
@@ -41,7 +47,6 @@
     {:name "mschaef"
      :password "14d5b8f25f499c041a12508a9be7b87e52db818e3a06bf6fe970a7fe7d39a1e5"
      :email_addr "schaeffer.michael.a@gmail.com"})))
-
 
 (defn add-user [name password email-addr]
   (sql/with-connection hsql-db
