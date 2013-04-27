@@ -18,14 +18,14 @@ $ lein2 servlet run"))
          [:title page-title]
          [:body contents]]))
 
-(defn render-current-env-table []
-  "Return markup that represents a page containing the environment
-table."
-  (render-page [:p "We're not in Kansas anymore."]
-               [:table
-                (map (fn [table-name]
-                       [:tr [:td table-name]])
-                     (data/all-table-names))]))
+(defn render-todo-list []
+  (render-page [:table
+                [:tr [:td "User"] [:td "Description"]]
+                (map (fn [item-info]
+                       [:tr
+                        [:td (item-info :user_id)]
+                        [:td (item-info :desc)]])
+                     (data/get-pending-items))]))
 
 (defn render-users []
   (render-page [:h1 "List of Users"]
@@ -36,8 +36,6 @@ table."
 
 (defn render-user [name]
   (let [user-info (data/get-user-by-name name)]
-    (println name)
-    (println user-info)
     (render-page [:h1 (str "User: " (user-info :name))]
                  [:table
                   [:tr [:td "Name"] [:td (user-info :name)]]

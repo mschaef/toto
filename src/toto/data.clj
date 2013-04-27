@@ -72,6 +72,12 @@
                  :desc desc
                  :completed completed})))))
 
+(defn get-pending-items [ ]
+  (sql/with-connection hsql-db
+    (sql/with-query-results rows
+      ["select user_id, desc from todo_item where completed=false" ]
+      (doall rows))))
+
 (defn get-item-by-id [ item-id ]
   (sql/with-connection hsql-db
     (sql/with-query-results rows

@@ -6,7 +6,7 @@
 
 
 (defroutes site-routes
-  (GET "/" [] (render-current-env-table))
+  (GET "/" [] (render-todo-list))
   (GET "/users" [] (render-users))
   (GET "/user/:name" [name] (render-user name))
 
