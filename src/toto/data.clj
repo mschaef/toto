@@ -63,14 +63,14 @@
       ["select * from user where name=?" user-name]
       (first rows))))
 
-(defn add-todo-item [ user-id desc completed ]
+(defn add-todo-item [ user-id desc ]
   (sql/with-connection hsql-db
     (:item_id (first
                (sql/insert-records
                 :todo_item
                 {:user_id user-id
                  :desc desc
-                 :completed completed})))))
+                 :completed false})))))
 
 (defn get-pending-items [ ]
   (sql/with-connection hsql-db

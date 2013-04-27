@@ -7,6 +7,8 @@
 
 (defroutes site-routes
   (GET "/" [] (render-todo-list))
+  (POST "/item" {{item-description :item-description} :params}
+        (add-item item-description))
   (GET "/users" [] (render-users))
   (GET "/user/:name" [name] (render-user name))
 
