@@ -1,6 +1,5 @@
 (ns toto.data
-  (:require [clojure.java.io :as io]
-            [clojure.java.jdbc :as sql]))
+  (:require [clojure.java.jdbc :as sql]))
 
 (def hsql-db {:subprotocol "hsqldb"
               :subname "~/ectworks/toto/toto.h2db"
