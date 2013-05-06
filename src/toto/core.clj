@@ -6,12 +6,6 @@
             [hiccup.form :as form]
             [ring.util.response :as ring]))
 
-(defn -main [& args]
-  (println "
-Please invoke this app as follows:
-
-$ lein2 servlet run"))
-
 
 (def page-title "Toto")
 
@@ -34,9 +28,7 @@ $ lein2 servlet run"))
                      (data/get-pending-items))
                 [:tr [:td]
                  [:td (form/form-to [:post "/item"]
-                                    (form/text-field {} "item-description"))]]
-
-]))
+                                    (form/text-field {} "item-description"))]]]))
 
 (defn render-users []
   (render-page [:h1 "List of Users"]
