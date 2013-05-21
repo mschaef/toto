@@ -1,6 +1,12 @@
 (ns toto.schema
   (:require [clojure.java.jdbc :as sql]))
 
+(def hsql-db {:subprotocol "hsqldb"
+              :subname "~/ectworks/toto/toto.h2db"
+              :user "sa"
+              :password ""
+              })
+
 (defn all-table-names []
   (sql/with-connection hsql-db
     (sql/with-query-results rows
