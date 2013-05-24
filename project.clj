@@ -1,7 +1,7 @@
 (defproject toto "0.1.0-SNAPSHOT"
   :description "Toto To-Do List Manager"
   :license {:name "Copyright East Coast Toolworks (c) 2012-2013"}
-  :warn-on-reflection true
+
   :plugins [[lein-ring "0.8.5"]]
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [clj-http "0.6.4"]
