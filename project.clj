@@ -11,4 +11,5 @@
                  [org.hsqldb/hsqldb "2.2.8"]
                  [compojure "1.1.5"]]
 
-  :ring { :handler toto.handler/handler })
+  :ring { :init toto.schema/ensure-schema-available
+         :handler toto.handler/handler })
