@@ -20,6 +20,14 @@
 
   (route/not-found "<h1>Page not found</h1>"))
 
+(def ^:dynamic *username* nil)
+
+(defn wrap-username [app]
+  (fn [req]
+    (binding [*username* (if-let [cauth (friend/current-authentication req)]
+                           (cauth :username)
+                           nil)]
+      (app req))))
 
 (defn db-credential-fn [ creds ]
   (let [user-record (data/get-user-by-name (creds :username))]
@@ -29,6 +37,7 @@
       { :identity (creds :username) })))
 
 (def handler (-> site-routes
+                 (wrap-username)
                  (friend/authenticate {:credential-fn db-credential-fn
                                        :workflows [(workflows/interactive-form)]})
                  (handler/site)))
