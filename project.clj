@@ -8,7 +8,7 @@
                  [clj-http "0.6.4"]
                  [hiccup "1.0.1"]
                  [ring/ring-servlet "1.2.0-beta2"]
-                 [ring-basic-authentication "1.0.2"]
+                 [com.cemerick/friend "0.1.5"]
                  [org.clojure/java.jdbc "0.2.3"]
                  [org.hsqldb/hsqldb "2.2.8"]
                  [compojure "1.1.5"]]

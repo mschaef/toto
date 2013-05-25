@@ -4,11 +4,12 @@
   (:require [toto.data :as data]
             [compojure.route :as route]
             [compojure.handler :as handler]
-            [ring.middleware.basic-authentication :as basic-auth]
-            ))
+            [cemerick.friend :as friend]
+            [cemerick.friend.workflows :as workflows]
+            [cemerick.friend.credentials :as credentials]))
 
 (defroutes site-routes
-  (GET "/" [] (render-todo-list))
+  (GET "/" [] (friend/authenticated (render-todo-list)))
   (GET "/login" [] (render-login-page))
   (POST "/item" {{item-description :item-description} :params}
         (add-item item-description))
@@ -20,4 +21,14 @@
 (defn is-valid-user? [ user-name pasword ]
   (not (nil? (data/get-user-by-name user-name))))
 
-(def handler (basic-auth/wrap-basic-authentication (handler/site site-routes) is-valid-user?))
+(def users {"root" {:username "root"
+                    :password (credentials/hash-bcrypt "admin_password")
+                    :roles #{::admin}}
+            "jane" {:username "jane"
+                    :password (credentials/hash-bcrypt "user_password")
+                    :roles #{::user}}})
+
+(def handler (-> site-routes
+                 (friend/authenticate {:credential-fn (partial credentials/bcrypt-credential-fn users)
+                                       :workflows [(workflows/interactive-form)]})
+                 (handler/site)))

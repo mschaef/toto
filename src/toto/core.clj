@@ -19,7 +19,7 @@
                 [:post "/login"]
                 [:table
                  [:tr [:td { :colspan 2 } [:center "Login to Toto"]]]
-                 [:tr [:td "Username:"] [:td (form/text-field {} "user-name")]]
+                 [:tr [:td "Username:"] [:td (form/text-field {} "username")]]
                  [:tr [:td "Password:"] [:td (form/password-field {} "password")]]
                  [:tr [:td ] [:td (form/submit-button {} "Login")]]])))
 
