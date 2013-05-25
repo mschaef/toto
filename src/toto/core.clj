@@ -14,6 +14,15 @@
          [:title page-title]
          [:body contents]]))
 
+(defn render-login-page []
+  (render-page (form/form-to
+                [:post "/login"]
+                [:table
+                 [:tr [:td { :colspan 2 } [:center "Login to Toto"]]]
+                 [:tr [:td "Username:"] [:td (form/text-field {} "user-name")]]
+                 [:tr [:td "Password:"] [:td (form/password-field {} "password")]]
+                 [:tr [:td ] [:td (form/submit-button {} "Login")]]])))
+
 (defn add-item [item-description]
   (data/add-todo-item 0 item-description)
   (ring/redirect "/"))
