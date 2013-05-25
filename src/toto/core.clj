@@ -12,7 +12,9 @@
 (defn render-page [& contents]
   (html [:html
          [:title page-title]
-         [:body contents]]))
+         [:body contents]
+         [:hr]
+         [:a { :href "/logout"} "logout"]]))
 
 (defn render-login-page []
   (render-page (form/form-to

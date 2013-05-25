@@ -11,6 +11,8 @@
 (defroutes site-routes
   (GET "/" [] (friend/authenticated (render-todo-list)))
   (GET "/login" [] (render-login-page))
+  (friend/logout (ANY "/logout" request (ring.util.response/redirect "/")))
+
   (POST "/item" {{item-description :item-description} :params}
         (add-item item-description))
   (GET "/users" [] (render-users))
