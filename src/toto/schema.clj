@@ -35,7 +35,7 @@
    (jdbc/insert-records
     :user
     {:name "mschaef"
-     :password "14d5b8f25f499c041a12508a9be7b87e52db818e3a06bf6fe970a7fe7d39a1e5"
+     :password "$2a$10$2/IVfmNoQ86gbnVzoJ2oWO8Q1.klpSE6E8Z24uD7YPnFQt9uoirru"
      :email_addr "schaeffer.michael.a@gmail.com"})))
 
 (defn version-table-present? []

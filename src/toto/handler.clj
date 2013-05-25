@@ -18,17 +18,15 @@
 
   (route/not-found "<h1>Page not found</h1>"))
 
-(defn is-valid-user? [ user-name pasword ]
-  (not (nil? (data/get-user-by-name user-name))))
 
-(def users {"root" {:username "root"
-                    :password (credentials/hash-bcrypt "admin_password")
-                    :roles #{::admin}}
-            "jane" {:username "jane"
-                    :password (credentials/hash-bcrypt "user_password")
-                    :roles #{::user}}})
+(defn db-credential-fn [ creds ]
+  (let [user-record (data/get-user-by-name (creds :username))]
+    (if (or (nil? user-record)
+            (not (credentials/bcrypt-verify (creds :password) (user-record :password))))
+      nil
+      { :identity (creds :username) })))
 
 (def handler (-> site-routes
-                 (friend/authenticate {:credential-fn (partial credentials/bcrypt-credential-fn users)
+                 (friend/authenticate {:credential-fn db-credential-fn
                                        :workflows [(workflows/interactive-form)]})
                  (handler/site)))
