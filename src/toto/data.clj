@@ -2,7 +2,6 @@
   (:require [clojure.java.jdbc :as jdbc]
             [toto.schema :as schema]))
 
-
 (defn all-user-names []
   (jdbc/with-connection schema/hsql-db
     (jdbc/with-query-results rows

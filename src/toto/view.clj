@@ -27,8 +27,10 @@
                  [:tr [:td "Password:"] [:td (form/password-field {} "password")]]
                  [:tr [:td ] [:td (form/submit-button {} "Login")]]])))
 
+
 (defn add-item [item-description]
-  (data/add-todo-item 0 item-description)
+  (data/add-todo-item ((data/get-user-by-name core/*username*) :user_id)
+                      item-description)
   (ring/redirect "/"))
 
 (defn render-todo-list []
