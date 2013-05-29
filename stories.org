@@ -1,5 +1,6 @@
 * DONE The user's current identity is displayed on the web page.
 * DONE The initial page of the web site is either the login page or the todo list (if there's already a session).
+* DONE A user can register themselves as a new user through the web UI.
 * A user can add a new todo list item that's bound to that user's identity
 * A user can edit and revise the text of a todo item.
 * The website displays correctly on Mobile Safari.

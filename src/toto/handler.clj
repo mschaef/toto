@@ -19,6 +19,14 @@
   (POST "/item" {{item-description :item-description} :params}
         (add-item item-description))
 
+  (GET "/user" [] (render-new-user-form))
+
+  (POST "/user" {{username :username
+                  email-addr :email_addr
+                  password :password}
+                 :params}
+        (add-user username email-addr password))
+
   (GET "/users" [] (render-users))
   (GET "/user/:name" [name] (render-user name))
 

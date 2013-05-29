@@ -29,6 +29,18 @@
       ["select * from user where name=?" user-name]
       (first rows))))
 
+(defn add-user [username email-addr password]
+  (jdbc/with-connection schema/hsql-db
+    (:item_id (first
+               (jdbc/insert-records
+                :user
+                {:name username
+                 :password password
+                 :email_addr email-addr}))))
+
+)
+
+
 (defn add-todo-item [ user-id desc ]
   (jdbc/with-connection schema/hsql-db
     (:item_id (first
