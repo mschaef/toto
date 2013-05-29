@@ -1,3 +1,4 @@
+* DONE The user's current identity is displayed on the web page.
 * The initial page of the web site is either the login page or the todo list (if there's already a session).
 * The website displays correctly on Mobile Safari.
 * A user can edit and revise the text of a todo item.
