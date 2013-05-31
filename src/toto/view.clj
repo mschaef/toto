@@ -72,7 +72,8 @@
     (render-page [:h1 (str "Item: " id)]
                  [:table
                   [:tr [:td "Description:"] [:td (item-info :desc)]]
-                  [:tr [:td "Completed:"] [:td (item-info :completed)]]])))
+                  [:tr [:td "Completed:"] [:td (item-info :completed)]]]
+                 [:a {:href "/"} "Home"])))
 
 (defn render-user [name]
   (let [user-info (data/get-user-by-name name)]
