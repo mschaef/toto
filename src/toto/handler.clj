@@ -22,6 +22,10 @@
   (GET "/item/:id" [id]
        (render-item id))
 
+  (POST"/item/:id"  {{id :id
+                      description :description} :params}
+       (update-item id description))
+
   (POST "/item/:id/complete" [id]
        (complete-item id))
 

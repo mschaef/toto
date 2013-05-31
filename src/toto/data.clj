@@ -61,6 +61,13 @@
      ["item_id=?" item-id]
      {:completed true})))
 
+(defn update-item-by-id [ item-id item-description ]
+  (jdbc/with-connection schema/hsql-db
+    (jdbc/update-values
+     :todo_item
+     ["item_id=?" item-id]
+     {:desc item-description})))
+
 (defn get-item-by-id [ item-id ]
   (jdbc/with-connection schema/hsql-db
     (jdbc/with-query-results rows

@@ -39,10 +39,6 @@
                  [:tr [:td "Password:"] [:td (form/password-field {} "password")]]
                  [:tr [:td ] [:td (form/submit-button {} "Create User")]]])))
 
-(defn add-item [item-description]
-  (data/add-todo-item ((data/get-user-by-name core/*username*) :user_id)
-                      item-description)
-  (ring/redirect "/"))
 
 (defn add-user [username email-addr password] 
   (data/add-user username email-addr (credentials/hash-bcrypt password))
@@ -68,6 +64,15 @@
                        [:li [:a {:href (str "/user/" user-name)} user-name]])
                      (data/all-user-names))]))
 
+(defn add-item [item-description]
+  (data/add-todo-item ((data/get-user-by-name core/*username*) :user_id)
+                      item-description)
+  (ring/redirect "/"))
+
+(defn update-item [item-id item-description]
+  (data/update-item-by-id item-id item-description)
+  (ring/redirect "/"))
+
 (defn complete-item [item-id]
   (data/complete-item-by-id item-id)
   (ring/redirect "/"))
@@ -75,9 +80,11 @@
 (defn render-item [id]
   (let [item-info (data/get-item-by-id id)]
     (render-page [:h1 (str "Item: " id)]
-                 [:table
-                  [:tr [:td "Description:"] [:td (item-info :desc)]]
-                  [:tr [:td "Completed:"] [:td (item-info :completed)]]]
+                 (form/form-to [:post (str "/item/" id)]
+                               [:table
+                                [:tr [:td "Description:"] [:td (form/text-field {} "description" (item-info :desc))]]
+                                [:tr [:td "Completed:"] [:td (item-info :completed)]]]
+                               (form/submit-button {} "Update Item"))
                  [:a {:href "/"} "Home"])))
 
 (defn render-user [name]
