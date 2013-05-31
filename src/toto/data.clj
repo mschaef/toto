@@ -36,9 +36,7 @@
                 :user
                 {:name username
                  :password password
-                 :email_addr email-addr}))))
-
-)
+                 :email_addr email-addr})))))
 
 
 (defn add-todo-item [ user-id desc ]
@@ -53,14 +51,14 @@
 (defn get-pending-items [ ]
   (jdbc/with-connection schema/hsql-db
     (jdbc/with-query-results rows
-      ["select user_id, desc from todo_item where completed=false" ]
+      ["select item_id, user_id, desc from todo_item where completed=false" ]
       (doall rows))))
 
 (defn get-item-by-id [ item-id ]
   (jdbc/with-connection schema/hsql-db
     (jdbc/with-query-results rows
       ["select * from todo_item where item_id=?" item-id ]
-      (doall rows))))
+      (first (doall rows)))))
 
 (defn complete-item-by-id [ item-id ]
   (jdbc/with-connection schema/hsql-db

@@ -14,7 +14,6 @@
          [:title page-title]
          [:body contents]
          [:hr]
-         
          (if (not (nil? core/*username*))
            [:span
             [:a { :href "/logout"} "logout"]
@@ -55,7 +54,7 @@
                 (map (fn [item-info]
                        [:tr
                         [:td (item-info :user_id)]
-                        [:td (item-info :desc)]])
+                        [:td [:a {:href (str "/item/" (item-info :item_id))} (item-info :desc)]]])
                      (data/get-pending-items))
                 [:tr [:td]
                  [:td (form/form-to [:post "/item"]
@@ -67,6 +66,13 @@
                 (map (fn [user-name]
                        [:li [:a {:href (str "/user/" user-name)} user-name]])
                      (data/all-user-names))]))
+
+(defn render-item [id]
+  (let [item-info (data/get-item-by-id id)]
+    (render-page [:h1 (str "Item: " id)]
+                 [:table
+                  [:tr [:td "Description:"] [:td (item-info :desc)]]
+                  [:tr [:td "Completed:"] [:td (item-info :completed)]]])))
 
 (defn render-user [name]
   (let [user-info (data/get-user-by-name name)]
