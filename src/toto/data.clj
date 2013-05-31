@@ -54,6 +54,13 @@
       ["select item_id, user_id, desc from todo_item where completed=false" ]
       (doall rows))))
 
+(defn complete-item-by-id [ item-id ]
+  (jdbc/with-connection schema/hsql-db
+    (jdbc/update-values
+     :todo_item
+     ["item_id=?" item-id]
+     {:completed true})))
+
 (defn get-item-by-id [ item-id ]
   (jdbc/with-connection schema/hsql-db
     (jdbc/with-query-results rows

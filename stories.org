@@ -11,6 +11,7 @@
 ** Add a means to recover a forgotten password via an e-mail.
 ** The user interface stores passwords with a salt.
 * Todo Item Improvements
+** DONE An item can be marked as completed.
 ** A user can edit and revise the text of a todo item.
 ** A user can create multiple named todo lists and select between them.
 ** A user can share a todo list with another user.

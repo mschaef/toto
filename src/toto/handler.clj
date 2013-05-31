@@ -22,6 +22,9 @@
   (GET "/item/:id" [id]
        (render-item id))
 
+  (POST "/item/:id/complete" [id]
+       (complete-item id))
+
   (POST "/user" {{username :username
                   email-addr :email_addr
                   password :password}

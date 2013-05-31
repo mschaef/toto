@@ -50,11 +50,12 @@
 
 (defn render-todo-list []
   (render-page [:table
-                [:tr [:td "User"] [:td "Description"]]
+                [:tr [:td "User"] [:td "Description"] [:td]]
                 (map (fn [item-info]
                        [:tr
                         [:td (item-info :user_id)]
-                        [:td [:a {:href (str "/item/" (item-info :item_id))} (item-info :desc)]]])
+                        [:td [:a {:href (str "/item/" (item-info :item_id))} (item-info :desc)]]
+                        [:td (form/form-to [:post (str "/item/" (item-info :item_id) "/complete")] (form/submit-button {} "Complete"))]])
                      (data/get-pending-items))
                 [:tr [:td]
                  [:td (form/form-to [:post "/item"]
@@ -66,6 +67,10 @@
                 (map (fn [user-name]
                        [:li [:a {:href (str "/user/" user-name)} user-name]])
                      (data/all-user-names))]))
+
+(defn complete-item [item-id]
+  (data/complete-item-by-id item-id)
+  (ring/redirect "/"))
 
 (defn render-item [id]
   (let [item-info (data/get-item-by-id id)]
