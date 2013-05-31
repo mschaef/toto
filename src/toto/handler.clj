@@ -37,6 +37,8 @@
   (GET "/users" [] (render-users))
   (GET "/user/:id" [id] (render-user id))
 
+  (route/resources "/")
+
   (route/not-found "<h1>Page not found</h1>"))
 
 (defn wrap-username [app]
