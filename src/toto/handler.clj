@@ -29,14 +29,13 @@
   (POST "/item/:id/complete" [id]
        (complete-item id))
 
-  (POST "/user" {{username :username
-                  email-addr :email_addr
+  (POST "/user" {{email-addr :email_addr
                   password :password}
                  :params}
-        (add-user username email-addr password))
+        (add-user email-addr password))
 
   (GET "/users" [] (render-users))
-  (GET "/user/:name" [name] (render-user name))
+  (GET "/user/:id" [id] (render-user id))
 
   (route/not-found "<h1>Page not found</h1>"))
 
@@ -48,7 +47,7 @@
       (app req))))
 
 (defn db-credential-fn [ creds ]
-  (let [user-record (data/get-user-by-name (creds :username))]
+  (let [user-record (data/get-user-by-email (creds :username))]
     (if (or (nil? user-record)
             (not (credentials/bcrypt-verify (creds :password) (user-record :password))))
       nil

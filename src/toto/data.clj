@@ -8,6 +8,12 @@
       ["select name from user order by name"]
       (doall (map :name rows)))))
 
+(defn all-users []
+  (jdbc/with-connection schema/hsql-db
+    (jdbc/with-query-results rows
+      ["select * from user order by name"]
+      (doall rows))))
+
 (defn table-info [table-name]
   (jdbc/with-connection schema/hsql-db
     (jdbc/with-query-results rows
@@ -19,25 +25,28 @@
     (:user_id (first
                (jdbc/insert-records
                 :user
-                {:name name
-                 :password password
-                 :email_addr email-addr})))))
+                {:email_addr email-addr
+                 :password password})))))
 
-(defn get-user-by-name [ user-name ]
+(defn get-user-by-email [ email-addr ]
   (jdbc/with-connection schema/hsql-db
     (jdbc/with-query-results rows
-      ["select * from user where name=?" user-name]
+      ["select * from user where email_addr=?" email-addr]
       (first rows))))
 
-(defn add-user [username email-addr password]
+(defn get-user-by-id [ id ]
+  (jdbc/with-connection schema/hsql-db
+    (jdbc/with-query-results rows
+      ["select * from user where user_id=?" id]
+      (first rows))))
+
+(defn add-user [ email-addr password ]
   (jdbc/with-connection schema/hsql-db
     (:item_id (first
                (jdbc/insert-records
                 :user
-                {:name username
-                 :password password
-                 :email_addr email-addr})))))
-
+                {:email_addr email-addr
+                 :password password})))))
 
 (defn add-todo-item [ user-id desc ]
   (jdbc/with-connection schema/hsql-db

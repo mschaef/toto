@@ -25,7 +25,7 @@
                 [:post "/login"]
                 [:table
                  [:tr [:td { :colspan 2 } [:center "Login to Toto"]]]
-                 [:tr [:td "Username:"] [:td (form/text-field {} "username")]]
+                 [:tr [:td "E-Mail Address:"] [:td (form/text-field {} "username")]]
                  [:tr [:td "Password:"] [:td (form/password-field {} "password")]]
                  [:tr [:td ] [:td (form/submit-button {} "Login")]]])))
 
@@ -33,15 +33,14 @@
   (render-page (form/form-to
                 [:post "/user"]
                 [:table
-                 [:tr [:td { :colspan 2 } [:center "Login to Toto"]]]
-                 [:tr [:td "Name:"] [:td (form/text-field {} "username")]]
+                 [:tr [:td { :colspan 2 } [:center "Create New User"]]]
                  [:tr [:td "E-Mail Address:"] [:td  (form/text-field {} "email_addr")]]
                  [:tr [:td "Password:"] [:td (form/password-field {} "password")]]
                  [:tr [:td ] [:td (form/submit-button {} "Create User")]]])))
 
 
-(defn add-user [username email-addr password] 
-  (data/add-user username email-addr (credentials/hash-bcrypt password))
+(defn add-user [email-addr password] 
+  (data/add-user email-addr (credentials/hash-bcrypt password))
   (ring/redirect "/"))
 
 (defn render-todo-list []
@@ -60,12 +59,12 @@
 (defn render-users []
   (render-page [:h1 "List of Users"]
                [:ul
-                (map (fn [user-name]
-                       [:li [:a {:href (str "/user/" user-name)} user-name]])
-                     (data/all-user-names))]))
+                (map (fn [user]
+                       [:li [:a {:href (str "/user/" (user :user_id))} (user :email_addr)]])
+                     (data/all-users))]))
 
 (defn add-item [item-description]
-  (data/add-todo-item ((data/get-user-by-name core/*username*) :user_id)
+  (data/add-todo-item ((data/get-user-by-email core/*username*) :user_id)
                       item-description)
   (ring/redirect "/"))
 
@@ -87,8 +86,8 @@
                                (form/submit-button {} "Update Item"))
                  [:a {:href "/"} "Home"])))
 
-(defn render-user [name]
-  (let [user-info (data/get-user-by-name name)]
+(defn render-user [id]
+  (let [user-info (data/get-user-by-id id)]
     (render-page [:h1 (str "User: " (user-info :name))]
                  [:table
                   [:tr [:td "Name"] [:td (user-info :name)]]

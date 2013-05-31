@@ -21,9 +21,8 @@
    (jdbc/create-table
     :user
     [:user_id "BIGINT" "identity"]
-    [:name "varchar(255)" "unique"]
-    [:password "varchar(255)"]
-    [:email_addr "varchar(255)"])
+    [:email_addr "varchar(255)"]
+    [:password "varchar(255)"])
 
    (jdbc/create-table
     :todo_item
@@ -34,9 +33,8 @@
    
    (jdbc/insert-records
     :user
-    {:name "mschaef"
-     :password "$2a$10$2/IVfmNoQ86gbnVzoJ2oWO8Q1.klpSE6E8Z24uD7YPnFQt9uoirru"
-     :email_addr "schaeffer.michael.a@gmail.com"})))
+    {:email_addr "schaeffer.michael.a@gmail.com"
+     :password "$2a$10$2/IVfmNoQ86gbnVzoJ2oWO8Q1.klpSE6E8Z24uD7YPnFQt9uoirru"})))
 
 (defn version-table-present? []
   (> (jdbc/with-connection hsql-db
