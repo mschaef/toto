@@ -40,7 +40,7 @@
 
 
 (defn add-user [email-addr password] 
-  (data/add-user email-addr (credentials/hash-bcrypt password))
+  (data/create-user email-addr (credentials/hash-bcrypt password))
   (ring/redirect "/"))
 
 (defn render-todo-list []
@@ -48,7 +48,7 @@
                 [:tr [:td "User"] [:td "Description"] [:td]]
                 (map (fn [item-info]
                        [:tr
-                        [:td (item-info :user_id)]
+                        [:td (item-info :todo_list_id)]
                         [:td [:a {:href (str "/item/" (item-info :item_id))} (item-info :desc)]]
                         [:td (form/form-to [:post (str "/item/" (item-info :item_id) "/complete")] (form/submit-button {} "Complete"))]])
                      (data/get-pending-items))
@@ -63,8 +63,11 @@
                        [:li [:a {:href (str "/user/" (user :user_id))} (user :email_addr)]])
                      (data/all-users))]))
 
+(defn current-todo-list-id []
+  (first (data/get-todo-list-ids-by-user ((data/get-user-by-email core/*username*) :user_id))))
+
 (defn add-item [item-description]
-  (data/add-todo-item ((data/get-user-by-email core/*username*) :user_id)
+  (data/add-todo-item (current-todo-list-id)
                       item-description)
   (ring/redirect "/"))
 

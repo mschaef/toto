@@ -29,6 +29,8 @@
   (POST "/item/:id/complete" [id]
        (complete-item id))
 
+  (GET "/user" [] (render-new-user-form))
+
   (POST "/user" {{email-addr :email_addr
                   password :password}
                  :params}

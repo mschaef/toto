@@ -20,14 +20,6 @@
       ["select * from information_schema.tables where table_name=?" table-name]
       (doall rows))))
 
-(defn add-user [name password email-addr]
-  (jdbc/with-connection schema/hsql-db
-    (:user_id (first
-               (jdbc/insert-records
-                :user
-                {:email_addr email-addr
-                 :password password})))))
-
 (defn get-user-by-email [ email-addr ]
   (jdbc/with-connection schema/hsql-db
     (jdbc/with-query-results rows
@@ -40,6 +32,12 @@
       ["select * from user where user_id=?" id]
       (first rows))))
 
+(defn get-todo-list-ids-by-user [ user-id ]
+  (jdbc/with-connection schema/hsql-db
+    (jdbc/with-query-results rows
+      ["select todo_list_id from todo_list_owners where user_id=?" user-id]
+      (map :todo_list_id rows))))
+
 (defn add-user [ email-addr password ]
   (jdbc/with-connection schema/hsql-db
     (:item_id (first
@@ -48,19 +46,42 @@
                 {:email_addr email-addr
                  :password password})))))
 
-(defn add-todo-item [ user-id desc ]
+(defn add-list [ desc ]
+  (jdbc/with-connection schema/hsql-db
+    (:todo_list_id (first
+                    (jdbc/insert-records
+                     :todo_list
+                     {:desc desc})))))
+
+(defn add-list-owner [ user-id todo-list-id ]
+  (println  [ user-id todo-list-id ])
+  (jdbc/with-connection schema/hsql-db
+    (:todo_list_id (first
+                    (jdbc/insert-records
+                     :todo_list_owners
+                     {:user_id user-id
+                      :todo_list_id todo-list-id})))))
+
+
+(defn create-user  [ email-addr password ]
+  (let [uid (add-user email-addr password)
+        list-id (add-list "User Todo List")]
+    (add-list-owner uid list-id)
+    uid))
+
+(defn add-todo-item [ todo-list-id desc ]
   (jdbc/with-connection schema/hsql-db
     (:item_id (first
                (jdbc/insert-records
                 :todo_item
-                {:user_id user-id
+                {:todo_list_id todo-list-id
                  :desc desc
                  :completed false})))))
 
 (defn get-pending-items [ ]
   (jdbc/with-connection schema/hsql-db
     (jdbc/with-query-results rows
-      ["select item_id, user_id, desc from todo_item where completed=false" ]
+      ["select item_id, todo_list_id, desc from todo_item where completed=false" ]
       (doall rows))))
 
 (defn complete-item-by-id [ item-id ]

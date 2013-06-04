@@ -25,16 +25,21 @@
     [:password "varchar(255)"])
 
    (jdbc/create-table
+    :todo_list
+    [:todo_list_id "BIGINT" "identity"]
+    [:desc "varchar(255)"])
+
+   (jdbc/create-table
+    :todo_list_owners
+    [:todo_list_id "BIGINT" "references todo_list(todo_list_id)"]
+    [:user_id "BIGINT" "references user(user_id)"])
+
+   (jdbc/create-table
     :todo_item
     [:item_id "BIGINT" "identity"]
-    [:user_id "BIGINT" "references user(user_id)"]
+    [:todo_list_id "BIGINT" "references todo_list(todo_list_id)"]
     [:desc "varchar(255)"]
-    [:completed "boolean"])
-   
-   (jdbc/insert-records
-    :user
-    {:email_addr "schaeffer.michael.a@gmail.com"
-     :password "$2a$10$2/IVfmNoQ86gbnVzoJ2oWO8Q1.klpSE6E8Z24uD7YPnFQt9uoirru"})))
+    [:completed "boolean"])))
 
 (defn version-table-present? []
   (> (jdbc/with-connection hsql-db
