@@ -14,7 +14,7 @@
 
   (GET "/login" [] (render-login-page))
 
-  (friend/logout (ANY "/logout" request (ring.util.response/redirect "/")))
+  (friend/logout (ANY "/logout" []  (ring.util.response/redirect "/")))
 
   (POST "/item" {{item-description :item-description} :params}
         (add-item item-description))
@@ -37,9 +37,7 @@
   (GET "/users" [] (render-users))
   (GET "/user/:id" [id] (render-user id))
 
-  (route/resources "/")
-
-  (route/not-found "<h1>Page not found</h1>"))
+  (route/resources "/"))
 
 (defn wrap-username [app]
   (fn [req]
