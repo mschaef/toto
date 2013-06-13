@@ -22,18 +22,16 @@
   (GET "/item/:id" [id]
        (render-item id))
 
-  (POST"/item/:id"  {{id :id
-                      description :description} :params}
-       (update-item id description))
+  (POST "/item/:id"  {{id :id description :description} :params}
+        (update-item id description))
 
   (POST "/item/:id/complete" [id]
        (complete-item id))
 
-  (GET "/user" [] (render-new-user-form))
+  (GET "/user" []
+       (render-new-user-form))
 
-  (POST "/user" {{email-addr :email_addr
-                  password :password}
-                 :params}
+  (POST "/user" {{email-addr :email_addr password :password} :params}
         (add-user email-addr password))
 
   (GET "/users" [] (render-users))

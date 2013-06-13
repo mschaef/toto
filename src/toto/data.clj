@@ -54,14 +54,12 @@
                      {:desc desc})))))
 
 (defn add-list-owner [ user-id todo-list-id ]
-  (println  [ user-id todo-list-id ])
   (jdbc/with-connection schema/hsql-db
     (:todo_list_id (first
                     (jdbc/insert-records
                      :todo_list_owners
                      {:user_id user-id
                       :todo_list_id todo-list-id})))))
-
 
 (defn create-user  [ email-addr password ]
   (let [uid (add-user email-addr password)
