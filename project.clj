@@ -1,6 +1,6 @@
 (defproject toto "0.1.0-SNAPSHOT"
   :description "Toto To-Do List Manager"
-  :license {:name "Copyright East Coast Toolworks (c) 2012-2013"}
+  :license { :name "Copyright East Coast Toolworks (c) 2012-2013"}
 
   :plugins [[lein-ring "0.8.5"]]
 
@@ -13,5 +13,8 @@
                  [org.hsqldb/hsqldb "2.2.8"]
                  [compojure "1.1.5"]]
 
-  :ring { :init toto.schema/ensure-schema-available
-         :handler toto.handler/handler })
+  :ring {
+         :init toto.schema/ensure-schema-available
+         :handler toto.handler/handler
+         :nrepl { :start? true :port 53095 }
+         })
