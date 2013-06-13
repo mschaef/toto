@@ -9,12 +9,14 @@
             [cemerick.friend.workflows :as workflows]
             [cemerick.friend.credentials :as credentials]))
 
-(defroutes site-routes
-  (GET "/" [] (friend/authenticated (render-todo-list)))
+(defroutes auth-routes
+  (friend/logout (ANY "/logout" []  (ring.util.response/redirect "/")))
 
   (GET "/login" [] (render-login-page))
+  (route/resources "/"))
 
-  (friend/logout (ANY "/logout" []  (ring.util.response/redirect "/")))
+(defroutes secure-site-routes
+  (GET "/" [] (render-todo-list))
 
   (POST "/item" {{item-description :item-description} :params}
         (add-item item-description))
@@ -35,9 +37,13 @@
         (add-user email-addr password))
 
   (GET "/users" [] (render-users))
-  (GET "/user/:id" [id] (render-user id))
 
-  (route/resources "/"))
+  (GET "/user/:id" [id] (render-user id)))
+
+(def site-routes
+     (routes auth-routes
+             (fn [req] (friend/authenticated (secure-site-routes req)))
+             ))
 
 (defn wrap-username [app]
   (fn [req]
