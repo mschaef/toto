@@ -11,7 +11,7 @@
 (defn all-users []
   (jdbc/with-connection schema/hsql-db
     (jdbc/with-query-results rows
-      ["select * from user order by name"]
+      ["select * from user order by email_addr"]
       (doall rows))))
 
 (defn table-info [table-name]
