@@ -66,8 +66,11 @@
                        [:li [:a {:href (str "/user/" (user :user_id))} (user :email_addr)]])
                      (data/all-users))]))
 
+(defn current-user-id []
+  ((data/get-user-by-email core/*username*) :user_id))
+
 (defn current-todo-list-id []
-  (first (data/get-todo-list-ids-by-user ((data/get-user-by-email core/*username*) :user_id))))
+  (first (data/get-todo-list-ids-by-user (current-user-id))))
 
 (defn add-item [item-description]
   (data/add-todo-item (current-todo-list-id)
