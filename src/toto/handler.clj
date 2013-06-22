@@ -4,6 +4,7 @@
             [toto.core :as core]
             [toto.view :as view]
             [toto.user :as user]
+            [toto.todo :as todo]
             [compojure.route :as route]
             [compojure.handler :as handler]
             [cemerick.friend :as friend]
@@ -19,32 +20,13 @@
   ;; Hack to avoid immediate post-login redirect to favicon.ico.
   (GET "/favicon.ico" [] ""))
 
-(defroutes resource-routes
-  (route/resources "/"))
-
-(defroutes todo-list-routes
-  (GET "/" []
-       (view/render-todo-list))
-
-  (POST "/item" {{item-description :item-description} :params}
-        (view/add-item item-description))
-
-  (GET "/item/:id" [id]
-       (view/render-item id))
-
-  (POST "/item/:id"  {{id :id description :description} :params}
-        (view/update-item id description))
-
-  (POST "/item/:id/complete" [id]
-       (view/complete-item id)))
-
 (def site-routes
      (routes
       public-routes
       user/public-routes
-      (fn [req] (friend/authorize #{::user} (todo-list-routes req)))
+      (fn [req] (friend/authorize #{::user} (todo/all-routes req)))
       (fn [req] (friend/authorize #{::user} (user/admin-routes req)))
-      resource-routes
+      (route/resources "/")
       (route/not-found "Resource Not Found")))
 
 (defn wrap-username [app]
