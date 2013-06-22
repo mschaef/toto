@@ -9,14 +9,21 @@
             [cemerick.friend.workflows :as workflows]
             [cemerick.friend.credentials :as credentials]))
 
-(defroutes auth-routes
+(defroutes public-routes
   (friend/logout (ANY "/logout" []  (ring.util.response/redirect "/")))
 
   (GET "/login" [] (render-login-page))
+
+  ;; Hack to avoid immediate post-login redirect to favicon.ico.
+  (GET "/favicon.ico" [] "")
+  )
+
+(defroutes resource-routes
   (route/resources "/"))
 
 (defroutes secure-site-routes
-  (GET "/" [] (render-todo-list))
+  (GET "/" []
+       (render-todo-list))
 
   (POST "/item" {{item-description :item-description} :params}
         (add-item item-description))
@@ -27,6 +34,7 @@
   (POST "/item/:id"  {{id :id description :description} :params}
         (update-item id description))
 
+
   (POST "/item/:id/complete" [id]
        (complete-item id))
 
@@ -36,14 +44,18 @@
   (POST "/user" {{email-addr :email_addr password :password} :params}
         (add-user email-addr password))
 
-  (GET "/users" [] (render-users))
+  (GET "/users" []
+       (render-users))
 
-  (GET "/user/:id" [id] (render-user id)))
+  (GET "/user/:id" [id]
+       (render-user id)))
 
 (def site-routes
-     (routes auth-routes
-             (fn [req] (friend/authenticated (secure-site-routes req)))
-             ))
+     (routes
+      public-routes
+      (fn [req] (friend/authorize #{::user} (secure-site-routes req)))
+      resource-routes
+      (route/not-found "Resource Not Found")))
 
 (defn wrap-username [app]
   (fn [req]
@@ -57,9 +69,17 @@
     (if (or (nil? user-record)
             (not (credentials/bcrypt-verify (creds :password) (user-record :password))))
       nil
-      { :identity (creds :username) })))
+      { :identity (creds :username) :roles #{::user}})))
+
+(defn wrap-logging [app]
+  (fn [req]
+    (println ['REQUEST (:uri req) (:cemerick.friend/auth-config req)])
+    (let [resp (app req)]
+      (println ['RESPONSE (:status resp)])
+      resp)))
 
 (def handler (-> site-routes
+                 ;(wrap-logging)
                  (wrap-username)
                  (friend/authenticate {:credential-fn db-credential-fn
                                        :workflows [(workflows/interactive-form)]})
