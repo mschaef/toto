@@ -76,10 +76,10 @@
                  :desc desc
                  :completed false})))))
 
-(defn get-pending-items [ ]
+(defn get-pending-items [ list-id ]
   (jdbc/with-connection schema/hsql-db
     (jdbc/with-query-results rows
-      ["select item_id, todo_list_id, desc from todo_item where completed=false" ]
+      ["select item_id, todo_list_id, desc from todo_item where completed=false and todo_list_id=?" list-id ]
       (doall rows))))
 
 (defn complete-item-by-id [ item-id ]

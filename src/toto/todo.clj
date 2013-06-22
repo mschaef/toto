@@ -18,7 +18,7 @@
   (form/form-to [:post (str "/item/" (item-info :item_id) "/complete")]
                 (form/submit-button {} "Complete")))
 
-(defn render-todo-list []
+(defn render-todo-list [ list-id ]
   (view/render-page [:table
                      [:tr [:td "User"] [:td "Description"] [:td]]
                      (map (fn [item-info]
@@ -26,7 +26,7 @@
                              [:td (item-info :todo_list_id)]
                              [:td [:a {:href (str "/item/" (item-info :item_id))} (item-info :desc)]]
                              [:td (complete-item-button item-info)]])
-                          (data/get-pending-items))
+                          (data/get-pending-items list-id))
                      [:tr [:td]
                       [:td (form/form-to [:post "/item"]
                                          (form/text-field {} "item-description"))]]]))
@@ -56,7 +56,10 @@
 
 (defroutes all-routes
   (GET "/" []
-       (render-todo-list))
+       (ring/redirect (str "/todo/" (current-todo-list-id))))
+
+  (GET "/todo/:list-id" [ list-id ]
+       (render-todo-list list-id))
 
   (POST "/item" {{item-description :item-description} :params}
         (add-item item-description))
