@@ -36,10 +36,13 @@
                  [:tr [:td { :colspan 2 } [:center "Create New User"]]]
                  [:tr [:td "E-Mail Address:"] [:td  (form/text-field {} "email_addr")]]
                  [:tr [:td "Password:"] [:td (form/password-field {} "password")]]
+                 [:tr [:td "Verify Password:"] [:td (form/password-field {} "password2")]]
                  [:tr [:td ] [:td (form/submit-button {} "Create User")]]])))
 
-(defn add-user [email-addr password] 
-  (data/create-user email-addr (credentials/hash-bcrypt password))
+(defn add-user [ email-addr password password2 ] 
+  (if (= password password2)
+    (data/create-user email-addr (credentials/hash-bcrypt password))
+    (println "Passwords do not match."))
   (ring/redirect "/"))
 
 (defn complete-item-button [item-info]

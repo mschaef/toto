@@ -17,8 +17,8 @@
   (GET "/user" []
        (render-new-user-form))
 
-  (POST "/user" {{email-addr :email_addr password :password} :params}
-        (add-user email-addr password))
+  (POST "/user" {{email-addr :email_addr password :password password2 :password2} :params}
+        (add-user email-addr password password2))
 
   ;; Hack to avoid immediate post-login redirect to favicon.ico.
   (GET "/favicon.ico" [] "")
