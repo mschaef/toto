@@ -1,18 +1,52 @@
 (ns toto.user
   (:use compojure.core)
-  (:require [toto.view :as view]))
+  (:require [cemerick.friend.credentials :as credentials]
+            [ring.util.response :as ring]
+            [hiccup.form :as form]
+            [toto.data :as data]
+            [toto.view :as view]))
 
+(defn render-new-user-form []
+  (view/render-page (form/form-to
+                [:post "/user"]
+                [:table
+                 [:tr [:td { :colspan 2 } [:center "Create New User"]]]
+                 [:tr [:td "E-Mail Address:"] [:td  (form/text-field {} "email_addr")]]
+                 [:tr [:td "Password:"] [:td (form/password-field {} "password")]]
+                 [:tr [:td "Verify Password:"] [:td (form/password-field {} "password2")]]
+                 [:tr [:td ] [:td (form/submit-button {} "Create User")]]])))
+
+(defn add-user [ email-addr password password2 ] 
+  (if (= password password2)
+    (data/create-user email-addr (credentials/hash-bcrypt password))
+    (println "Passwords do not match."))
+  (ring/redirect "/"))
+
+(defn render-users []
+  (view/render-page [:h1 "List of Users"]
+               [:ul
+                (map (fn [user]
+                       [:li [:a {:href (str "/user/" (user :user_id))} (user :email_addr)]])
+                     (data/all-users))]))
+
+(defn render-user [id]
+  (let [user-info (data/get-user-by-id id)]
+    (view/render-page [:h1 (str "User: " (user-info :name))]
+                 [:table
+                  [:tr [:td "Name"] [:td (user-info :name)]]
+                  [:tr [:td "e-mail"] [:td (user-info :email_addr)]]
+                  [:tr [:td "password"] [:td (user-info :password)]]])))
 
 (defroutes public-routes
   (GET "/user" []
-       (view/render-new-user-form))
+       (render-new-user-form))
 
   (POST "/user" {{email-addr :email_addr password :password password2 :password2} :params}
-        (view/add-user email-addr password password2)))
+        (add-user email-addr password password2)))
 
 (defroutes admin-routes
   (GET "/users" []
-       (view/render-users))
+       (render-users))
 
   (GET "/user/:id" [id]
-       (view/render-user id)))
+       (render-user id)))
