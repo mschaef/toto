@@ -14,7 +14,7 @@
       ["select * from user order by email_addr"]
       (doall rows))))
 
-(defn table-info [table-name]
+(defn table-info [ table-name ]
   (jdbc/with-connection schema/hsql-db
     (jdbc/with-query-results rows
       ["select * from information_schema.tables where table_name=?" table-name]
@@ -40,7 +40,7 @@
 
 (defn add-user [ email-addr password ]
   (jdbc/with-connection schema/hsql-db
-    (:item_id (first
+    (:user_id (first
                (jdbc/insert-records
                 :user
                 {:email_addr email-addr

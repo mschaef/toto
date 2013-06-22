@@ -38,10 +38,13 @@
                  [:tr [:td "Password:"] [:td (form/password-field {} "password")]]
                  [:tr [:td ] [:td (form/submit-button {} "Create User")]]])))
 
-
 (defn add-user [email-addr password] 
   (data/create-user email-addr (credentials/hash-bcrypt password))
   (ring/redirect "/"))
+
+(defn complete-item-button [item-info]
+  (form/form-to [:post (str "/item/" (item-info :item_id) "/complete")]
+                (form/submit-button {} "Complete")))
 
 (defn render-todo-list []
   (render-page [:table
@@ -50,7 +53,7 @@
                        [:tr
                         [:td (item-info :todo_list_id)]
                         [:td [:a {:href (str "/item/" (item-info :item_id))} (item-info :desc)]]
-                        [:td (form/form-to [:post (str "/item/" (item-info :item_id) "/complete")] (form/submit-button {} "Complete"))]])
+                        [:td (complete-item-button item-info)]])
                      (data/get-pending-items))
                 [:tr [:td]
                  [:td (form/form-to [:post "/item"]

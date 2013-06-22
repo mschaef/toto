@@ -20,26 +20,26 @@
    
    (jdbc/create-table
     :user
-    [:user_id "BIGINT" "identity"]
-    [:email_addr "varchar(255)"]
-    [:password "varchar(255)"])
+    [:user_id "BIGINT" "IDENTITY"]
+    [:email_addr "VARCHAR(255)" "UNIQUE"]
+    [:password "VARCHAR(255)"])
 
    (jdbc/create-table
     :todo_list
-    [:todo_list_id "BIGINT" "identity"]
-    [:desc "varchar(255)"])
+    [:todo_list_id "BIGINT" "IDENTITY"]
+    [:desc "VARCHAR(255)"])
 
    (jdbc/create-table
     :todo_list_owners
-    [:todo_list_id "BIGINT" "references todo_list(todo_list_id)"]
-    [:user_id "BIGINT" "references user(user_id)"])
+    [:todo_list_id "BIGINT" "NOT NULL" "REFERENCES todo_list(todo_list_id)"]
+    [:user_id "BIGINT" "NOT NULL" "REFERENCES user(user_id)"])
 
    (jdbc/create-table
     :todo_item
-    [:item_id "BIGINT" "identity"]
-    [:todo_list_id "BIGINT" "references todo_list(todo_list_id)"]
-    [:desc "varchar(255)"]
-    [:completed "boolean"])))
+    [:item_id "BIGINT" "IDENTITY"]
+    [:todo_list_id "BIGINT" "NOT NULL" "REFERENCES todo_list(todo_list_id)"]
+    [:desc "VARCHAR(255)"]
+    [:completed "BOOLEAN"])))
 
 (defn version-table-present? []
   (> (jdbc/with-connection hsql-db

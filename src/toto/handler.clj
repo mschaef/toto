@@ -14,6 +14,12 @@
 
   (GET "/login" [] (render-login-page))
 
+  (GET "/user" []
+       (render-new-user-form))
+
+  (POST "/user" {{email-addr :email_addr password :password} :params}
+        (add-user email-addr password))
+
   ;; Hack to avoid immediate post-login redirect to favicon.ico.
   (GET "/favicon.ico" [] "")
   )
@@ -34,15 +40,8 @@
   (POST "/item/:id"  {{id :id description :description} :params}
         (update-item id description))
 
-
   (POST "/item/:id/complete" [id]
        (complete-item id))
-
-  (GET "/user" []
-       (render-new-user-form))
-
-  (POST "/user" {{email-addr :email_addr password :password} :params}
-        (add-user email-addr password))
 
   (GET "/users" []
        (render-users))
