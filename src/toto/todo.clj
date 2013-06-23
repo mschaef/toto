@@ -34,11 +34,29 @@
     [:td (form/form-to [:post "/item"]
                        (form/text-field {} "item-description"))]]])
 
+(defn render-todo-list-list []
+  [:table
+   [:tr [:td "Description"]]
+   (map (fn [ list-info ]
+          [:tr
+           [:td [:a {:href (str "/todo/" (list-info :todo_list_id))}
+                 (list-info :desc)]]])
+        (data/get-todo-lists-by-user (current-user-id)))
+   [:tr
+    [:td (form/form-to [:post "/todo"]
+                       (form/text-field {} "list-description"))]]])
+
 (defn render-todo-list-page [ list-id ]
   (view/render-page
+   (render-todo-list-list)
    (render-todo-list list-id)))
 
-(defn add-item [item-description]
+(defn add-list [ list-description ]
+  (let [ list-id (data/add-list list-description) ]
+    (data/add-list-owner (current-user-id) list-id)
+    (redirect-to-home)))
+
+(defn add-item [ item-description ]
   (data/add-todo-item (current-todo-list-id)
                       item-description)
   (redirect-to-home))
@@ -64,6 +82,9 @@
 (defroutes all-routes
   (GET "/" []
        (redirect-to-home))
+
+  (POST "/todo" {{list-description :list-description} :params}
+        (add-list list-description))
 
   (GET "/todo/:list-id" [ list-id ]
        (render-todo-list-page list-id))

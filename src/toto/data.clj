@@ -36,7 +36,22 @@
   (jdbc/with-connection schema/hsql-db
     (jdbc/with-query-results rows
       ["select todo_list_id from todo_list_owners where user_id=?" user-id]
-      (map :todo_list_id rows))))
+      (doall (map :todo_list_id rows)))))
+
+(defn get-todo-lists-by-user [ user-id ]
+  (jdbc/with-connection schema/hsql-db
+    (jdbc/with-query-results rows
+      ["SELECT todo_list.todo_list_id, todo_list.desc FROM todo_list, todo_list_owners WHERE todo_list.todo_list_id = todo_list_owners.todo_list_id AND todo_list_owners.user_id=?" user-id]
+      (doall rows))))
+
+(defn get-todo-lists-by-user [ user-id ]
+  (jdbc/with-connection schema/hsql-db
+    (jdbc/with-query-results rows
+      [(str "SELECT todo_list.todo_list_id, todo_list.desc"
+            "  FROM todo_list, todo_list_owners"
+            " WHERE todo_list.todo_list_id=todo_list_owners.todo_list_id"
+            "   AND todo_list_owners.user_id=?") user-id]
+      (doall rows))))
 
 (defn add-user [ email-addr password ]
   (jdbc/with-connection schema/hsql-db
