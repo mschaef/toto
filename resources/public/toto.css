@@ -15,3 +15,13 @@ ul.list-list {
 ul.list-list li.selected {
     background-color: #c0c0ff;
 }
+ul.item-list {
+    border: 0px;
+    padding: 0px;
+    list-style-type: none;
+}
+
+ul.item-list li:nth-child(odd) {
+    background-color: #c0c0ff;
+    width:600px;
+}

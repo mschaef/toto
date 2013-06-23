@@ -22,20 +22,25 @@
 
 (defn complete-item-button [item-info]
   (form/form-to [:post (str "/item/" (item-info :item_id) "/complete")]
-                (form/submit-button {} "Complete")))
+                [:input {:type "image" :src "/check_16x13.png" :width 16 :height 13 :alt "Complete Item"}]
+))
 
 (defn render-todo-list [ list-id ]
   [:table
-   [:tr [:td "Description"] [:td]]
-   (map (fn [item-info]
-          [:tr
-           [:td [:a {:href (str "/item/" (item-info :item_id))} (item-info :desc)]]
-           [:td (complete-item-button item-info)]])
-        (data/get-pending-items list-id))
-   [:tr 
-    [:td (form/form-to [:post (str "/list/" list-id)]
-                       (form/text-field {} "item-description"))]
-    [:td]]])
+   [:ul.item-list
+    (map (fn [item-info]
+           [:li
+             (complete-item-button item-info)
+            "&nbsp;"
+            [:a {:href (str "/item/" (item-info :item_id))}
+             [:img { :src "/pen_alt_fill_16x16.png" :width 16 :height 16 :alt "Edit Item"}]]
+            "&nbsp;"
+            (item-info :desc)
+])
+         (data/get-pending-items list-id))]
+ (form/form-to [:post (str "/list/" list-id)]
+                       (form/text-field {} "item-description"))
+])
 
 (defn bold-if [ bold? contents ]
   (if bold?
