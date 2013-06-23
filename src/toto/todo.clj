@@ -14,8 +14,11 @@
 (defn current-todo-list-id []
   (first (data/get-todo-list-ids-by-user (current-user-id))))
 
+(defn redirect-to-list [ list-id ]
+  (ring/redirect (str "/list/" list-id)))
+
 (defn redirect-to-home []
-  (ring/redirect (str "/todo/" (current-todo-list-id))))
+  (redirect-to-list (current-todo-list-id)))
 
 (defn complete-item-button [item-info]
   (form/form-to [:post (str "/item/" (item-info :item_id) "/complete")]
@@ -30,51 +33,57 @@
            [:td (complete-item-button item-info)]])
         (data/get-pending-items list-id))
    [:tr 
-    [:td (form/form-to [:post "/item"]
+    [:td (form/form-to [:post (str "/list/" list-id)]
                        (form/text-field {} "item-description"))]
     [:td]]])
 
-(defn render-todo-list-list []
+(defn bold-if [ bold? contents ]
+  (if bold?
+    [:b contents]
+    contents))
+
+(defn render-todo-list-list [ selected-list-id ]
   [:table
    [:tr [:td "Description"]]
    (map (fn [ list-info ]
           [:tr
-           [:td [:a {:href (str "/todo/" (list-info :todo_list_id))}
-                 (list-info :desc)]]])
+           [:td [:a {:href (str "/list/" (list-info :todo_list_id))}
+                 (bold-if (= (list-info :todo_list_id)
+                             (Integer. selected-list-id))
+                          (list-info :desc))]]])
         (data/get-todo-lists-by-user (current-user-id)))
    [:tr
-    [:td (form/form-to [:post "/todo"]
+    [:td (form/form-to [:post "/list"]
                        (form/text-field {} "list-description"))]]])
 
-(defn render-todo-list-page [ list-id ]
+(defn render-todo-list-page [ selected-list-id ]
   (view/render-page
    [:table
     [:tr
      [:td "Todo Lists"]
      [:td "Things to do"]]
     [:tr
-     [:td {:valign "top"} (render-todo-list-list)]
-     [:td {:valign "top"} (render-todo-list list-id)]]]))
+     [:td {:valign "top"} (render-todo-list-list selected-list-id)]
+     [:td {:valign "top"} (render-todo-list selected-list-id)]]]))
 
 (defn add-list [ list-description ]
   (let [ list-id (data/add-list list-description) ]
     (data/add-list-owner (current-user-id) list-id)
     (redirect-to-home)))
 
-(defn add-item [ item-description ]
-  (data/add-todo-item (current-todo-list-id)
-                      item-description)
-  (redirect-to-home))
+(defn add-item [ list-id item-description ]
+  (data/add-todo-item list-id item-description)
+  (redirect-to-list list-id))
 
-(defn update-item [item-id item-description]
+(defn update-item [ item-id item-description ]
   (data/update-item-by-id item-id item-description)
   (redirect-to-home))
 
-(defn complete-item [item-id]
+(defn complete-item [ item-id ]
   (data/complete-item-by-id item-id)
   (redirect-to-home))
 
-(defn render-item [id]
+(defn render-item [ id ]
   (let [item-info (data/get-item-by-id id)]
     (view/render-page [:h1 (str "Item: " id)]
                       (form/form-to [:post (str "/item/" id)]
@@ -88,14 +97,14 @@
   (GET "/" []
        (redirect-to-home))
 
-  (POST "/todo" {{list-description :list-description} :params}
+  (POST "/list" {{list-description :list-description} :params}
         (add-list list-description))
 
-  (GET "/todo/:list-id" [ list-id ]
+  (GET "/list/:list-id" [ list-id ]
        (render-todo-list-page list-id))
 
-  (POST "/item" {{item-description :item-description} :params}
-        (add-item item-description))
+  (POST "/list/:list-id" {{list-id :list-id item-description :item-description} :params}
+        (add-item list-id item-description))
 
   (GET "/item/:id" [id]
        (render-item id))
