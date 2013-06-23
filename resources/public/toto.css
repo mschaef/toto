@@ -1,0 +1,17 @@
+/* toto.css - Site styles */
+
+
+body {
+    margin: 0px;
+    padding: 0px;
+}
+
+ul.list-list {
+    border: 0px;
+    padding: 0px;
+    list-style-type: none;
+}
+
+ul.list-list li.selected {
+    background-color: #c0c0ff;
+}

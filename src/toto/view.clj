@@ -4,6 +4,7 @@
   (:require [toto.data :as data]
             [toto.core :as core]
             [hiccup.form :as form]
+            [hiccup.page :as page]
             [ring.util.response :as ring]
             [cemerick.friend.credentials :as credentials]))
 
@@ -11,14 +12,16 @@
 
 (defn render-page [& contents]
   (html [:html
-         [:title page-title]
-         [:body contents]
-         [:hr]
-         (if (not (nil? core/*username*))
-           [:span
-            [:a { :href "/logout"} "logout"]
-            (str " - " core/*username*)]
-           [:a { :href "/user"} "New User"])]))
+         [:head
+          [:title page-title]
+          (page/include-css "/toto.css")]
+         [:body contents
+          [:hr]
+          (if (not (nil? core/*username*))
+            [:span
+             [:a { :href "/logout"} "logout"]
+             (str " - " core/*username*)]
+            [:a { :href "/user"} "New User"])]]))
 
 (defn render-login-page []
   (render-page (form/form-to

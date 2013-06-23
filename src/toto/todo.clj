@@ -45,23 +45,20 @@
 (defn render-todo-list-list [ selected-list-id ]
   [:table
    [:tr [:td "Description"]]
-   (map (fn [ list-info ]
-          [:tr
-           [:td [:a {:href (str "/list/" (list-info :todo_list_id))}
-                 (bold-if (= (list-info :todo_list_id)
-                             (Integer. selected-list-id))
-                          (list-info :desc))]]])
-        (data/get-todo-lists-by-user (current-user-id)))
-   [:tr
-    [:td (form/form-to [:post "/list"]
-                       (form/text-field {} "list-description"))]]])
+   [:ul.list-list
+    (map (fn [ list-info ]
+           [:li (if (= (list-info :todo_list_id) (Integer. selected-list-id))
+                  { :class "selected" }
+                  { })
+            [:a {:href (str "/list/" (list-info :todo_list_id))}
+             (list-info :desc)]])
+         (data/get-todo-lists-by-user (current-user-id)))]
+   (form/form-to [:post "/list"]
+                 (form/text-field {} "list-description"))])
 
 (defn render-todo-list-page [ selected-list-id ]
   (view/render-page
    [:table
-    [:tr
-     [:td "Todo Lists"]
-     [:td "Things to do"]]
     [:tr
      [:td {:valign "top"} (render-todo-list-list selected-list-id)]
      [:td {:valign "top"} (render-todo-list selected-list-id)]]]))

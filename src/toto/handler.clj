@@ -24,9 +24,9 @@
      (routes
       public-routes
       user/public-routes
+      (route/resources "/")
       (fn [req] (friend/authorize #{::user} (todo/all-routes req)))
       (fn [req] (friend/authorize #{::user} (user/admin-routes req)))
-      (route/resources "/")
       (route/not-found "Resource Not Found")))
 
 (defn wrap-username [app]

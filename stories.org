@@ -16,7 +16,7 @@
 ** DONE A user can edit and revise the text of a todo item.
 ** A user can display a list of all todo list items, even if they have been completed.
 
-** A user can create multiple named todo lists and select between them.
+** DONE A user can create multiple named todo lists and select between them.
 ** A user can share a todo list with another user.
 ** A user can display a list of all items on their todo lists.
 ** A user can denote that a todo item should be deferred until a given date.
