@@ -23,16 +23,16 @@
 
 (defn render-todo-list [ list-id ]
   [:table
-   [:tr [:td "User"] [:td "Description"] [:td]]
+   [:tr [:td "Description"] [:td]]
    (map (fn [item-info]
           [:tr
-           [:td (item-info :todo_list_id)]
            [:td [:a {:href (str "/item/" (item-info :item_id))} (item-info :desc)]]
            [:td (complete-item-button item-info)]])
         (data/get-pending-items list-id))
-   [:tr [:td]
+   [:tr 
     [:td (form/form-to [:post "/item"]
-                       (form/text-field {} "item-description"))]]])
+                       (form/text-field {} "item-description"))]
+    [:td]]])
 
 (defn render-todo-list-list []
   [:table
@@ -48,8 +48,13 @@
 
 (defn render-todo-list-page [ list-id ]
   (view/render-page
-   (render-todo-list-list)
-   (render-todo-list list-id)))
+   [:table
+    [:tr
+     [:td "Todo Lists"]
+     [:td "Things to do"]]
+    [:tr
+     [:td {:valign "top"} (render-todo-list-list)]
+     [:td {:valign "top"} (render-todo-list list-id)]]]))
 
 (defn add-list [ list-description ]
   (let [ list-id (data/add-list list-description) ]

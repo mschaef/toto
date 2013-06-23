@@ -41,12 +41,6 @@
 (defn get-todo-lists-by-user [ user-id ]
   (jdbc/with-connection schema/hsql-db
     (jdbc/with-query-results rows
-      ["SELECT todo_list.todo_list_id, todo_list.desc FROM todo_list, todo_list_owners WHERE todo_list.todo_list_id = todo_list_owners.todo_list_id AND todo_list_owners.user_id=?" user-id]
-      (doall rows))))
-
-(defn get-todo-lists-by-user [ user-id ]
-  (jdbc/with-connection schema/hsql-db
-    (jdbc/with-query-results rows
       [(str "SELECT todo_list.todo_list_id, todo_list.desc"
             "  FROM todo_list, todo_list_owners"
             " WHERE todo_list.todo_list_id=todo_list_owners.todo_list_id"
@@ -78,7 +72,7 @@
 
 (defn create-user  [ email-addr password ]
   (let [uid (add-user email-addr password)
-        list-id (add-list "User Todo List")]
+        list-id (add-list "Todo")]
     (add-list-owner uid list-id)
     uid))
 
