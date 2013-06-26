@@ -15,13 +15,17 @@
          [:head
           [:title page-title]
           (page/include-css "/toto.css")]
-         [:body contents
-          [:hr]
-          (if (not (nil? core/*username*))
-            [:span
-             [:a { :href "/logout"} "logout"]
-             (str " - " core/*username*)]
-            [:a { :href "/user"} "New User"])]]))
+         [:body
+          [:div#wrap
+           contents
+           [:div#footer
+            [:hr]
+            [:center
+             (if (not (nil? core/*username*))
+               [:span
+                [:a { :href "/logout"} "logout"]
+                (str " - " core/*username*)]
+               [:a { :href "/user"} "New User"])]]]]]))
 
 (defn render-login-page []
   (render-page (form/form-to

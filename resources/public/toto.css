@@ -4,9 +4,11 @@
 body {
     margin: 0px;
     padding: 0px;
+    font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
 }
 
 ul.list-list {
+    margin: 0px;
     border: 0px;
     padding: 0px;
     list-style-type: none;
@@ -15,13 +17,36 @@ ul.list-list {
 ul.list-list li.selected {
     background-color: #c0c0ff;
 }
-ul.item-list {
-    border: 0px;
-    padding: 0px;
-    list-style-type: none;
+
+table.item-list td {
+    vertical-align: middle;
 }
 
-ul.item-list li:nth-child(odd) {
+table.item-list td.item-description {
+    width: 100%;
+}
+
+table.item-list tr:nth-child(odd) {
     background-color: #c0c0ff;
-    width:600px;
+}
+
+table.item-list {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+div#wrap {
+}
+
+div#sidebar {
+    float:left;
+    width: 15%
+}
+
+div#contents {
+    margin-left: 15%;
+}
+
+div#footer {
+    clear: both;
 }

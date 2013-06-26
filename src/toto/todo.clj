@@ -22,34 +22,29 @@
 
 (defn complete-item-button [item-info]
   (form/form-to [:post (str "/item/" (item-info :item_id) "/complete")]
-                [:input {:type "image" :src "/check_16x13.png" :width 16 :height 13 :alt "Complete Item"}]
-))
+                [:input {:type "image" :src "/check_16x13.png" :width 16 :height 13 :alt "Complete Item"}]))
 
 (defn render-todo-list [ list-id ]
-  [:table
-   [:ul.item-list
+   [:table.item-list
     (map (fn [item-info]
-           [:li
-             (complete-item-button item-info)
-            "&nbsp;"
-            [:a {:href (str "/item/" (item-info :item_id))}
-             [:img { :src "/pen_alt_fill_16x16.png" :width 16 :height 16 :alt "Edit Item"}]]
-            "&nbsp;"
-            (item-info :desc)
-])
-         (data/get-pending-items list-id))]
- (form/form-to [:post (str "/list/" list-id)]
-                       (form/text-field {} "item-description"))
-])
+           [:tr {:valign "center"}
+            [:td
+             (complete-item-button item-info)]
+            [:td
+             [:a {:href (str "/item/" (item-info :item_id))}
+              [:img { :src "/pen_alt_fill_16x16.png" :width 16 :height 16 :alt "Edit Item"}]]]
 
-(defn bold-if [ bold? contents ]
-  (if bold?
-    [:b contents]
-    contents))
+            [:td.item-description
+             (item-info :desc)]])
+
+         (data/get-pending-items list-id))
+    [:tr
+     [:td {:colspan 2}]
+     [:td    (form/form-to [:post (str "/list/" list-id)]
+                 (form/text-field {} "item-description"))]]])
 
 (defn render-todo-list-list [ selected-list-id ]
-  [:table
-   [:tr [:td "Description"]]
+  [:div
    [:ul.list-list
     (map (fn [ list-info ]
            [:li (if (= (list-info :todo_list_id) (Integer. selected-list-id))
@@ -63,10 +58,8 @@
 
 (defn render-todo-list-page [ selected-list-id ]
   (view/render-page
-   [:table
-    [:tr
-     [:td {:valign "top"} (render-todo-list-list selected-list-id)]
-     [:td {:valign "top"} (render-todo-list selected-list-id)]]]))
+   [:div#sidebar (render-todo-list-list selected-list-id)]
+   [:div#contents (render-todo-list selected-list-id)]))
 
 (defn add-list [ list-description ]
   (let [ list-id (data/add-list list-description) ]
