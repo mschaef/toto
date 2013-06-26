@@ -39,9 +39,9 @@
 
          (data/get-pending-items list-id))
     [:tr
-     [:td {:colspan 2}]
-     [:td (form/form-to [:post (str "/list/" list-id)]
-                        (form/text-field { :class "full-width"  } "item-description"))]]])
+     [:td  {:colspan 3}
+      (form/form-to [:post (str "/list/" list-id)]
+                    (form/text-field { :class "full-width"  } "item-description"))]]])
 
 (defn render-todo-list-list [ selected-list-id ]
   [:div

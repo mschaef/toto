@@ -16,6 +16,8 @@
           [:title page-title]
           (page/include-css "/toto.css")]
          [:body
+          [:div#header
+           "Header"]
           [:div#wrap
            contents
            [:div#footer
