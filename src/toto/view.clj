@@ -19,17 +19,19 @@
           ]
          [:body
           [:div#header
-           "Header"]
+           "Things to do"
+             (if (not (nil? core/*username*))
+               (str " - " core/*username*))]
           [:div#wrap
            contents
            [:div#footer
             [:hr]
             [:center
+             "All Rights Reserved, Copyright 2013 East Coast Toolworks"
              (if (not (nil? core/*username*))
-               [:span
-                [:a { :href "/logout"} "logout"]
-                (str " - " core/*username*)]
-               [:a { :href "/user"} "New User"])]]]]]))
+               [:span#logout
+                " - "
+                [:a { :href "/logout"} "[logout]"]])]]]]]))
 
 (defn render-login-page []
   (render-page (form/form-to
@@ -38,6 +40,11 @@
                  [:tr [:td { :colspan 2 } [:center "Login to Toto"]]]
                  [:tr [:td "E-Mail Address:"] [:td (form/text-field {} "username")]]
                  [:tr [:td "Password:"] [:td (form/password-field {} "password")]]
-                 [:tr [:td ] [:td (form/submit-button {} "Login")]]])))
+                 [:tr 
+                  [:td { :colspan 4 }
+                   [:center
+                    [:a { :href "/user"} "Create New User"]
+                    " - "
+                    (form/submit-button {} "Login")]]]])))
 
 

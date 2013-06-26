@@ -69,6 +69,11 @@ div#header {
     color: white;
 }
 
+span#logout A {
+    color: red;
+    font-weight: bold;
+}
+
 div#sidebar {
     float:left;
     width: 15%
