@@ -40,8 +40,8 @@
          (data/get-pending-items list-id))
     [:tr
      [:td {:colspan 2}]
-     [:td    (form/form-to [:post (str "/list/" list-id)]
-                 (form/text-field {} "item-description"))]]])
+     [:td (form/form-to [:post (str "/list/" list-id)]
+                        (form/text-field { :class "full-width"  } "item-description"))]]])
 
 (defn render-todo-list-list [ selected-list-id ]
   [:div
@@ -54,7 +54,7 @@
              (list-info :desc)]])
          (data/get-todo-lists-by-user (current-user-id)))]
    (form/form-to [:post "/list"]
-                 (form/text-field {} "list-description"))])
+                 (form/text-field { :class "full-width" } "list-description"))])
 
 (defn render-todo-list-page [ selected-list-id ]
   (view/render-page

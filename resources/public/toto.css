@@ -2,8 +2,8 @@
 
 
 body {
-    margin: 0px;
-    padding: 0px;
+    margin: 4px;
+    padding: 4px;
     font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
 }
 
@@ -20,6 +20,7 @@ ul.list-list li.selected {
 
 table.item-list td {
     vertical-align: middle;
+    padding: 4px;
 }
 
 table.item-list td.item-description {
@@ -49,4 +50,13 @@ div#contents {
 
 div#footer {
     clear: both;
+}
+
+input.full-width {
+    width: 100%;
+}
+
+form {
+    padding: 0px;
+    margin: 0px;
 }
