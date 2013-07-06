@@ -71,8 +71,10 @@
 
 (defn render-todo-list-page [ selected-list-id ]
   (view/render-page
-   [:div#sidebar (render-todo-list-list selected-list-id)]
-   [:div#contents (render-todo-list selected-list-id)]))
+   [:div#sidebar
+    (render-todo-list-list selected-list-id)]
+   [:div#contents
+    (render-todo-list selected-list-id)]))
 
 (defn add-list [ list-description ]
   (let [ list-id (data/add-list list-description) ]
@@ -88,7 +90,7 @@
   (redirect-to-home))
 
 (defn complete-item [ item-id ]
-  (data/complete-item-by-id item-id)
+  (data/complete-item-by-id (current-user-id) item-id)
   (redirect-to-home))
 
 (defn render-item [ id ]

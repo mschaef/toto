@@ -86,20 +86,25 @@
                 :todo_item
                 {:todo_list_id todo-list-id
                  :desc desc
-                 :completed false})))))
+                 :created_on (java.util.Date.)})))))
 
 (defn get-pending-items [ list-id ]
   (jdbc/with-connection schema/hsql-db
     (jdbc/with-query-results rows
-      ["select item_id, todo_list_id, desc from todo_item where completed=false and todo_list_id=?" list-id ]
+      [(str "SELECT item.item_id, item.todo_list_id, item.desc, item.created_on"
+            " FROM todo_item item" 
+            " WHERE todo_list_id=?"
+            "   AND NOT EXISTS (SELECT 1 FROM todo_item_completion WHERE item_id=item.item_id)")
+       list-id ]
       (doall rows))))
 
-(defn complete-item-by-id [ item-id ]
+(defn complete-item-by-id [ user-id item-id ]
   (jdbc/with-connection schema/hsql-db
-    (jdbc/update-values
-     :todo_item
-     ["item_id=?" item-id]
-     {:completed true})))
+    (jdbc/insert-records
+     :todo_item_completion
+     { :user_id user-id
+      :item_id item-id
+      :completed_on (java.util.Date.)})))
 
 (defn update-item-by-id [ item-id item-description ]
   (jdbc/with-connection schema/hsql-db
@@ -113,12 +118,5 @@
     (jdbc/with-query-results rows
       ["select * from todo_item where item_id=?" item-id ]
       (first (doall rows)))))
-
-(defn complete-item-by-id [ item-id ]
-  (jdbc/with-connection schema/hsql-db
-    (jdbc/update-values
-     :todo_item
-     [ "item_id=?" item-id]
-     { :completed true })))
 
 ;; TODO: remove-item-by-id
