@@ -4,8 +4,8 @@
 * DONE A user can add a new todo list item that's bound to that user's identity
 * User Account Improvements
 ** DONE User accounts are identified by e-mail address rather than username.
-** A user's password is validated through double entry when the user account is created.
-** A user sees a friendly error message when they attempt to create a user of the same name.
+** DONE A user's password is validated through double entry when the user account is created.
+** DONE A user sees a friendly error message when they attempt to create a user of the same name.
 ** A user can interactively change their password with the web UI.
 ** User e-mail addresses must be validated prior to the account being fully enabled.
 ** Add a means to recover a forgotten password via an e-mail.
@@ -17,6 +17,7 @@
 ** A user can display a list of all todo list items, even if they have been completed.
 
 ** DONE A user can create multiple named todo lists and select between them.
+** A todo item where the description looks like a URL is rendered as a hyperlink in the todo list
 ** A user can share a todo list with another user.
 ** A user can display a list of all items on their todo lists.
 ** A user can denote that a todo item should be deferred until a given date.

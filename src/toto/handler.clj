@@ -14,8 +14,9 @@
 (defroutes public-routes
   (friend/logout (ANY "/logout" []  (ring.util.response/redirect "/")))
 
-  (GET "/login" []
-       (view/render-login-page))
+  (GET "/login" { { login-failed :login_failed email-addr :username } :params }
+       (view/render-login-page :email-addr email-addr
+                               :login-failure? (= login-failed "Y")))
 
   ;; Hack to avoid immediate post-login redirect to favicon.ico.
   (GET "/favicon.ico" [] ""))

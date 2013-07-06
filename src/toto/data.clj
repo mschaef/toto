@@ -26,6 +26,9 @@
       ["select * from user where email_addr=?" email-addr]
       (first rows))))
 
+(defn user-email-exists? [ email-addr ]
+  (not (nil? (get-user-by-email email-addr))))
+
 (defn get-user-by-id [ id ]
   (jdbc/with-connection schema/hsql-db
     (jdbc/with-query-results rows

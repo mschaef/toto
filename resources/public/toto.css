@@ -46,15 +46,14 @@ table.item-list td.item-description {
     width: 100%;
 }
 
-/*
-table.item-list tr:nth-child(odd) {
-    background-color: #c0c0ff;
-}
-*/
-
 table.item-list {
     width: 100%;
     border-collapse: collapse;
+}
+
+div#error {
+    color: red;
+    text-align: center;
 }
 
 div#wrap {
