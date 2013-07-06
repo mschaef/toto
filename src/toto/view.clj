@@ -51,3 +51,11 @@
                     (form/submit-button {} "Login")]]]])))
 
 
+(defn is-link-url? [ text ]
+  (try
+   (let [url (java.net.URL. text)
+         protocol (.getProtocol url)]
+     (or (= protocol "http")
+         (= protocol "https")))
+   (catch java.net.MalformedURLException ex
+     false)))

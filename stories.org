@@ -17,7 +17,7 @@
 ** A user can display a list of all todo list items, even if they have been completed.
 
 ** DONE A user can create multiple named todo lists and select between them.
-** A todo item where the description looks like a URL is rendered as a hyperlink in the todo list
+** DONE A todo item where the description looks like a URL is rendered as a hyperlink in the todo list
 ** A user can share a todo list with another user.
 ** A user can display a list of all items on their todo lists.
 ** A user can denote that a todo item should be deferred until a given date.

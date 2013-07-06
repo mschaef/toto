@@ -27,7 +27,7 @@
    (jdbc/create-table
     :todo_list
     [:todo_list_id "BIGINT" "IDENTITY"]
-    [:desc "VARCHAR(255)"])
+    [:desc "VARCHAR(1024)"])
 
    (jdbc/create-table
     :todo_list_owners

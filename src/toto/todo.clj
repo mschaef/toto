@@ -8,6 +8,15 @@
             [toto.view :as view]
             [toto.user :as user]))
 
+(defn is-link-url? [ text ]
+  (try
+   (let [url (java.net.URL. text)
+         protocol (.getProtocol url)]
+     (or (= protocol "http")
+         (= protocol "https")))
+   (catch java.net.MalformedURLException ex
+     false)))
+
 (defn current-user-id []
   ((data/get-user-by-email core/*username*) :user_id))
 
@@ -35,7 +44,10 @@
               [:img { :src "/pen_alt_fill_16x16.png" :width 16 :height 16 :alt "Edit Item"}]]]
 
             [:td.item-description
-             (item-info :desc)]])
+             (let [desc (item-info :desc)]
+               (if (is-link-url? desc)
+                 [:a { :href desc } desc]
+                 desc))]])
 
          (data/get-pending-items list-id))
     [:tr
