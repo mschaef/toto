@@ -25,13 +25,11 @@
           [:div#wrap
            contents
            [:div#footer
-            [:hr]
-            [:center
-             "All Rights Reserved, Copyright 2013 East Coast Toolworks"
-             (if (not (nil? core/*username*))
-               [:span#logout
-                " - "
-                [:a { :href "/logout"} "[logout]"]])]]]]]))
+            "All Rights Reserved, Copyright 2013 East Coast Toolworks"
+            (if (not (nil? core/*username*))
+              [:span#logout
+               " - "
+               [:a { :href "/logout"} "[logout]"]])]]]]))
 
 (defn render-login-page [ & { :keys [ email-addr login-failure?]}]
 
@@ -49,13 +47,3 @@
                     [:a { :href "/user"} "Create New User"]
                     " - "
                     (form/submit-button {} "Login")]]]])))
-
-
-(defn is-link-url? [ text ]
-  (try
-   (let [url (java.net.URL. text)
-         protocol (.getProtocol url)]
-     (or (= protocol "http")
-         (= protocol "https")))
-   (catch java.net.MalformedURLException ex
-     false)))

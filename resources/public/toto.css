@@ -30,11 +30,17 @@ ul.list-list {
     margin: 0px;
     border: 0px;
     padding: 0px;
+    padding-top: 10px;
     list-style-type: none;
+}
+
+ul.list-list li {
+    padding: 10px 10px;
 }
 
 ul.list-list li.selected {
     font-weight: bold;
+    background: white;
 }
 
 table.item-list td {
@@ -60,7 +66,6 @@ table.item-list td.item-description A:link {
 
 table.item-list td.item-description A:visited { 
   color: purple;
-
 } 
 
 table.item-list {
@@ -73,34 +78,39 @@ div#error {
     text-align: center;
 }
 
-div#wrap {
-    margin: 4px;
-    padding: 4px;
-}
-
-div#header {
-    padding: 5px 10px;
-    margin-bottom: 5px;
-    background: black;
-    color: white;
-}
-
 span#logout A {
     color: red;
     font-weight: bold;
 }
 
+div#wrap {
+    background: #cccccc;
+}
+
 div#sidebar {
     float:left;
-    width: 15%
+    width: 200px;
+    background: #cccccc;
+}
+
+div#header {
+    padding: 5px 10px;
+    background: black;
+    color: white;
 }
 
 div#contents {
-    margin-left: 15%;
+    margin-left: 200px;
+    padding: 10px;
+    background: white;
 }
 
 div#footer {
     clear: both;
+    background: white;
+    text-align: center;
+
+    border-top: 1px solid;
 }
 
 input.full-width {
