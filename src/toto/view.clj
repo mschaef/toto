@@ -19,17 +19,20 @@
           ]
          [:body
           [:div#header
-           "Things to do"
-             (if (not (nil? core/*username*))
-               (str " - " core/*username*))]
+            "Things to do"
+           [:div.right
+            (if (not (nil? core/*username*))
+              [:span 
+               (str core/*username*)
+               " - "
+               [:span#logout
+                [:a { :href "/logout"} "[logout]"]]])
+]]
           [:div#wrap
            contents
            [:div#footer
             "All Rights Reserved, Copyright 2013 East Coast Toolworks"
-            (if (not (nil? core/*username*))
-              [:span#logout
-               " - "
-               [:a { :href "/logout"} "[logout]"]])]]]]))
+]]]]))
 
 (defn render-login-page [ & { :keys [ email-addr login-failure?]}]
 

@@ -84,7 +84,7 @@ div#error {
 
 span#logout A {
     color: red;
-    font-weight: bold;
+//    font-weight: bold;
 }
 
 div#wrap {
@@ -98,7 +98,12 @@ div#sidebar {
 div#header {
     padding: 5px 10px;
     background: black;
-    color: white;
+    color: #e0e0e0;
+    text-align: left;
+}
+
+div#header div.right {
+    float: right;
 }
 
 div#contents {
