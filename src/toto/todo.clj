@@ -57,7 +57,6 @@
                     (form/text-field { :class "full-width"  } "item-description"))]]])
 
 (defn render-todo-list-list [ selected-list-id ]
-  [:div
    [:ul.list-list
     (map (fn [ list-info ]
            [:li (if (= (list-info :todo_list_id) (Integer. selected-list-id))
@@ -65,16 +64,43 @@
                   { })
             [:a {:href (str "/list/" (list-info :todo_list_id))}
              (list-info :desc)]])
-         (data/get-todo-lists-by-user (current-user-id)))]
-   (form/form-to [:post "/list"]
-                 (form/text-field { :class "full-width" } "list-description"))])
+         (data/get-todo-lists-by-user (current-user-id)))
+    [:li (form/form-to [:post "/list"]
+                       (form/text-field { :class "full-width" } "list-description"))]])
 
 (defn render-todo-list-page [ selected-list-id ]
   (view/render-page
    [:div#sidebar
     (render-todo-list-list selected-list-id)]
    [:div#contents
-    (render-todo-list selected-list-id)]))
+    (render-todo-list selected-list-id)
+    [:a { :href (str "/list/" selected-list-id "/sharing") }  "Edit List Sharing"]]))
+
+(defn render-todo-list-sharing-page  [ list-id & { :keys [ error-message ]}]
+  (view/render-page
+   (let [ list-owners (data/get-todo-list-owners-by-list-id list-id) ]
+     [:div#contents
+      [:li
+       (map (fn [ user-info ]
+              [:ul (user-info :email_addr)])
+            (data/get-friendly-users-by-id (current-user-id)))]
+     
+      (form/form-to [:post (str "/list/" list-id "/sharing")]
+                    (form/text-field { :class "full-width"  }
+                                     "share-with-email"))
+
+      (if (not (empty? error-message))
+        [:div#error error-message])])))
+
+
+(defn add-list-owner [ list-id share-with-email ]
+  (if (data/user-email-exists? share-with-email)
+    (do
+      (data/add-list-owner ((data/get-user-by-email share-with-email) :user_id) list-id)
+      (ring/redirect  (str "/list/" list-id "/sharing")))
+    (render-todo-list-sharing-page list-id
+                                   :error-message "Invalid e-mail address")))
+
 
 (defn add-list [ list-description ]
   (let [ list-id (data/add-list list-description) ]
@@ -112,6 +138,14 @@
 
   (GET "/list/:list-id" [ list-id ]
        (render-todo-list-page list-id))
+
+  (GET "/list/:list-id/sharing" [ list-id ]
+       (render-todo-list-sharing-page list-id))
+
+  (POST "/list/:list-id/sharing" {{list-id :list-id 
+                                   share-with-email :share-with-email}
+                                  :params}
+        (add-list-owner list-id share-with-email))
 
   (POST "/list/:list-id" {{list-id :list-id item-description :item-description} :params}
         (add-item list-id item-description))

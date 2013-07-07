@@ -29,11 +29,31 @@
 (defn user-email-exists? [ email-addr ]
   (not (nil? (get-user-by-email email-addr))))
 
-(defn get-user-by-id [ id ]
+(defn get-user-by-id [ user-id ]
   (jdbc/with-connection schema/hsql-db
     (jdbc/with-query-results rows
-      ["select * from user where user_id=?" id]
+      ["select * from user where user_id=?" user-id]
       (first rows))))
+
+(defn get-friendly-users-by-id [ user-id ]
+  (jdbc/with-connection schema/hsql-db
+    (jdbc/with-query-results rows
+      [(str "SELECT DISTINCT b.user_id, u.email_addr"
+            "  FROM todo_list_owners a, todo_list_owners b, user u"
+            " WHERE a.todo_list_id = b.todo_list_id"
+            "   AND u.user_id = b.user_id"
+            "   AND a.user_id = ?")
+       user-id]
+      (doall rows))))
+
+(defn get-todo-list-owners-by-list-id [ list-id ]
+  (jdbc/with-connection schema/hsql-db
+    (jdbc/with-query-results rows
+      [(str "SELECT user_id"
+            "  FROM todo_list_owners"
+            " WHERE todo_list_id=?")
+       list-id]
+      (doall (map :user_id rows)))))
 
 (defn get-todo-list-ids-by-user [ user-id ]
   (jdbc/with-connection schema/hsql-db
