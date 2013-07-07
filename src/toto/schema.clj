@@ -32,7 +32,8 @@
    (jdbc/create-table
     :todo_list_owners
     [:todo_list_id "BIGINT" "NOT NULL" "REFERENCES todo_list(todo_list_id)"]
-    [:user_id "BIGINT" "NOT NULL" "REFERENCES user(user_id)"])
+    [:user_id "BIGINT" "NOT NULL" "REFERENCES user(user_id)"]
+    ["PRIMARY KEY(todo_list_id, user_id)"])
 
    (jdbc/create-table
     :todo_item

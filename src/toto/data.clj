@@ -103,6 +103,18 @@
                      {:user_id user-id
                       :todo_list_id todo-list-id})))))
 
+
+(defn list-owned-by-user-id? [ list-id user-id ]
+  (jdbc/with-connection schema/hsql-db
+    (jdbc/with-query-results rows
+      [(str "SELECT COUNT(*)"
+            "  FROM todo_list_owners"
+            " WHERE todo_list_id=?"
+            "   AND user_id=?")
+       list-id
+       user-id]
+      (> ((first rows) :c1) 0))))
+
 (defn create-user  [ email-addr password ]
   (let [uid (add-user email-addr password)
         list-id (add-list "Todo")]
