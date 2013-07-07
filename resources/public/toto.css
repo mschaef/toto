@@ -12,17 +12,11 @@ body, table, select, input {
 }
 
 
-ul.list-list A:hover {
+A:hover {
   background: #707070;
 }
 
-ul.list-list A:link { 
-  color: #0000ff;
-  text-decoration: none;
-} 
-
-ul.list-list A:visited { 
-  color: #000077; 
+A { 
   text-decoration: none;
 } 
 
@@ -35,17 +29,28 @@ ul.list-list {
 }
 
 ul.list-list li {
-    padding: 10px 10px;
+    padding: 2px 8px;
+    border-left: 3px solid white;
 }
 
 ul.list-list li.selected {
     font-weight: bold;
     background: white;
+    border-left: 3px solid red;
+}
+
+ul.list-list li.selected A {
+    font-weight: bold;
+    color: red;
 }
 
 table.item-list td {
     vertical-align: middle;
-    padding: 4px;
+    padding: 2px;
+}
+
+table.item-list tr {
+    border-top: 1px solid #c0c0c0;
 }
 
 table.item-list td.item-description {
@@ -84,13 +89,11 @@ span#logout A {
 }
 
 div#wrap {
-    background: #cccccc;
 }
 
 div#sidebar {
     float:left;
     width: 200px;
-    background: #cccccc;
 }
 
 div#header {

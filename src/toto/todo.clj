@@ -32,17 +32,17 @@
 
 (defn complete-item-button [item-info]
   (form/form-to [:post (str "/item/" (item-info :item_id) "/complete")]
-                [:input {:type "image" :src "/check_16x13.png" :width 16 :height 13 :alt "Complete Item"}]))
+                [:input {:type "image" :src "/check_12x10.png" :width 12 :height 10 :alt "Complete Item"}]))
 
 (defn render-todo-list [ list-id ]
    [:table.item-list
     (map (fn [item-info]
-           [:tr {:valign "center"}
+           [:tr.item-row {:valign "center"}
             [:td
              (complete-item-button item-info)]
             [:td
              [:a {:href (str "/item/" (item-info :item_id))}
-              [:img { :src "/pen_alt_fill_16x16.png" :width 16 :height 16 :alt "Edit Item"}]]]
+              [:img { :src "/pen_alt_fill_12x12.png" :width 12 :height 12 :alt "Edit Item"}]]]
 
             [:td.item-description
              (let [desc (item-info :desc)]
@@ -63,6 +63,10 @@
            [:li (if (= (list-info :todo_list_id) (Integer. selected-list-id))
                   { :class "selected" }
                   { })
+
+             [:a {:href (str "/list/" (list-info :todo_list_id) "/sharing")}
+              [:img { :src "/chat_alt_stroke_12x12.png" :width 12 :height 12 :alt "Share List"}]]
+            "&nbsp;"
             [:a {:href (str "/list/" (list-info :todo_list_id))}
              (list-info :desc)]])
          (data/get-todo-lists-by-user (current-user-id)))
