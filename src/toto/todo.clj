@@ -78,8 +78,7 @@
    [:div#sidebar
     (render-todo-list-list selected-list-id)]
    [:div#contents
-    (render-todo-list selected-list-id)
-    [:a { :href (str "/list/" selected-list-id "/sharing") }  "Edit List Sharing"]]))
+    (render-todo-list selected-list-id)]))
 
 (defn in? 
   "true if seq contains elm"
