@@ -76,21 +76,42 @@
     (render-todo-list selected-list-id)
     [:a { :href (str "/list/" selected-list-id "/sharing") }  "Edit List Sharing"]]))
 
-(defn render-todo-list-sharing-page  [ list-id & { :keys [ error-message ]}]
-  (view/render-page
-   (let [ list-owners (data/get-todo-list-owners-by-list-id list-id) ]
-     [:div#contents
-      [:li
-       (map (fn [ user-info ]
-              [:ul (user-info :email_addr)])
-            (data/get-friendly-users-by-id (current-user-id)))]
-     
-      (form/form-to [:post (str "/list/" list-id "/sharing")]
-                    (form/text-field { :class "full-width"  }
-                                     "share-with-email"))
+(defn in? 
+  "true if seq contains elm"
+  [seq elm]  
+  (some #(= elm %) seq))
 
-      (if (not (empty? error-message))
-        [:div#error error-message])])))
+(defn render-todo-list-sharing-page [ list-id & { :keys [ error-message ]}]
+  (view/render-page
+   (let [ list-name ((data/get-todo-list-by-id list-id) :desc)
+         list-owners (data/get-todo-list-owners-by-list-id list-id) ]
+     [:div#contents
+      [:h2 "Sharing Settings: " list-name]
+      (form/form-to
+       [:post (str "/list/" list-id "/sharing")]
+       [:table.item-list
+        (map (fn [ user-info ]
+               (if (not (= (current-user-id) (user-info :user_id)))
+                 [:tr
+                  [:td
+                   (if (in?  list-owners (user-info :user_id))
+                     [:input {:type "checkbox" :checked "checked"}]
+                     [:input {:type "checkbox" }])]
+                  [:td.item-description
+                   (user-info :email_addr)]]))
+             (data/get-friendly-users-by-id (current-user-id)))
+        [:tr
+         [:td]
+         [:td
+          (form/text-field { :class "full-width"  }
+                           "share-with-email")]]
+     (if (not (empty? error-message))
+       [:tr
+        [:td { :colspan 2 }
+         [:div#error error-message]]]
+       [:tr
+        [:td]
+        [:td [:input {:type "submit" :value "Update Sharing"}]]])])])))
 
 
 (defn add-list-owner [ list-id share-with-email ]

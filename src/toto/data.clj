@@ -35,6 +35,12 @@
       ["select * from user where user_id=?" user-id]
       (first rows))))
 
+(defn get-todo-list-by-id [ list-id ]
+  (jdbc/with-connection schema/hsql-db
+    (jdbc/with-query-results rows
+      ["select * from todo_list where todo_list_id=?" list-id]
+      (first rows))))
+
 (defn get-friendly-users-by-id [ user-id ]
   (jdbc/with-connection schema/hsql-db
     (jdbc/with-query-results rows
@@ -42,7 +48,8 @@
             "  FROM todo_list_owners a, todo_list_owners b, user u"
             " WHERE a.todo_list_id = b.todo_list_id"
             "   AND u.user_id = b.user_id"
-            "   AND a.user_id = ?")
+            "   AND a.user_id = ?"
+            " ORDER BY u.email_addr")
        user-id]
       (doall rows))))
 
@@ -58,13 +65,16 @@
 (defn get-todo-list-ids-by-user [ user-id ]
   (jdbc/with-connection schema/hsql-db
     (jdbc/with-query-results rows
-      ["select todo_list_id from todo_list_owners where user_id=?" user-id]
+      [(str "SELECT DISTINCT todo_list_id"
+            "  FROM todo_list_owners"
+            "  WHERE user_id=?")
+       user-id]
       (doall (map :todo_list_id rows)))))
 
 (defn get-todo-lists-by-user [ user-id ]
   (jdbc/with-connection schema/hsql-db
     (jdbc/with-query-results rows
-      [(str "SELECT todo_list.todo_list_id, todo_list.desc"
+      [(str "SELECT DISTINCT todo_list.todo_list_id, todo_list.desc"
             "  FROM todo_list, todo_list_owners"
             " WHERE todo_list.todo_list_id=todo_list_owners.todo_list_id"
             "   AND todo_list_owners.user_id=?") user-id]
