@@ -103,6 +103,19 @@
                      {:user_id user-id
                       :todo_list_id todo-list-id})))))
 
+(defn set-list-ownership [ todo-list-id user-ids ]
+  (jdbc/with-connection schema/hsql-db
+    (jdbc/transaction
+     (jdbc/delete-rows
+      :todo_list_owners
+      ["todo_list_id=?" todo-list-id])
+
+     (doseq [ user-id user-ids ]
+       (jdbc/insert-records
+        :todo_list_owners
+        {:user_id user-id
+         :todo_list_id todo-list-id})))))
+
 
 (defn list-owned-by-user-id? [ list-id user-id ]
   (jdbc/with-connection schema/hsql-db

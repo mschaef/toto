@@ -11,7 +11,8 @@
                  [com.cemerick/friend "0.1.5"]
                  [org.clojure/java.jdbc "0.2.3"]
                  [org.hsqldb/hsqldb "2.2.8"]
-                 [compojure "1.1.5"]]
+                 [compojure "1.1.5"]
+                 [slingshot "0.10.2"]]
 
   :ring {
          :init toto.schema/ensure-schema-available

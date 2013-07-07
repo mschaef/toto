@@ -1,5 +1,6 @@
 (ns toto.todo
-  (:use compojure.core)
+  (:use compojure.core
+        [slingshot.slingshot :only (throw+ try+)])
   (:require [ring.util.response :as ring]
             [hiccup.form :as form]
             [compojure.handler :as handler]
@@ -93,14 +94,20 @@
        [:post (str "/list/" list-id "/sharing")]
        [:table.item-list
         (map (fn [ user-info ]
-               (if (not (= (current-user-id) (user-info :user_id)))
-                 [:tr
-                  [:td
-                   (if (in?  list-owners (user-info :user_id))
-                     [:input {:type "checkbox" :checked "checked"}]
-                     [:input {:type "checkbox" }])]
-                  [:td.item-description
-                   (user-info :email_addr)]]))
+               [:tr
+                [:td
+                 (if  (= (current-user-id) (user-info :user_id))
+                   [:input { :type "hidden"
+                            :name (str "user_" (user-info :user_id))
+                            :value "on"}]
+                   (if (in? list-owners (user-info :user_id))
+                     [:input { :name (str "user_" (user-info :user_id))
+                              :type "checkbox"
+                              :checked "checked"}]
+                     [:input { :name (str "user_" (user-info :user_id))
+                              :type "checkbox" }]))]
+                [:td.item-description
+                 (user-info :email_addr)]])
              (data/get-friendly-users-by-id (current-user-id)))
         [:tr
          [:td]
@@ -116,21 +123,37 @@
          [:td [:input {:type "submit" :value "Update Sharing"}]]]])])))
 
 
-(defn add-list-owner [ list-id share-with-email ]
-  (let [ user-info (data/get-user-by-email share-with-email)]
-    (cond
-     (nil? user-info)
-     (render-todo-list-sharing-page list-id
-                                    :error-message "Invalid e-mail address")
+(defn add-list-owner [ list-id share-with-email selected-ids ]
+  (try+
+   (let [ email-user-id
+         (if (empty? share-with-email)
+           nil
+           (let [ user-info (data/get-user-by-email share-with-email)]
+             (cond
+              (nil? user-info)
+              (throw+
+               { :type :form-error
+                :markup (render-todo-list-sharing-page list-id
+                                               :error-message "Invalid e-mail address")})
+              
+              (data/list-owned-by-user-id? list-id (user-info :user_id))
+              (throw+
+               { :type :form-error
+                :markup (render-todo-list-sharing-page list-id
+                                               :error-message "List already owned by this user.")})
 
-     (data/list-owned-by-user-id? list-id (user-info :user_id))
-     (render-todo-list-sharing-page list-id
-                                    :error-message "List already owned by this user.")
+              :else
+              (user-info :user_id))))
+         all-user-ids (clojure.set/union (apply hash-set selected-ids)
+                                         (if (nil? email-user-id)
+                                           #{}
+                                           (hash-set email-user-id)))]
 
-     :else
-     (do
-       (data/add-list-owner (user-info :user_id) list-id)
-       (ring/redirect  (str "/list/" list-id "/sharing"))))))
+     (data/set-list-ownership list-id all-user-ids)
+     (ring/redirect  (str "/list/" list-id "/sharing")))
+
+   (catch [ :type :form-error ] { :keys [ markup ]}
+     markup)))
 
 
 (defn add-list [ list-description ]
@@ -160,6 +183,10 @@
                                     (form/submit-button {} "Update Item"))
                       [:a {:href "/"} "Home"])))
 
+(defn selected-user-ids-from-params [ params ]
+  (map #(Integer/parseInt (.substring % 5))
+       (filter #(.startsWith % "user_") (map name (keys params)))))
+
 (defroutes all-routes
   (GET "/" []
        (redirect-to-home))
@@ -173,12 +200,17 @@
   (GET "/list/:list-id/sharing" [ list-id ]
        (render-todo-list-sharing-page list-id))
 
-  (POST "/list/:list-id/sharing" {{list-id :list-id 
-                                   share-with-email :share-with-email}
-                                  :params}
-        (add-list-owner list-id share-with-email))
+  (POST "/list/:list-id/sharing" { params :params }
+        (let [ { list-id :list-id 
+                share-with-email :share-with-email }
+               params ]
 
-  (POST "/list/:list-id" {{list-id :list-id item-description :item-description} :params}
+          (add-list-owner list-id share-with-email
+                          (selected-user-ids-from-params params))))
+
+  (POST "/list/:list-id" { { list-id :list-id
+                            item-description :item-description }
+                           :params }
         (add-item list-id item-description))
 
   (GET "/item/:id" [id]
