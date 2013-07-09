@@ -1,28 +1,31 @@
+* The website displays the number of pending todo items next to each list name
+* The website remembers the current list when a todo item has been marked completed, and returns to that list.
+* The user interface has the caret in the 'new item' entry field by default.
+* The user interface hides the 'new list' name input field prior to the user clicking an 'add list' link.
+* A user can interactively change their password with the web UI.
+* A user can display a list of all todo list items, even if they have been completed.
+* A user can display a list of all items on all of their todo lists.
+* The website allows hyperlinks to be included in todo items, in addition to plan text.
+* The website remembers whether or not a user has linked to a hyperlink and displays is appropriately in the todo list.
+* A user can delete one of their todo lists
+* A user can rename one of their todo lists.
+* A user can denote that a todo item should be deferred until a given date.
+* The website displays correctly on Mobile Safari.
+* A to-do list can be printed in a useful/plain format
+* Item descriptions can be written in Markdown or Markdown-like syntax
+* The user interface stores passwords with a salt.
+* A user can store multiple e-mail addresses for each account.
+* User e-mail addresses must be validated prior to the account being fully enabled.
+* Add a means to recover a forgotten password via an e-mail.
 * DONE The user's current identity is displayed on the web page.
 * DONE The initial page of the web site is either the login page or the todo list (if there's already a session).
 * DONE A user can register themselves as a new user through the web UI.
 * DONE A user can add a new todo list item that's bound to that user's identity
-* User Account Improvements
-** DONE User accounts are identified by e-mail address rather than username.
-** DONE A user's password is validated through double entry when the user account is created.
-** DONE A user sees a friendly error message when they attempt to create a user of the same name.
-** A user can interactively change their password with the web UI.
-** User e-mail addresses must be validated prior to the account being fully enabled.
-** Add a means to recover a forgotten password via an e-mail.
-** The user interface stores passwords with a salt.
-** A user can store multiple e-mail addresses for each account.
-* Todo Item Improvements
-** DONE An item can be marked as completed.
-** DONE A user can edit and revise the text of a todo item.
-** A user can display a list of all todo list items, even if they have been completed.
-
-** DONE A user can create multiple named todo lists and select between them.
-** DONE A todo item where the description looks like a URL is rendered as a hyperlink in the todo list
-** DONE A user can share a todo list with another user.
-** A user can display a list of all items on their todo lists.
-** A user can denote that a todo item should be deferred until a given date.
-** The website remembers whether or not a user has linked to a hyperlink and displays is appropriately in the todo list.
-** The website displays the number of pending todo items next to each list name
-** Markdown item descriptions
-* The website displays correctly on Mobile Safari.
-* A to-do list can be printed in a useful/plain format
+* DONE User accounts are identified by e-mail address rather than username.
+* DONE A user's password is validated through double entry when the user account is created.
+* DONE A user sees a friendly error message when they attempt to create a user of the same name.
+* DONE An item can be marked as completed.
+* DONE A user can edit and revise the text of a todo item.
+* DONE A user can create multiple named todo lists and select between them.
+* DONE A todo item where the description looks like a URL is rendered as a hyperlink in the todo list
+* DONE A user can share a todo list with another user.
