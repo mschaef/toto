@@ -33,21 +33,6 @@
      (data/create-user email-addr (credentials/hash-bcrypt password))
      (ring/redirect "/"))))
 
-(defn render-users []
-  (view/render-page [:h1 "List of Users"]
-               [:ul
-                (map (fn [user]
-                       [:li [:a {:href (str "/user/" (user :user_id))} (user :email_addr)]])
-                     (data/all-users))]))
-
-(defn render-user [id]
-  (let [user-info (data/get-user-by-id id)]
-    (view/render-page [:h1 (str "User: " (user-info :name))]
-                 [:table
-                  [:tr [:td "Name"] [:td (user-info :name)]]
-                  [:tr [:td "e-mail"] [:td (user-info :email_addr)]]
-                  [:tr [:td "password"] [:td (user-info :password)]]])))
-
 (defroutes public-routes
   (GET "/user" []
        (render-new-user-form))
@@ -55,9 +40,3 @@
   (POST "/user" {{email-addr :email_addr password :password password2 :password2} :params}
         (add-user email-addr password password2)))
 
-(defroutes admin-routes
-  (GET "/users" []
-       (render-users))
-
-  (GET "/user/:id" [id]
-       (render-user id)))

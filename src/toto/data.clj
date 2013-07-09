@@ -8,18 +8,6 @@
       ["select name from user order by name"]
       (doall (map :name rows)))))
 
-(defn all-users []
-  (jdbc/with-connection schema/hsql-db
-    (jdbc/with-query-results rows
-      ["select * from user order by email_addr"]
-      (doall rows))))
-
-(defn table-info [ table-name ]
-  (jdbc/with-connection schema/hsql-db
-    (jdbc/with-query-results rows
-      ["select * from information_schema.tables where table_name=?" table-name]
-      (doall rows))))
-
 (defn get-user-by-email [ email-addr ]
   (jdbc/with-connection schema/hsql-db
     (jdbc/with-query-results rows
