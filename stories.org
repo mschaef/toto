@@ -22,5 +22,7 @@
 ** A user can display a list of all items on their todo lists.
 ** A user can denote that a todo item should be deferred until a given date.
 ** The website remembers whether or not a user has linked to a hyperlink and displays is appropriately in the todo list.
+** The website displays the number of pending todo items next to each list name
+** Markdown item descriptions
 * The website displays correctly on Mobile Safari.
 * A to-do list can be printed in a useful/plain format

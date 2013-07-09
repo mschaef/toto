@@ -30,7 +30,7 @@
 (defn redirect-to-home []
   (redirect-to-list (current-todo-list-id)))
 
-(defn complete-item-button [item-info]
+(defn complete-item-button [ item-info ]
   (form/form-to [:post (str "/item/" (item-info :item_id) "/complete")]
                 [:input {:type "image" :src "/check_12x10.png" :width 12 :height 10 :alt "Complete Item"}]))
 
@@ -48,7 +48,9 @@
              (let [desc (item-info :desc)]
                (if (is-link-url? desc)
                  [:a { :href desc } desc]
-                 desc))]])
+                 desc))]
+            [:td
+             [:img { :src "/x_11x11.png" :width 11 :height 11 :alt "Edit Item"}]]])
 
          (data/get-pending-items list-id))
     [:tr
