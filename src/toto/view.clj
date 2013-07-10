@@ -13,7 +13,8 @@
 (defn render-page [& contents]
   (html [:html
          [:head
-          [:title page-title]
+          [:title page-title]       
+          (page/include-css "/reset.css")
           (page/include-css "/toto.css")
           (page/include-js "/jquery-1.10.1.js")
           ]
