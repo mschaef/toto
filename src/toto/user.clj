@@ -20,6 +20,12 @@
 
                  [:tr [:td ] [:td (form/submit-button {} "Create User")]]])))
 
+(defn create-user  [ email-addr password ]
+  (let [uid (data/add-user email-addr password)
+        list-id (data/add-list "Todo")]
+    (data/add-list-owner uid list-id)
+    uid))
+
 (defn add-user [ email-addr password password2 ] 
   (cond
    (data/user-email-exists? email-addr)
@@ -30,7 +36,7 @@
 
    :else
    (do
-     (data/create-user email-addr (credentials/hash-bcrypt password))
+     (create-user email-addr (credentials/hash-bcrypt password))
      (ring/redirect "/"))))
 
 (defroutes public-routes

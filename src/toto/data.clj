@@ -116,12 +116,6 @@
        user-id]
       (> ((first rows) :c1) 0))))
 
-(defn create-user  [ email-addr password ]
-  (let [uid (add-user email-addr password)
-        list-id (add-list "Todo")]
-    (add-list-owner uid list-id)
-    uid))
-
 (defn add-todo-item [ todo-list-id desc ]
   (jdbc/with-connection schema/hsql-db
     (:item_id (first
