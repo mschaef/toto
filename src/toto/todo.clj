@@ -3,6 +3,7 @@
         [slingshot.slingshot :only (throw+ try+)])
   (:require [ring.util.response :as ring]
             [hiccup.form :as form]
+            [hiccup.page :as page]
             [compojure.handler :as handler]
             [toto.data :as data]
             [toto.core :as core]
@@ -87,6 +88,7 @@
 
 (defn render-todo-list-page [ selected-list-id ]
   (view/render-page
+   (page/include-js "/toto-todo-list.js")
    [:div#sidebar
     (render-todo-list-list selected-list-id)]
    [:div#contents

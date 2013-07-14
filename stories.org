@@ -1,4 +1,3 @@
-* The user interface has the caret in the 'new item' entry field by default.
 * A user can interactively change their password with the web UI.
 * A user can display a list of all todo list items, even if they have been completed.
 * A user can display a list of all items on all of their todo lists.
@@ -16,6 +15,9 @@
 * A user can store multiple e-mail addresses for each account.
 * User e-mail addresses must be validated prior to the account being fully enabled.
 * Add a means to recover a forgotten password via an e-mail.
+* The item description is sanitized within the javascript used to call beginItemEdit
+* DONE The user interface has the caret in the 'new item' entry field by default.
+
 * DONE The website displays the number of pending todo items next to each list name
 * DONE The website remembers the current list when a todo item has been marked completed or deleted, and returns to that list.
 
