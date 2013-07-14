@@ -34,6 +34,10 @@
   (form/form-to [:post (str "/item/" (item-info :item_id) "/complete")]
                 [:input {:type "image" :src "/check_12x10.png" :width 12 :height 10 :alt "Complete Item"}]))
 
+(defn delete-item-button [ item-info ]
+  (form/form-to [:post (str "/item/" (item-info :item_id) "/delete")]
+                [:input {:type "image" :src "/x_11x11.png" :width 11 :height 11 :alt "Delete Item"}]))
+
 (defn render-todo-list [ list-id ]
    [:table.item-list
     (map (fn [item-info]
@@ -51,7 +55,7 @@
                   [:a { :href desc } desc]
                   desc))]]
             [:td
-             [:img { :src "/x_11x11.png" :width 11 :height 11 :alt "Edit Item"}]]])
+             (delete-item-button item-info)]])
 
          (data/get-pending-items list-id))
     [:tr
@@ -181,6 +185,10 @@
   (data/complete-item-by-id (current-user-id) item-id)
   (redirect-to-home))
 
+(defn delete-item [ item-id ]
+  (data/delete-item-by-id item-id)
+  (redirect-to-home))
+
 (defn selected-user-ids-from-params [ params ]
   (map #(Integer/parseInt (.substring % 5))
        (filter #(.startsWith % "user_") (map name (keys params)))))
@@ -215,4 +223,7 @@
         (update-item id description))
 
   (POST "/item/:id/complete" [id]
-       (complete-item id)))
+        (complete-item id))
+
+  (POST "/item/:id/delete" [id]
+        (delete-item id)))

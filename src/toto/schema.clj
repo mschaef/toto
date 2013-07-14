@@ -27,7 +27,7 @@
    (jdbc/create-table
     :todo_list
     [:todo_list_id "BIGINT" "IDENTITY"]
-    [:desc "VARCHAR(255)"])
+    [:desc "VARCHAR(32)"])
 
    (jdbc/create-table
     :todo_list_owners
@@ -40,7 +40,8 @@
     [:item_id "BIGINT" "IDENTITY"]
     [:todo_list_id "BIGINT" "NOT NULL" "REFERENCES todo_list(todo_list_id)"]
     [:desc "VARCHAR(1024)" "NOT NULL"]
-    [:created_on "TIMESTAMP" "NOT NULL"])
+    [:created_on "TIMESTAMP" "NOT NULL"]
+    [:deleted_on "TIMESTAMP" "NULL"])
 
    (jdbc/create-table
     :todo_item_completion
