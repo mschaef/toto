@@ -5,19 +5,13 @@
             [toto.view :as view]
             [toto.user :as user]
             [toto.todo :as todo]
+            [cemerick.friend :as friend]
             [compojure.route :as route]
             [compojure.handler :as handler]
-            [cemerick.friend :as friend]
             [cemerick.friend.workflows :as workflows]
             [cemerick.friend.credentials :as credentials]))
 
 (defroutes public-routes
-  (friend/logout (ANY "/logout" []  (ring.util.response/redirect "/")))
-
-  (GET "/login" { { login-failed :login_failed email-addr :username } :params }
-       (view/render-login-page :email-addr email-addr
-                               :login-failure? (= login-failed "Y")))
-
   ;; Hack to avoid immediate post-login redirect to favicon.ico.
   (GET "/favicon.ico" [] ""))
 

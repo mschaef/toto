@@ -2,23 +2,42 @@
   (:use compojure.core)
   (:require [cemerick.friend.credentials :as credentials]
             [ring.util.response :as ring]
+            [cemerick.friend :as friend]
             [hiccup.form :as form]
             [toto.data :as data]
             [toto.view :as view]))
 
+(defn render-login-page [ & { :keys [ email-addr login-failure?]}]
+  (view/render-page
+   (form/form-to
+    [:post "/login"]
+    [:table
+     [:tr [:td { :colspan 2 } [:center "Login to Toto"]]]
+     [:tr [:td "E-Mail Address:"] [:td (form/text-field {} "username" (if email-addr email-addr))]]
+     [:tr [:td "Password:"] [:td (form/password-field {} "password")]]
+     (if login-failure?
+       [:tr [:td { :colspan 4 } [:div#error "Invalid username or password."]]])
+     [:tr 
+      [:td { :colspan 4 }
+       [:center
+        [:a { :href "/user"} "Create New User"]
+        " - "
+        (form/submit-button {} "Login")]]]])))
+
 (defn render-new-user-form [ & { :keys [ error-message ]}]
-  (view/render-page (form/form-to
-                [:post "/user"]
-                [:table
-                 [:tr [:td { :colspan 2 } [:center "Create New User"]]]
-                 [:tr [:td "E-Mail Address:"] [:td  (form/text-field {} "email_addr")]]
-                 [:tr [:td "Password:"] [:td (form/password-field {} "password")]]
-                 [:tr [:td "Verify Password:"] [:td (form/password-field {} "password2")]]
-
-                 (if (not (empty? error-message))
-                   [:tr [:td { :colspan 2 } [:div#error error-message]]])
-
-                 [:tr [:td ] [:td (form/submit-button {} "Create User")]]])))
+  (view/render-page
+   (form/form-to
+    [:post "/user"]
+    [:table
+     [:tr [:td { :colspan 2 } [:center "Create New User"]]]
+     [:tr [:td "E-Mail Address:"] [:td  (form/text-field {} "email_addr")]]
+     [:tr [:td "Password:"] [:td (form/password-field {} "password")]]
+     [:tr [:td "Verify Password:"] [:td (form/password-field {} "password2")]]
+     
+     (if (not (empty? error-message))
+       [:tr [:td { :colspan 2 } [:div#error error-message]]])
+     
+     [:tr [:td ] [:td (form/submit-button {} "Create User")]]])))
 
 (defn create-user  [ email-addr password ]
   (let [uid (data/add-user email-addr password)
@@ -44,5 +63,12 @@
        (render-new-user-form))
 
   (POST "/user" {{email-addr :email_addr password :password password2 :password2} :params}
-        (add-user email-addr password password2)))
+        (add-user email-addr password password2))
+
+  (friend/logout (ANY "/logout" []  (ring.util.response/redirect "/")))
+
+  (GET "/login" { { login-failed :login_failed email-addr :username } :params }
+       (render-login-page :email-addr email-addr
+                          :login-failure? (= login-failed "Y")))
+)
 
