@@ -95,7 +95,7 @@ div#wrap {
 
 div#sidebar {
     float:left;
-    width: 200px;
+    width: 240px;
 }
 
 div#header {
@@ -110,8 +110,9 @@ div#header div.right {
 }
 
 div#contents {
-    margin-left: 200px;
-    padding: 10px;
+    margin-left: 240px;
+    padding-top: 10px;
+    padding-bottom: 10px;
     background: white;
 }
 
@@ -128,6 +129,7 @@ div#footer {
 }
 
 p.new-list {
+    padding-top: 5px;
     text-align: center;
     font-style: italic;
 }
@@ -135,4 +137,14 @@ p.new-list {
 form {
     padding: 0px;
     margin: 0px;
+}
+
+
+
+h1 {
+	font-size: 160%;
+}
+
+h2 {
+	font-size: 160%;
 }

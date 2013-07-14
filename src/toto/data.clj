@@ -136,6 +136,15 @@
        list-id ]
       (doall rows))))
 
+(defn get-item-by-id [ item-id ]
+  (jdbc/with-connection schema/hsql-db
+    (jdbc/with-query-results rows
+      [(str "SELECT item.item_id, item.todo_list_id, item.desc, item.created_on"
+            " FROM todo_item item" 
+            " WHERE item_id=?")
+       item-id ]
+      (first (doall rows)))))
+
 (defn complete-item-by-id [ user-id item-id ]
   (jdbc/with-connection schema/hsql-db
     (jdbc/insert-records

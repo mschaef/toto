@@ -76,7 +76,10 @@
              [:img { :src "/chat_alt_stroke_12x12.png" :width 12 :height 12 :alt "Share List"}]]
             "&nbsp;"
             [:a {:href (str "/list/" (list-info :todo_list_id))}
-             (list-info :desc)]])
+             (list-info :desc)
+             " ("
+             (count (data/get-pending-items (list-info :todo_list_id)))
+             ")"]])
          (data/get-todo-lists-by-user (current-user-id)))]
    [:p.new-list
     [:a { :href "javascript:beginListCreate()"} 
@@ -99,8 +102,7 @@
    (let [ list-name ((data/get-todo-list-by-id list-id) :desc)
          list-owners (data/get-todo-list-owners-by-list-id list-id) ]
      [:div#contents
-      [:h2 "List Owners: " 
-            [:a {:href (str "/list/" list-id)}
+      [:h1 [:a {:href (str "/list/" list-id)}
              list-name]]
       (form/form-to
        [:post (str "/list/" list-id "/sharing")]
@@ -182,12 +184,14 @@
   (redirect-to-home))
 
 (defn complete-item [ item-id ]
-  (data/complete-item-by-id (current-user-id) item-id)
-  (redirect-to-home))
+  (let [ list-id ((data/get-item-by-id item-id) :todo_list_id)]
+    (data/complete-item-by-id (current-user-id) item-id)
+    (redirect-to-list list-id)))
 
 (defn delete-item [ item-id ]
-  (data/delete-item-by-id item-id)
-  (redirect-to-home))
+  (let [ list-id ((data/get-item-by-id item-id) :todo_list_id)]
+    (data/delete-item-by-id item-id)
+    (redirect-to-list list-id)))
 
 (defn selected-user-ids-from-params [ params ]
   (map #(Integer/parseInt (.substring % 5))
