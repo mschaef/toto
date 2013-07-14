@@ -41,14 +41,15 @@
             [:td
              (complete-item-button item-info)]
             [:td
-             [:a {:href (str "/item/" (item-info :item_id))}
+             [:a {:href (str "javascript:beginItemEdit(" (item-info :item_id) ",\"" (item-info :desc) "\")")}
               [:img { :src "/pen_alt_fill_12x12.png" :width 12 :height 12 :alt "Edit Item"}]]]
 
             [:td.item-description
-             (let [desc (item-info :desc)]
-               (if (is-link-url? desc)
-                 [:a { :href desc } desc]
-                 desc))]
+             [:div { :id (str "item_" (item-info :item_id))}
+              (let [desc (item-info :desc)]
+                (if (is-link-url? desc)
+                  [:a { :href desc } desc]
+                  desc))]]
             [:td
              [:img { :src "/x_11x11.png" :width 11 :height 11 :alt "Edit Item"}]]])
 
