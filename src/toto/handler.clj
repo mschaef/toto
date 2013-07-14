@@ -23,13 +23,6 @@
       (fn [req] (friend/authorize #{::user} (todo/all-routes req)))
       (route/not-found "Resource Not Found")))
 
-(defn wrap-username [app]
-  (fn [req]
-    (binding [core/*username* (if-let [cauth (friend/current-authentication req)]
-                                (cauth :identity)
-                                nil)]
-      (app req))))
-
 (defn db-credential-fn [ creds ]
   (let [user-record (data/get-user-by-email (creds :username))]
     (if (or (nil? user-record)
@@ -37,16 +30,9 @@
       nil
       { :identity (creds :username) :roles #{::user}})))
 
-(defn wrap-logging [app]
-  (fn [req]
-    (println ['REQUEST (:uri req) (:cemerick.friend/auth-config req)])
-    (let [resp (app req)]
-      (println ['RESPONSE (:status resp)])
-      resp)))
-
 (def handler (-> site-routes
-                 ;(wrap-logging)
-                 (wrap-username)
+                 ;(core/wrap-logging)
+                 (core/wrap-username)
                  (friend/authenticate {:credential-fn db-credential-fn
                                        :workflows [(workflows/interactive-form)]})
                  (handler/site)))

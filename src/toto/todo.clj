@@ -19,7 +19,7 @@
      false)))
 
 (defn current-user-id []
-  ((data/get-user-by-email core/*username*) :user_id))
+  ((data/get-user-by-email (core/authenticated-username)) :user_id))
 
 (defn current-todo-list-id []
   (first (data/get-todo-list-ids-by-user (current-user-id))))

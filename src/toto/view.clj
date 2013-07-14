@@ -14,14 +14,15 @@
           [:title page-title]       
           (page/include-css "/reset.css")
           (page/include-css "/toto.css")
-          (page/include-js "/jquery-1.10.1.js")]
+          (page/include-js "/jquery-1.10.1.js")
+          (page/include-js "/toto.js")]
          [:body
           [:div#header 
            "Things to do"
            [:div.right
-            (if (not (nil? core/*username*))
+            (if-let [un (core/authenticated-username)]
               [:span 
-               (str core/*username*)
+               (str un)
                " - "
                [:span#logout
                 [:a { :href "/logout"} "[logout]"]]])]]
