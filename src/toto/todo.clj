@@ -60,20 +60,22 @@
                     (form/text-field { :class "full-width"  } "item-description"))]]])
 
 (defn render-todo-list-list [ selected-list-id ]
+  [:div.full-width
    [:ul.list-list
     (map (fn [ list-info ]
            [:li (if (= (list-info :todo_list_id) (Integer. selected-list-id))
                   { :class "selected" }
                   { })
 
-             [:a {:href (str "/list/" (list-info :todo_list_id) "/sharing")}
-              [:img { :src "/chat_alt_stroke_12x12.png" :width 12 :height 12 :alt "Share List"}]]
+            [:a {:href (str "/list/" (list-info :todo_list_id) "/sharing")}
+             [:img { :src "/chat_alt_stroke_12x12.png" :width 12 :height 12 :alt "Share List"}]]
             "&nbsp;"
             [:a {:href (str "/list/" (list-info :todo_list_id))}
              (list-info :desc)]])
-         (data/get-todo-lists-by-user (current-user-id)))
-    [:li (form/form-to [:post "/list"]
-                       (form/text-field { :class "full-width" } "list-description"))]])
+         (data/get-todo-lists-by-user (current-user-id)))]
+   [:p.new-list
+    [:a { :href "javascript:beginListCreate()"} 
+     "Add Todo List..."]]])
 
 (defn render-todo-list-page [ selected-list-id ]
   (view/render-page

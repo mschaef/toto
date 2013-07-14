@@ -123,8 +123,13 @@ div#footer {
     border-top: 1px solid;
 }
 
-input.full-width {
+.full-width {
     width: 100%;
+}
+
+p.new-list {
+    text-align: center;
+    font-style: italic;
 }
 
 form {
