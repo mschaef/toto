@@ -181,16 +181,6 @@
   (data/complete-item-by-id (current-user-id) item-id)
   (redirect-to-home))
 
-(defn render-item [ id ]
-  (let [item-info (data/get-item-by-id id)]
-    (view/render-page [:h1 (str "Item: " id)]
-                      (form/form-to [:post (str "/item/" id)]
-                                    [:table
-                                     [:tr [:td "Description:"] [:td (form/text-field {} "description" (item-info :desc))]]
-                                     [:tr [:td "Completed:"] [:td (item-info :completed)]]]
-                                    (form/submit-button {} "Update Item"))
-                      [:a {:href "/"} "Home"])))
-
 (defn selected-user-ids-from-params [ params ]
   (map #(Integer/parseInt (.substring % 5))
        (filter #(.startsWith % "user_") (map name (keys params)))))
@@ -220,9 +210,6 @@
                             item-description :item-description }
                            :params }
         (add-item list-id item-description))
-
-  (GET "/item/:id" [id]
-       (render-item id))
 
   (POST "/item/:id"  {{id :id description :description} :params}
         (update-item id description))
