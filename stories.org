@@ -1,7 +1,6 @@
 * The website displays the number of pending todo items next to each list name
-* The website remembers the current list when a todo item has been marked completed, and returns to that list.
+* The website remembers the current list when a todo item has been marked completed or deleted, and returns to that list.
 * The user interface has the caret in the 'new item' entry field by default.
-* The user interface hides the 'new list' name input field prior to the user clicking an 'add list' link.
 * A user can interactively change their password with the web UI.
 * A user can display a list of all todo list items, even if they have been completed.
 * A user can display a list of all items on all of their todo lists.
@@ -11,12 +10,16 @@
 * A user can rename one of their todo lists.
 * A user can denote that a todo item should be deferred until a given date.
 * The website displays correctly on Mobile Safari.
+* The website displays correctly on Google Chrome.
+* The website has links suitable for displaying todo lists in Android meta-widget
 * A to-do list can be printed in a useful/plain format
 * Item descriptions can be written in Markdown or Markdown-like syntax
 * The user interface stores passwords with a salt.
 * A user can store multiple e-mail addresses for each account.
 * User e-mail addresses must be validated prior to the account being fully enabled.
 * Add a means to recover a forgotten password via an e-mail.
+* DONE The user interface hides the 'new list' name input field until the user clicks an 'add list' link.
+
 * DONE The user's current identity is displayed on the web page.
 * DONE The initial page of the web site is either the login page or the todo list (if there's already a session).
 * DONE A user can register themselves as a new user through the web UI.
