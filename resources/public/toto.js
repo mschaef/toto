@@ -11,6 +11,15 @@ function beginListCreate()
     $('p.new-list').replaceWith(formMarkup);
 }
 
+function beginUserAdd(listId)
+{
+    var formMarkup = ""
+
+    formMarkup += "<input class=\"full-width\" id=\"share-with-email\" name=\"share-with-email\" type=\"text\" />";
+
+    $('p.new-user').replaceWith(formMarkup);
+}
+
 function beginItemEdit(itemId, itemDesc)
 {
     var formMarkup = ""

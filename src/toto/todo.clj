@@ -100,12 +100,12 @@
   (some #(= elm %) seq))
 
 (defn render-todo-list-sharing-page [ list-id & { :keys [ error-message ]}]
-  (view/render-page
-   (let [ list-name ((data/get-todo-list-by-id list-id) :desc)
-         list-owners (data/get-todo-list-owners-by-list-id list-id) ]
+  (let [ list-name ((data/get-todo-list-by-id list-id) :desc)
+        list-owners (data/get-todo-list-owners-by-list-id list-id) ]
+    (view/render-page
+     [:div#sidebar
+      (render-todo-list-list list-id)]
      [:div#contents
-      [:h1 [:a {:href (str "/list/" list-id)}
-             list-name]]
       (form/form-to
        [:post (str "/list/" list-id "/sharing")]
        [:table.item-list
@@ -128,8 +128,9 @@
         [:tr
          [:td]
          [:td
-          (form/text-field { :class "full-width"  }
-                           "share-with-email")]]
+          [:p.new-user
+           [:a { :href (str "javascript:beginUserAdd(" list-id ")")} 
+            "Add User To List..."]]]]
         (if (not (empty? error-message))
           [:tr
            [:td { :colspan 2 }
