@@ -125,7 +125,7 @@ div#footer {
 }
 
 .full-width {
-    width: 100%;
+    width: 95%;
 }
 
 p.new-list {
@@ -147,4 +147,8 @@ h1 {
 
 h2 {
 	font-size: 160%;
+}
+
+form.embedded {
+    display: inline;
 }

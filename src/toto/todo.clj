@@ -45,19 +45,15 @@
            [:tr.item-row {:valign "center"}
             [:td
              (complete-item-button item-info)]
-            [:td
-             [:a {:href (str "javascript:beginItemEdit(" (item-info :item_id) ",\"" (item-info :desc) "\")")}
-              [:img { :src "/pen_alt_fill_12x12.png" :width 12 :height 12 :alt "Edit Item"}]]]
-
             [:td.item-description
              [:div { :id (str "item_" (item-info :item_id))}
+              [:a {:href (str "javascript:beginItemEdit(" (item-info :item_id) ",\"" (item-info :desc) "\")")}
+               [:img { :src "/pen_alt_fill_12x12.png" :width 12 :height 12 :alt "Edit Item"}]]
+              "&nbsp;"
               (let [desc (item-info :desc)]
                 (if (is-link-url? desc)
                   [:a { :href desc } desc]
-                  desc))]]
-            [:td
-             (delete-item-button item-info)]])
-
+                  desc))]]])
          (data/get-pending-items list-id))
     [:tr
      [:td {:colspan 2}]
@@ -72,15 +68,18 @@
            [:li (if (= (list-info :todo_list_id) (Integer. selected-list-id))
                   { :class "selected" }
                   { })
-
             [:a {:href (str "/list/" (list-info :todo_list_id) "/sharing")}
              [:img { :src "/chat_alt_stroke_12x12.png" :width 12 :height 12 :alt "Share List"}]]
             "&nbsp;"
-            [:a {:href (str "/list/" (list-info :todo_list_id))}
-             (list-info :desc)
-             " ("
-             (count (data/get-pending-items (list-info :todo_list_id)))
-             ")"]])
+            [:span { :id (str "list_" (list-info :todo_list_id))}
+             [:a {:href (str "javascript:beginListEdit(" (list-info :todo_list_id) ",\"" (list-info :desc) "\")")}
+              [:img { :src "/pen_alt_fill_12x12.png" :width 12 :height 12 :alt "Edit List Name"}]]
+             "&nbsp;"
+             [:a {:href (str "/list/" (list-info :todo_list_id))}
+              (list-info :desc)
+              " ("
+              (count (data/get-pending-items (list-info :todo_list_id)))
+              ")"]]])
          (data/get-todo-lists-by-user (current-user-id)))]
    [:p.new-list
     [:a { :href "javascript:beginListCreate()"} 
@@ -139,6 +138,14 @@
          [:td]
          [:td [:input {:type "submit" :value "Update Sharing"}]]]])])))
 
+
+(defn set-list-description [ list-id list-description ]
+  (data/set-list-description list-id list-description )
+  (ring/redirect  (str "/list/" list-id)))
+
+(defn delete-list [ list-id ]
+  (data/remove-list-owner list-id (current-user-id))
+  (redirect-to-home))
 
 (defn add-list-owner [ list-id share-with-email selected-ids ]
   (try+
@@ -220,6 +227,12 @@
 
           (add-list-owner list-id share-with-email
                           (selected-user-ids-from-params params))))
+
+  (POST "/list/:list-id/description" { { list-id :list-id description :description } :params }
+        (set-list-description list-id description))
+
+  (POST "/list/:list-id/delete" { { list-id :list-id  } :params }
+        (delete-list list-id))
 
   (POST "/list/:list-id" { { list-id :list-id
                             item-description :item-description }
