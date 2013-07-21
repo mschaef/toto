@@ -56,7 +56,7 @@
                   desc))]]])
          (data/get-pending-items list-id))
     [:tr
-     [:td {:colspan 2}]
+     [:td {:colspan 1}]
      [:td 
       (form/form-to [:post (str "/list/" list-id)]
                     (form/text-field { :class "full-width"  } "item-description"))]]])
