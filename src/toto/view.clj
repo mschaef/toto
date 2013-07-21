@@ -8,7 +8,10 @@
 
 (def page-title "Toto")
 
-(defn render-page [& contents]
+(defn render-page [{ :keys [ page-title ] 
+                    :or { page-title "Things To Do"}} 
+                   &
+                   contents]
   (html [:html
          [:head
           [:title page-title]       
@@ -18,7 +21,7 @@
           (page/include-js "/toto.js")]
          [:body
           [:div#header 
-           "Things to do"
+           page-title
            [:div.right
             (if-let [un (core/authenticated-username)]
               [:span 
@@ -30,4 +33,5 @@
            contents
            [:div#footer
             "All Rights Reserved, Copyright 2013 East Coast Toolworks"]]]]))
+
 

@@ -86,12 +86,17 @@
      "Add Todo List..."]]])
 
 (defn render-todo-list-page [ selected-list-id ]
-  (view/render-page
+  (view/render-page {}
    (page/include-js "/toto-todo-list.js")
    [:div#sidebar
     (render-todo-list-list selected-list-id)]
    [:div#contents
     (render-todo-list selected-list-id)]))
+
+
+(defn render-todo-list-simply [ list-id ]
+  (view/render-page { :page-title ((data/get-todo-list-by-id list-id) :desc) }
+    (render-todo-list list-id)))
 
 (defn in? 
   "true if seq contains elm"
@@ -101,7 +106,7 @@
 (defn render-todo-list-sharing-page [ list-id & { :keys [ error-message ]}]
   (let [ list-name ((data/get-todo-list-by-id list-id) :desc)
         list-owners (data/get-todo-list-owners-by-list-id list-id) ]
-    (view/render-page
+    (view/render-page {}
      [:div#sidebar
       (render-todo-list-list list-id)]
      [:div#contents
@@ -216,6 +221,9 @@
 
   (GET "/list/:list-id" [ list-id ]
        (render-todo-list-page list-id))
+
+  (GET "/list/:list-id/simple" [ list-id ]
+       (render-todo-list-simply list-id))
 
   (GET "/list/:list-id/sharing" [ list-id ]
        (render-todo-list-sharing-page list-id))
