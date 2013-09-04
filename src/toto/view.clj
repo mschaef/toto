@@ -15,7 +15,8 @@
           (page/include-css "/reset.css")
           (page/include-css "/toto.css")
           (page/include-js "/jquery-1.10.1.js")
-          (page/include-js "/toto.js")]
+          (page/include-js "/toto.js")
+          [:link { :rel "shortcut icon" :href "/favicon.ico"}]]
          [:body
           [:div#header 
            "Things to do"
