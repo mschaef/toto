@@ -11,13 +11,9 @@
             [cemerick.friend.workflows :as workflows]
             [cemerick.friend.credentials :as credentials]))
 
-(defroutes public-routes
-  ;; Hack to avoid immediate post-login redirect to favicon.ico.
-  (GET "/favicon.ico" [] ""))
 
 (def site-routes
      (routes
-      public-routes
       user/public-routes
       (route/resources "/")
       (fn [req] (friend/authorize #{::user} (todo/all-routes req)))
