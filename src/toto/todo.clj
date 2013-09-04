@@ -180,8 +180,9 @@
   (redirect-to-list list-id))
 
 (defn update-item [ item-id item-description ]
-  (data/update-item-by-id item-id item-description)
-  (redirect-to-home))
+  (let [ list-id ((data/get-item-by-id item-id) :todo_list_id)]
+    (data/update-item-by-id item-id item-description)
+    (redirect-to-list list-id)))
 
 (defn complete-item [ item-id ]
   (let [ list-id ((data/get-item-by-id item-id) :todo_list_id)]
