@@ -103,6 +103,7 @@ div#header {
     background: black;
     color: #e0e0e0;
     text-align: left;
+    font-weight: bold;
 }
 
 div#header div.right {

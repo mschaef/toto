@@ -48,7 +48,6 @@
             [:td
              [:a {:href (str "javascript:beginItemEdit(" (item-info :item_id) ",\"" (item-info :desc) "\")")}
               [:img { :src "/pen_alt_fill_12x12.png" :width 12 :height 12 :alt "Edit Item"}]]]
-
             [:td.item-description
              [:div { :id (str "item_" (item-info :item_id))}
               (let [desc (item-info :desc)]
@@ -57,7 +56,6 @@
                   desc))]]
             [:td
              (delete-item-button item-info)]])
-
          (data/get-pending-items list-id))
     [:tr
      [:td {:colspan 2}]
