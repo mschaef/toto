@@ -146,7 +146,8 @@
             " FROM todo_item item" 
             " WHERE todo_list_id=?"
             "   AND deleted_on IS NULL"
-            "   AND NOT EXISTS (SELECT 1 FROM todo_item_completion WHERE item_id=item.item_id)")
+            "   AND NOT EXISTS (SELECT 1 FROM todo_item_completion WHERE item_id=item.item_id)"
+            " ORDER BY item.item_id DESC")
        list-id ]
       (doall rows))))
 
