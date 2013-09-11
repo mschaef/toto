@@ -104,6 +104,20 @@
         {:user_id user-id
          :todo_list_id todo-list-id})))))
 
+(defn remove-list-owner [ todo-list-id user-id ]
+  (jdbc/with-connection schema/hsql-db
+    (jdbc/delete-rows
+     :todo_list_owners
+     ["todo_list_id=? and user_id=?" 
+      todo-list-id
+      user-id])))
+
+(defn set-list-description [ list-id list-description ]
+  (jdbc/with-connection schema/hsql-db
+    (jdbc/update-values
+     :todo_list
+     ["todo_list_id=?" list-id]
+     {:desc list-description})))
 
 (defn list-owned-by-user-id? [ list-id user-id ]
   (jdbc/with-connection schema/hsql-db

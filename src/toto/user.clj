@@ -8,11 +8,10 @@
             [toto.view :as view]))
 
 (defn render-login-page [ & { :keys [ email-addr login-failure?]}]
-  (view/render-page
+  (view/render-page { :page-title "Login to Toto" }
    (form/form-to
     [:post "/login"]
     [:table
-     [:tr [:td { :colspan 2 } [:center "Login to Toto"]]]
      [:tr [:td "E-Mail Address:"] [:td (form/text-field {} "username" (if email-addr email-addr))]]
      [:tr [:td "Password:"] [:td (form/password-field {} "password")]]
      (if login-failure?
@@ -25,7 +24,7 @@
         (form/submit-button {} "Login")]]]])))
 
 (defn render-new-user-form [ & { :keys [ error-message ]}]
-  (view/render-page
+  (view/render-page {}
    (form/form-to
     [:post "/user"]
     [:table
