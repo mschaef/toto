@@ -145,7 +145,6 @@
       [(str "SELECT item.item_id, item.todo_list_id, item.desc, item.created_on"
             " FROM todo_item item" 
             " WHERE todo_list_id=?"
-            "   AND deleted_on IS NULL"
             "   AND NOT EXISTS (SELECT 1 FROM todo_item_completion WHERE item_id=item.item_id)"
             " ORDER BY item.item_id DESC")
        list-id ]
@@ -166,14 +165,17 @@
      :todo_item_completion
      { :user_id user-id
       :item_id item-id
-      :completed_on (java.util.Date.)})))
+      :completed_on (java.util.Date.)
+      :is_delete false})))
 
-(defn delete-item-by-id [ item-id ]
+(defn delete-item-by-id [ user-id item-id ]
   (jdbc/with-connection schema/hsql-db
-    (jdbc/update-values
-     :todo_item
-     ["item_id=?" item-id]
-     { :deleted_on (java.util.Date.)})))
+    (jdbc/insert-records
+     :todo_item_completion
+     { :user_id user-id
+      :item_id item-id
+      :completed_on (java.util.Date.)
+      :is_delete true})))
 
 (defn update-item-by-id [ item-id item-description ]
   (jdbc/with-connection schema/hsql-db
