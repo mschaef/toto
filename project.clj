@@ -10,7 +10,7 @@
                  [ring/ring-servlet "1.2.0-beta2"]
                  [com.cemerick/friend "0.1.5"]
                  [org.clojure/java.jdbc "0.2.3"]
-                 [org.hsqldb/hsqldb "2.2.8"]
+                 [org.hsqldb/hsqldb "2.3.0"]
                  [compojure "1.1.5"]
                  [slingshot "0.10.2"]]
 
