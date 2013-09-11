@@ -40,14 +40,14 @@
     [:item_id "BIGINT" "IDENTITY"]
     [:todo_list_id "BIGINT" "NOT NULL" "REFERENCES todo_list(todo_list_id)"]
     [:desc "VARCHAR(1024)" "NOT NULL"]
-    [:created_on "TIMESTAMP" "NOT NULL"]
-    [:deleted_on "TIMESTAMP" "NULL"])
+    [:created_on "TIMESTAMP" "NOT NULL"])
 
    (jdbc/create-table
     :todo_item_completion
     [:item_id "BIGINT" "UNIQUE" "REFERENCES todo_item(item_id)"]
     [:user_id "BIGINT" "REFERENCES user(user_id)"]
-    [:completed_on "TIMESTAMP" "NOT NULL"])))
+    [:completed_on "TIMESTAMP" "NOT NULL"]
+    [:is_delete "BOOLEAN" "NOT NULL"])))
 
 (defn version-table-present? []
   (> (jdbc/with-connection hsql-db

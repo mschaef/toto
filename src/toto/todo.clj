@@ -206,7 +206,7 @@
 
 (defn delete-item [ item-id ]
   (let [ list-id ((data/get-item-by-id item-id) :todo_list_id)]
-    (data/delete-item-by-id item-id)
+    (data/delete-item-by-id (current-user-id) item-id)
     (redirect-to-list list-id)))
 
 (defn selected-user-ids-from-params [ params ]
