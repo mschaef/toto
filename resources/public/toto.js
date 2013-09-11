@@ -9,6 +9,8 @@ function beginListCreate()
     formMarkup += "</form>";
 
     $('p.new-list').replaceWith(formMarkup);
+
+    $("#list-description").focus();
 }
 
 function beginUserAdd(listId)
@@ -18,6 +20,8 @@ function beginUserAdd(listId)
     formMarkup += "<input class=\"full-width\" id=\"share-with-email\" name=\"share-with-email\" type=\"text\" />";
 
     $('p.new-user').replaceWith(formMarkup);
+
+    $("#share-with-email").focus();
 }
 
 function beginItemEdit(itemId, itemDesc)
@@ -28,11 +32,13 @@ function beginItemEdit(itemId, itemDesc)
     formMarkup += "<input alt=\"Delete Item\" height=\"11\" src=\"/x_11x11.png\" type=\"image\" width=\"11\" />";
     formMarkup += "</form>";
 
-    formMarkup += "<form  class=\"embedded\" action=\"/item/" + itemId + "\" method=\"POST\">";
+    formMarkup += "<form id=\"iedit_" + itemId + "\"  class=\"embedded\" action=\"/item/" + itemId + "\" method=\"POST\">";
     formMarkup += "<input class=\"full-width\" id=\"description\" name=\"description\" type=\"text\" value=\"" + itemDesc + "\"/>";
     formMarkup += "</form>";
 
     $('div#item_' + itemId).replaceWith(formMarkup);
+
+    $("#iedit_" + itemId + " #description").focus();
 }
 
 function beginListEdit(listId, listDesc)
@@ -43,11 +49,13 @@ function beginListEdit(listId, listDesc)
     formMarkup += "<input alt=\"Delete List\" height=\"11\" src=\"/x_11x11.png\" type=\"image\" width=\"11\" />";
     formMarkup += "</form>";
 
-    formMarkup += "<form class=\"embedded\"  action=\"/list/" + listId + "/description\" method=\"POST\">";
+    formMarkup += "<form id=\"ledit_" + listId + "\" class=\"embedded\"  action=\"/list/" + listId + "/description\" method=\"POST\">";
     formMarkup += "<input id=\"description\" name=\"description\" type=\"text\" value=\"" + listDesc + "\"/>";
     formMarkup += "</form>";
 
     $('span#list_' + listId).replaceWith(formMarkup);
+
+    $("#ledit_" + listId + " #description").focus();
 }
 
 
