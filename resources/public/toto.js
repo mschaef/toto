@@ -24,19 +24,23 @@ function beginUserAdd(listId)
     $("#share-with-email").focus();
 }
 
-function beginItemEdit(itemId, itemDesc)
+function beginItemEdit(itemId)
 {
     var formMarkup = ""
+
+    var itemDesc = $('div#item_desc_' + itemId).text();
 
     formMarkup += "<form class=\"embedded\" action=\"/item/" + itemId + "/delete\" method=\"POST\">";
     formMarkup += "<input alt=\"Delete Item\" height=\"11\" src=\"/x_11x11.png\" type=\"image\" width=\"11\" />";
     formMarkup += "</form>";
 
     formMarkup += "<form id=\"iedit_" + itemId + "\"  class=\"embedded\" action=\"/item/" + itemId + "\" method=\"POST\">";
-    formMarkup += "<input class=\"full-width\" id=\"description\" name=\"description\" type=\"text\" value=\"" + itemDesc + "\"/>";
+    formMarkup += "<input class=\"full-width\" id=\"description\" name=\"description\" type=\"text\"/>";
     formMarkup += "</form>";
 
     $('div#item_' + itemId).replaceWith(formMarkup);
+
+    $("#iedit_" + itemId + " #description").val(itemDesc);
 
     $("#iedit_" + itemId + " #description").focus();
 }

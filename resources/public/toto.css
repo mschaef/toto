@@ -153,3 +153,7 @@ h2 {
 form.embedded {
     display: inline;
 }
+
+.hidden {
+    display: none;
+}

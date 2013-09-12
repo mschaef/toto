@@ -46,14 +46,16 @@
             [:td
              (complete-item-button item-info)]
             [:td.item-description
-             [:div { :id (str "item_" (item-info :item_id))}
-              [:a {:href (str "javascript:beginItemEdit(" (item-info :item_id) ",\"" (item-info :desc) "\")")}
-               [:img { :src "/pen_alt_fill_12x12.png" :width 12 :height 12 :alt "Edit Item"}]]
-              "&nbsp;"
               (let [desc (item-info :desc)]
-                (if (is-link-url? desc)
-                  [:a { :href desc } desc]
-                  desc))]]])
+              
+                [:div { :id (str "item_" (item-info :item_id))}
+                 [:a {:href (str "javascript:beginItemEdit(" (item-info :item_id) ")")}
+                  [:img { :src "/pen_alt_fill_12x12.png" :width 12 :height 12 :alt "Edit Item"}]]
+                 "&nbsp;"
+                 [:div { :id (str "item_desc_" (item-info :item_id)) :class "hidden"} desc]
+                 (if (is-link-url? desc)
+                   [:a { :href desc } desc]
+                   desc)])]])
          (data/get-pending-items list-id))
     [:tr
      [:td {:colspan 1}]
