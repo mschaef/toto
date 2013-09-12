@@ -45,19 +45,23 @@ function beginItemEdit(itemId)
     $("#iedit_" + itemId + " #description").focus();
 }
 
-function beginListEdit(listId, listDesc)
+function beginListEdit(listId)
 {
-    var formMarkup = ""
+    var formMarkup = "";
+
+    var listDesc = $('div#list_desc_' + listId).text();
 
     formMarkup += "<form class=\"embedded\" action=\"/list/" + listId + "/delete\" method=\"POST\">";
     formMarkup += "<input alt=\"Delete List\" height=\"11\" src=\"/x_11x11.png\" type=\"image\" width=\"11\" />";
     formMarkup += "</form>";
 
     formMarkup += "<form id=\"ledit_" + listId + "\" class=\"embedded\"  action=\"/list/" + listId + "/description\" method=\"POST\">";
-    formMarkup += "<input id=\"description\" name=\"description\" type=\"text\" value=\"" + listDesc + "\"/>";
+    formMarkup += "<input id=\"description\" name=\"description\" type=\"text\"/>";
     formMarkup += "</form>";
 
     $('span#list_' + listId).replaceWith(formMarkup);
+
+    $("#ledit_" + listId + " #description").val(listDesc);
 
     $("#ledit_" + listId + " #description").focus();
 }
