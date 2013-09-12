@@ -52,10 +52,11 @@
                  [:a {:href (str "javascript:beginItemEdit(" (item-info :item_id) ")")}
                   [:img { :src "/pen_alt_fill_12x12.png" :width 12 :height 12 :alt "Edit Item"}]]
                  "&nbsp;"
-                 [:div { :id (str "item_desc_" (item-info :item_id)) :class "hidden"} desc]
+                 [:div { :id (str "item_desc_" (item-info :item_id)) :class "hidden"}
+                  (hiccup.util/escape-html desc)]
                  (if (is-link-url? desc)
-                   [:a { :href desc } desc]
-                   desc)])]])
+                   [:a { :href desc } (hiccup.util/escape-html desc)]
+                   (hiccup.util/escape-html desc))])]])
          (data/get-pending-items list-id))
     [:tr
      [:td {:colspan 1}]
@@ -77,9 +78,10 @@
              [:a {:href (str "javascript:beginListEdit(" (list-info :todo_list_id) ")")}
               [:img { :src "/pen_alt_fill_12x12.png" :width 12 :height 12 :alt "Edit List Name"}]]
              "&nbsp;"
-             [:div { :id (str "list_desc_" (list-info :todo_list_id)) :class "hidden"} (list-info :desc)]
+             [:div { :id (str "list_desc_" (list-info :todo_list_id)) :class "hidden"} 
+              (hiccup.util/escape-html (list-info :desc))]
              [:a {:href (str "/list/" (list-info :todo_list_id))}
-              (list-info :desc)
+              (hiccup.util/escape-html (list-info :desc))
               " ("
               (count (data/get-pending-items (list-info :todo_list_id)))
               ")"]]])
