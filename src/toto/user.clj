@@ -11,7 +11,7 @@
   (view/render-page { :page-title "Log In" }
    (form/form-to
     [:post "/login"]
-    [:table
+    [:table { :class "form" }
      [:tr [:td "E-Mail Address:"] [:td (form/text-field {} "username" (if email-addr email-addr))]]
      [:tr [:td "Password:"] [:td (form/password-field {} "password")]]
      (if login-failure?
@@ -27,8 +27,7 @@
   (view/render-page { :page-title "Create New User" }
    (form/form-to
     [:post "/user"]
-    [:table
-     [:tr [:td { :colspan 2 } [:center "Create New User"]]]
+    [:table { :class "form" }
      [:tr [:td "E-Mail Address:"] [:td  (form/text-field {} "email_addr")]]
      [:tr [:td "Password:"] [:td (form/password-field {} "password")]]
      [:tr [:td "Verify Password:"] [:td (form/password-field {} "password2")]]

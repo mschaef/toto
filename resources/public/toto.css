@@ -157,3 +157,7 @@ form.embedded {
 .hidden {
     display: none;
 }
+
+table.form {
+    margin: 10px;
+}
