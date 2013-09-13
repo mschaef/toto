@@ -86,11 +86,15 @@ div#error {
     text-align: center;
 }
 
-span#logout A {
-    color: red;
+div#wrap {
 }
 
-div#wrap {
+div#header A {
+    color: white;
+}
+
+div#header span#logout A {
+    color: red;
 }
 
 div#sidebar {
