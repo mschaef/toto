@@ -91,7 +91,7 @@
      "Add Todo List..."]]])
 
 (defn render-todo-list-page [ selected-list-id ]
-  (view/render-page {}
+  (view/render-page  { :page-title ((data/get-todo-list-by-id selected-list-id) :desc) }
    (page/include-js "/toto-todo-list.js")
    [:div#sidebar
     (render-todo-list-list selected-list-id)]
@@ -111,7 +111,8 @@
 (defn render-todo-list-sharing-page [ list-id & { :keys [ error-message ]}]
   (let [ list-name ((data/get-todo-list-by-id list-id) :desc)
         list-owners (data/get-todo-list-owners-by-list-id list-id) ]
-    (view/render-page {}
+    (view/render-page { :page-title 
+                       (str "List Visibility: " ((data/get-todo-list-by-id list-id) :desc)) }
      [:div#sidebar
       (render-todo-list-list list-id)]
      [:div#contents
