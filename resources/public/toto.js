@@ -31,7 +31,7 @@ function beginItemEdit(itemId)
     var itemDesc = $('div#item_desc_' + itemId).text();
 
     formMarkup += "<form class=\"embedded\" action=\"/item/" + itemId + "/delete\" method=\"POST\">";
-    formMarkup += "<input alt=\"Delete Item\" height=\"11\" src=\"/x_11x11.png\" type=\"image\" width=\"11\" />";
+    formMarkup += "<input alt=\"Delete Item\" height=\"12\" src=\"/trash_stroke_12x12.png\" type=\"image\" width=\"12\" />";
     formMarkup += "</form>";
 
     formMarkup += "<form id=\"iedit_" + itemId + "\"  class=\"embedded\" action=\"/item/" + itemId + "\" method=\"POST\">";
@@ -52,7 +52,7 @@ function beginListEdit(listId)
     var listDesc = $('div#list_desc_' + listId).text();
 
     formMarkup += "<form class=\"embedded\" action=\"/list/" + listId + "/delete\" method=\"POST\">";
-    formMarkup += "<input alt=\"Delete List\" height=\"11\" src=\"/x_11x11.png\" type=\"image\" width=\"11\" />";
+    formMarkup += "<input alt=\"Delete List\" height=\"12\" src=\"/trash_stroke_12x12.png\" type=\"image\" width=\"12\" />";
     formMarkup += "</form>";
 
     formMarkup += "<form id=\"ledit_" + listId + "\" class=\"embedded\"  action=\"/list/" + listId + "/description\" method=\"POST\">";
