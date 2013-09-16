@@ -2,7 +2,6 @@
   (:use compojure.core)
   (:require [toto.data :as data]
             [toto.core :as core]
-            [toto.view :as view]
             [toto.user :as user]
             [toto.todo :as todo]
             [cemerick.friend :as friend]
@@ -10,7 +9,6 @@
             [compojure.handler :as handler]
             [cemerick.friend.workflows :as workflows]
             [cemerick.friend.credentials :as credentials]))
-
 
 (def site-routes
      (routes
@@ -24,7 +22,7 @@
     (if (or (nil? user-record)
             (not (credentials/bcrypt-verify (creds :password) (user-record :password))))
       nil
-      { :identity (creds :username) :roles #{::user}})))
+      { :identity (creds :username) :roles #{ ::user }})))
 
 (def handler (-> site-routes
                  ;(core/wrap-logging)

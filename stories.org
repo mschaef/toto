@@ -1,5 +1,4 @@
 * Release 1
-** The item description is sanitized within the javascript used to call beginItemEdit
 ** The website displays correctly on Mobile Safari.
 ** The website displays correctly on Google Chrome.
 ** The website has links suitable for displaying todo lists in Android meta-widget
