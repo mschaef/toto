@@ -24,8 +24,16 @@
       nil
       { :identity (creds :username) :roles #{ ::user }})))
 
+
+(defn wrap-request-logging [app]
+  (fn [req]
+    (println ['REQUEST (:uri req) (:cemerick.friend/auth-config req)])
+    (let [resp (app req)]
+      (println ['RESPONSE (:status resp)])
+      resp)))
+
 (def handler (-> site-routes
-                 ;(core/wrap-logging)
+                 ;(wrap-request-logging)
                  (core/wrap-username)
                  (friend/authenticate {:credential-fn db-credential-fn
                                        :workflows [(workflows/interactive-form)]})

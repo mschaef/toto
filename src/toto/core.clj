@@ -11,13 +11,6 @@
                 nil)]
       (app req))))
 
-(defn wrap-request-logging [app]
-  (fn [req]
-    (println ['REQUEST (:uri req) (:cemerick.friend/auth-config req)])
-    (let [resp (app req)]
-      (println ['RESPONSE (:status resp)])
-      resp)))
-
 (defn authenticated-username []
   (and (not (nil? *username*))
        *username*))
