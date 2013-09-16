@@ -14,7 +14,7 @@
      (routes
       user/public-routes
       (route/resources "/")
-      (fn [req] (friend/authorize #{::user} (todo/all-routes req)))
+      (friend/wrap-authorize todo/all-routes #{::user})
       (route/not-found "Resource Not Found")))
 
 (defn db-credential-fn [ creds ]
