@@ -19,12 +19,9 @@
 ** DONE A user can delete one of their todo lists
 ** DONE A user can rename one of their todo lists.
 ** DONE The user interface has the caret in the 'new item' entry field by default.
-
 ** DONE The website displays the number of pending todo items next to each list name
 ** DONE The website remembers the current list when a todo item has been marked completed or deleted, and returns to that list.
-
 ** DONE The user interface hides the 'new list' name input field until the user clicks an 'add list' link.
-
 ** DONE The user's current identity is displayed on the web page.
 ** DONE The initial page of the web site is either the login page or the todo list (if there's already a session).
 ** DONE A user can register themselves as a new user through the web UI.
