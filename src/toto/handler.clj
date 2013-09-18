@@ -35,7 +35,6 @@
 
 (def handler (-> site-routes
                  (wrap-request-logging)
-                 (core/wrap-username)
                  (friend/authenticate {:credential-fn db-credential-fn
                                        :workflows [(workflows/interactive-form)]})
                  (handler/site)))
