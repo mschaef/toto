@@ -41,6 +41,11 @@
 
 (defn render-todo-list [ list-id ]
    [:table.item-list
+    [:tr
+     [:td {:colspan 1}]
+     [:td 
+      (form/form-to [:post (str "/list/" list-id)]
+                    (form/text-field { :class "full-width" } "item-description"))]]
     (map (fn [item-info]
            [:tr.item-row {:valign "center"}
             [:td
@@ -57,12 +62,7 @@
                  (if (is-link-url? desc)
                    [:a { :href desc } (hiccup.util/escape-html desc)]
                    (hiccup.util/escape-html desc))])]])
-         (data/get-pending-items list-id))
-    [:tr
-     [:td {:colspan 1}]
-     [:td 
-      (form/form-to [:post (str "/list/" list-id)]
-                    (form/text-field { :class "full-width"  } "item-description"))]]])
+         (data/get-pending-items list-id))])
 
 (defn render-todo-list-list [ selected-list-id ]
   [:div.full-width
