@@ -52,7 +52,6 @@
              (complete-item-button item-info)]
             [:td.item-description
               (let [desc (item-info :desc)]
-              
                 [:div { :id (str "item_" (item-info :item_id))}
                  [:a {:href (str "javascript:beginItemEdit(" (item-info :item_id) ")")}
                   [:img { :src "/pen_alt_fill_12x12.png" :width 12 :height 12 :alt "Edit Item"}]]
@@ -97,7 +96,6 @@
     (render-todo-list-list selected-list-id)]
    [:div#contents
     (render-todo-list selected-list-id)]))
-
 
 (defn render-todo-list-simply [ list-id ]
   (view/render-page { :page-title ((data/get-todo-list-by-id list-id) :desc) }

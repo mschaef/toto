@@ -25,7 +25,6 @@
       nil
       { :identity (creds :username) :roles #{ ::user }})))
 
-
 (defn wrap-request-logging [app]
   (fn [req]
     (log/trace 'REQUEST (:uri req))
