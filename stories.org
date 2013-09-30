@@ -6,7 +6,7 @@
 ** A user can interactively change their password with the web UI.
 ** A user can display a list of all todo list items, even if they have been completed.
 ** A user can display a list of all items on all of their todo lists.
-** The website allows hyperlinks to be included in todo items, in addition to plan text.
+** The website allows hyperlinks to be included in todo items, in addition to plain text.
 ** The website remembers whether or not a user has linked to a hyperlink and displays is appropriately in the todo list.
 ** A user can denote that a todo item should be deferred until a given date.
 ** A to-do list can be printed in a useful/plain format
@@ -16,6 +16,7 @@
 ** User e-mail addresses must be validated prior to the account being fully enabled.
 ** Add a means to recover a forgotten password via an e-mail.
 * Completed
+** DONE A user can move a todo item into another list.
 ** DONE A user can delete one of their todo lists
 ** DONE A user can rename one of their todo lists.
 ** DONE The user interface has the caret in the 'new item' entry field by default.
