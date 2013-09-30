@@ -15,7 +15,8 @@ $(document).ready(function () {
         var itemId = $(ui.draggable[0]).attr("itemid");
         var newListId = $(this).attr("listid");
 
-        alert("dropped item " + itemId + " on list " + newListId);
+        $("#item_set_list_" + itemId + " #target-list")[0].value = newListId;
+        $("#item_set_list_" + itemId)[0].submit();
       }
     });
 });

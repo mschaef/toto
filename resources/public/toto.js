@@ -2,7 +2,7 @@
 
 function beginListCreate()
 {
-    var formMarkup = ""
+  var formMarkup = "";
 
     formMarkup += "<form action=\"/list\" method=\"POST\">";
     formMarkup += "<input class=\"full-width\" id=\"list-description\" name=\"list-description\" type=\"text\" />";
@@ -15,7 +15,7 @@ function beginListCreate()
 
 function beginUserAdd(listId)
 {
-    var formMarkup = ""
+  var formMarkup = "";
 
     formMarkup += "<input class=\"full-width\" id=\"share-with-email\" name=\"share-with-email\" type=\"text\" />";
 
@@ -26,7 +26,7 @@ function beginUserAdd(listId)
 
 function beginItemEdit(itemId)
 {
-    var formMarkup = ""
+  var formMarkup = "";
 
     var itemDesc = $('div#item_desc_' + itemId).text();
 
@@ -65,5 +65,3 @@ function beginListEdit(listId)
 
     $("#ledit_" + listId + " #description").focus();
 }
-
-

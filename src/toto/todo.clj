@@ -56,6 +56,13 @@
                  [:a {:href (str "javascript:beginItemEdit(" (item-info :item_id) ")")}
                   [:img { :src "/pen_alt_fill_12x12.png" :width 12 :height 12 :alt "Edit Item"}]]
                  "&nbsp;"
+
+                 (form/form-to { :class "embedded"
+                                :id (str "item_set_list_" (item-info :item_id))
+                                }
+                               [:post (str "/item/" (item-info :item_id) "/list")]
+                               (form/hidden-field "target-list"))
+
                  [:div { :id (str "item_desc_" (item-info :item_id)) :class "hidden"}
                   (hiccup.util/escape-html desc)]
                  (if (is-link-url? desc)
@@ -203,6 +210,12 @@
     (data/update-item-by-id item-id item-description)
     (redirect-to-list list-id)))
 
+(defn update-item-list [ item-id target-list-id ] 
+  (let [ original-list-id ((data/get-item-by-id item-id) :todo_list_id)]
+    (data/update-item-list item-id target-list-id)
+    (redirect-to-list original-list-id)))
+
+
 (defn complete-item [ item-id ]
   (let [ list-id ((data/get-item-by-id item-id) :todo_list_id)]
     (data/complete-item-by-id (current-user-id) item-id)
@@ -254,6 +267,9 @@
 
   (POST "/item/:id"  {{id :id description :description} :params}
         (update-item id description))
+
+  (POST "/item/:id/list"  {{id :id target-list :target-list} :params}
+        (update-item-list id target-list))
 
   (POST "/item/:id/complete" [id]
         (complete-item id))

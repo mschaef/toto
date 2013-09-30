@@ -184,6 +184,13 @@
      ["item_id=?" item-id]
      {:desc item-description})))
 
+(defn update-item-list [ item-id list-id ]
+  (jdbc/with-connection schema/hsql-db
+    (jdbc/update-values
+     :todo_item
+     ["item_id=?" item-id]
+     {:todo_list_id list-id})))
+
 (defn get-item-by-id [ item-id ]
   (jdbc/with-connection schema/hsql-db
     (jdbc/with-query-results rows
