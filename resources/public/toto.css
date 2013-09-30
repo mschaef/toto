@@ -47,6 +47,10 @@ ul.list-list li.selected A {
     color: red;
 }
 
+ul.list-list li.drop-hover {
+    background: yellow;
+}
+
 table.item-list td {
     vertical-align: middle;
     padding: 2px;

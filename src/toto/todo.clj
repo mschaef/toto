@@ -47,7 +47,7 @@
       (form/form-to [:post (str "/list/" list-id)]
                     (form/text-field { :class "full-width" } "item-description"))]]
     (map (fn [item-info]
-           [:tr.item-row {:valign "center"}
+           [:tr.item-row { :valign "center" :itemid (item-info :item_id)}
             [:td
              (complete-item-button item-info)]
             [:td.item-description
@@ -68,12 +68,12 @@
    [:ul.list-list
     (map (fn [ list-info ]
            [:li (if (= (list-info :todo_list_id) (Integer. selected-list-id))
-                  { :class "selected" }
-                  { })
+                  { :class "selected" :listid (list-info :todo_list_id) }
+                  { :listid (list-info :todo_list_id) })
             [:a {:href (str "/list/" (list-info :todo_list_id) "/sharing")}
              [:img { :src "/chat_alt_stroke_12x12.png" :width 12 :height 12 :alt "Share List"}]]
             "&nbsp;"
-            [:span { :id (str "list_" (list-info :todo_list_id))}
+            [:span { :id (str "list_" (list-info :todo_list_id) ) }
              [:a {:href (str "javascript:beginListEdit(" (list-info :todo_list_id) ")")}
               [:img { :src "/pen_alt_fill_12x12.png" :width 12 :height 12 :alt "Edit List Name"}]]
              "&nbsp;"
