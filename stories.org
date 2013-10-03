@@ -3,6 +3,8 @@
 ** The website displays correctly on Google Chrome.
 ** The website has links suitable for displaying todo lists in Android meta-widget
 * Release 2
+** Export a todo list to Excel
+** per-list Bookmarklet for adding selected text, etc. to a todo-list
 ** A user can interactively change their password with the web UI.
 ** A user can display a list of all todo list items, even if they have been completed.
 ** A user can display a list of all items on all of their todo lists.
