@@ -60,29 +60,30 @@
                 (form/text-field { :class "full-width" } "item-description")))
 
 (defn render-todo-list [ list-id ]
-   [:table.item-list
-    [:tr [:td] [:td (render-new-item-form list-id)]]
+  (list
+    [:table.item-list
+     [:tr [:td] [:td (render-new-item-form list-id)]]
 
-    (map (fn [item-info]
-           [:tr.item-row { :valign "center" :itemid (item-info :item_id)}
-            [:td (complete-item-button item-info)]
-            [:td.item-description
+     (map (fn [item-info]
+            [:tr.item-row { :valign "center" :itemid (item-info :item_id)}
+             [:td (complete-item-button item-info)]
+             [:td.item-description
               (let [desc (item-info :desc)]
                 [:div { :id (str "item_" (item-info :item_id))}
                  (js-link "beginItemEdit" (item-info :item_id) img-edit-item)
                  "&nbsp;"
-                 (form/form-to { :class "embedded"
-                                :id (str "item_set_list_" (item-info :item_id))
-                                }
-                               [:post (str "/item/" (item-info :item_id) "/list")]
-                               (form/hidden-field "target-list"))
+
 
                  [:div { :id (str "item_desc_" (item-info :item_id)) :class "hidden"}
                   (hiccup.util/escape-html desc)]
                  (if (is-link-url? desc)
                    [:a { :href desc } (hiccup.util/escape-html desc)]
                    (hiccup.util/escape-html desc))])]])
-         (data/get-pending-items list-id))])
+          (data/get-pending-items list-id))]
+
+    (form/form-to { :class "embedded" :id (str "item_set_list_form") } [:post "/item-list"]
+                  (form/hidden-field "target-item")
+                  (form/hidden-field "target-list"))))
 
 (defn render-todo-list-list [ selected-list-id ]
   [:div.full-width
@@ -271,8 +272,8 @@
   (POST "/item/:id"  {{id :id description :description} :params}
         (update-item id description))
 
-  (POST "/item/:id/list"  {{id :id target-list :target-list} :params}
-        (update-item-list id target-list))
+  (POST "/item-list"  {{ target-item :target-item target-list :target-list} :params}
+        (update-item-list target-item target-list))
 
   (POST "/item/:id/complete" [id]
         (complete-item id))
