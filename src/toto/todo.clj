@@ -53,18 +53,19 @@
 
 (def img-edit-item [:img { :src "/pen_alt_fill_12x12.png" :width 12 :height 12 :alt "Edit Item"}])
 (def img-edit-list [:img { :src "/pen_alt_fill_12x12.png" :width 12 :height 12 :alt "Edit List Name"}])
+(def img-share-list [:img { :src "/chat_alt_stroke_12x12.png" :width 12 :height 12 :alt "Share List"}])
+
+(defn render-new-item-form [ list-id ]
+  (form/form-to [:post (str "/list/" list-id)]
+                (form/text-field { :class "full-width" } "item-description")))
 
 (defn render-todo-list [ list-id ]
    [:table.item-list
-    [:tr
-     [:td {:colspan 1}]
-     [:td 
-      (form/form-to [:post (str "/list/" list-id)]
-                    (form/text-field { :class "full-width" } "item-description"))]]
+    [:tr [:td] [:td (render-new-item-form list-id)]]
+
     (map (fn [item-info]
            [:tr.item-row { :valign "center" :itemid (item-info :item_id)}
-            [:td
-             (complete-item-button item-info)]
+            [:td (complete-item-button item-info)]
             [:td.item-description
               (let [desc (item-info :desc)]
                 [:div { :id (str "item_" (item-info :item_id))}
@@ -90,8 +91,7 @@
            [:li (if (= (list-info :todo_list_id) (Integer. selected-list-id))
                   { :class "selected" :listid (list-info :todo_list_id) }
                   { :listid (list-info :todo_list_id) })
-            [:a {:href (str "/list/" (list-info :todo_list_id) "/sharing")}
-             [:img { :src "/chat_alt_stroke_12x12.png" :width 12 :height 12 :alt "Share List"}]]
+            [:a {:href (str "/list/" (list-info :todo_list_id) "/sharing")} img-share-list]
             "&nbsp;"
             [:span { :id (str "list_" (list-info :todo_list_id) ) }
              (js-link "beginListEdit" (list-info :todo_list_id) img-edit-list)
