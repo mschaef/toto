@@ -38,6 +38,7 @@
                contents)
              [:div#footer
               "All Rights Reserved, Copyright 2013 East Coast Toolworks "
-              (format "(%.1f msec.)" (/ (- (. System (nanoTime)) t-begin) 1000000.0))]]]])))
+              (format "(%.1f msec.)" (/ (- (. System (nanoTime)) t-begin) 1000000.0))
+]]]])))
 
 
