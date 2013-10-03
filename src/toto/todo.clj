@@ -132,21 +132,15 @@
       (form/form-to
        [:post (str "/list/" list-id "/sharing")]
        [:table.item-list
-        (map (fn [ user-info ]
-               [:tr
-                [:td
-                 (if  (= (current-user-id) (user-info :user_id))
-                   [:input { :type "hidden"
-                            :name (str "user_" (user-info :user_id))
-                            :value "on"}]
-                   (if (in? list-owners (user-info :user_id))
-                     [:input { :name (str "user_" (user-info :user_id))
-                              :type "checkbox"
-                              :checked "checked"}]
-                     [:input { :name (str "user_" (user-info :user_id))
-                              :type "checkbox" }]))]
-                [:td.item-description
-                 (user-info :email_addr)]])
+        (map (fn [ { user-id :user_id user-email-addr :email_addr } ]
+               (let [ user-parameter-name (str "user_" user-id)]
+                 [:tr
+                  [:td
+                   (if (= (current-user-id) user-id)
+                     (form/hidden-field user-parameter-name "on")
+                     (form/check-box user-parameter-name
+                                     (in? list-owners user-id)))]
+                  [:td.item-description user-email-addr]]))
              (data/get-friendly-users-by-id (current-user-id)))
         [:tr
          [:td]
