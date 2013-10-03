@@ -98,7 +98,7 @@
              [:a {:href (str "/list/" (list-info :todo_list_id))}
               (hiccup.util/escape-html (list-info :desc))
               " ("
-              (count (data/get-pending-items (list-info :todo_list_id)))
+              (list-info :item_count)
               ")"]]])
          (data/get-todo-lists-by-user (current-user-id)))]
    [:p.new-list

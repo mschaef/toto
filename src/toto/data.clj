@@ -62,7 +62,13 @@
 (defn get-todo-lists-by-user [ user-id ]
   (jdbc/with-connection schema/hsql-db
     (jdbc/with-query-results rows
-      [(str "SELECT DISTINCT todo_list.todo_list_id, todo_list.desc"
+      [(str "SELECT DISTINCT todo_list.todo_list_id,"
+            "                todo_list.desc,"
+            "                (SELECT count(item.item_id)"
+            "                   FROM todo_item item" 
+            "                  WHERE item.todo_list_id=todo_list.todo_list_id"
+            "                    AND NOT EXISTS (SELECT 1 FROM todo_item_completion WHERE item_id=item.item_id))"
+            "                   AS item_count"
             "  FROM todo_list, todo_list_owners"
             " WHERE todo_list.todo_list_id=todo_list_owners.todo_list_id"
             "   AND todo_list_owners.user_id=?"
