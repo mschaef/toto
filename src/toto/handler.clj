@@ -25,15 +25,26 @@
       nil
       { :identity (creds :username) :roles #{ ::user }})))
 
-(defn wrap-request-logging [app]
+(defn wrap-request-logging [ app ]
   (fn [req]
-    (log/trace 'REQUEST (:uri req))
+    (log/debug 'REQUEST (:request-method req) (:uri req))
     (let [resp (app req)]
       (log/trace 'RESPONSE (:status resp))
       resp)))
 
+(defn wrap-show-response [ app label ]
+  (fn [req]
+    (let [resp (app req)]
+      (log/trace label (dissoc resp :body))
+      resp)))
+
+(defn extend-session-duration [ app duration-in-hours ]
+  (fn [req]
+    (assoc (app req) :session-cookie-attrs {:max-age (* duration-in-hours 3600)})))
+
 (def handler (-> site-routes
-                 (wrap-request-logging)
                  (friend/authenticate {:credential-fn db-credential-fn
                                        :workflows [(workflows/interactive-form)]})
-                 (handler/site)))
+                 (extend-session-duration 168)
+                 (handler/site)
+                 (wrap-request-logging)))
