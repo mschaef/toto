@@ -19,6 +19,15 @@
    (catch java.net.MalformedURLException ex
      false)))
 
+(defn string-empty? [ str ]
+  (or (nil? str)
+      (= 0 (count (.trim str)))))
+
+(defn in? 
+  "true if seq contains elm"
+  [seq elm]  
+  (some #(= elm %) seq))
+
 (defn current-user-id []
   ((data/get-user-by-email (core/authenticated-username)) :user_id))
 
@@ -108,11 +117,6 @@
   (view/render-page { :page-title ((data/get-todo-list-by-id list-id) :desc) }
     (render-todo-list list-id)))
 
-(defn in? 
-  "true if seq contains elm"
-  [seq elm]  
-  (some #(= elm %) seq))
-
 (defn render-todo-list-sharing-page [ list-id & { :keys [ error-message ]}]
   (let [ list-name ((data/get-todo-list-by-id list-id) :desc)
         list-owners (data/get-todo-list-owners-by-list-id list-id) ]
@@ -156,7 +160,8 @@
 
 
 (defn set-list-description [ list-id list-description ]
-  (data/set-list-description list-id list-description )
+  (when (not (string-empty? list-description))
+    (data/set-list-description list-id list-description ))
   (ring/redirect  (str "/list/" list-id)))
 
 (defn delete-list [ list-id ]
@@ -195,26 +200,26 @@
    (catch [ :type :form-error ] { :keys [ markup ]}
      markup)))
 
-
 (defn add-list [ list-description ]
-  (let [ list-id (data/add-list list-description) ]
-    (data/add-list-owner (current-user-id) list-id)
-    (redirect-to-home)))
+  (when (not (string-empty? list-description))
+    (data/add-list-owner (current-user-id) (data/add-list list-description)))
+  (redirect-to-home))
 
 (defn add-item [ list-id item-description ]
-  (data/add-todo-item list-id item-description)
+  (when (not (string-empty? item-description))
+    (data/add-todo-item list-id item-description))
   (redirect-to-list list-id))
 
 (defn update-item [ item-id item-description ]
   (let [ list-id ((data/get-item-by-id item-id) :todo_list_id)]
-    (data/update-item-by-id item-id item-description)
+    (when (not (string-empty? item-description))
+      (data/update-item-by-id item-id item-description))
     (redirect-to-list list-id)))
 
 (defn update-item-list [ item-id target-list-id ] 
   (let [ original-list-id ((data/get-item-by-id item-id) :todo_list_id)]
     (data/update-item-list item-id target-list-id)
     (redirect-to-list original-list-id)))
-
 
 (defn complete-item [ item-id ]
   (let [ list-id ((data/get-item-by-id item-id) :todo_list_id)]
