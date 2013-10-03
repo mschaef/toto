@@ -48,6 +48,12 @@
   (form/form-to [:post (str "/item/" (item-info :item_id) "/delete")]
                 [:input {:type "image" :src "/x_11x11.png" :width 11 :height 11 :alt "Delete Item"}]))
 
+(defn js-link [ js-fn-name args & contents ]
+  [:a {:href (str "javascript:" js-fn-name "(" args ")")} contents])
+
+(def img-edit-item [:img { :src "/pen_alt_fill_12x12.png" :width 12 :height 12 :alt "Edit Item"}])
+(def img-edit-list [:img { :src "/pen_alt_fill_12x12.png" :width 12 :height 12 :alt "Edit List Name"}])
+
 (defn render-todo-list [ list-id ]
    [:table.item-list
     [:tr
@@ -62,10 +68,8 @@
             [:td.item-description
               (let [desc (item-info :desc)]
                 [:div { :id (str "item_" (item-info :item_id))}
-                 [:a {:href (str "javascript:beginItemEdit(" (item-info :item_id) ")")}
-                  [:img { :src "/pen_alt_fill_12x12.png" :width 12 :height 12 :alt "Edit Item"}]]
+                 (js-link "beginItemEdit" (item-info :item_id) img-edit-item)
                  "&nbsp;"
-
                  (form/form-to { :class "embedded"
                                 :id (str "item_set_list_" (item-info :item_id))
                                 }
@@ -90,8 +94,7 @@
              [:img { :src "/chat_alt_stroke_12x12.png" :width 12 :height 12 :alt "Share List"}]]
             "&nbsp;"
             [:span { :id (str "list_" (list-info :todo_list_id) ) }
-             [:a {:href (str "javascript:beginListEdit(" (list-info :todo_list_id) ")")}
-              [:img { :src "/pen_alt_fill_12x12.png" :width 12 :height 12 :alt "Edit List Name"}]]
+             (js-link "beginListEdit" (list-info :todo_list_id) img-edit-list)
              "&nbsp;"
              [:div { :id (str "list_desc_" (list-info :todo_list_id)) :class "hidden"} 
               (hiccup.util/escape-html (list-info :desc))]
@@ -102,8 +105,7 @@
               ")"]]])
          (data/get-todo-lists-by-user (current-user-id)))]
    [:p.new-list
-    [:a { :href "javascript:beginListCreate()"} 
-     "Add Todo List..."]]])
+    (js-link "beginListCreate" nil "Add Todo List...")]])
 
 (defn render-todo-list-page [ selected-list-id ]
   (view/render-page  { :page-title ((data/get-todo-list-by-id selected-list-id) :desc) }
@@ -124,8 +126,7 @@
 (defn render-todo-list-sharing-page [ list-id & { :keys [ error-message ]}]
   (let [ list-name ((data/get-todo-list-by-id list-id) :desc)
         list-owners (data/get-todo-list-owners-by-list-id list-id) ]
-    (view/render-page { :page-title 
-                       (str "List Visibility: " ((data/get-todo-list-by-id list-id) :desc)) }
+    (view/render-page { :page-title (str "List Visibility: " list-name) }
      [:div#sidebar
       (render-todo-list-list list-id)]
      [:div#contents
@@ -146,8 +147,7 @@
          [:td]
          [:td
           [:p.new-user
-           [:a { :href (str "javascript:beginUserAdd(" list-id ")")} 
-            "Add User To List..."]]]]
+           (js-link "beginUserAdd" list-id) "Add User To List..."]]]
         (if (not (empty? error-message))
           [:tr
            [:td { :colspan 2 }
