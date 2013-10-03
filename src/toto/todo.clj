@@ -60,30 +60,25 @@
                 (form/text-field { :class "full-width" } "item-description")))
 
 (defn render-todo-list [ list-id ]
-  (list
-    [:table.item-list
-     [:tr [:td] [:td (render-new-item-form list-id)]]
+  [:table.item-list
+   [:tr [:td] [:td (render-new-item-form list-id)]]
 
-     (map (fn [item-info]
-            [:tr.item-row { :valign "center" :itemid (item-info :item_id)}
-             [:td (complete-item-button item-info)]
-             [:td.item-description
-              (let [desc (item-info :desc)]
-                [:div { :id (str "item_" (item-info :item_id))}
-                 (js-link "beginItemEdit" (item-info :item_id) img-edit-item)
-                 "&nbsp;"
+   (map (fn [item-info]
+          [:tr.item-row { :valign "center" :itemid (item-info :item_id)}
+           [:td (complete-item-button item-info)]
+           [:td.item-description
+            (let [desc (item-info :desc)]
+              [:div { :id (str "item_" (item-info :item_id))}
+               (js-link "beginItemEdit" (item-info :item_id) img-edit-item)
+               "&nbsp;"
 
 
-                 [:div { :id (str "item_desc_" (item-info :item_id)) :class "hidden"}
-                  (hiccup.util/escape-html desc)]
-                 (if (is-link-url? desc)
-                   [:a { :href desc } (hiccup.util/escape-html desc)]
-                   (hiccup.util/escape-html desc))])]])
-          (data/get-pending-items list-id))]
-
-    (form/form-to { :class "embedded" :id (str "item_set_list_form") } [:post "/item-list"]
-                  (form/hidden-field "target-item")
-                  (form/hidden-field "target-list"))))
+               [:div { :id (str "item_desc_" (item-info :item_id)) :class "hidden"}
+                (hiccup.util/escape-html desc)]
+               (if (is-link-url? desc)
+                 [:a { :href desc } (hiccup.util/escape-html desc)]
+                 (hiccup.util/escape-html desc))])]])
+        (data/get-pending-items list-id))])
 
 (defn render-todo-list-list [ selected-list-id ]
   [:div.full-width
@@ -108,12 +103,19 @@
    [:p.new-list
     (js-link "beginListCreate" nil "Add Todo List...")]])
 
+(defn render-item-set-list-form []
+    (form/form-to { :class "embedded" :id (str "item_set_list_form") } [:post "/item-list"]
+                  (form/hidden-field "target-item")
+                  (form/hidden-field "target-list")))
+
 (defn render-todo-list-page [ selected-list-id ]
-  (view/render-page  { :page-title ((data/get-todo-list-by-id selected-list-id) :desc) }
+  (view/render-page
+   { :page-title ((data/get-todo-list-by-id selected-list-id) :desc) }
    (page/include-js "/toto-todo-list.js")
    [:div#sidebar
     (render-todo-list-list selected-list-id)]
    [:div#contents
+    (render-item-set-list-form)
     (render-todo-list selected-list-id)
     [:div { :class "list-control-footer"}
      [:a { :href (str "/list/" selected-list-id "/simple") } "[Simple Display]"]]]))
