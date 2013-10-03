@@ -159,9 +159,9 @@
          [:td [:input {:type "submit" :value "Update Sharing"}]]]])])))
 
 
-(defn set-list-description [ list-id list-description ]
+(defn update-list-description [ list-id list-description ]
   (when (not (string-empty? list-description))
-    (data/set-list-description list-id list-description ))
+    (data/update-list-description list-id list-description ))
   (ring/redirect  (str "/list/" list-id)))
 
 (defn delete-list [ list-id ]
@@ -260,7 +260,7 @@
                           (selected-user-ids-from-params params))))
 
   (POST "/list/:list-id/description" { { list-id :list-id description :description } :params }
-        (set-list-description list-id description))
+        (update-list-description list-id description))
 
   (POST "/list/:list-id/delete" { { list-id :list-id  } :params }
         (delete-list list-id))

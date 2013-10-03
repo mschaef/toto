@@ -113,7 +113,7 @@
       todo-list-id
       user-id])))
 
-(defn set-list-description [ list-id list-description ]
+(defn update-list-description [ list-id list-description ]
   (jdbc/with-connection schema/hsql-db
     (jdbc/update-values
      :todo_list
