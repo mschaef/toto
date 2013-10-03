@@ -111,11 +111,15 @@
    [:div#sidebar
     (render-todo-list-list selected-list-id)]
    [:div#contents
-    (render-todo-list selected-list-id)]))
+    (render-todo-list selected-list-id)
+    [:div { :class "list-control-footer"}
+     [:a { :href (str "/list/" selected-list-id "/simple") } "[Simple Display]"]]]))
 
 (defn render-todo-list-simply [ list-id ]
   (view/render-page { :page-title ((data/get-todo-list-by-id list-id) :desc) }
-    (render-todo-list list-id)))
+    (render-todo-list list-id)
+    [:div { :class "list-control-footer"}
+     [:a { :href (str "/list/" list-id) } "[Full Display]"]]))
 
 (defn render-todo-list-sharing-page [ list-id & { :keys [ error-message ]}]
   (let [ list-name ((data/get-todo-list-by-id list-id) :desc)

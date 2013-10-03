@@ -133,6 +133,12 @@ div#footer {
     border-top: 1px solid;
 }
 
+div.list-control-footer {
+    text-align: center;
+    font-size: 10px;
+    font-style: italic;
+}
+
 .full-width {
     width: 95%;
 }
