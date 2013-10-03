@@ -109,16 +109,13 @@
                   (form/hidden-field "target-list")))
 
 (defn render-todo-list-page [ selected-list-id ]
-  (view/render-page
-   { :page-title ((data/get-todo-list-by-id selected-list-id) :desc) }
-   (page/include-js "/toto-todo-list.js")
-   [:div#sidebar
-    (render-todo-list-list selected-list-id)]
-   [:div#contents
-    (render-item-set-list-form)
-    (render-todo-list selected-list-id)
-    [:div { :class "list-control-footer"}
-     [:a { :href (str "/list/" selected-list-id "/simple") } "[Simple Display]"]]]))
+  (view/render-page { :page-title ((data/get-todo-list-by-id selected-list-id) :desc)
+                     :include-js [ "/toto-todo-list.js" ]
+                     :sidebar (render-todo-list-list selected-list-id)}
+                    (render-item-set-list-form)
+                    (render-todo-list selected-list-id)
+                    [:div { :class "list-control-footer"}
+                     [:a { :href (str "/list/" selected-list-id "/simple") } "[Simple Display]"]]))
 
 (defn render-todo-list-simply [ list-id ]
   (view/render-page { :page-title ((data/get-todo-list-by-id list-id) :desc) }
@@ -129,36 +126,33 @@
 (defn render-todo-list-sharing-page [ list-id & { :keys [ error-message ]}]
   (let [ list-name ((data/get-todo-list-by-id list-id) :desc)
         list-owners (data/get-todo-list-owners-by-list-id list-id) ]
-    (view/render-page { :page-title (str "List Visibility: " list-name) }
-     [:div#sidebar
-      (render-todo-list-list list-id)]
-     [:div#contents
-      (form/form-to
-       [:post (str "/list/" list-id "/sharing")]
-       [:table.item-list
-        (map (fn [ { user-id :user_id user-email-addr :email_addr } ]
-               (let [ user-parameter-name (str "user_" user-id)]
-                 [:tr
-                  [:td
-                   (if (= (current-user-id) user-id)
-                     (form/hidden-field user-parameter-name "on")
-                     (form/check-box user-parameter-name
-                                     (in? list-owners user-id)))]
-                  [:td.item-description user-email-addr]]))
-             (data/get-friendly-users-by-id (current-user-id)))
-        [:tr
-         [:td]
-         [:td
-          [:p.new-user
-           (js-link "beginUserAdd" list-id) "Add User To List..."]]]
-        (if (not (empty? error-message))
-          [:tr
-           [:td { :colspan 2 }
-            [:div#error error-message]]])
-        [:tr
-         [:td]
-         [:td [:input {:type "submit" :value "Update Sharing"}]]]])])))
-
+    (view/render-page { :page-title (str "List Visibility: " list-name) 
+                       :sidebar (render-todo-list-list list-id) }
+                      (form/form-to
+                       [:post (str "/list/" list-id "/sharing")]
+                       [:table.item-list
+                        (map (fn [ { user-id :user_id user-email-addr :email_addr } ]
+                               (let [ user-parameter-name (str "user_" user-id)]
+                                 [:tr
+                                  [:td
+                                   (if (= (current-user-id) user-id)
+                                     (form/hidden-field user-parameter-name "on")
+                                     (form/check-box user-parameter-name
+                                                     (in? list-owners user-id)))]
+                                  [:td.item-description user-email-addr]]))
+                             (data/get-friendly-users-by-id (current-user-id)))
+                        [:tr
+                         [:td]
+                         [:td
+                          [:p.new-user
+                           (js-link "beginUserAdd" list-id "Add User To List...")]]]
+                        (if (not (empty? error-message))
+                          [:tr
+                           [:td { :colspan 2 }
+                            [:div#error error-message]]])
+                        [:tr
+                         [:td]
+                         [:td [:input {:type "submit" :value "Update Sharing"}]]]]))))
 
 (defn update-list-description [ list-id list-description ]
   (when (not (string-empty? list-description))
@@ -237,8 +231,7 @@
        (filter #(.startsWith % "user_") (map name (keys params)))))
 
 (defroutes all-routes
-  (GET "/" []
-       (redirect-to-home))
+  (GET "/" [] (redirect-to-home))
 
   (POST "/list" {{list-description :list-description} :params}
         (add-list list-description))

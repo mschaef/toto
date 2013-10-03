@@ -8,7 +8,7 @@
 
 (def page-title "Toto")
 
-(defn render-page [{ :keys [ page-title ] } & contents]
+(defn render-page [{ :keys [ page-title include-js sidebar ] }  & contents]
   (let [ t-begin (. System (nanoTime))]
     (html [:html
            [:head
@@ -20,6 +20,8 @@
             (page/include-js "/jquery-1.10.1.js")
             (page/include-js "/jquery-ui.js")
             (page/include-js "/toto.js")
+            (map #(page/include-js %) include-js)
+
             [:link { :rel "shortcut icon" :href "/favicon.ico"}]]
            [:body
             [:div#header 
@@ -34,7 +36,9 @@
                  [:span#logout
                   [:a { :href "/logout"} "[logout]"]]])]]
             [:div#wrap
-             contents
+             (if sidebar
+               (list [:div#sidebar sidebar] [:div#contents contents])
+               contents)
              [:div#footer
               "All Rights Reserved, Copyright 2013 East Coast Toolworks "
               (format "(%.1f msec.)" (/ (- (. System (nanoTime)) t-begin) 1000000.0))
