@@ -5,6 +5,8 @@
             [toto.core :as core]
             [toto.user :as user]
             [toto.todo :as todo]
+            [clojure.java.jdbc :as jdbc]
+            [toto.schema :as schema]
             [cemerick.friend :as friend]
             [compojure.route :as route]
             [compojure.handler :as handler]
@@ -40,9 +42,15 @@
   (fn [req]
     (assoc (app req) :session-cookie-attrs {:max-age (* duration-in-hours 3600)})))
 
+(defn wrap-db-connection [ app db-spec ]
+  (fn [ req ]
+    (jdbc/with-connection db-spec
+      (app req))))
+
 (def handler (-> site-routes
                  (friend/authenticate {:credential-fn db-credential-fn
                                        :workflows [(workflows/interactive-form)]})
                  (extend-session-duration 168)
                  (handler/site)
+                 (wrap-db-connection schema/hsql-db)
                  (wrap-request-logging)))
