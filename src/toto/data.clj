@@ -147,13 +147,21 @@
      item-id ]
     (first (doall rows))))
 
+(defn is-item-completed? [ item-id ]
+  (jdbc/with-query-results rows
+    ["SELECT COUNT(*) FROM todo_item_completion WHERE item_id=?"
+     item-id ]
+    (> ((first rows) :c1) 0)))
+
 (defn complete-item-by-id [ user-id item-id ]
-  (jdbc/insert-records
-   :todo_item_completion
-   { :user_id user-id
-    :item_id item-id
-    :completed_on (java.util.Date.)
-    :is_delete false}))
+  (jdbc/transaction
+   (when (not (is-item-completed? item-id))
+     (jdbc/insert-records
+      :todo_item_completion
+      { :user_id user-id
+       :item_id item-id
+       :completed_on (java.util.Date.)
+       :is_delete false}))))
 
 (defn delete-item-by-id [ user-id item-id ]
   (jdbc/insert-records
