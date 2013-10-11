@@ -11,12 +11,10 @@
             [cemerick.friend.workflows :as workflows]
             [cemerick.friend.credentials :as credentials]))
 
-(def site-routes
-     (routes
-      user/public-routes
-      (route/resources "/")
-      (friend/wrap-authorize todo/all-routes #{::user})
-      (route/not-found "Resource Not Found")))
+(def site-routes (routes user/public-routes
+                         (route/resources "/")
+                         (friend/wrap-authorize todo/all-routes #{::user})
+                         (route/not-found "Resource Not Found")))
 
 (defn db-credential-fn [ creds ]
   (let [user-record (data/get-user-by-email (creds :username))]
