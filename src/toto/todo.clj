@@ -60,18 +60,16 @@
 
 (defn render-todo-list [ list-id ]
   [:table.item-list
-   [:tr [:td] [:td (render-new-item-form list-id)]]
+   [:tr [:td] [:td] [:td (render-new-item-form list-id)]]
 
    (map (fn [item-info]
           [:tr.item-row { :valign "center" :itemid (item-info :item_id)}
            [:td (complete-item-button item-info)]
+           [:td [:div { :id (str "item_control_" (item-info :item_id))}
+                 (js-link "beginItemEdit" (item-info :item_id) img-edit-item)]]
            [:td.item-description
             (let [desc (item-info :desc)]
               [:div { :id (str "item_" (item-info :item_id))}
-               (js-link "beginItemEdit" (item-info :item_id) img-edit-item)
-               "&nbsp;"
-
-
                [:div { :id (str "item_desc_" (item-info :item_id)) :class "hidden"}
                 (hiccup.util/escape-html desc)]
                (if (is-link-url? desc)

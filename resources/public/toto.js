@@ -28,40 +28,22 @@ function beginItemEdit(itemId)
 {
   var formMarkup = "";
 
-    var itemDesc = $('div#item_desc_' + itemId).text();
+  var itemDesc = $('div#item_desc_' + itemId).text();
 
-    formMarkup += "<form class=\"embedded\" action=\"/item/" + itemId + "/delete\" method=\"POST\">";
-    formMarkup += "<input alt=\"Delete Item\" height=\"12\" src=\"/trash_stroke_12x12.png\" type=\"image\" width=\"12\" />";
-    formMarkup += "</form>";
+  formMarkup += "<form class=\"embedded\" action=\"/item/" + itemId + "/delete\" method=\"POST\">";
+  formMarkup += "<input alt=\"Delete Item\" height=\"12\" src=\"/trash_stroke_12x12.png\" type=\"image\" width=\"12\" />";
+  formMarkup += "</form>";
 
-    formMarkup += "<form id=\"iedit_" + itemId + "\"  class=\"embedded\" action=\"/item/" + itemId + "\" method=\"POST\">";
-    formMarkup += "<input class=\"full-width\" id=\"description\" name=\"description\" type=\"text\"/>";
-    formMarkup += "</form>";
+  $('div#item_control_' + itemId).replaceWith(formMarkup);
 
-    $('div#item_' + itemId).replaceWith(formMarkup);
+  formMarkup = "";
 
-    $("#iedit_" + itemId + " #description").val(itemDesc);
+  formMarkup += "<form id=\"iedit_" + itemId + "\"  class=\"embedded\" action=\"/item/" + itemId + "\" method=\"POST\">";
+  formMarkup += "<input class=\"full-width\" id=\"description\" name=\"description\" type=\"text\"/>";
+  formMarkup += "</form>";
 
-    $("#iedit_" + itemId + " #description").focus();
-}
+  $('div#item_' + itemId).replaceWith(formMarkup);
 
-function beginListEdit(listId)
-{
-    var formMarkup = "";
-
-    var listDesc = $('div#list_desc_' + listId).text();
-
-    formMarkup += "<form class=\"embedded\" action=\"/list/" + listId + "/delete\" method=\"POST\">";
-    formMarkup += "<input alt=\"Delete List\" height=\"12\" src=\"/trash_stroke_12x12.png\" type=\"image\" width=\"12\" />";
-    formMarkup += "</form>";
-
-    formMarkup += "<form id=\"ledit_" + listId + "\" class=\"embedded\"  action=\"/list/" + listId + "/description\" method=\"POST\">";
-    formMarkup += "<input id=\"description\" name=\"description\" type=\"text\"/>";
-    formMarkup += "</form>";
-
-    $('span#list_' + listId).replaceWith(formMarkup);
-
-    $("#ledit_" + listId + " #description").val(listDesc);
-
-    $("#ledit_" + listId + " #description").focus();
+  $("#iedit_" + itemId + " #description").val(itemDesc);
+  $("#iedit_" + itemId + " #description").focus();
 }
