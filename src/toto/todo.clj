@@ -53,7 +53,6 @@
 
 (def img-edit-item [:img { :src "/pen_alt_fill_12x12.png" :width 12 :height 12 :alt "Edit Item"}])
 (def img-edit-list [:img { :src "/pen_alt_fill_12x12.png" :width 12 :height 12 :alt "Edit List Name"}])
-(def img-share-list [:img { :src "/chat_alt_stroke_12x12.png" :width 12 :height 12 :alt "Share List"}])
 
 (defn render-new-item-form [ list-id ]
   (form/form-to [:post (str "/list/" list-id)]
@@ -87,11 +86,9 @@
            [:li (if (= (list-info :todo_list_id) (Integer. selected-list-id))
                   { :class "selected" :listid (list-info :todo_list_id) }
                   { :listid (list-info :todo_list_id) })
-            [:a {:href (str "/list/" (list-info :todo_list_id) "/sharing")} img-share-list]
+            [:a {:href (str "/list/" (list-info :todo_list_id) "/details")} img-edit-list]
             "&nbsp;"
             [:span { :id (str "list_" (list-info :todo_list_id) ) }
-             (js-link "beginListEdit" (list-info :todo_list_id) img-edit-list)
-             "&nbsp;"
              [:div { :id (str "list_desc_" (list-info :todo_list_id)) :class "hidden"} 
               (hiccup.util/escape-html (list-info :desc))]
              [:a {:href (str "/list/" (list-info :todo_list_id))}
@@ -123,36 +120,42 @@
     [:div { :class "list-control-footer"}
      [:a { :href (str "/list/" list-id) } "[Full Display]"]]))
 
-(defn render-todo-list-sharing-page [ list-id & { :keys [ error-message ]}]
+(defn render-todo-list-details-page [ list-id & { :keys [ error-message ]}]
   (let [ list-name ((data/get-todo-list-by-id list-id) :desc)
         list-owners (data/get-todo-list-owners-by-list-id list-id) ]
-    (view/render-page { :page-title (str "List Visibility: " list-name) 
+    (view/render-page { :page-title (str "List Details: " list-name) 
                        :sidebar (render-todo-list-list list-id) }
                       (form/form-to
-                       [:post (str "/list/" list-id "/sharing")]
-                       [:table.item-list
-                        (map (fn [ { user-id :user_id user-email-addr :email_addr } ]
-                               (let [ user-parameter-name (str "user_" user-id)]
+                       [:post (str "/list/" list-id "/details")]
+                       [:table.config-panel.full-width
+                        [:tr
+                         [:td.section-heading "List Name: "]
+                         [:td (form/text-field { :class "full-width" } "list-name" list-name) ]]
+                        [:tr
+                         [:td.section-heading "List Owners: "]
+                         [:td [:table.item-list
+                               (map (fn [ { user-id :user_id user-email-addr :email_addr } ]
+                                      (let [ user-parameter-name (str "user_" user-id)]
+                                        [:tr.item-row
+                                         [:td
+                                          (if (= (current-user-id) user-id)
+                                            (form/hidden-field user-parameter-name "on")
+                                            (form/check-box user-parameter-name
+                                                            (in? list-owners user-id)))]
+                                         [:td.item-description user-email-addr]]))
+                                    (data/get-friendly-users-by-id (current-user-id)))
+                               [:tr
+                                [:td]
+                                [:td
+                                 [:p.new-user
+                                  (js-link "beginUserAdd" list-id "Add User To List...")]]]
+                               (if (not (empty? error-message))
                                  [:tr
-                                  [:td
-                                   (if (= (current-user-id) user-id)
-                                     (form/hidden-field user-parameter-name "on")
-                                     (form/check-box user-parameter-name
-                                                     (in? list-owners user-id)))]
-                                  [:td.item-description user-email-addr]]))
-                             (data/get-friendly-users-by-id (current-user-id)))
+                                  [:td { :colspan 2 }
+                                   [:div#error error-message]]])]]]
                         [:tr
                          [:td]
-                         [:td
-                          [:p.new-user
-                           (js-link "beginUserAdd" list-id "Add User To List...")]]]
-                        (if (not (empty? error-message))
-                          [:tr
-                           [:td { :colspan 2 }
-                            [:div#error error-message]]])
-                        [:tr
-                         [:td]
-                         [:td [:input {:type "submit" :value "Update Sharing"}]]]]))))
+                         [:td [:input {:type "submit" :value "Update List Details"}]]]]))))
 
 (defn update-list-description [ list-id list-description ]
   (when (not (string-empty? list-description))
@@ -173,15 +176,12 @@
               (nil? user-info)
               (throw+
                { :type :form-error
-                :markup (render-todo-list-sharing-page list-id
-                                               :error-message "Invalid e-mail address")})
+                :markup (render-todo-list-details-page list-id :error-message "Invalid e-mail address")})
               
               (data/list-owned-by-user-id? list-id (user-info :user_id))
               (throw+
                { :type :form-error
-                :markup (render-todo-list-sharing-page list-id
-                                               :error-message "List already owned by this user.")})
-
+                :markup (render-todo-list-details-page list-id :error-message "List already owned by this user.")})
               :else
               (user-info :user_id))))
          all-user-ids (clojure.set/union (apply hash-set selected-ids)
@@ -190,7 +190,7 @@
                                            (hash-set email-user-id)))]
 
      (data/set-list-ownership list-id all-user-ids)
-     (ring/redirect  (str "/list/" list-id "/sharing")))
+     (ring/redirect  (str "/list/" list-id "/details")))
 
    (catch [ :type :form-error ] { :keys [ markup ]}
      markup)))
@@ -242,19 +242,19 @@
   (GET "/list/:list-id/simple" [ list-id ]
        (render-todo-list-simply list-id))
 
-  (GET "/list/:list-id/sharing" [ list-id ]
-       (render-todo-list-sharing-page list-id))
+  (GET "/list/:list-id/details" [ list-id ]
+       (render-todo-list-details-page list-id))
 
-  (POST "/list/:list-id/sharing" { params :params }
+  (POST "/list/:list-id/details" { params :params }
         (let [ { list-id :list-id 
+                list-name :list-name
                 share-with-email :share-with-email }
                params ]
 
+          (update-list-description list-id list-name)
           (add-list-owner list-id share-with-email
                           (selected-user-ids-from-params params))))
 
-  (POST "/list/:list-id/description" { { list-id :list-id description :description } :params }
-        (update-list-description list-id description))
 
   (POST "/list/:list-id/delete" { { list-id :list-id  } :params }
         (delete-list list-id))
