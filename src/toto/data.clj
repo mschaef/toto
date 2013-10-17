@@ -1,70 +1,67 @@
 (ns toto.data
   (:require [clojure.java.jdbc :as jdbc]))
 
-(defn all-user-names []
+(defn query-all [ query-spec ]
   (jdbc/with-query-results rows
-    ["select name from user order by name"]
-    (doall (map :name rows))))
+    query-spec
+    (doall rows)))
+
+(defn query-first [ query-spec ]
+  (jdbc/with-query-results rows
+    query-spec
+    (first rows)))
+
+(defn query-count [ query-spec ]
+  (:c1 (query-first query-spec)))
+
+(defn all-user-names []
+  (map :name (query-all ["select name from user order by name"])))
 
 (defn get-user-by-email [ email-addr ]
-  (jdbc/with-query-results rows
-    ["select * from user where email_addr=?" email-addr]
-    (first rows)))
+  (query-first ["select * from user where email_addr=?" email-addr]))
 
 (defn user-email-exists? [ email-addr ]
   (not (nil? (get-user-by-email email-addr))))
 
 (defn get-user-by-id [ user-id ]
-  (jdbc/with-query-results rows
-    ["select * from user where user_id=?" user-id]
-    (first rows)))
+  (query-first ["select * from user where user_id=?" user-id]))
 
 (defn get-todo-list-by-id [ list-id ]
-  (jdbc/with-query-results rows
-    ["select * from todo_list where todo_list_id=?" list-id]
-    (first rows)))
+  (query-first ["select * from todo_list where todo_list_id=?" list-id]))
 
 (defn get-friendly-users-by-id [ user-id ]
-  (jdbc/with-query-results rows
-    [(str "SELECT DISTINCT b.user_id, u.email_addr"
-          "  FROM todo_list_owners a, todo_list_owners b, user u"
-          " WHERE a.todo_list_id = b.todo_list_id"
-          "   AND u.user_id = b.user_id"
-          "   AND a.user_id = ?"
-          " ORDER BY u.email_addr")
-     user-id]
-    (doall rows)))
+  (query-all [(str "SELECT DISTINCT b.user_id, u.email_addr"
+                   "  FROM todo_list_owners a, todo_list_owners b, user u"
+                   " WHERE a.todo_list_id = b.todo_list_id"
+                   "   AND u.user_id = b.user_id"
+                   "   AND a.user_id = ?"
+                   " ORDER BY u.email_addr")
+              user-id]))
 
 (defn get-todo-list-owners-by-list-id [ list-id ]
-  (jdbc/with-query-results rows
-    [(str "SELECT user_id"
-          "  FROM todo_list_owners"
-          " WHERE todo_list_id=?")
-     list-id]
-    (doall (map :user_id rows))))
+  (map :user_id  (query-all [(str "SELECT user_id"
+                                  "  FROM todo_list_owners"
+                                  " WHERE todo_list_id=?")
+                             list-id])))
 
 (defn get-todo-list-ids-by-user [ user-id ]
-  (jdbc/with-query-results rows
-    [(str "SELECT DISTINCT todo_list_id"
-          "  FROM todo_list_owners"
-          "  WHERE user_id=?")
-     user-id]
-    (doall (map :todo_list_id rows))))
+  (map :todo_list_id (query-all [(str "SELECT DISTINCT todo_list_id"
+                                      "  FROM todo_list_owners"
+                                      "  WHERE user_id=?")
+                                 user-id])))
 
 (defn get-todo-lists-by-user [ user-id ]
-  (jdbc/with-query-results rows
-    [(str "SELECT DISTINCT todo_list.todo_list_id,"
-          "                todo_list.desc,"
-          "                (SELECT count(item.item_id)"
-          "                   FROM todo_item item" 
-          "                  WHERE item.todo_list_id=todo_list.todo_list_id"
-          "                    AND NOT EXISTS (SELECT 1 FROM todo_item_completion WHERE item_id=item.item_id))"
-          "                   AS item_count"
-          "  FROM todo_list, todo_list_owners"
-          " WHERE todo_list.todo_list_id=todo_list_owners.todo_list_id"
-          "   AND todo_list_owners.user_id=?"
-          " ORDER BY todo_list.desc DESC") user-id]
-    (doall rows)))
+  (query-all [(str "SELECT DISTINCT todo_list.todo_list_id,"
+                   "                todo_list.desc,"
+                   "                (SELECT count(item.item_id)"
+                   "                   FROM todo_item item" 
+                   "                  WHERE item.todo_list_id=todo_list.todo_list_id"
+                   "                    AND NOT EXISTS (SELECT 1 FROM todo_item_completion WHERE item_id=item.item_id))"
+                   "                   AS item_count"
+                   "  FROM todo_list, todo_list_owners"
+                   " WHERE todo_list.todo_list_id=todo_list_owners.todo_list_id"
+                   "   AND todo_list_owners.user_id=?"
+                   " ORDER BY todo_list.desc DESC") user-id]))
 
 (defn add-user [ email-addr password ]
   (:user_id (first
@@ -112,14 +109,13 @@
    {:desc list-description}))
 
 (defn list-owned-by-user-id? [ list-id user-id ]
-  (jdbc/with-query-results rows
-    [(str "SELECT COUNT(*)"
-          "  FROM todo_list_owners"
-          " WHERE todo_list_id=?"
-          "   AND user_id=?")
-     list-id
-     user-id]
-    (> ((first rows) :c1) 0)))
+  (> (query-count [(str "SELECT COUNT(*)"
+                        "  FROM todo_list_owners"
+                        " WHERE todo_list_id=?"
+                        "   AND user_id=?")
+                   list-id
+                   user-id])
+     0))
 
 (defn add-todo-item [ todo-list-id desc ]
   (:item_id (first
@@ -130,28 +126,24 @@
                :created_on (java.util.Date.)}))))
 
 (defn get-pending-items [ list-id ]
-  (jdbc/with-query-results rows
-    [(str "SELECT item.item_id, item.todo_list_id, item.desc, item.created_on"
-          " FROM todo_item item" 
-          " WHERE todo_list_id=?"
-          "   AND NOT EXISTS (SELECT 1 FROM todo_item_completion WHERE item_id=item.item_id)"
-          " ORDER BY item.item_id")
-     list-id ]
-    (doall rows)))
+  (query-all [(str "SELECT item.item_id, item.todo_list_id, item.desc, item.created_on"
+                   " FROM todo_item item" 
+                   " WHERE todo_list_id=?"
+                   "   AND NOT EXISTS (SELECT 1 FROM todo_item_completion WHERE item_id=item.item_id)"
+                   " ORDER BY item.item_id")
+              list-id]))
 
 (defn get-item-by-id [ item-id ]
-  (jdbc/with-query-results rows
-    [(str "SELECT item.item_id, item.todo_list_id, item.desc, item.created_on"
-          " FROM todo_item item" 
-          " WHERE item_id=?")
-     item-id ]
-    (first (doall rows))))
+  (query-first [(str "SELECT item.item_id, item.todo_list_id, item.desc, item.created_on"
+                     " FROM todo_item item" 
+                     " WHERE item_id=?")
+                item-id]))
+
 
 (defn is-item-completed? [ item-id ]
-  (jdbc/with-query-results rows
-    ["SELECT COUNT(*) FROM todo_item_completion WHERE item_id=?"
-     item-id ]
-    (> ((first rows) :c1) 0)))
+  (> (query-count ["SELECT COUNT(*) FROM todo_item_completion WHERE item_id=?"
+                   item-id ])
+     0))
 
 (defn complete-item-by-id [ user-id item-id ]
   (jdbc/transaction
@@ -184,8 +176,6 @@
    {:todo_list_id list-id}))
 
 (defn get-item-by-id [ item-id ]
-  (jdbc/with-query-results rows
-    ["select * from todo_item where item_id=?" item-id ]
-    (first (doall rows))))
+  (query-first ["select * from todo_item where item_id=?" item-id]))
 
 ;; TODO: remove-item-by-id
