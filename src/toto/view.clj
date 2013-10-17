@@ -1,8 +1,7 @@
 (ns toto.view
   (:use hiccup.core)
   (:use clojure.set)
-  (:require [toto.data :as data]
-            [toto.core :as core]
+  (:require [toto.core :as core]
             [hiccup.form :as form]
             [hiccup.page :as page]))
 
@@ -12,6 +11,8 @@
   (let [ t-begin (. System (nanoTime))]
     (html [:html
            [:head
+            (when (core/is-mobile-request?)
+              [:meta {:name "viewport" :content "width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0,"}])
             [:title app-name (if (not (nil? page-title)) (str " - " page-title))]
             [:link { :rel "shortcut icon" :href "/favicon.ico"}]
 
@@ -38,6 +39,8 @@
                contents)
              [:div#footer
               "All Rights Reserved, Copyright 2013 East Coast Toolworks "
-              (format "(%.1f msec.)" (/ (- (. System (nanoTime)) t-begin) 1000000.0))]]]])))
+              (format "(%.1f msec.)" (/ (- (. System (nanoTime)) t-begin) 1000000.0))
+              (when (core/is-mobile-request?)
+                "(mobile)")]]]])))
 
 

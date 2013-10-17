@@ -51,6 +51,7 @@
                  (friend/authenticate {:credential-fn db-credential-fn
                                        :workflows [(workflows/interactive-form)]})
                  (extend-session-duration 168)
-                 (handler/site)
                  (wrap-db-connection schema/hsql-db)
+                 (core/wrap-mobile-detect)
+                 (handler/site)
                  (wrap-request-logging)))
