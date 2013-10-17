@@ -10,7 +10,8 @@
 (def ^:dynamic *in-mobile-request* false)
 
 (defn mobile-user-agent? [ user-agent ]
-  (and (string? user-agent)
+  (and false ; disabled for now
+       (string? user-agent)
        (.contains (string/lower-case user-agent) "mobile")))
 
 (defn query-param [ req param-name ]
