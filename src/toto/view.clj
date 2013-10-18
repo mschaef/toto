@@ -7,6 +7,8 @@
 
 (def app-name "Toto")
 
+(def img-show-list [:img { :src "/list_16x14.png" :width 16 :height 14 :alt "Show List"}])
+
 (defn render-page [{ :keys [ page-title include-js sidebar ] }  & contents]
   (let [ t-begin (. System (nanoTime))]
     (html [:html
@@ -30,7 +32,7 @@
            [:body
             [:div#header 
              (if (core/is-mobile-request?)
-               [:a { :href "#" :class "click" } "..."]
+               [:a { :href "#" :class "click" } img-show-list "&nbsp;"]
                (list
                 [:a { :href "/" } app-name]
                 "-"))
