@@ -1,0 +1,21 @@
+/* toto-desktop.css - Site styles for desktop use */
+
+body, table, select, input {
+    font-family:Helvetica,Arial,Verdana,sans-serif;
+    font-size: 13px;
+    line-height:1.2
+}
+
+div#sidebar {
+    float:left;
+    width: 240px;
+}
+
+div#contents {
+    margin-left: 240px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background: white;
+}
+
+

@@ -1,0 +1,24 @@
+/* toto-mobile.css - Site styles for desktop use */
+
+body, table, select, input {
+    font-family:Helvetica,Arial,Verdana,sans-serif;
+    font-size: 13px;
+    line-height:1.2
+}
+
+div#sidebar {
+    float:left;
+    width: 240px;
+    display: none;
+    position: absolute;
+    background: white;
+    background: #c0c0c0;
+}
+
+div#contents {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background: white;
+}
+
+

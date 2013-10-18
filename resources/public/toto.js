@@ -1,5 +1,14 @@
 /* toto.js */
 
+$(document).ready(function () {
+  $('.click').click(function() {
+    $('#sidebar').toggle("slide", {
+      direction: "left",
+      distance: 180
+      }, 500);
+    });
+  });
+
 function beginListCreate()
 {
   var formMarkup = "";

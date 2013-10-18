@@ -12,35 +12,43 @@
     (html [:html
            [:head
             (when (core/is-mobile-request?)
-              [:meta {:name "viewport" :content "width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0,"}])
+              [:meta {:name "viewport" :content "width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0"}])
             [:title app-name (if (not (nil? page-title)) (str " - " page-title))]
             [:link { :rel "shortcut icon" :href "/favicon.ico"}]
 
             (page/include-css "/reset.css")
+            (if (core/is-mobile-request?)
+              (page/include-css "/toto-mobile.css")
+              (page/include-css "/toto-desktop.css"))
             (page/include-css "/toto.css")
+
             (page/include-js "/jquery-1.10.1.js")
             (page/include-js "/jquery-ui.js")
             (page/include-js "/toto.js")
+
             (map #(page/include-js %) include-js)]
 
            [:body
             [:div#header 
-             [:a { :href "/" } app-name] (if (not (nil? page-title)) (str " - " page-title))
+             (when (core/is-mobile-request?)
+               [:a  { :href "#" :class "click" } "..."])
+
+             [:a { :href "/" } app-name]
+             (if (not (nil? page-title)) (str " - " page-title))
              [:div.right
               (if-let [un (core/authenticated-username)]
-                [:span 
+                [:span
                  (str un)
                  " - "
                  [:span#logout
                   [:a { :href "/logout"} "[logout]"]]])]]
+
             [:div#wrap
              (if sidebar
                (list [:div#sidebar sidebar] [:div#contents contents])
                contents)
              [:div#footer
               "All Rights Reserved, Copyright 2013 East Coast Toolworks "
-              (format "(%.1f msec.)" (/ (- (. System (nanoTime)) t-begin) 1000000.0))
-              (when (core/is-mobile-request?)
-                "(mobile)")]]]])))
+              (format "(%.1f msec.)" (/ (- (. System (nanoTime)) t-begin) 1000000.0))]]]])))
 
 
