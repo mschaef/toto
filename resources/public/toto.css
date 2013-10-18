@@ -13,7 +13,7 @@ ul.list-list {
     margin: 0px;
     border: 0px;
     padding: 0px;
-    padding-top: 10px;
+    padding-top: 0px;
     list-style-type: none;
 }
 
@@ -96,7 +96,8 @@ span#logout A {
 }
 
 div#header {
-    padding: 5px 10px;
+    padding: 5px 5px;
+    margin-bottom: 5px;
     background: black;
     color: #e0e0e0;
     text-align: left;
