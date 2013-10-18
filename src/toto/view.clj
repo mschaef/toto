@@ -35,7 +35,7 @@
                [:a { :href "#" :class "click" } img-show-list "&nbsp;"]
                (list
                 [:a { :href "/" } app-name]
-                "-"))
+                " - "))
 
              page-title
 
