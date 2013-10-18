@@ -7,7 +7,8 @@
 
 (def app-name "Toto")
 
-(def img-show-list [:img { :src "/list_16x14.png" :width 16 :height 14 :alt "Show List"}])
+(def img-show-list
+     [:img { :src "/list_16x14.png" :class "show-list" :width 16 :height 14 :alt "Show List"}])
 
 (defn render-page [{ :keys [ page-title include-js sidebar ] }  & contents]
   (let [ t-begin (. System (nanoTime))]

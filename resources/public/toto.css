@@ -172,3 +172,8 @@ form.embedded {
 table.form {
     margin: 10px;
 }
+
+img.show-list {
+    vertical-align: middle;
+    padding-right: 4px;
+}
