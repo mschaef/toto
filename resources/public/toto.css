@@ -96,16 +96,17 @@ span#logout A {
 }
 
 div#header {
-    padding: 5px 5px;
-    margin-bottom: 5px;
     background: black;
     color: #e0e0e0;
     text-align: left;
     font-weight: bold;
+    padding: 4px;
 }
 
 div#header div.right {
     float: right;
+    padding-top: 2px;
+    padding-right: 5px;
 }
 
 div#footer {
@@ -171,9 +172,4 @@ form.embedded {
 
 table.form {
     margin: 10px;
-}
-
-img.show-list {
-    vertical-align: middle;
-    padding-right: 4px;
 }
