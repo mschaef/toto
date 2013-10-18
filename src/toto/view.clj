@@ -43,9 +43,11 @@
               (if-let [un (core/authenticated-username)]
                 [:span
                  (str un)
-                 " - "
-                 [:span#logout
-                  [:a { :href "/logout"} "[logout]"]]])]]
+                 (if (not (core/is-mobile-request?))
+                   (list
+                    " - "
+                    [:span#logout
+                     [:a { :href "/logout"} "[logout]"]]))])]]
 
             [:div#wrap
              (if sidebar
@@ -53,6 +55,11 @@
                contents)
              [:div#footer
               "All Rights Reserved, Copyright 2013 East Coast Toolworks "
-              (format "(%.1f msec.)" (/ (- (. System (nanoTime)) t-begin) 1000000.0))]]]])))
+              (format "(%.1f msec.)" (/ (- (. System (nanoTime)) t-begin) 1000000.0))
+              (if (core/is-mobile-request?)
+                (list
+                 " - "
+                 [:span#logout
+                  [:a { :href "/logout"} "[logout]"]]))]]]])))
 
 
