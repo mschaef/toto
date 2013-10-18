@@ -110,8 +110,9 @@
                      :sidebar (render-todo-list-list selected-list-id)}
                     (render-item-set-list-form)
                     (render-todo-list selected-list-id)
-                    [:div { :class "list-control-footer"}
-                     [:a { :href (str "/list/" selected-list-id "/simple") } "[Simple Display]"]]))
+                    (if (not (core/is-mobile-request?))
+                      [:div { :class "list-control-footer"}
+                       [:a { :href (str "/list/" selected-list-id "/simple") } "[Simple Display]"]])))
 
 (defn render-todo-list-simply [ list-id ]
   (view/render-page { :page-title ((data/get-todo-list-by-id list-id) :desc) }

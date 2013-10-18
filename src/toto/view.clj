@@ -17,11 +17,10 @@
             [:link { :rel "shortcut icon" :href "/favicon.ico"}]
 
             (page/include-css "/reset.css")
-            (if (core/is-mobile-request?)
-              (page/include-css "/toto-mobile.css")
-              (page/include-css "/toto-desktop.css"))
+            (page/include-css (if (core/is-mobile-request?)
+                                "/toto-mobile.css"
+                                "/toto-desktop.css"))
             (page/include-css "/toto.css")
-
             (page/include-js "/jquery-1.10.1.js")
             (page/include-js "/jquery-ui.js")
             (page/include-js "/toto.js")
@@ -30,11 +29,14 @@
 
            [:body
             [:div#header 
-             (when (core/is-mobile-request?)
-               [:a  { :href "#" :class "click" } "..."])
+             (if (core/is-mobile-request?)
+               [:a { :href "#" :class "click" } "..."]
+               (list
+                [:a { :href "/" } app-name]
+                "-"))
 
-             [:a { :href "/" } app-name]
-             (if (not (nil? page-title)) (str " - " page-title))
+             page-title
+
              [:div.right
               (if-let [un (core/authenticated-username)]
                 [:span
