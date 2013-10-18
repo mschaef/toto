@@ -60,7 +60,7 @@
 
 (defn render-todo-list [ list-id ]
   [:table.item-list
-   [:tr [:td] [:td] [:td (render-new-item-form list-id)]]
+   [:tr [:td { :colspan 3 } (render-new-item-form list-id)]]
    (map (fn [item-info]
           [:tr.item-row { :valign "center" :itemid (item-info :item_id)}
            [:td (complete-item-button item-info)]
