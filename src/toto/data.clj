@@ -61,7 +61,7 @@
                    "  FROM todo_list, todo_list_owners"
                    " WHERE todo_list.todo_list_id=todo_list_owners.todo_list_id"
                    "   AND todo_list_owners.user_id=?"
-                   " ORDER BY todo_list.desc DESC") user-id]))
+                   " ORDER BY todo_list.desc") user-id]))
 
 (defn add-user [ email-addr password ]
   (:user_id (first
