@@ -45,15 +45,6 @@ ul.list-list li.drop-hover {
     background: yellow;
 }
 
-table.item-list td {
-    vertical-align: middle;
-    padding: 2px;
-}
-
-table.item-list tr.item-row {
-    border-top: 1px solid #e0e0e0;
-}
-
 table.item-list tr.item-row:hover {
     background: #e0e0e0;
 }
