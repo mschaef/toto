@@ -74,6 +74,7 @@ div#error {
 }
 
 div#wrap {
+    padding-top: 2.5em;
 }
 
 div#header A {
@@ -86,16 +87,19 @@ span#logout A {
 }
 
 div#header {
-    background: #e0e0e0;
-    color: #202020;
-    text-align: left;
-    padding: 4px;
+   background: #e0e0e0;
+   color: #202020;
+
+   padding: 10px;
+   height: 1em;
+   position: fixed;
+   width: 100%;
 }
 
 div#header div.right {
     float: right;
-    padding-top: 2px;
-    padding-right: 5px;
+    vertical-align: middle;
+    padding-right: 1em;;
 }
 
 div#footer {

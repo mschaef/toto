@@ -7,10 +7,12 @@ body, table, select, input {
 }
 
 div#sidebar {
-    float:left;
+    position: fixed;
+
+
     width: 240px;
     display: none;
-    position: absolute;
+
     background: white;
     background: #c0c0c0;
 }
@@ -23,8 +25,6 @@ div#contents {
 img.show-list {
     vertical-align: middle;
     padding-right: 4px;
-
-    padding: 8px;
 
     border-right: 1px solid #707070;
 }
