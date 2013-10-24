@@ -58,6 +58,23 @@
   (form/form-to [:post (str "/list/" list-id)]
                 (form/text-field { :class "full-width" } "item-description")))
 
+(defn string-leftmost [ string count ]
+  (let [length (.length string)
+        leftmost (min count length)]
+    (if (< leftmost length)
+      (str (.substring string 0 leftmost) "...")
+      string)))
+
+(defn shorten-url-text [ url-text ]
+  (let [url (java.net.URL. url-text)
+        base (str (.getProtocol url)
+                  ":"
+                  (if-let [authority (.getAuthority url)]
+                    (str "//" authority)))]
+    (str base
+         (string-leftmost (.getPath url)
+                          (max 0 (- 60 (.length base)))))))
+
 (defn render-todo-list [ list-id ]
   [:table.item-list
    [:tr [:td { :colspan 3 } (render-new-item-form list-id)]]
@@ -74,7 +91,7 @@
                 clean-desc]
                [:div { :id (str "item_" (item-info :item_id))}
                 (if (is-link-url? desc)
-                  [:a { :href desc } clean-desc]
+                  [:a { :href desc } (shorten-url-text clean-desc)]
                   clean-desc)]))]])
         (data/get-pending-items list-id))])
 
