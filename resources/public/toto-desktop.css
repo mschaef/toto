@@ -4,7 +4,6 @@ body, table, select, input {
     font-family:Helvetica,Arial,Verdana,sans-serif;
     font-size: 13px;
     line-height:1.2;
-    overflow-x:hidden;
 }
 
 div#sidebar {

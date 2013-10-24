@@ -75,6 +75,7 @@ div#error {
 
 div#wrap {
     padding-top: 2.5em;
+    overflow-x:hidden;
 }
 
 div#header A {
