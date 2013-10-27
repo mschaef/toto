@@ -1,13 +1,15 @@
 /* toto.js */
 
+sidebarVisible = false;
+
 $(document).ready(function () {
   $('.click').click(function() {
-    $('#sidebar').toggle("slide", {
-      direction: "left",
-      distance: 180
-      }, 500);
+    $('#sidebar').animate({
+      left: (sidebarVisible ? "-=240" : "+=240")
     });
+    sidebarVisible = !sidebarVisible;
   });
+});
 
 function beginListCreate()
 {

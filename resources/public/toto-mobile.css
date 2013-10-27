@@ -7,10 +7,10 @@ body, table, select, input {
 }
 
 div#sidebar {
-    position: fixed;
-
+    float: both;
+    position: absolute;
+    left: -240px;
     width: 240px;
-    display: none;
 
     background: white;
     background: #c0c0c0;
@@ -69,6 +69,8 @@ ul.list-list li.selected:hover {
 ul.list-list li {
     padding: 2px 8px;
     border-left: 3px solid white;
+    height: 3em;
+    vertical-align: middle;
 }
 
 ul.list-list li.selected {
