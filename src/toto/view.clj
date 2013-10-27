@@ -8,7 +8,9 @@
 (def app-name "Toto")
 
 (def img-show-list
-     [:img { :src "/list_16x14.png" :class "show-list" :width 16 :height 14 :alt "Show List"}])
+     [:img { :src "/list_24x21.png" :class "show-list"
+            :width 24 :height 21
+            :alt "Show List"}])
 
 (defn render-page [{ :keys [ page-title include-js sidebar ] }  & contents]
   (let [ t-begin (. System (nanoTime))]
@@ -23,7 +25,6 @@
             (page/include-css (if (core/is-mobile-request?)
                                 "/toto-mobile.css"
                                 "/toto-desktop.css"))
-            (page/include-css "/toto.css")
             (page/include-js "/jquery-1.10.1.js")
             (page/include-js "/jquery-ui.js")
             (page/include-js "/toto.js")
