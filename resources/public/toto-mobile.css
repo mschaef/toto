@@ -69,8 +69,10 @@ ul.list-list li.selected:hover {
 ul.list-list li {
     padding: 2px 8px;
     border-left: 3px solid white;
-    height: 3em;
-    vertical-align: middle;
+
+    padding-top: 1em;
+    padding-bottom: 1em;
+
 }
 
 ul.list-list li.selected {
