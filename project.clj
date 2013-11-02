@@ -22,4 +22,6 @@
          :init toto.schema/ensure-schema-available
          :handler toto.handler/handler
          :nrepl { :start? true :port 53095 }
-         })
+         }
+
+  )
