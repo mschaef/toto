@@ -11,10 +11,12 @@
                  [org.hsqldb/hsqldb "2.3.0"]
                  [clj-http "0.6.4"]
                  [hiccup "1.0.4"]
-                 [ring/ring-servlet "1.2.0"]
+                 [ring/ring-jetty-adapter "1.2.1"]
                  [com.cemerick/friend "0.2.0"]
                  [compojure "1.1.6"]
                  [slingshot "0.10.3"]]
+
+  :main toto.main
 
   :ring {
          :init toto.schema/ensure-schema-available
