@@ -6,4 +6,4 @@
 
 (defn -main [& args]
   (log/trace "Starting Toto")
-  (jetty/run-jetty handler/handler {:port 8080}))
+  (jetty/run-jetty handler/handler { :port 8080 :join? false }))
