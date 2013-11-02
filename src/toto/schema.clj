@@ -1,15 +1,16 @@
 (ns toto.schema
-  (:require [clojure.java.jdbc :as jdbc]))
+  (:require [clojure.tools.logging :as log]
+            [clojure.java.jdbc :as jdbc]))
 
 (def hsql-db {:subprotocol "hsqldb"
-              :subname "~/ectworks/toto/toto.h2db"
+              :subname "toto.h2db"
               :user "sa"
               :password ""
               })
 
 (defn setup-schema []
- (jdbc/with-connection hsql-db
-
+  (log/warn "Creating new schema instance")
+  (jdbc/with-connection hsql-db
    (jdbc/create-table
     :toto_schema_version
     [:version_number "BIGINT"])
@@ -63,6 +64,7 @@
       (first (map :version_number rows)))))
 
 (defn ensure-schema-available []
+  (log/trace "Ensuring Schema Available")
   (if (not (version-table-present?))
     (setup-schema)))
 
