@@ -1,12 +1,12 @@
 (ns toto.schema
   (:require [clojure.tools.logging :as log]
-            [clojure.java.jdbc :as jdbc]))
+            [clojure.java.jdbc :as jdbc]
+            [toto.core :as core]))
 
-(def hsql-db {:subprotocol "hsqldb"
-              :subname "toto.h2db"
-              :user "sa"
-              :password ""
-              })
+(def hsql-db {:subprotocol (core/config-property "db.subprotocol" "hsqldb")
+              :subname (core/config-property "db.subname" "toto.h2db")
+              :user (core/config-property "db.user" "sa")
+              :password (core/config-property "db.password" "")})
 
 (defn setup-schema []
   (log/warn "Creating new schema instance")

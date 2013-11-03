@@ -28,3 +28,12 @@
       (binding [*in-mobile-request* (or (mobile-user-agent? ((:headers req) "user-agent"))
                                         forced-mobile?)]
         (app req)))))
+
+(defn config-property 
+  ( [ name ] (config-property name nil))
+  ( [ name default ]
+      (let [prop-binding (System/getProperty name)]
+        (if (nil? prop-binding)
+          default
+          (binding [*read-eval* false]
+            (read-string prop-binding))))))
