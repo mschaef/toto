@@ -1,4 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
-java -cp target/toto-0.2.2-SNAPSHOT-standalone.jar toto.main
+args=(${@// /\\ })
+
+java ${args[*]} -cp target/toto-0.2.2-SNAPSHOT-standalone.jar toto.main 
+
 
