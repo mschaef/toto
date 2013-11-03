@@ -24,4 +24,6 @@
          :nrepl { :start? true :port 53095 }
          }
 
+  :jar-name "toto.jar"
+  :uberjar-name "toto-standalone.jar"
   )
