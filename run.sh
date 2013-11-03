@@ -2,6 +2,6 @@
 
 args=(${@// /\\ })
 
-java ${args[*]} -cp target/toto-standalone.jar toto.main 
+java ${args[*]} -cp target/toto-standalone.jar:config/local toto.main 
 
 
