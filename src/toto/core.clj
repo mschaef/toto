@@ -37,3 +37,8 @@
           default
           (binding [*read-eval* false]
             (read-string prop-binding))))))
+
+(defn add-shutdown-hook [ shutdown-fn ]
+  (.addShutdownHook (Runtime/getRuntime)
+                    (Thread. (fn []
+                               (shutdown-fn)))))
