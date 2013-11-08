@@ -29,13 +29,13 @@ TOTO_USER=mschaef
 
 JAVA=/usr/bin/java
 
-JAVA_OPTS="-cp ${TOTO_PATH}:${TOTO_JAR} -Ddb.subname=${TOTO_DB_SUBNAME}"
+JAVA_OPTS="-cp ${TOTO_PATH}:${TOTO_JAR} -Ddb.subname=${TOTO_DB_SUBNAME} "
 
 PIDFILE=/var/run/toto.pid
 SCRIPTNAME=/etc/init.d/toto
 
-# Uncommend to enable authbind
-#AUTHBIND=yes
+# Uncommend to enable authbind (authbind permissions must also be granted via /etc/authbind)
+# AUTHBIND=yes
 
 # Exit if not root
 if [ `id -u` -ne 0 ]; then
@@ -91,8 +91,8 @@ do_start()
 	start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $JAVA --test > /dev/null \
 		|| return 1
 
-	start-stop-daemon --start --quiet --pidfile $PIDFILE \
-                      --make-pidfile --chuid ${TOTO_USER} --background \
+	start-stop-daemon --start --quiet --pidfile $PIDFILE --background \
+                      --make-pidfile --chuid ${TOTO_USER} \
                       --exec /bin/bash -- -c "$AUTHBIND_COMMAND $TOTO_SH" \
 		|| return 2
 }
