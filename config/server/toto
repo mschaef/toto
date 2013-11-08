@@ -14,7 +14,8 @@
 
 # Do NOT "set -e"
 
-set -x
+# Uncomment for echo
+# set -x
 
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
@@ -74,7 +75,8 @@ do_start()
 	start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $JVM --test > /dev/null \
 		|| return 1
 
-	start-stop-daemon --start --quiet --pidfile $PIDFILE --make-pidfile --chuid ${TOTO_USER} --background --exec $JVM -- $JVM_ARGS \
+	start-stop-daemon --start --quiet --pidfile $PIDFILE \
+                      --make-pidfile --chuid ${TOTO_USER} --background --exec $JVM -- $JVM_ARGS \
 		|| return 2
 }
 
