@@ -42,16 +42,17 @@
   (fn [req]
     (assoc (app req) :session-cookie-attrs {:max-age (* duration-in-hours 3600)})))
 
-(defn wrap-db-connection [ app db-spec ]
+(defn wrap-db-connection [ app ]
   (fn [ req ]
-    (jdbc/with-connection db-spec
+    (schema/with-db-connection
       (app req))))
+
 
 (def handler (-> site-routes
                  (friend/authenticate {:credential-fn db-credential-fn
                                        :workflows [(workflows/interactive-form)]})
                  (extend-session-duration 168)
-                 (wrap-db-connection schema/hsql-db)
+                 (wrap-db-connection)
                  (core/wrap-mobile-detect)
                  (handler/site)
                  (wrap-request-logging)))

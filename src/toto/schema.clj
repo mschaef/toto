@@ -3,14 +3,21 @@
             [clojure.java.jdbc :as jdbc]
             [toto.core :as core]))
 
-(def hsql-db {:subprotocol (core/config-property "db.subprotocol" "hsqldb")
-              :subname (core/config-property "db.subname" "toto.h2db")
-              :user (core/config-property "db.user" "sa")
-              :password (core/config-property "db.password" "")})
+(def db-connection {:subprotocol (core/config-property "db.subprotocol" "hsqldb")
+                    :subname (core/config-property "db.subname" "toto.h2db")
+                    :user (core/config-property "db.user" "sa")
+                    :password (core/config-property "db.password" "")})
+
+(defn log-safe-db-connection []
+ (dissoc db-connection :password))
+
+(defmacro with-db-connection [ & body ]
+  `(jdbc/with-connection db-connection
+     ~@body))
 
 (defn setup-schema []
   (log/warn "Creating new schema instance")
-  (jdbc/with-connection hsql-db
+  (with-db-connection
    (jdbc/create-table
     :toto_schema_version
     [:version_number "BIGINT"])
@@ -51,25 +58,26 @@
     [:is_delete "BOOLEAN" "NOT NULL"])))
 
 (defn version-table-present? []
-  (> (jdbc/with-connection hsql-db
+  (> (with-db-connection
        (jdbc/with-query-results rows
          ["select count(table_name) from information_schema.tables where table_name='TOTO_SCHEMA_VERSION'"]
          (first (map :c1 rows))))
      0))
 
 (defn installed-schema-version []
-  (jdbc/with-connection hsql-db
+  (with-db-connection
     (jdbc/with-query-results rows
       ["select version_number from toto_schema_version"]
       (first (map :version_number rows)))))
 
 (defn ensure-schema-available []
-  (log/trace "Ensuring Schema Available")
+  (log/trace "Ensuring Schema Available @ " (log-safe-db-connection))
   (if (not (version-table-present?))
     (setup-schema)))
 
 (defn all-table-names []
-  (jdbc/with-connection hsql-db
+  (with-db-connection
     (jdbc/with-query-results rows
       ["select table_name from information_schema.tables order by table_name"]
       (doall (map :table_name rows)))))
+
