@@ -6,7 +6,7 @@
             [toto.schema :as schema]
             [toto.handler :as handler]))
 
-(defn run-webserver [ http-port ]
+(defn start-webserver [ http-port ]
   (log/info "Starting Toto Webserver on port" http-port)
   (let [server (jetty/run-jetty handler/handler  { :port http-port :join? false })]
     (core/add-shutdown-hook
@@ -18,5 +18,5 @@
 (defn -main [& args]
   (log/info "Starting Toto")
   (schema/ensure-schema-available)
-  (run-webserver (core/config-property "http.nport" 8080))
+  (start-webserver (core/config-property "http.nport" 8080))
   (log/info "end run."))
