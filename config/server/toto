@@ -25,7 +25,7 @@ TOTO_JAR=/home/mschaef/ectworks/toto/target/toto-standalone.jar
 TOTO_USER=mschaef
 
 JVM=/usr/bin/java
-JVM_ARGS="-cp ${TOTO_PATH}:${TOTO_JAR} -Ddb.subname=\"/home/mschaef/ectworks/toto/config/server/toto.h2db\" toto.main"
+JVM_ARGS="-cp ${TOTO_PATH}:${TOTO_JAR} -Ddb.subname=/home/mschaef/ectworks/toto/config/server/toto.h2db toto.main"
 
 PIDFILE=/var/run/toto.pid
 SCRIPTNAME=/etc/init.d/toto

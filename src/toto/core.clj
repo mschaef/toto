@@ -29,14 +29,21 @@
                                         forced-mobile?)]
         (app req)))))
 
+(defn parsable-integer? [ str ]
+  (try
+   (Integer/parseInt str)
+   (catch Exception ex
+     false)))
+
 (defn config-property 
   ( [ name ] (config-property name nil))
   ( [ name default ]
       (let [prop-binding (System/getProperty name)]
         (if (nil? prop-binding)
           default
-          (binding [*read-eval* false]
-            (read-string prop-binding))))))
+          (if-let [ int (parsable-integer? prop-binding) ]
+            int
+            prop-binding)))))
 
 (defn add-shutdown-hook [ shutdown-fn ]
   (.addShutdownHook (Runtime/getRuntime)
