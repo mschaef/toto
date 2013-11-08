@@ -29,13 +29,13 @@ TOTO_USER=mschaef
 
 JAVA=/usr/bin/java
 
-JAVA_OPTS="-cp ${TOTO_PATH}:${TOTO_JAR} -Ddb.subname=${TOTO_DB_SUBNAME} toto.main"
+JAVA_OPTS="-cp ${TOTO_PATH}:${TOTO_JAR} -Ddb.subname=${TOTO_DB_SUBNAME}"
 
 PIDFILE=/var/run/toto.pid
 SCRIPTNAME=/etc/init.d/toto
 
 # Uncommend to enable authbind
-# AUTHBIND=yes
+#AUTHBIND=yes
 
 # Exit if not root
 if [ `id -u` -ne 0 ]; then
@@ -64,10 +64,10 @@ if [ "$AUTHBIND" = "yes" -a "$1" = "start" ]; then
    AUTHBIND_COMMAND="/usr/bin/authbind --deep /bin/bash -c "
 fi
 
-TOTO_SH="$JAVA $JAVA_OPTS"
+TOTO_SH="$JAVA $JAVA_OPTS toto.main"
 
 if [ "$AUTHBIND" = "yes" -a "$1" = "start" ]; then
-        TOMCAT_SH="'$TOMCAT_SH'"
+    TOTO_SH="'$TOTO_SH'"
 fi
 
 # Load the VERBOSE setting and other rcS variables
