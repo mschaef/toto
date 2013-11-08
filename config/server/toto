@@ -21,20 +21,35 @@ PATH=/sbin:/usr/sbin:/bin:/usr/bin
 DESC="Toto To-Do List Manager"
 TOTO_PATH=/home/mschaef/ectworks/toto/config/server
 
-TOTO_JAR=/home/mschaef/ectworks/toto/target/toto-standalone.jar
+TOTO_DB_SUBNAME=${TOTO_PATH}/toto.h2db
+TOTO_JAR=${TOTO_PATH}/toto-standalone.jar
+
 TOTO_USER=mschaef
 
 JVM=/usr/bin/java
-JVM_ARGS="-cp ${TOTO_PATH}:${TOTO_JAR} -Ddb.subname=/home/mschaef/ectworks/toto/config/server/toto.h2db toto.main"
+
+JVM_ARGS="-cp ${TOTO_PATH}:${TOTO_JAR} -Ddb.subname=${TOTO_DB_SUBNAME} toto.main"
 
 PIDFILE=/var/run/toto.pid
 SCRIPTNAME=/etc/init.d/toto
 
+# Exit if not root
+if [ `id -u` -ne 0 ]; then
+        echo "You need root privileges to run this script"
+        exit 1
+fi
+
 # Exit if the JVM is not installed
-[ -x "$JVM" ] || exit 0
+if [ ! -x "$JVM" ]; then
+    echo "The expected JVM was not found at: $JVM"
+    exit 1
+fi
 
 # Exit if the JAR is not installed
-[ -r "$TOTO_JAR" ] || exit 0
+if [ ! -r "$TOTO_JAR" ]; then
+   echo "The expected Toto jar was not found at: $TOTO_JAR"
+   exit 1
+fi
 
 # Read configuration variable file if it is present
 [ -r /etc/default/toto ] && . /etc/default/toto
@@ -59,7 +74,7 @@ do_start()
 	start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $JVM --test > /dev/null \
 		|| return 1
 
-	start-stop-daemon --start --quiet --pidfile $PIDFILE --chuid ${TOTO_USER} --exec $JVM -- $JVM_ARGS \
+	start-stop-daemon --start --quiet --pidfile $PIDFILE --make-pidfile --chuid ${TOTO_USER} --background --exec $JVM -- $JVM_ARGS \
 		|| return 2
 }
 
@@ -73,7 +88,7 @@ do_stop()
 	#   1 if daemon was already stopped
 	#   2 if daemon could not be stopped
 	#   other if a failure occurred
-	start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 --pidfile $PIDFILE --name toto
+	start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 --pidfile $PIDFILE --exec $JVM
 	RETVAL="$?"
 	[ "$RETVAL" = 2 ] && return 2
 	# Wait for children to finish too if this is a daemon that forks
