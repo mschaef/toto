@@ -20,6 +20,7 @@
 
   :ring {
          :init toto.schema/ensure-schema-available
+         :port 8080
          :handler toto.handler/handler
          :nrepl { :start? true :port 53095 }
          }
