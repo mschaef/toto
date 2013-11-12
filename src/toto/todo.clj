@@ -77,12 +77,12 @@
 
 (defn render-todo-list [ list-id ]
   [:table.item-list
-   [:tr [:td { :colspan 3 } (render-new-item-form list-id)]]
+   [:tr [:td { :colspan 2 } (render-new-item-form list-id)]]
    (map (fn [item-info]
           [:tr.item-row { :valign "center" :itemid (item-info :item_id)}
-           [:td (complete-item-button item-info)]
-           [:td [:div { :id (str "item_control_" (item-info :item_id))}
-                 (js-link "beginItemEdit" (item-info :item_id) img-edit-item)]]
+           [:td.item-control
+            [:div { :id (str "item_control_" (item-info :item_id))}
+             (complete-item-button item-info)]]
            [:td.item-description
             (let [desc (item-info :desc)
                   clean-desc (hiccup.util/escape-html desc)]

@@ -35,8 +35,6 @@ table.item-list td {
 
 table.item-list tr.item-row {
     border-top: 1px solid #e0e0e0;
-
-    height: 3em;
 }
 
 /* toto.css - Site styles */
@@ -56,14 +54,6 @@ ul.list-list {
     padding: 0px;
     padding-top: 0px;
     list-style-type: none;
-}
-
-ul.list-list li:hover {
-    background: #e0e0e0;
-}
-
-ul.list-list li.selected:hover {
-    background: #e0e0e0;
 }
 
 ul.list-list li {
@@ -88,12 +78,15 @@ ul.list-list li.drop-hover {
     background: yellow;
 }
 
-table.item-list tr.item-row:hover {
-    background: #e0e0e0;
+table.item-list td.item-control {
+    width: 2em;
+    height: 2em;
+    text-align: center;
+    border-right: 1px solid #e0e0e0;
 }
 
 table.item-list td.item-description {
-    width: 100%;
+    padding-left: 0.67em;
 }
 
 table.item-list td.item-description A {

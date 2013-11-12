@@ -78,8 +78,15 @@ table.item-list tr.item-row:hover {
     background: #e0e0e0;
 }
 
+table.item-list td.item-control {
+    width: 2em;
+    height: 2em;
+    text-align: center;
+    border-right: 1px solid #e0e0e0;
+}
+
 table.item-list td.item-description {
-    width: 100%;
+    padding-left: 0.67em;
 }
 
 table.item-list td.item-description A {
