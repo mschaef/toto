@@ -13,7 +13,8 @@
             :alt "Show List"}])
 
 (defn render-page [{ :keys [ page-title include-js sidebar ] }  & contents]
-  (let [ t-begin (. System (nanoTime))]
+  (let [ t-begin (. System (nanoTime))
+        username (core/authenticated-username)]
     (html [:html
            [:head
             (when (core/is-mobile-request?)
@@ -42,14 +43,13 @@
              page-title
 
              [:div.right
-              (if-let [un (core/authenticated-username)]
+              (if (and (not (core/is-mobile-request?))
+                       (not (nil? username)))
                 [:span
-                 (str un)
-                 (if (not (core/is-mobile-request?))
-                   (list
-                    " - "
-                    [:span#logout
-                     [:a { :href "/logout"} "[logout]"]]))])]]
+                 (str username)
+                 " - "
+                 [:span#logout
+                  [:a { :href "/logout"} "[logout]"]]])]]
 
             [:div#wrap
              (if sidebar
@@ -58,8 +58,11 @@
              [:div#footer
               "All Rights Reserved, Copyright 2013 East Coast Toolworks "
               (format "(%.1f msec.)" (/ (- (. System (nanoTime)) t-begin) 1000000.0))
-              (if (core/is-mobile-request?)
+              (if (and (core/is-mobile-request?)
+                       (not (nil? username)))
                 (list
+                 " - "
+                 username
                  " - "
                  [:span#logout
                   [:a { :href "/logout"} "[logout]"]]))]]]])))
