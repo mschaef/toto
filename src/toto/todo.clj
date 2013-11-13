@@ -75,25 +75,36 @@
          (string-leftmost (.getPath url)
                           (max 0 (- 60 (.length base)))))))
 
+(defn assoc-if [ map assoc? k v ]
+  (if assoc?
+    (assoc map k v)
+    map))
+
+(defn render-todo-item [ item-info item-number ]
+  [:tr.item-row 
+   (assoc-if { :valign "center" :itemid (item-info :item_id) }
+             (= item-number 0)
+             :class "first-row")
+   [:td.item-control
+    [:div { :id (str "item_control_" (item-info :item_id))}
+     (complete-item-button item-info)]]
+   [:td.item-description
+    (let [desc (item-info :desc)
+          clean-desc (hiccup.util/escape-html desc)]
+      (list
+       [:div { :id (str "item_desc_" (item-info :item_id)) :class "hidden"}
+        clean-desc]
+       [:div { :id (str "item_" (item-info :item_id))}
+        (if (is-link-url? desc)
+          [:a { :href desc } (shorten-url-text clean-desc)]
+          clean-desc)]))]])
+
 (defn render-todo-list [ list-id ]
   [:table.item-list
    [:tr [:td { :colspan 2 } (render-new-item-form list-id)]]
-   (map (fn [item-info]
-          [:tr.item-row { :valign "center" :itemid (item-info :item_id)}
-           [:td.item-control
-            [:div { :id (str "item_control_" (item-info :item_id))}
-             (complete-item-button item-info)]]
-           [:td.item-description
-            (let [desc (item-info :desc)
-                  clean-desc (hiccup.util/escape-html desc)]
-              (list
-               [:div { :id (str "item_desc_" (item-info :item_id)) :class "hidden"}
-                clean-desc]
-               [:div { :id (str "item_" (item-info :item_id))}
-                (if (is-link-url? desc)
-                  [:a { :href desc } (shorten-url-text clean-desc)]
-                  clean-desc)]))]])
-        (data/get-pending-items list-id))])
+   (map render-todo-item
+        (data/get-pending-items list-id)
+        (range))])
 
 (defn render-todo-list-list [ selected-list-id ]
   [:div.full-width
