@@ -12,8 +12,8 @@
    (form/form-to
     [:post "/login"]
     [:table { :class "form" }
-     [:tr [:td "E-Mail Address:"] [:td (form/text-field {} "username" (if email-addr email-addr))]]
-     [:tr [:td "Password:"] [:td (form/password-field {} "password")]]
+     [:tr [:td "E-Mail Address:"] [:td (form/text-field { :class "simple-border" } "username" (if email-addr email-addr))]]
+     [:tr [:td "Password:"] [:td (form/password-field { :class "simple-border" } "password")]]
      (if login-failure?
        [:tr [:td { :colspan 4 } [:div#error "Invalid username or password."]]])
      [:tr 
@@ -28,9 +28,9 @@
    (form/form-to
     [:post "/user"]
     [:table { :class "form" }
-     [:tr [:td "E-Mail Address:"] [:td  (form/text-field {} "email_addr")]]
-     [:tr [:td "Password:"] [:td (form/password-field {} "password")]]
-     [:tr [:td "Verify Password:"] [:td (form/password-field {} "password2")]]
+     [:tr [:td "E-Mail Address:"] [:td  (form/text-field { :class "simple-border" } "email_addr")]]
+     [:tr [:td "Password:"] [:td (form/password-field { :class "simple-border" } "password")]]
+     [:tr [:td "Verify Password:"] [:td (form/password-field { :class "simple-border" } "password2")]]
      
      (if (not (empty? error-message))
        [:tr [:td { :colspan 2 } [:div#error error-message]]])

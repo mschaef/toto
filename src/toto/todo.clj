@@ -56,7 +56,7 @@
 
 (defn render-new-item-form [ list-id ]
   (form/form-to [:post (str "/list/" list-id)]
-                (form/text-field { :class "full-width" } "item-description")))
+                (form/text-field { :class "full-width simple-border" } "item-description")))
 
 (defn string-leftmost [ string count ]
   (let [length (.length string)

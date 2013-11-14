@@ -16,7 +16,7 @@ function beginListCreate()
   var formMarkup = "";
 
     formMarkup += "<form action=\"/list\" method=\"POST\">";
-    formMarkup += "<input class=\"full-width\" id=\"list-description\" name=\"list-description\" type=\"text\" />";
+    formMarkup += "<input class=\"full-width simple-border\" id=\"list-description\" name=\"list-description\" type=\"text\" />";
     formMarkup += "</form>";
 
     $('p.new-list').replaceWith(formMarkup);
@@ -28,7 +28,7 @@ function beginUserAdd(listId)
 {
   var formMarkup = "";
 
-    formMarkup += "<input class=\"full-width\" id=\"share-with-email\" name=\"share-with-email\" type=\"text\" />";
+    formMarkup += "<input class=\"full-width simple-border\" id=\"share-with-email\" name=\"share-with-email\" type=\"text\" />";
 
     $('p.new-user').replaceWith(formMarkup);
 
@@ -50,7 +50,7 @@ function beginItemEdit(itemId)
   formMarkup = "";
 
   formMarkup += "<form id=\"iedit_" + itemId + "\"  class=\"embedded\" action=\"/item/" + itemId + "\" method=\"POST\">";
-  formMarkup += "<input class=\"full-width\" id=\"description\" name=\"description\" type=\"text\"/>";
+  formMarkup += "<input class=\"full-width simple-border\" id=\"description\" name=\"description\" type=\"text\"/>";
   formMarkup += "</form>";
 
   $('div#item_' + itemId).replaceWith(formMarkup);

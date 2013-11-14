@@ -215,3 +215,10 @@ form.embedded {
 table.form {
     margin: 10px;
 }
+
+.simple-border {
+   border-style: solid;
+   border-width: 1px;
+   padding-left: 0.2em;
+   border-color: #707070;
+}
