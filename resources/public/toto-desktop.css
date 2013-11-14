@@ -60,6 +60,7 @@ ul.list-list li.selected:hover {
 ul.list-list li {
     padding: 2px 8px;
     border-left: 3px solid white;
+    height: 1.5em;
 }
 
 ul.list-list li.selected {
@@ -113,7 +114,7 @@ div#error {
 }
 
 div#wrap {
-    padding-top: 2.5em;
+    padding-top: 3em;
     overflow-x:hidden;
 }
 
@@ -146,7 +147,8 @@ div#footer {
     clear: both;
     background: white;
 
-    border-top: 1px solid;
+    border-top: 1px solid #c0c0c0;
+    color: #404040;
 
     text-align: center;
     font-size: 80%;
