@@ -135,6 +135,7 @@ div#header {
    height: 1em;
    position: fixed;
    width: 100%;
+   box-shadow: 2px 2px 2px #c0c0c0;
 }
 
 div#header div.right {

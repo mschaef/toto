@@ -130,6 +130,8 @@ div#header {
    width: 100%;
 
    border-bottom: 1px solid #c0c0c0;
+
+box-shadow: 1px 1px 1px #c0c0c0;
 }
 
 img.show-list {
@@ -148,7 +150,6 @@ div#footer {
     background: white;
 
     border-top: 1px solid #c0c0c0;
-
     color: #404040;
 
     text-align: center;
