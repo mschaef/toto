@@ -3,13 +3,13 @@
 $(document).ready(function () {
   $("#item-description").focus();
 
+  $( ".item-list .item-row" ).dblclick(function (obj){
+      beginItemEdit($(obj.delegateTarget).attr("itemid"));
+  });
+
   $( ".item-list .item-row" ).draggable({
     appendTo: "body",
     helper: "clone"
-  });
-
-  $( ".item-list .item-row" ).dblclick(function (obj){
-      beginItemEdit($(obj.delegateTarget).attr("itemid"));
   });
 
   $( ".list-list li" ).droppable({
