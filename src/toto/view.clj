@@ -28,9 +28,10 @@
                                 "/toto-mobile.css"
                                 "/toto-desktop.css"))
 
-            (page/include-js "/jquery-1.10.1.js")
-            (page/include-js "/jquery-ui.js")
-            (page/include-js "/toto.js")
+            (if (core/is-mobile-request?)
+              (page/include-js "/zepto.js")
+              (list
+               (page/include-js "/jquery-1.10.1.js" "/jquery-ui.js")))
 
             (apply page/include-js (cons "/toto.js" include-js))]
 

@@ -7,6 +7,9 @@ $(document).ready(function () {
       beginItemEdit($(obj.delegateTarget).attr("itemid"));
   });
 
+  if ($( ".item-list .item-row" ).draggable == undefined)
+      return;
+
   $( ".item-list .item-row" ).draggable({
     appendTo: "body",
     helper: "clone"

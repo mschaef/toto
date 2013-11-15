@@ -4,9 +4,9 @@ sidebarVisible = false;
 
 $(document).ready(function () {
   $('.click').click(function() {
+
     $('#sidebar').animate({
-      left: (sidebarVisible ? "-=240" : "+=240")
-    });
+      left: (sidebarVisible ? "-240px" : "0px") });
     sidebarVisible = !sidebarVisible;
   });
 });
