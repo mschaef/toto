@@ -124,16 +124,7 @@
                      :include-js [ "/toto-todo-list.js" ]
                      :sidebar (render-todo-list-list selected-list-id)}
                     (render-item-set-list-form)
-                    (render-todo-list selected-list-id)
-                    (unless (core/is-mobile-request?)
-                      [:div { :class "list-control-footer"}
-                       [:a { :href (str "/list/" selected-list-id "/simple") } "[Simple Display]"]])))
-
-(defn render-todo-list-simply [ list-id ]
-  (view/render-page { :page-title ((data/get-todo-list-by-id list-id) :desc) }
-    (render-todo-list list-id)
-    [:div { :class "list-control-footer"}
-     [:a { :href (str "/list/" list-id) } "[Full Display]"]]))
+                    (render-todo-list selected-list-id)))
 
 (defn render-todo-list-details-page [ list-id & { :keys [ error-message ]}]
   (let [ list-name ((data/get-todo-list-by-id list-id) :desc)
@@ -253,9 +244,6 @@
 
   (GET "/list/:list-id" [ list-id ]
        (render-todo-list-page list-id))
-
-  (GET "/list/:list-id/simple" [ list-id ]
-       (render-todo-list-simply list-id))
 
   (GET "/list/:list-id/details" [ list-id ]
        (render-todo-list-details-page list-id))
