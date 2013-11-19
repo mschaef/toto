@@ -96,7 +96,7 @@
         clean-desc]
        [:div { :id (str "item_" (item-info :item_id))}
         (if (is-link-url? desc)
-          [:a { :href desc } (shorten-url-text clean-desc)]
+          [:a { :href desc :target "_blank" } (shorten-url-text clean-desc)]
           clean-desc)]))]])
 
 (defn render-todo-list [ list-id ]
