@@ -1,5 +1,6 @@
 (ns toto.handler
-  (:use compojure.core)
+  (:use toto.util
+        compojure.core)
   (:require [clojure.tools.logging :as log]
             [toto.data :as data]
             [toto.core :as core]

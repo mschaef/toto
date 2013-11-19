@@ -1,4 +1,5 @@
 (ns toto.schema
+  (:use toto.util)
   (:require [clojure.tools.logging :as log]
             [clojure.java.jdbc :as jdbc]
             [toto.core :as core]))
@@ -72,8 +73,8 @@
 
 (defn ensure-schema-available []
   (log/trace "Ensuring Schema Available @ " (log-safe-db-connection))
-  (if (not (version-table-present?))
-    (setup-schema)))
+  (unless (version-table-present?)
+     (setup-schema)))
 
 (defn all-table-names []
   (with-db-connection

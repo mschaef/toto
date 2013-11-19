@@ -1,5 +1,6 @@
 (ns toto.main
   (:gen-class :main true)
+  (:use toto.util)
   (:require [clojure.tools.logging :as log]
             [ring.adapter.jetty :as jetty]
             [toto.core :as core]

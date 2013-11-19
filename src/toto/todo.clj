@@ -1,5 +1,6 @@
 (ns toto.todo
-  (:use compojure.core
+  (:use toto.util
+        compojure.core
         [slingshot.slingshot :only (throw+ try+)])
   (:require [ring.util.response :as ring]
             [hiccup.form :as form]
@@ -18,15 +19,6 @@
          (= protocol "https")))
    (catch java.net.MalformedURLException ex
      false)))
-
-(defn string-empty? [ str ]
-  (or (nil? str)
-      (= 0 (count (.trim str)))))
-
-(defn in? 
-  "true if seq contains elm"
-  [seq elm]  
-  (some #(= elm %) seq))
 
 (defn current-user-id []
   ((data/get-user-by-email (core/authenticated-username)) :user_id))
@@ -74,11 +66,6 @@
     (str base
          (string-leftmost (.getPath url)
                           (max 0 (- 60 (.length base)))))))
-
-(defn assoc-if [ map assoc? k v ]
-  (if assoc?
-    (assoc map k v)
-    map))
 
 (defn render-todo-item [ item-info item-number ]
   [:tr.item-row 
@@ -138,7 +125,7 @@
                      :sidebar (render-todo-list-list selected-list-id)}
                     (render-item-set-list-form)
                     (render-todo-list selected-list-id)
-                    (if (not (core/is-mobile-request?))
+                    (unless (core/is-mobile-request?)
                       [:div { :class "list-control-footer"}
                        [:a { :href (str "/list/" selected-list-id "/simple") } "[Simple Display]"]])))
 
@@ -177,7 +164,7 @@
                                 [:td
                                  [:p.new-user
                                   (js-link "beginUserAdd" list-id "Add User To List...")]]]
-                               (if (not (empty? error-message))
+                               (unless (empty? error-message)
                                  [:tr
                                   [:td { :colspan 2 }
                                    [:div#error error-message]]])]]]

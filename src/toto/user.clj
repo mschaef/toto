@@ -1,9 +1,11 @@
 (ns toto.user
-  (:use compojure.core)
+  (:use toto.util
+        compojure.core)
   (:require [cemerick.friend.credentials :as credentials]
             [ring.util.response :as ring]
             [cemerick.friend :as friend]
             [hiccup.form :as form]
+            [toto.core :as core]
             [toto.data :as data]
             [toto.view :as view]))
 
@@ -32,7 +34,7 @@
      [:tr [:td "Password:"] [:td (form/password-field { :class "simple-border" } "password")]]
      [:tr [:td "Verify Password:"] [:td (form/password-field { :class "simple-border" } "password2")]]
      
-     (if (not (empty? error-message))
+     (unless (empty? error-message)
        [:tr [:td { :colspan 2 } [:div#error error-message]]])
      
      [:tr [:td ] [:td (form/submit-button {} "Create User")]]])))

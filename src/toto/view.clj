@@ -1,6 +1,7 @@
 (ns toto.view
-  (:use hiccup.core)
-  (:use clojure.set)
+  (:use toto.util
+        clojure.set
+        hiccup.core)
   (:require [toto.core :as core]
             [hiccup.form :as form]
             [hiccup.page :as page]))
@@ -19,18 +20,19 @@
            [:head
             (when (core/is-mobile-request?)
               [:meta {:name "viewport" :content "width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0"}])
-            [:title app-name (if (not (nil? page-title)) (str " - " page-title))]
+            [:title app-name (unless (nil? page-title) (str " - " page-title))]
             [:link { :rel "shortcut icon" :href "/favicon.ico"}]
 
-            (page/include-css "/reset.css")
-            (page/include-css (if (core/is-mobile-request?)
+            (page/include-css "/reset.css"
+                              (if (core/is-mobile-request?)
                                 "/toto-mobile.css"
                                 "/toto-desktop.css"))
+
             (page/include-js "/jquery-1.10.1.js")
             (page/include-js "/jquery-ui.js")
             (page/include-js "/toto.js")
 
-            (map #(page/include-js %) include-js)]
+            (apply page/include-js (cons "/toto.js" include-js))]
 
            [:body
             [:div#header 

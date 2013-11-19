@@ -1,4 +1,5 @@
 (ns toto.data
+  (:use toto.util)
   (:require [clojure.java.jdbc :as jdbc]))
 
 (defn query-all [ query-spec ]
