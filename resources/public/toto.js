@@ -16,7 +16,7 @@ function beginListCreate()
   var formMarkup = "";
 
     formMarkup += "<form action=\"/list\" method=\"POST\">";
-    formMarkup += "<input class=\"full-width simple-border\" id=\"list-description\" name=\"list-description\" type=\"text\" />";
+    formMarkup += "<input class=\"full-width simple-border\" id=\"list-description\" name=\"list-description\" type=\"text\" maxlength=\"32\"/>";
     formMarkup += "</form>";
 
     $('p.new-list').replaceWith(formMarkup);
@@ -42,7 +42,7 @@ function beginItemEdit(itemId)
   var itemDesc = $('div#item_desc_' + itemId).text();
 
   formMarkup += "<form class=\"embedded\" action=\"/item/" + itemId + "/delete\" method=\"POST\">";
-  formMarkup += "<input alt=\"Delete Item\" height=\"12\" src=\"/trash_stroke_12x12.png\" type=\"image\" width=\"12\" />";
+  formMarkup += "<input alt=\"Delete Item\" height=\"12\" src=\"/trash_stroke_12x12.png\" type=\"image\" width=\"12\" maxlength=\"1024\"/>";
   formMarkup += "</form>";
 
   $('div#item_control_' + itemId).replaceWith(formMarkup);
