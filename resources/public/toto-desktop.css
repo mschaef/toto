@@ -26,8 +26,16 @@ table.item-list tr.item-row {
     border-top: 1px solid #e0e0e0;
 }
 
+div.drag-item {
+    padding: 0.2em;
+    border: 2px solid black;
+    background: white;
+}
+
 table.item-list tr.item-row td.drag-handle {
     padding: 0px;
+    min-width: 10px;
+    background: #e0e0e0;
 }
 
 table.item-list tr.item-row.first-row {
@@ -85,7 +93,6 @@ table.item-list tr.item-row:hover {
 }
 
 table.item-list td.item-control {
-    width: 2em;
     height: 2em;
     text-align: center;
     border-right: 1px solid #e0e0e0;

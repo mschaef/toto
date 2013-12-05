@@ -12,13 +12,19 @@ $(document).ready(function () {
 
   $( ".item-list .item-row" ).draggable({
     appendTo: "body",
-    helper: "clone",
-    handle: ".drag-handle"
+    helper: function() {
+      return $("<div class=\"drag-item\">List Item</div>");
+    },
+    cursorAt: {
+      left: 0,
+      top: 0
+    }
   });
 
   $( ".list-list li" ).droppable({
     hoverClass: "drop-hover",
     accept: ":not(.ui-sortable-helper)",
+    tolerance: "pointer",
     drop: function( event, ui ) {
       var itemId = $(ui.draggable[0]).attr("itemid");
       var newListId = $(this).attr("listid");
