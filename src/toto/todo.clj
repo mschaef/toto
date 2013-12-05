@@ -136,7 +136,7 @@
                        [:table.config-panel.full-width
                         [:tr
                          [:td.section-heading "List Name: "]
-                         [:td (form/text-field { :class "full-width" } "list-name" list-name) ]]
+                         [:td (form/text-field { :class "full-width" :maxlength "32" } "list-name" list-name) ]]
                         [:tr
                          [:td.section-heading "List Owners: "]
                          [:td [:table.item-list
@@ -240,7 +240,7 @@
   (GET "/" [] (redirect-to-home))
 
   (POST "/list" {{list-description :list-description} :params}
-        (add-list list-description))
+        (limit-string-length (add-list list-description) 32))
 
   (GET "/list/:list-id" [ list-id ]
        (render-todo-list-page list-id))
@@ -254,7 +254,7 @@
                 share-with-email :share-with-email }
                params ]
 
-          (update-list-description list-id list-name)
+          (update-list-description list-id (limit-string-length list-name 32))
           (add-list-owner list-id share-with-email
                           (selected-user-ids-from-params params))))
 
@@ -265,10 +265,10 @@
   (POST "/list/:list-id" { { list-id :list-id
                             item-description :item-description }
                            :params }
-        (add-item list-id item-description))
+        (add-item list-id (limit-string-length item-description 1024)))
 
   (POST "/item/:id"  {{id :id description :description} :params}
-        (update-item id description))
+        (update-item id (limit-string-length description 1024)))
 
   (POST "/item-list"  {{ target-item :target-item target-list :target-list} :params}
         (update-item-list target-item target-list))
