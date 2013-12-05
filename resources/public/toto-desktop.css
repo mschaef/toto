@@ -85,7 +85,7 @@ ul.list-list li.selected A {
 }
 
 ul.list-list li.drop-hover {
-    background: yellow;
+    background: #808080;
 }
 
 table.item-list tr.item-row:hover {
