@@ -46,6 +46,8 @@
 (def img-edit-item [:img { :src "/pen_alt_fill_12x12.png" :width 12 :height 12 :alt "Edit Item"}])
 (def img-edit-list [:img { :src "/pen_alt_fill_12x12.png" :width 12 :height 12 :alt "Edit List Name"}])
 
+(def img-drag-handle [:img { :src "/drag_handle_hd_bkg.png" :width 11 :height 31}])
+
 (defn render-new-item-form [ list-id ]
   (form/form-to [:post (str "/list/" list-id)]
                 (form/text-field { :class "full-width simple-border" :maxlength "1024" } "item-description")))
@@ -72,6 +74,7 @@
    (assoc-if { :valign "center" :itemid (item-info :item_id) }
              (= item-number 0)
              :class "first-row")
+   [:td.drag-handle img-drag-handle]
    [:td.item-control
     [:div { :id (str "item_control_" (item-info :item_id))}
      (complete-item-button item-info)]]
@@ -88,7 +91,7 @@
 
 (defn render-todo-list [ list-id ]
   [:table.item-list
-   [:tr [:td { :colspan 2 } (render-new-item-form list-id)]]
+   [:tr [:td { :colspan 3 } (render-new-item-form list-id)]]
    (map render-todo-item
         (data/get-pending-items list-id)
         (range))])

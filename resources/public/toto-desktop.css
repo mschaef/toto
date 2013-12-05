@@ -26,6 +26,10 @@ table.item-list tr.item-row {
     border-top: 1px solid #e0e0e0;
 }
 
+table.item-list tr.item-row td.drag-handle {
+    padding: 0px;
+}
+
 table.item-list tr.item-row.first-row {
     border-top: none;
 }

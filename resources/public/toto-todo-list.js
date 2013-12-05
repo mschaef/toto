@@ -12,7 +12,8 @@ $(document).ready(function () {
 
   $( ".item-list .item-row" ).draggable({
     appendTo: "body",
-    helper: "clone"
+    helper: "clone",
+    handle: ".drag-handle"
   });
 
   $( ".list-list li" ).droppable({

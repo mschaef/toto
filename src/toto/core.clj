@@ -45,11 +45,6 @@
             int
             prop-binding)))))
 
-(defn limit-string-length [ str length]
-  (if (> (.length str) length)
-    (.substring str 0 length)
-    str))
-
 (defn add-shutdown-hook [ shutdown-fn ]
   (.addShutdownHook (Runtime/getRuntime)
                     (Thread. (fn []
