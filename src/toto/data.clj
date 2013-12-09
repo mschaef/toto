@@ -118,6 +118,16 @@
                    user-id])
      0))
 
+(defn item-owned-by-user-id? [ item-id user-id ]
+  (> (query-count [(str "SELECT COUNT(*)"
+                        "  FROM todo_list_owners lo, todo_item item"
+                        " WHERE item.item_id=?"
+                        "   AND lo.todo_list_id=item.todo_list_id"
+                        "   AND lo.user_id=?")
+                   item-id
+                   user-id])
+     0))
+
 (defn add-todo-item [ todo-list-id desc ]
   (:item_id (first
              (jdbc/insert-records

@@ -26,9 +26,12 @@
 (defn current-todo-list-id []
   (first (data/get-todo-list-ids-by-user (current-user-id))))
 
-
 (defn ensure-list-access [ list-id ]
   (unless (data/list-owned-by-user-id? list-id (current-user-id))
+          (core/report-unauthorized)))
+
+(defn ensure-item-access [ item-id ]
+  (unless (data/item-owned-by-user-id? item-id (current-user-id))
           (core/report-unauthorized)))
 
 (defn redirect-to-list [ list-id ]
@@ -277,14 +280,19 @@
         (ensure-list-access list-id)
         (add-item list-id (limit-string-length item-description 1024)))
 
-  (POST "/item/:id"  {{id :id description :description} :params}
-        (update-item id (limit-string-length description 1024)))
-
-  (POST "/item-list"  {{ target-item :target-item target-list :target-list} :params}
+  (POST "/item/:item-id"  { { item-id :item-id description :description} :params}
+        (ensure-item-access item-id)
+        (update-item item-id (limit-string-length description 1024)))
+  
+  (POST "/item-list" { { target-item :target-item target-list :target-list}
+                       :params}
+        (ensure-item-access target-item)
+        (ensure-list-access target-list)
         (update-item-list target-item target-list))
+  
+  (POST "/item/:item-id/complete" [ item-id ]
+        (ensure-item-access item-id)
+        (complete-item item-id))
 
-  (POST "/item/:id/complete" [id]
-        (complete-item id))
-
-  (POST "/item/:id/delete" [id]
-        (delete-item id)))
+  (POST "/item/:item-id/delete" [ item-id ]
+        (delete-item item-id)))
