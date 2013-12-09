@@ -86,16 +86,16 @@ table.item-list td.item-description {
     padding-left: 0.67em;
 }
 
-table.item-list td.item-description A {
+A {
   text-decoration: none;
 }
 
-table.item-list td.item-description A:link { 
+A:link { 
   color: blue;
 } 
 
-table.item-list td.item-description A:visited { 
-  color: purple;
+A:visited { 
+  color: blue;
 } 
 
 table.item-list {
