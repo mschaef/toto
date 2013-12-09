@@ -7,7 +7,7 @@
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/java.jdbc "0.2.3"]
                  [org.clojure/tools.logging "0.2.6"]
-                 [org.slf4j/slf4j-log4j12 "1.7.5"]
+                 [ch.qos.logback/logback-classic "1.0.9"]
                  [org.hsqldb/hsqldb "2.3.0"]
                  [clj-http "0.6.4"]
                  [hiccup "1.0.4"]
