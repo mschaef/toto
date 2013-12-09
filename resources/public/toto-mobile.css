@@ -13,7 +13,7 @@ div#sidebar {
     width: 240px;
 
     background: white;
-    background: #c0c0c0;
+    background: #e0e0e0;
 }
 
 div#contents {
@@ -60,6 +60,8 @@ ul.list-list li {
 
     padding-top: 1em;
     padding-bottom: 1em;
+
+    border-top: 1px solid #c0c0c0;
 }
 
 ul.list-list li.selected {
@@ -76,6 +78,7 @@ ul.list-list li.drop-hover {
 }
 
 table.item-list td.item-control {
+    min-width: 2em;
     width: 2em;
     height: 3em;
     text-align: center;
@@ -138,7 +141,7 @@ div#header {
 
    border-bottom: 1px solid #c0c0c0;
 
-box-shadow: 1px 1px 1px #c0c0c0;
+   box-shadow: 1px 1px 1px #c0c0c0;
 }
 
 img.show-list {
@@ -175,9 +178,13 @@ div.list-control-footer {
 }
 
 p.new-list {
-    padding-top: 5px;
+
     text-align: center;
     font-style: italic;
+
+    padding-top: 1em;
+    padding-bottom: 1em;
+
 }
 
 p.new-user {

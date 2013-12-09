@@ -93,6 +93,8 @@ table.item-list tr.item-row:hover {
 }
 
 table.item-list td.item-control {
+    min-width: 2em;
+    width: 2em;
     height: 2em;
     text-align: center;
     border-right: 1px solid #e0e0e0;
@@ -222,6 +224,7 @@ table.config-panel td.section-heading {
 
 table.config-panel td.item-control {
     height: 2em;
+    min-width: 2em;
     width: 2em;
     text-align: center;
     border-right: none;
