@@ -49,7 +49,9 @@
 
             [:div#header 
              (if (core/is-mobile-request?)
-               [:a { :href "#" :class "click" } img-show-list "&nbsp;"]
+               (if username
+                 [:a { :href "#" :class "click" } img-show-list "&nbsp;"]
+                 [:span#vspace "&nbsp;"])
                (list [:a { :href "/" } app-name] " - "))
 
              page-title

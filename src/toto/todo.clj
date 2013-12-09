@@ -121,7 +121,9 @@
               ")"]]])
          (data/get-todo-lists-by-user (current-user-id)))]
    [:p.new-list
-    (js-link "beginListCreate" nil "Add Todo List...")]])
+    (js-link "beginListCreate" nil "Add Todo List...")]
+   
+   ])
 
 (defn render-item-set-list-form []
     (form/form-to { :class "embedded" :id (str "item_set_list_form") } [:post "/item-list"]
