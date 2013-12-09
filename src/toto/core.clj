@@ -7,6 +7,9 @@
     (cauth :identity)
     nil))
 
+(defn report-unauthorized []
+  (friend/throw-unauthorized (friend/current-authentication) {}))
+
 (def ^:dynamic *in-mobile-request* false)
 
 (defn mobile-user-agent? [ user-agent ]

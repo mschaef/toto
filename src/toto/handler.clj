@@ -54,7 +54,7 @@
                                        :workflows [(workflows/interactive-form)]})
                  (extend-session-duration 168)
                  (wrap-db-connection)
+                 (wrap-request-logging)
                  (core/wrap-mobile-detect)
-                 (handler/site)
-                 (wrap-request-logging)))
+                 (handler/site)))
 

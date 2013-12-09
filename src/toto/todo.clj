@@ -26,6 +26,11 @@
 (defn current-todo-list-id []
   (first (data/get-todo-list-ids-by-user (current-user-id))))
 
+
+(defn ensure-list-access [ list-id ]
+  (unless (data/list-owned-by-user-id? list-id (current-user-id))
+          (core/report-unauthorized)))
+
 (defn redirect-to-list [ list-id ]
   (ring/redirect (str "/list/" list-id)))
 
@@ -244,9 +249,11 @@
         (limit-string-length (add-list list-description) 32))
 
   (GET "/list/:list-id" [ list-id ]
+       (ensure-list-access list-id)
        (render-todo-list-page list-id))
 
   (GET "/list/:list-id/details" [ list-id ]
+       (ensure-list-access list-id)
        (render-todo-list-details-page list-id))
 
   (POST "/list/:list-id/details" { params :params }
@@ -254,18 +261,20 @@
                 list-name :list-name
                 share-with-email :share-with-email }
                params ]
-
+          (ensure-list-access list-id)
           (update-list-description list-id (limit-string-length list-name 32))
           (add-list-owner list-id share-with-email
                           (selected-user-ids-from-params params))))
 
 
   (POST "/list/:list-id/delete" { { list-id :list-id  } :params }
+        (ensure-list-access list-id)
         (delete-list list-id))
 
   (POST "/list/:list-id" { { list-id :list-id
                             item-description :item-description }
                            :params }
+        (ensure-list-access list-id)
         (add-item list-id (limit-string-length item-description 1024)))
 
   (POST "/item/:id"  {{id :id description :description} :params}
