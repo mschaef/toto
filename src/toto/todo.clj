@@ -142,7 +142,7 @@
                        :sidebar (render-todo-list-list list-id) }
                       (form/form-to
                        [:post (str "/list/" list-id "/details")]
-                       [:table.config-panel.full-width
+                       [:table.config-panel
                         [:tr
                          [:td.section-heading "List Name: "]
                          [:td (form/text-field { :class "full-width" :maxlength "32" } "list-name" list-name) ]]
@@ -152,7 +152,7 @@
                                (map (fn [ { user-id :user_id user-email-addr :email_addr } ]
                                       (let [ user-parameter-name (str "user_" user-id)]
                                         [:tr.item-row
-                                         [:td
+                                         [:td.item-control
                                           (if (= (current-user-id) user-id)
                                             (form/hidden-field user-parameter-name "on")
                                             (form/check-box user-parameter-name
@@ -170,7 +170,19 @@
                                    [:div#error error-message]]])]]]
                         [:tr
                          [:td]
-                         [:td [:input {:type "submit" :value "Update List Details"}]]]]))))
+                         [:td [:input {:type "submit" :value "Update List Details"}]]]])
+
+                      (form/form-to                      
+                       [:post (str "/list/" list-id "/delete")]
+                       [:table.config-panel.full-width
+                        [:tr
+                         [:td.section-heading "Delete List"]
+                         [:td
+                          (if (data/empty-list? list-id)
+                            (list 
+                             [:input.dangerous {:type "submit" :value "Delete List"}]
+                             [:span#warning "Warning, this cannot be undone."])
+                            [:span#warning "To delete this list, remove all items first."])]]]))))
 
 (defn update-list-description [ list-id list-description ]
   (when (not (string-empty? list-description))
@@ -178,7 +190,7 @@
   (ring/redirect  (str "/list/" list-id)))
 
 (defn delete-list [ list-id ]
-  (data/remove-list-owner list-id (current-user-id))
+  (data/delete-list list-id)
   (redirect-to-home))
 
 (defn add-list-owner [ list-id share-with-email selected-ids ]

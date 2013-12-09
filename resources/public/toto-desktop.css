@@ -125,6 +125,12 @@ div#error {
     text-align: center;
 }
 
+span#warning {
+    color: red;
+    font-style: italic;    
+    padding-left: 10px;
+}
+
 div#wrap {
     padding-top: 3em;
     overflow-x:hidden;
@@ -138,6 +144,7 @@ div#header A {
 span#logout A {
     color: red;
 }
+
 
 div#header {
    background: #e0e0e0;
@@ -191,6 +198,9 @@ p.new-user {
 table.config-panel  {
     background: #f0f0f0;
     border-collapse: collapse;
+    margin-left: 10px;
+    margin-right: 200px;
+    width: 98%;
 }
 
 table.config-panel > tbody > tr > td {
@@ -198,6 +208,7 @@ table.config-panel > tbody > tr > td {
     border-bottom: 1px solid #e0e0e0;
     padding-top: 8px;
     padding-bottom: 8px;
+    padding-right: 10px;
 }
 
 table.config-panel td.section-heading {
@@ -206,6 +217,19 @@ table.config-panel td.section-heading {
     white-space: nowrap;
     font-weight: bold;
     vertical-align: top;
+    width: 20%;
+}
+
+table.config-panel td.item-control {
+    height: 2em;
+    width: 2em;
+    text-align: center;
+    border-right: none;
+}
+
+input.dangerous {
+    font-weight: bold;
+    color: red;
 }
 
 form {

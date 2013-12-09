@@ -103,6 +103,12 @@
     todo-list-id
     user-id]))
 
+(defn delete-list [ todo-list-id ]
+  (jdbc/delete-rows
+   :todo_list_owners
+   ["todo_list_id=?" 
+    todo-list-id]))
+
 (defn update-list-description [ list-id list-description ]
   (jdbc/update-values
    :todo_list
@@ -143,6 +149,16 @@
                    "   AND NOT EXISTS (SELECT 1 FROM todo_item_completion WHERE item_id=item.item_id)"
                    " ORDER BY item.item_id")
               list-id]))
+
+(defn get-pending-item-count [ list-id ]
+  (query-count [(str "SELECT count(item.item_id)"
+                     " FROM todo_item item" 
+                     " WHERE todo_list_id=?"
+                     "   AND NOT EXISTS (SELECT 1 FROM todo_item_completion WHERE item_id=item.item_id)")
+                list-id]))
+
+(defn empty-list? [ list-id ]
+  (<= (get-pending-item-count list-id) 0))
 
 (defn get-item-by-id [ item-id ]
   (query-first [(str "SELECT item.item_id, item.todo_list_id, item.desc, item.created_on"
