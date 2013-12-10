@@ -5,8 +5,9 @@ sidebarVisible = false;
 $(document).ready(function () {
   $('.click').click(function() {
 
-    $('#sidebar').animate({
-      left: (sidebarVisible ? "-240px" : "0px") });
+    $('#sidebar').animate({left: (sidebarVisible ? "-240px" : "0px") });
+    $('#header').animate({left: (sidebarVisible ? "0px" : "240px") });
+
     sidebarVisible = !sidebarVisible;
   });
 });

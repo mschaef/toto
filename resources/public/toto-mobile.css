@@ -12,7 +12,11 @@ div#sidebar {
     left: -240px;
     width: 240px;
 
-    background: white;
+    top: 0;
+    bottom: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+
     background: #e0e0e0;
 }
 
