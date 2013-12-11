@@ -199,36 +199,29 @@
   `(try+
     ~@body
     (catch [ :type :form-error ] details#
-      (println details#)
       ( :markup details#))))
 
 (defn fail-validation [ markup ]
-  (println 'fail-validation)
   (throw+ { :type :form-error :markup markup }))
+
+(defn get-user-id-by-email [ email ]
+  (if-let [ user-info (data/get-user-by-email email) ]
+    (user-info :user_id)
+    nil))
 
 (defn add-list-owner [ list-id share-with-email selected-ids ]
   (catch-validation-errors
    (let [ email-user-id
          (if (empty? share-with-email)
            nil
-           (let [ user-info (data/get-user-by-email share-with-email)]
-             (cond
-              (nil? user-info)
-              (fail-validation
-               (render-todo-list-details-page list-id :error-message "Invalid e-mail address"))
-              
-              (data/list-owned-by-user-id? list-id (user-info :user_id))
-              (fail-validation
-               (render-todo-list-details-page list-id :error-message "List already owned by this user."))
-              
-              :else
-              (user-info :user_id))))
-         all-user-ids (clojure.set/union (apply hash-set selected-ids)
-                                         (if (nil? email-user-id)
-                                           #{}
-                                           (hash-set email-user-id)))]
-
-     (data/set-list-ownership list-id all-user-ids)
+           (or (get-user-id-by-email share-with-email)
+               (fail-validation
+                (render-todo-list-details-page list-id :error-message "Invalid e-mail address"))))]
+     (data/set-list-ownership list-id
+                              (clojure.set/union (apply hash-set selected-ids)
+                                                 (if (nil? email-user-id)
+                                                   #{}
+                                                   (hash-set email-user-id))))
      (ring/redirect  (str "/list/" list-id "/details")))))
 
 (defn add-list [ list-description ]
