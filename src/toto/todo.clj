@@ -11,15 +11,6 @@
             [toto.view :as view]
             [toto.user :as user]))
 
-(defn is-link-url? [ text ]
-  (try
-   (let [url (java.net.URL. text)
-         protocol (.getProtocol url)]
-     (or (= protocol "http")
-         (= protocol "https")))
-   (catch java.net.MalformedURLException ex
-     false)))
-
 (defn current-user-id []
   ((data/get-user-by-email (core/authenticated-username)) :user_id))
 
@@ -76,6 +67,16 @@
          (string-leftmost (.getPath url)
                           (max 0 (- 60 (.length base)))))))
 
+(def url-regex #"(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]") 
+
+(defn render-url [ [ url scheme ] ]
+  [:a { :href url :target "_blank" }
+      (hiccup.util/escape-html (shorten-url-text url))])
+
+(defn render-item-text [ item-text ]
+  (interleave (conj (clojure.string/split item-text url-regex) "")
+              (conj (vec (map render-url (re-seq url-regex item-text))) "")))
+
 (defn render-todo-item [ item-info item-number ]
   [:tr.item-row 
    (assoc-if { :valign "center" :itemid (item-info :item_id) }
@@ -85,15 +86,12 @@
     [:div { :id (str "item_control_" (item-info :item_id))}
      (complete-item-button item-info)]]
    [:td.item-description
-    (let [desc (item-info :desc)
-          clean-desc (hiccup.util/escape-html desc)]
+    (let [desc (item-info :desc)]
       (list
        [:div { :id (str "item_desc_" (item-info :item_id)) :class "hidden"}
-        clean-desc]
+        (hiccup.util/escape-html desc)]
        [:div { :id (str "item_" (item-info :item_id))}
-        (if (is-link-url? desc)
-          [:a { :href desc :target "_blank" } (shorten-url-text clean-desc)]
-          clean-desc)]))]])
+        (render-item-text desc)]))]])
 
 (defn render-todo-list [ list-id ]
   [:table.item-list
@@ -217,6 +215,7 @@
            (or (get-user-id-by-email share-with-email)
                (fail-validation
                 (render-todo-list-details-page list-id :error-message "Invalid e-mail address"))))]
+
      (data/set-list-ownership list-id
                               (clojure.set/union (apply hash-set selected-ids)
                                                  (if (nil? email-user-id)
