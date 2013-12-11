@@ -18,11 +18,11 @@ function beginListCreate()
 {
   var formMarkup = "";
 
-    formMarkup += "<form action=\"/list\" method=\"POST\">";
+    formMarkup += "<td colspan=\"2\"><form action=\"/list\" method=\"POST\">";
     formMarkup += "<input class=\"full-width simple-border\" id=\"list-description\" name=\"list-description\" type=\"text\" maxlength=\"32\"/>";
-    formMarkup += "</form>";
+    formMarkup += "</form></td>";
 
-    $('p.new-list').replaceWith(formMarkup);
+    $('td.add-list').replaceWith(formMarkup);
 
     $("#list-description").focus();
 }

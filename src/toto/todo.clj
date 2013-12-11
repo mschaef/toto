@@ -252,7 +252,7 @@
   (GET "/" [] (redirect-to-home))
 
   (POST "/list" {{list-description :list-description} :params}
-        (string-leftmost (add-list list-description) 32))
+        (add-list (string-leftmost list-description 32)))
 
   (GET "/list/:list-id" [ list-id ]
        (ensure-list-access list-id)
