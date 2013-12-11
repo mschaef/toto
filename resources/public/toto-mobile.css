@@ -35,15 +35,6 @@ div#overlay {
     height: 100%;
 }
 
-/*
-div#overlay div.wrapper {
-    height: 100%;
-
-    background: yellow;
-    width: 270px;
-}
-*/
-
 div#sidebar {
     width: 270px;
     float: left;

@@ -63,8 +63,7 @@
             (if sidebar
               (list
                [:div#overlay
-                 [:div#sidebar sidebar]
-]
+                 [:div#sidebar sidebar]]
                [:div.wrapper
                 [:div#contents contents]])
               [:div#page-contents contents])]])))
