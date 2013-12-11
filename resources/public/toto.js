@@ -8,6 +8,8 @@ $(document).ready(function () {
     $('#sidebar').animate({left: (sidebarVisible ? "-240px" : "0px") });
     $('#header').animate({left: (sidebarVisible ? "0px" : "240px") });
 
+    $('#wrap').animate({"margin-left": (sidebarVisible ? "0px" : "240px") });
+
     sidebarVisible = !sidebarVisible;
   });
 });
