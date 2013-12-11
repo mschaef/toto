@@ -9,15 +9,15 @@ body, table, select, input {
 div#sidebar {
     float: both;
     position: absolute;
-    left: -240px;
-    width: 240px;
+    left: -300px;
+    width: 300px;
 
     top: 0;
     bottom: 0;
     overflow-y: auto;
     overflow-x: hidden;
 
-    background: #e0e0e0;
+    background: #606070;
 }
 
 div#contents {
@@ -66,6 +66,16 @@ ul.list-list li {
     padding-bottom: 1em;
 
     border-top: 1px solid #c0c0c0;
+}
+
+ul.list-list A:link {
+    color: #f0f0f0;
+    font-weight: bold;
+}
+
+ul.list-list A:visited {
+    color: #f0f0f0;
+    font-weight: bold;
 }
 
 ul.list-list li.selected {

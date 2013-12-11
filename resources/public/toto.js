@@ -5,10 +5,10 @@ sidebarVisible = false;
 $(document).ready(function () {
   $('.click').click(function() {
 
-    $('#sidebar').animate({left: (sidebarVisible ? "-240px" : "0px") });
-    $('#header').animate({left: (sidebarVisible ? "0px" : "240px") });
+    $('#sidebar').animate({left: (sidebarVisible ? "-300px" : "0px") });
+    $('#header').animate({left: (sidebarVisible ? "0px" : "300px") });
 
-    $('#wrap').animate({"margin-left": (sidebarVisible ? "0px" : "240px") });
+    $('#wrap').animate({"margin-left": (sidebarVisible ? "0px" : "300px") });
 
     sidebarVisible = !sidebarVisible;
   });
