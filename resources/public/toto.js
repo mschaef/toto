@@ -2,17 +2,17 @@
 
 sidebarVisible = false;
 
-$(document).ready(function () {
-  $('.click').click(function() {
 
-    $('#sidebar').animate({left: (sidebarVisible ? "-270px" : "0px") });
+function toggleSidebar()
+{
+    $('#overlay').animate({left: (sidebarVisible ? "-270px" : "0px") });
     $('#header').animate({left: (sidebarVisible ? "0px" : "270px") });
 
     $('#contents').animate({"margin-left": (sidebarVisible ? "0px" : "270px") });
 
+
     sidebarVisible = !sidebarVisible;
-  });
-});
+}
 
 function beginListCreate()
 {

@@ -50,7 +50,7 @@
             [:div#header 
              (if (core/is-mobile-request?)
                (if username
-                 [:a { :href "#" :class "click" } img-show-list "&nbsp;"]
+                 [:a { :href "javascript:toggleSidebar()" :class "click" } img-show-list "&nbsp;"]
                  [:span#vspace "&nbsp;"])
                (list [:a { :href "/" } app-name] " - "))
 
@@ -62,8 +62,11 @@
 
             (if sidebar
               (list
-               [:div#sidebar sidebar]
-               [:div#contents contents])
+               [:div#overlay
+                 [:div#sidebar sidebar]
+]
+               [:div.wrapper
+                [:div#contents contents]])
               [:div#page-contents contents])]])))
 
 
