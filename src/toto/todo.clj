@@ -42,9 +42,11 @@
 (defn js-link [ js-fn-name args & contents ]
   [:a {:href (str "javascript:" js-fn-name "(" args ")")} contents])
 
-(def img-edit-item [:img { :src "/pen_alt_fill_12x12.png" :width 12 :height 12 :alt "Edit Item"}])
-(def img-edit-list [:img { :src "/pen_alt_fill_12x12.png" :width 12 :height 12 :alt "Edit List Name"}])
+(def img-edit-list
+     [:img { :src "/pen_alt_fill_12x12.png" :width 12 :height 12 :alt "Edit List"}])
 
+(def img-edit-list-light
+     [:img { :src "/pen_alt_fill_12x12_light.png" :width 12 :height 12 :alt "Edit List"}])
 
 (defn render-new-item-form [ list-id ]
   (form/form-to [:post (str "/list/" list-id)]
@@ -92,7 +94,10 @@
                   { :listid list-id })
 
             [:td.item-control
-             [:a {:href (str "/list/" list-id "/details")} img-edit-list]]
+             [:a {:href (str "/list/" list-id "/details")}
+              (if (core/is-mobile-request?)
+                img-edit-list-light
+                img-edit-list)]]
             [:td
              [:span { :id (str "list_" list-id ) }
               [:div { :id (str "list_desc_" list-id) :class "hidden"} 
@@ -116,54 +121,58 @@
                     (render-item-set-list-form)
                     (render-todo-list selected-list-id)))
 
+
+(defn config-panel [ target-url & sections ]
+  (form/form-to
+   [:post target-url]
+   [:table.config-panel
+    (map (fn [ [ heading body ] ]
+           [:tr
+            [:td.section-heading heading]
+            [:td body]])
+         sections)]))
+
 (defn render-todo-list-details-page [ list-id & { :keys [ error-message ]}]
   (let [ list-name ((data/get-todo-list-by-id list-id) :desc)
         list-owners (data/get-todo-list-owners-by-list-id list-id) ]
-    (view/render-page { :page-title (str "List Details: " list-name) 
-                       :sidebar (render-todo-list-list list-id) }
-                      (form/form-to
-                       [:post (str "/list/" list-id "/details")]
-                       [:table.config-panel
-                        [:tr
-                         [:td.section-heading "List Name: "]
-                         [:td (form/text-field { :class "full-width" :maxlength "32" } "list-name" list-name) ]]
-                        [:tr
-                         [:td.section-heading "List Owners: "]
-                         [:td [:table.item-list
-                               (map (fn [ { user-id :user_id user-email-addr :email_addr } ]
-                                      (let [ user-parameter-name (str "user_" user-id)]
-                                        [:tr.item-row
-                                         [:td.item-control
-                                          (if (= (current-user-id) user-id)
-                                            (form/hidden-field user-parameter-name "on")
-                                            (form/check-box user-parameter-name
-                                                            (in? list-owners user-id)))]
-                                         [:td.item-description user-email-addr]]))
-                                    (data/get-friendly-users-by-id (current-user-id)))
-                               [:tr
-                                [:td]
-                                [:td
-                                 [:p.new-user
-                                  (js-link "beginUserAdd" list-id "Add User To List...")]]]
-                               (unless (empty? error-message)
-                                 [:tr
-                                  [:td { :colspan 2 }
-                                   [:div#error error-message]]])]]]
-                        [:tr
-                         [:td]
-                         [:td [:input {:type "submit" :value "Update List Details"}]]]])
+    (view/render-page
+     { :page-title (str "List Details: " list-name) 
+      :sidebar (render-todo-list-list list-id) }
+     (config-panel
+      (str "/list/" list-id "/details")
 
-                      (form/form-to                      
-                       [:post (str "/list/" list-id "/delete")]
-                       [:table.config-panel.full-width
-                        [:tr
-                         [:td.section-heading "Delete List"]
-                         [:td
-                          (if (data/empty-list? list-id)
-                            (list 
-                             [:input.dangerous {:type "submit" :value "Delete List"}]
-                             [:span#warning "Warning, this cannot be undone."])
-                            [:span#warning "To delete this list, remove all items first."])]]]))))
+      ["List Name:" (form/text-field { :class "full-width" :maxlength "32" } "list-name" list-name)]
+
+      ["List Owners:" [:table.item-list
+                       (map (fn [ { user-id :user_id user-email-addr :email_addr } ]
+                              (let [ user-parameter-name (str "user_" user-id)]
+                                [:tr.item-row
+                                 [:td.item-control
+                                  (if (= (current-user-id) user-id)
+                                    (form/hidden-field user-parameter-name "on")
+                                    (form/check-box user-parameter-name
+                                                    (in? list-owners user-id)))]
+                                 [:td.item-description user-email-addr]]))
+                            (data/get-friendly-users-by-id (current-user-id)))
+                       [:tr
+                        [:td]
+                        [:td
+                         [:p.new-user
+                          (js-link "beginUserAdd" list-id "Add User To List...")]]]
+                       (unless (empty? error-message)
+                               [:tr
+                                [:td { :colspan 2 }
+                                 [:div#error error-message]]])]]
+
+      [ nil [:input {:type "submit" :value "Update List Details"}]])
+
+     (config-panel
+      (str "/list/" list-id "/delete")
+      ["Delete List: " (if (data/empty-list? list-id)
+                         (list 
+                          [:input.dangerous {:type "submit" :value "Delete List"}]
+                          [:span#warning "Warning, this cannot be undone."])
+                         [:span#warning "To delete this list, remove all items first."])]))))
 
 (defn update-list-description [ list-id list-description ]
   (when (not (string-empty? list-description))

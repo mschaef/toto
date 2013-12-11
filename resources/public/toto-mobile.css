@@ -60,7 +60,7 @@ table.list-list {
 }
 
 table.list-list tr:hover {
-    background: #e0e0e0;
+    background: white;
 }
 
 table.list-list tr.selected:hover {
