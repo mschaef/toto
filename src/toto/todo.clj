@@ -102,22 +102,19 @@
 
 (defn render-todo-list-list [ selected-list-id ]
   [:table.list-list
-    (map (fn [ list-info ]
-           [:tr (if (= (list-info :todo_list_id) (Integer. selected-list-id))
-                  { :class "selected" :listid (list-info :todo_list_id) }
-                  { :listid (list-info :todo_list_id) })
+    (map (fn [ { list-id :todo_list_id list-desc :desc list-item-count :item_count } ]
+           [:tr (if (= list-id (Integer. selected-list-id))
+                  { :class "selected" :listid list-id }
+                  { :listid list-id })
 
             [:td.item-control
-             [:a {:href (str "/list/" (list-info :todo_list_id) "/details")} img-edit-list]]
+             [:a {:href (str "/list/" list-id "/details")} img-edit-list]]
             [:td
-             [:span { :id (str "list_" (list-info :todo_list_id) ) }
-              [:div { :id (str "list_desc_" (list-info :todo_list_id)) :class "hidden"} 
-               (hiccup.util/escape-html (list-info :desc))]
-              [:a {:href (str "/list/" (list-info :todo_list_id))}
-               (hiccup.util/escape-html (list-info :desc))
-               " ("
-               (list-info :item_count)
-               ")"]]]])
+             [:span { :id (str "list_" list-id ) }
+              [:div { :id (str "list_desc_" list-id) :class "hidden"} 
+               (hiccup.util/escape-html list-desc)]
+              [:a {:href (str "/list/" list-id)}
+               (hiccup.util/escape-html list-desc) " (" list-item-count ")"]]]])
          (data/get-todo-lists-by-user (current-user-id)))
    [:tr
     [:td.add-list  { :colspan "2"}
