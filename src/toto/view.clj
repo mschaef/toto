@@ -60,16 +60,10 @@
                [:div.right
                 [:span username " - " (logout-button)]])]
 
-            [:div#wrap
-             (if sidebar
-               (list [:div#sidebar sidebar] [:div#contents contents])
-               contents)
-
-             [:div#footer
-              (when (and (core/is-mobile-request?) (not (nil? username)))
-                [:div username " - " (logout-button)])
-
-              "All Rights Reserved, Copyright 2013 East Coast Toolworks "
-              (format "(%.1f msec.)" (/ (- (. System (nanoTime)) t-begin) 1000000.0))]]]])))
+            (if sidebar
+              (list
+               [:div#sidebar sidebar]
+               [:div#contents contents])
+              [:div#page-contents contents])]])))
 
 

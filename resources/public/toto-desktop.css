@@ -7,12 +7,20 @@ body, table, select, input {
 }
 
 div#sidebar {
+    padding-top: 3em;
     float:left;
     width: 240px;
 }
 
 div#contents {
+    padding-top: 3em;
     margin-left: 240px;
+    padding-bottom: 10px;
+    background: white;
+}
+
+div#page-contents {
+    padding-top: 3em;
     padding-bottom: 10px;
     background: white;
 }
@@ -156,11 +164,6 @@ span#warning {
     color: red;
     font-style: italic;    
     padding-left: 10px;
-}
-
-div#wrap {
-    padding-top: 3em;
-    overflow-x:hidden;
 }
 
 div#header A {

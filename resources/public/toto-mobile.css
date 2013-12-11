@@ -8,11 +8,6 @@ body, table, select, input {
     line-height:1.2;
 }
 
-div#wrap {
-    padding-top: 3em;
-    overflow-x:hidden;
-}
-
 A { 
   text-decoration: none;
 } 
@@ -47,6 +42,13 @@ div#sidebar {
 }
 
 div#contents {
+    padding-top: 3em;
+    padding-bottom: 10px;
+    background: white;
+}
+
+div#page-contents {
+    padding-top: 3em;
     padding-bottom: 10px;
     background: white;
 }
