@@ -195,22 +195,32 @@
   (data/delete-list list-id)
   (redirect-to-home))
 
+(defmacro catch-validation-errors [ & body ]
+  `(try+
+    ~@body
+    (catch [ :type :form-error ] details#
+      (println details#)
+      ( :markup details#))))
+
+(defn fail-validation [ markup ]
+  (println 'fail-validation)
+  (throw+ { :type :form-error :markup markup }))
+
 (defn add-list-owner [ list-id share-with-email selected-ids ]
-  (try+
+  (catch-validation-errors
    (let [ email-user-id
          (if (empty? share-with-email)
            nil
            (let [ user-info (data/get-user-by-email share-with-email)]
              (cond
               (nil? user-info)
-              (throw+
-               { :type :form-error
-                :markup (render-todo-list-details-page list-id :error-message "Invalid e-mail address")})
+              (fail-validation
+               (render-todo-list-details-page list-id :error-message "Invalid e-mail address"))
               
               (data/list-owned-by-user-id? list-id (user-info :user_id))
-              (throw+
-               { :type :form-error
-                :markup (render-todo-list-details-page list-id :error-message "List already owned by this user.")})
+              (fail-validation
+               (render-todo-list-details-page list-id :error-message "List already owned by this user."))
+              
               :else
               (user-info :user_id))))
          all-user-ids (clojure.set/union (apply hash-set selected-ids)
@@ -219,10 +229,7 @@
                                            (hash-set email-user-id)))]
 
      (data/set-list-ownership list-id all-user-ids)
-     (ring/redirect  (str "/list/" list-id "/details")))
-
-   (catch [ :type :form-error ] { :keys [ markup ]}
-     markup)))
+     (ring/redirect  (str "/list/" list-id "/details")))))
 
 (defn add-list [ list-description ]
   (when (not (string-empty? list-description))
