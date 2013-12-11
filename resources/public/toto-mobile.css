@@ -40,11 +40,9 @@ div#sidebar {
     float: left;
     max-height: 100%;
     background: #606070;
-}
-
-div#sidebar:hover {
     overflow-y: auto;
 }
+
 
 div#contents {
     padding-top: 3em;
