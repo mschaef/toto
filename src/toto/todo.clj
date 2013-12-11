@@ -50,28 +50,12 @@
   (form/form-to [:post (str "/list/" list-id)]
                 (form/text-field { :class "full-width simple-border" :maxlength "1024" } "item-description")))
 
-(defn string-leftmost [ string count ]
-  (let [length (.length string)
-        leftmost (min count length)]
-    (if (< leftmost length)
-      (str (.substring string 0 leftmost) "...")
-      string)))
-
-(defn shorten-url-text [ url-text ]
-  (let [url (java.net.URL. url-text)
-        base (str (.getProtocol url)
-                  ":"
-                  (if-let [authority (.getAuthority url)]
-                    (str "//" authority)))]
-    (str base
-         (string-leftmost (.getPath url)
-                          (max 0 (- 60 (.length base)))))))
 
 (def url-regex #"(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]") 
 
-(defn render-url [ [ url scheme ] ]
+(defn render-url [ [ url ] ]
   [:a { :href url :target "_blank" }
-      (hiccup.util/escape-html (shorten-url-text url))])
+      (hiccup.util/escape-html (shorten-url-text url 60))])
 
 (defn render-item-text [ item-text ]
   (interleave (conj (clojure.string/split item-text url-regex) "")
@@ -259,7 +243,7 @@
   (GET "/" [] (redirect-to-home))
 
   (POST "/list" {{list-description :list-description} :params}
-        (limit-string-length (add-list list-description) 32))
+        (string-leftmost (add-list list-description) 32))
 
   (GET "/list/:list-id" [ list-id ]
        (ensure-list-access list-id)
@@ -275,7 +259,7 @@
                 share-with-email :share-with-email }
                params ]
           (ensure-list-access list-id)
-          (update-list-description list-id (limit-string-length list-name 32))
+          (update-list-description list-id (string-leftmost list-name 32))
           (add-list-owner list-id share-with-email
                           (selected-user-ids-from-params params))))
 
@@ -288,11 +272,11 @@
                             item-description :item-description }
                            :params }
         (ensure-list-access list-id)
-        (add-item list-id (limit-string-length item-description 1024)))
+        (add-item list-id (string-leftmost item-description 1024)))
 
   (POST "/item/:item-id"  { { item-id :item-id description :description} :params}
         (ensure-item-access item-id)
-        (update-item item-id (limit-string-length description 1024)))
+        (update-item item-id (string-leftmost description 1024)))
   
   (POST "/item-list" { { target-item :target-item target-list :target-list}
                        :params}

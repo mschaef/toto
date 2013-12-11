@@ -78,15 +78,11 @@ table.list-list tr {
 
 table.list-list td {
     vertical-align: middle;
-
-    border-bottom: 1px solid #e0e0e0;
 }
 
 table.list-list td.add-list {
     text-align: center;
     vertical-align: middle;
-
-    border-bottom: none;
 }
 
 table.list-list tr.selected {
