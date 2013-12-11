@@ -9,8 +9,8 @@ body, table, select, input {
 div#sidebar {
     float: both;
     position: absolute;
-    left: -300px;
-    width: 300px;
+    left: -270px;
+    width: 270px;
 
     top: 0;
     bottom: 0;
@@ -50,45 +50,72 @@ A {
   text-decoration: none;
 } 
 
-ul.list-list {
+
+table.list-list {
     margin: 0px;
     border: 0px;
     padding: 0px;
     padding-top: 0px;
-    list-style-type: none;
+    width: 100%;
 }
 
-ul.list-list li {
+table.list-list tr:hover {
+    background: #e0e0e0;
+}
+
+table.list-list tr.selected:hover {
+    background: #e0e0e0;
+}
+
+table.list-list tr {
     padding: 2px 8px;
     border-left: 3px solid white;
 
-    padding-top: 1em;
-    padding-bottom: 1em;
-
-    border-top: 1px solid #c0c0c0;
+    min-height: 2em;
+    height: 2em;
 }
 
-ul.list-list A:link {
-    color: #f0f0f0;
-    font-weight: bold;
+table.list-list td {
+    vertical-align: middle;
+
+    border-bottom: 1px solid #707070;
 }
 
-ul.list-list A:visited {
-    color: #f0f0f0;
-    font-weight: bold;
+table.list-list td.add-list {
+    text-align: center;
+    vertical-align: middle;
+
+    border-bottom: none;
 }
 
-ul.list-list li.selected {
+table.list-list tr.selected {
     background: white;
     border-left: 3px solid red;
 }
 
-ul.list-list li.selected A {
+table.list-list tr.selected A {
     color: red;
 }
 
+table.list-list A:link {
+    color: #e0e0e0;
+    font-weight: bold;
+}
+
+table.list-list A:visited {
+    color: #e0e0e0;
+    font-weight: bold;
+}
+
 ul.list-list li.drop-hover {
-    background: yellow;
+    background: #808080;
+}
+
+table.list-list td.item-control {
+    min-width: 2em;
+    width: 2em;
+    height: 2em;
+    text-align: center;
 }
 
 table.item-list td.item-control {

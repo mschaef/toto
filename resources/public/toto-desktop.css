@@ -53,39 +53,68 @@ A {
   text-decoration: none;
 } 
 
-ul.list-list {
+table.list-list {
     margin: 0px;
     border: 0px;
     padding: 0px;
     padding-top: 0px;
-    list-style-type: none;
 }
 
-ul.list-list li:hover {
+table.list-list tr:hover {
     background: #e0e0e0;
 }
 
-ul.list-list li.selected:hover {
+table.list-list tr.selected:hover {
     background: #e0e0e0;
 }
 
-ul.list-list li {
+table.list-list tr {
     padding: 2px 8px;
     border-left: 3px solid white;
-    height: 1.5em;
+
+    min-height: 2em;
+    height: 2em;
 }
 
-ul.list-list li.selected {
+table.list-list td {
+    vertical-align: middle;
+
+    border-bottom: 1px solid #e0e0e0;
+}
+
+table.list-list td.add-list {
+    text-align: center;
+    vertical-align: middle;
+
+    border-bottom: none;
+}
+
+table.list-list tr.selected {
     background: white;
     border-left: 3px solid red;
 }
 
-ul.list-list li.selected A {
+table.list-list tr.selected A {
     color: red;
+}
+
+table.list-list A:link {
+    color: black;
+}
+
+table.list-list A:visited {
+    color: black;
 }
 
 ul.list-list li.drop-hover {
     background: #808080;
+}
+
+table.list-list td.item-control {
+    min-width: 2em;
+    width: 2em;
+    height: 2em;
+    text-align: center;
 }
 
 table.item-list tr.item-row:hover {

@@ -101,27 +101,27 @@
         (range))])
 
 (defn render-todo-list-list [ selected-list-id ]
-  [:div.full-width
-   [:ul.list-list
+  [:table.list-list
     (map (fn [ list-info ]
-           [:li (if (= (list-info :todo_list_id) (Integer. selected-list-id))
+           [:tr (if (= (list-info :todo_list_id) (Integer. selected-list-id))
                   { :class "selected" :listid (list-info :todo_list_id) }
                   { :listid (list-info :todo_list_id) })
-            [:a {:href (str "/list/" (list-info :todo_list_id) "/details")} img-edit-list]
-            "&nbsp;"
-            [:span { :id (str "list_" (list-info :todo_list_id) ) }
-             [:div { :id (str "list_desc_" (list-info :todo_list_id)) :class "hidden"} 
-              (hiccup.util/escape-html (list-info :desc))]
-             [:a {:href (str "/list/" (list-info :todo_list_id))}
-              (hiccup.util/escape-html (list-info :desc))
-              " ("
-              (list-info :item_count)
-              ")"]]])
-         (data/get-todo-lists-by-user (current-user-id)))]
-   [:p.new-list
-    (js-link "beginListCreate" nil "Add Todo List...")]
-   
-   ])
+
+            [:td.item-control
+             [:a {:href (str "/list/" (list-info :todo_list_id) "/details")} img-edit-list]]
+            [:td
+             [:span { :id (str "list_" (list-info :todo_list_id) ) }
+              [:div { :id (str "list_desc_" (list-info :todo_list_id)) :class "hidden"} 
+               (hiccup.util/escape-html (list-info :desc))]
+              [:a {:href (str "/list/" (list-info :todo_list_id))}
+               (hiccup.util/escape-html (list-info :desc))
+               " ("
+               (list-info :item_count)
+               ")"]]]])
+         (data/get-todo-lists-by-user (current-user-id)))
+   [:tr
+    [:td.add-list  { :colspan "2"}
+     (js-link "beginListCreate" nil "Add Todo List...")]]])
 
 (defn render-item-set-list-form []
     (form/form-to { :class "embedded" :id (str "item_set_list_form") } [:post "/item-list"]
