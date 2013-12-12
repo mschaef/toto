@@ -142,17 +142,24 @@
                :desc desc
                :created_on (java.util.Date.)}))))
 
-(defn get-pending-items [ list-id ]
+(defn get-pending-items [ list-id completed-within-days ]
   (query-all [(str "SELECT item.item_id,"
                    "       item.todo_list_id,"
                    "       item.desc,"
                    "       item.created_on,"
-                   "       DATEDIFF('day', item.created_on, current_timestamp) as age_in_days"
+                   "       completion.completed_on,"
+                   "       completion.is_delete,"
+                   "       DATEDIFF('day', item.created_on, CURRENT_TIMESTAMP) as age_in_days"
                    " FROM todo_item item" 
-                   " WHERE todo_list_id=?"
-                   "   AND NOT EXISTS (SELECT 1 FROM todo_item_completion WHERE item_id=item.item_id)"
-                   " ORDER BY item.item_id")
-              list-id]))
+                   "      LEFT JOIN todo_item_completion completion"
+                   "        ON item.item_id = completion.item_id"
+                   " WHERE item.todo_list_id = ?"
+                   "   AND (completion.completed_on IS NULL "
+                   "        OR  completion.completed_on > DATEADD('day', ?, CURRENT_TIMESTAMP))"
+                    " ORDER BY item.item_id"
+                   )
+              list-id
+              (- completed-within-days)]))
 
 (defn get-pending-item-count [ list-id ]
   (query-count [(str "SELECT count(item.item_id)"

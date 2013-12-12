@@ -85,11 +85,11 @@
           [:span#item_age
            " (" (render-age item-age) ")"]]))]]))
 
-(defn render-todo-list [ list-id ]
+(defn render-todo-list [ list-id completed-within-days ]
   [:table.item-list
    [:tr [:td { :colspan 2 } (render-new-item-form list-id)]]
    (map render-todo-item
-        (data/get-pending-items list-id)
+        (data/get-pending-items list-id completed-within-days )
         (range))])
 
 (defn render-todo-list-list [ selected-list-id ]
@@ -120,12 +120,12 @@
                   (form/hidden-field "target-item")
                   (form/hidden-field "target-list")))
 
-(defn render-todo-list-page [ selected-list-id ]
+(defn render-todo-list-page [ selected-list-id completed-within-days ]
   (view/render-page { :page-title ((data/get-todo-list-by-id selected-list-id) :desc)
                      :include-js [ "/toto-todo-list.js" ]
                      :sidebar (render-todo-list-list selected-list-id)}
                     (render-item-set-list-form)
-                    (render-todo-list selected-list-id)))
+                    (render-todo-list selected-list-id completed-within-days )))
 
 
 (defn config-panel [ target-url & sections ]
@@ -257,12 +257,13 @@
 (defroutes all-routes
   (GET "/" [] (redirect-to-home))
 
-  (POST "/list" {{list-description :list-description} :params}
+  (POST "/list" { { list-description :list-description } :params }
         (add-list (string-leftmost list-description 32)))
 
-  (GET "/list/:list-id" [ list-id ]
+  (GET "/list/:list-id" { { list-id :list-id completed-within-days :cwithin } :params } 
        (ensure-list-access list-id)
-       (render-todo-list-page list-id))
+       (render-todo-list-page list-id (or (core/parsable-integer? completed-within-days)
+                                          0)))
 
   (GET "/list/:list-id/details" [ list-id ]
        (ensure-list-access list-id)
