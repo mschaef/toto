@@ -21,7 +21,7 @@ $(document).ready(function () {
     }
   });
 
-  $( ".list-list li" ).droppable({
+  $( ".list-list tr" ).droppable({
     hoverClass: "drop-hover",
     accept: ":not(.ui-sortable-helper)",
     tolerance: "pointer",

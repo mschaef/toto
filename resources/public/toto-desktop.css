@@ -110,7 +110,7 @@ table.list-list A:visited {
     color: black;
 }
 
-ul.list-list li.drop-hover {
+table.list-list tr.drop-hover {
     background: #808080;
 }
 
