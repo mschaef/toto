@@ -69,22 +69,21 @@
         :else (str days "d")))
 
 (defn render-todo-item [ item-info item-number ]
-  [:tr.item-row 
-   (assoc-if { :valign "center" :itemid (item-info :item_id) }
-             (= item-number 0)
-             :class "first-row")
-   [:td.item-control
-    [:div { :id (str "item_control_" (item-info :item_id))}
-     (complete-item-button item-info)]]
-   [:td.item-description
-    (let [desc (item-info :desc)]
-      (list
-       [:div { :id (str "item_desc_" (item-info :item_id)) :class "hidden"}
-        (hiccup.util/escape-html desc)]
-       [:div { :id (str "item_" (item-info :item_id))}
-        (render-item-text desc)
-        [:span#item_age
-         " (" (render-age (item-info :age_in_days)) ")"]]))]])
+  (let [ { item-id :item_id item-desc :desc item-age :age_in_days } item-info]
+    [:tr.item-row 
+     (assoc-if {:itemid item-id} (= item-number 0) :class "first-row")
+     [:td.item-control
+      [:div { :id (str "item_control_" item-id)}
+       (complete-item-button item-info)]]
+     [:td.item-description
+      (let [desc (item-info :desc)]
+        (list
+         [:div { :id (str "item_desc_" item-id) :class "hidden"}
+          (hiccup.util/escape-html desc)]
+         [:div { :id (str "item_" item-id)}
+          (render-item-text desc)
+          [:span#item_age
+           " (" (render-age item-age) ")"]]))]]))
 
 (defn render-todo-list [ list-id ]
   [:table.item-list
