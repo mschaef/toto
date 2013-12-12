@@ -77,7 +77,9 @@
        [:div { :id (str "item_desc_" (item-info :item_id)) :class "hidden"}
         (hiccup.util/escape-html desc)]
        [:div { :id (str "item_" (item-info :item_id))}
-        (render-item-text desc)]))]])
+        (render-item-text desc)
+        [:span#item_age
+         " (" (item-info :age_in_days) "d)"]]))]])
 
 (defn render-todo-list [ list-id ]
   [:table.item-list
