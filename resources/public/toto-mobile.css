@@ -126,6 +126,10 @@ span#logout A {
     color: red;
 }
 
+span#item_age {
+   font-style: italic;    
+}
+
 /* List list styling */
 
 table.list-list {

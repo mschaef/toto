@@ -176,7 +176,7 @@ span#logout A {
 }
 
 span#item_age {
-    font-weight: bold;
+   font-style: italic;    
 }
 
 div#header {
