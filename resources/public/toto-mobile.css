@@ -130,6 +130,15 @@ span#item_age {
    font-style: italic;    
 }
 
+span.completed_item {
+    text-decoration: line-through;
+}
+
+span.deleted_item {
+    text-decoration: line-through;
+    color: #c0c0c0;
+}
+
 /* List list styling */
 
 table.list-list {

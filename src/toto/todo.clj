@@ -35,6 +35,10 @@
   (form/form-to [:post (str "/item/" (item-info :item_id) "/complete")]
                 [:input {:type "image" :src "/check_12x10.png" :width 12 :height 10 :alt "Complete Item"}]))
 
+(defn restore-item-button [ item-info ]
+  (form/form-to [:post (str "/item/" (item-info :item_id) "/restore")]
+                [:input {:type "image" :src "/reload_12x14.png" :width 12 :height 14 :alt "Restore Item"}]))
+
 (defn delete-item-button [ item-info ]
   (form/form-to [:post (str "/item/" (item-info :item_id) "/delete")]
                 [:input {:type "image" :src "/x_11x11.png" :width 11 :height 11 :alt "Delete Item"}]))
@@ -69,18 +73,30 @@
         :else (str days "d")))
 
 (defn render-todo-item [ item-info item-number ]
-  (let [ { item-id :item_id item-desc :desc item-age :age_in_days } item-info]
+  (let [ {
+          item-id :item_id
+          item-desc :desc
+          item-age :age_in_days
+          completed-on :completed_on
+          is-delete? :is_delete
+          }
+         item-info]
+
     [:tr.item-row 
      (assoc-if {:itemid item-id} (= item-number 0) :class "first-row")
      [:td.item-control
       [:div { :id (str "item_control_" item-id)}
-       (complete-item-button item-info)]]
+       (if (nil? completed-on)
+         (complete-item-button item-info)
+         (restore-item-button item-info))]]
      [:td.item-description
       (let [desc (item-info :desc)]
         (list
          [:div { :id (str "item_desc_" item-id) :class "hidden"}
           (hiccup.util/escape-html desc)]
-         [:div { :id (str "item_" item-id)}
+         [:span (assoc-if { :id (str "item_" item-id)}
+                          (not (nil? completed-on))
+                          :class (if is-delete? "deleted_item" "completed_item"))
           (render-item-text desc)
           [:span#item_age
            " (" (render-age item-age) ")"]]))]]))
@@ -250,6 +266,11 @@
     (data/delete-item-by-id (current-user-id) item-id)
     (redirect-to-list list-id)))
 
+(defn restore-item [ item-id ]
+  (let [ list-id ((data/get-item-by-id item-id) :todo_list_id)]
+    (data/restore-item item-id)
+    (redirect-to-list list-id)))
+
 (defn selected-user-ids-from-params [ params ]
   (map #(Integer/parseInt (.substring % 5))
        (filter #(.startsWith % "user_") (map name (keys params)))))
@@ -305,4 +326,9 @@
         (complete-item item-id))
 
   (POST "/item/:item-id/delete" [ item-id ]
-        (delete-item item-id)))
+        (ensure-item-access item-id)
+        (delete-item item-id))
+
+  (POST "/item/:item-id/restore" [ item-id ]
+        (ensure-item-access item-id)
+        (restore-item item-id)))

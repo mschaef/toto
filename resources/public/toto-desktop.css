@@ -179,6 +179,16 @@ span#item_age {
    font-style: italic;    
 }
 
+
+span.completed_item {
+    text-decoration: line-through;
+}
+
+span.deleted_item {
+    text-decoration: line-through;
+    color: #c0c0c0;
+}
+
 div#header {
    background: #e0e0e0;
    color: #202020;

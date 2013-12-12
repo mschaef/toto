@@ -201,6 +201,13 @@
     :completed_on (java.util.Date.)
     :is_delete true}))
 
+(defn restore-item [ item-id ]
+  (jdbc/delete-rows
+   :todo_item_completion
+   ["item_id=?" 
+    item-id]))
+
+
 (defn update-item-by-id [ item-id item-description ]
   (jdbc/update-values
    :todo_item
