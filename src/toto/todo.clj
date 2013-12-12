@@ -63,6 +63,11 @@
   (interleave (conj (clojure.string/split item-text url-regex) "")
               (conj (vec (map render-url (re-seq url-regex item-text))) "")))
 
+(defn render-age [ days ]
+  (cond (> days 720) (str (quot days 360) "y")
+        (> days 60) (str (quot days 30) "m")
+        :else (str days "d")))
+
 (defn render-todo-item [ item-info item-number ]
   [:tr.item-row 
    (assoc-if { :valign "center" :itemid (item-info :item_id) }
@@ -79,7 +84,7 @@
        [:div { :id (str "item_" (item-info :item_id))}
         (render-item-text desc)
         [:span#item_age
-         " (" (item-info :age_in_days) "d)"]]))]])
+         " (" (render-age (item-info :age_in_days)) ")"]]))]])
 
 (defn render-todo-list [ list-id ]
   [:table.item-list
