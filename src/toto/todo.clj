@@ -102,8 +102,11 @@
            " (" (render-age item-age) ")"]]))]]))
 
 (defn render-todo-list [ list-id completed-within-days ]
+  
   [:table.item-list
-   [:tr [:td { :colspan 2 } (render-new-item-form list-id)]]
+   [:tr
+    [:td { :colspan 2 }
+     (render-new-item-form list-id)]]
    (map render-todo-item
         (data/get-pending-items list-id completed-within-days )
         (range))])
@@ -141,8 +144,13 @@
                      :include-js [ "/toto-todo-list.js" ]
                      :sidebar (render-todo-list-list selected-list-id)}
                     (render-item-set-list-form)
-                    (render-todo-list selected-list-id completed-within-days )))
-
+                    (render-todo-list selected-list-id completed-within-days )
+                    [:div.query-settings
+                     "Include items completed within: "
+                     (form/form-to { :class "embedded "} [ :get (str "/list/" selected-list-id)]
+                                   [:select { :id "cwithin" :name "cwithin" } 
+                                    (form/select-options [ [ "-" "-"] [ "1d" "1"] [ "7d" "7"] ] "-")
+                                    (form/submit-button "Query")])]))
 
 (defn config-panel [ target-url & sections ]
   (form/form-to
