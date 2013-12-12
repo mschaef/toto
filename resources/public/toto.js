@@ -56,7 +56,7 @@ function beginItemEdit(itemId)
   formMarkup += "<input class=\"full-width simple-border\" id=\"description\" name=\"description\" type=\"text\"/>";
   formMarkup += "</form>";
 
-  $('div#item_' + itemId).replaceWith(formMarkup);
+  $('span#item_' + itemId).replaceWith(formMarkup);
 
   $("#iedit_" + itemId + " #description").val(itemDesc);
   $("#iedit_" + itemId + " #description").focus();
