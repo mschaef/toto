@@ -170,17 +170,10 @@ table.list-list {
     width: 100%;
 }
 
-table.list-list tr:hover {
-    background: white;
-}
-
-table.list-list tr.selected:hover {
-    background: #e0e0e0;
-}
 
 table.list-list tr {
     padding: 2px 8px;
-    border-left: 3px solid white;
+    border-left: 3px solid #606070;;
 
     min-height: 3em;
     height: 3em;
@@ -216,10 +209,6 @@ table.list-list A:link {
 table.list-list A:visited {
     color: #e0e0e0;
     font-weight: bold;
-}
-
-ul.list-list li.drop-hover {
-    background: #808080;
 }
 
 table.list-list td.item-control {
