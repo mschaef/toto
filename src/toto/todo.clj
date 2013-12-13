@@ -149,7 +149,8 @@
                      "Include items completed within: "
                      (form/form-to { :class "embedded "} [ :get (str "/list/" selected-list-id)]
                                    [:select { :id "cwithin" :name "cwithin" } 
-                                    (form/select-options [ [ "-" "-"] [ "1d" "1"] [ "7d" "7"] ] "-")
+                                    (form/select-options [ [ "-" "-"] [ "1d" "1"] [ "7d" "7"] ]
+                                                         (if (nil? completed-within-days) "-" (str completed-within-days)))
                                     (form/submit-button "Query")])]))
 
 (defn config-panel [ target-url & sections ]
