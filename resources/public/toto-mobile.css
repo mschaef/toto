@@ -79,6 +79,20 @@ div#footer {
     font-style: italic;
 }
 
+div.query-settings {
+    margin-top: 1em;
+
+    width: 100%;
+
+    border-top: 1px solid #707070;
+
+    background: #e0e0e0;
+
+    text-align: center;
+    font-size: 80%;
+    font-style: italic;
+}
+
 div#header span#vspace {
     min-height: 21px;
     display: inline-block;
