@@ -6,6 +6,10 @@ body, table, select, input {
     line-height:1.2;
 }
 
+body {
+    overflow-x: hidden;
+}
+
 div#sidebar {
     padding-top: 3em;
     float:left;

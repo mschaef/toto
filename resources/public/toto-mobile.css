@@ -79,6 +79,10 @@ div#footer {
     font-style: italic;
 }
 
+div.wrapper {
+    overflow-x: hidden;
+}
+
 div.query-settings {
     margin-top: 1em;
 
@@ -313,4 +317,5 @@ table.config-panel td.section-heading {
     vertical-align: top;
     width: 2%
 }
+
 
