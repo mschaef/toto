@@ -8,7 +8,7 @@ function toggleSidebar()
     $('#overlay').animate({left: (sidebarVisible ? "-270px" : "0px") });
     $('#header').animate({left: (sidebarVisible ? "0px" : "270px") });
 
-    $('#contents').animate({"margin-left": (sidebarVisible ? "0px" : "270px") });
+    $('.wrapper').animate({"left": (sidebarVisible ? "0px" : "270px") });
 
 
     sidebarVisible = !sidebarVisible;
@@ -56,7 +56,7 @@ function beginItemEdit(itemId)
   formMarkup += "<input class=\"full-width simple-border\" id=\"description\" name=\"description\" type=\"text\"/>";
   formMarkup += "</form>";
 
-  $('span#item_' + itemId).replaceWith(formMarkup);
+  $('div#item_' + itemId).replaceWith(formMarkup);
 
   $("#iedit_" + itemId + " #description").val(itemDesc);
   $("#iedit_" + itemId + " #description").focus();

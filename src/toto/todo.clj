@@ -94,7 +94,7 @@
         (list
          [:div { :id (str "item_desc_" item-id) :class "hidden"}
           (hiccup.util/escape-html desc)]
-         [:span (assoc-if { :id (str "item_" item-id)}
+         [:div (assoc-if { :id (str "item_" item-id)}
                           (not (nil? completed-on))
                           :class (if is-delete? "deleted_item" "completed_item"))
           (render-item-text desc)

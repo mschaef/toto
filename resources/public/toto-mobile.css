@@ -81,6 +81,9 @@ div#footer {
 
 div.wrapper {
     overflow-x: hidden;
+    position: relative;
+    z-index: -1;
+    left: 0;
 }
 
 div.query-settings {
@@ -148,11 +151,11 @@ span#item_age {
    font-style: italic;    
 }
 
-span.completed_item {
+div.completed_item {
     text-decoration: line-through;
 }
 
-span.deleted_item {
+div.deleted_item {
     text-decoration: line-through;
     color: #c0c0c0;
 }

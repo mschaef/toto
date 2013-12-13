@@ -184,11 +184,11 @@ span#item_age {
 }
 
 
-span.completed_item {
+div.completed_item {
     text-decoration: line-through;
 }
 
-span.deleted_item {
+div.deleted_item {
     text-decoration: line-through;
     color: #c0c0c0;
 }
