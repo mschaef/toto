@@ -61,6 +61,7 @@ div#header {
 
    position: fixed;
    width: 100%;
+   z-index: 1;
 
    border-bottom: 1px solid #c0c0c0;
 
@@ -82,7 +83,6 @@ div#footer {
 div.wrapper {
     overflow-x: hidden;
     position: relative;
-    z-index: -1;
     left: 0;
 }
 
