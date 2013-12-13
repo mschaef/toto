@@ -292,7 +292,7 @@
 
   (GET "/list/:list-id" { { list-id :list-id completed-within-days :cwithin } :params } 
        (ensure-list-access list-id)
-       (render-todo-list-page list-id (or (core/parsable-integer? completed-within-days)
+       (render-todo-list-page list-id (or (parsable-integer? completed-within-days)
                                           0)))
 
   (GET "/list/:list-id/details" [ list-id ]

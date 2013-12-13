@@ -4,10 +4,10 @@
             [clojure.java.jdbc :as jdbc]
             [toto.core :as core]))
 
-(def db-connection {:subprotocol (core/config-property "db.subprotocol" "hsqldb")
-                    :subname (core/config-property "db.subname" "toto.h2db")
-                    :user (core/config-property "db.user" "sa")
-                    :password (core/config-property "db.password" "")})
+(def db-connection {:subprotocol (config-property "db.subprotocol" "hsqldb")
+                    :subname (config-property "db.subname" "toto.h2db")
+                    :user (config-property "db.user" "sa")
+                    :password (config-property "db.password" "")})
 
 (defn log-safe-db-connection []
  (dissoc db-connection :password))
