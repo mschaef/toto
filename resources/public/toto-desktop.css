@@ -180,7 +180,8 @@ span#logout A {
 }
 
 span#item_age {
-   font-style: italic;    
+   font-style: italic;
+   font-weight: bold;
 }
 
 
