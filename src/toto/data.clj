@@ -158,7 +158,8 @@
                    " WHERE item.todo_list_id = ?"
                    "   AND (completion.completed_on IS NULL "
                    "        OR  completion.completed_on > DATEADD('day', ?, CURRENT_TIMESTAMP))"
-                    " ORDER BY item.item_id"
+                    " ORDER BY item.priority DESC,"
+                    "          item.item_id"
                    )
               list-id
               (- completed-within-days)]))
