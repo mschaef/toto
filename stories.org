@@ -1,6 +1,5 @@
 * Release 1
 ** The website displays correctly on Mobile Safari.
-** The website displays correctly on Google Chrome.
 ** The website has links suitable for displaying todo lists in Android meta-widget
 * Release 2
 ** Export a todo list to Excel
@@ -8,7 +7,6 @@
 ** A user can interactively change their password with the web UI.
 ** A user can display a list of all todo list items, even if they have been completed.
 ** A user can display a list of all items on all of their todo lists.
-** The website allows hyperlinks to be included in todo items, in addition to plain text.
 ** The website remembers whether or not a user has linked to a hyperlink and displays is appropriately in the todo list.
 ** A user can denote that a todo item should be deferred until a given date.
 ** A to-do list can be printed in a useful/plain format
