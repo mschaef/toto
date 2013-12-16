@@ -148,6 +148,7 @@
                    "       item.todo_list_id,"
                    "       item.desc,"
                    "       item.created_on,"
+                   "       item.priority,"
                    "       completion.completed_on,"
                    "       completion.is_delete,"
                    "       DATEDIFF('day', item.created_on, CURRENT_TIMESTAMP) as age_in_days"
@@ -209,11 +210,17 @@
     item-id]))
 
 
-(defn update-item-by-id [ item-id item-description ]
+(defn update-item-desc-by-id [ item-id item-description ]
   (jdbc/update-values
    :todo_item
    ["item_id=?" item-id]
    {:desc item-description}))
+
+(defn update-item-priority-by-id [ item-id item-priority ]
+  (jdbc/update-values
+   :todo_item
+   ["item_id=?" item-id]
+   {:priority item-priority}))
 
 (defn update-item-list [ item-id list-id ]
   (jdbc/update-values

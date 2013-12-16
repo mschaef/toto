@@ -43,26 +43,23 @@
   (form/form-to [:post (str "/item/" (item-info :item_id) "/delete")]
                 [:input {:type "image" :src "/x_11x11.png" :width 11 :height 11 :alt "Delete Item"}]))
 
+(defn item-priority-button [ item-id new-priority image-spec ]
+  (form/form-to [:post (str "/item/" item-id "/priority")]
+                [:input (assoc image-spec :type "image") ]
+                (form/hidden-field "new-priority" new-priority)))
+
 (defn js-link [ js-fn-name args & contents ]
   [:a {:href (str "javascript:" js-fn-name "(" args ")")} contents])
 
-(def img-edit-list
-     [:img { :src "/pen_alt_fill_12x12.png" :width 12 :height 12 :alt "Edit List"}])
+(def img-edit-list { :src "/pen_alt_fill_12x12.png" :width 12 :height 12 :alt "Edit List"})
+(def img-edit-list-light { :src "/pen_alt_fill_12x12_light.png" :width 12 :height 12 :alt "Edit List"})
+(def img-star-gray { :src "/star_gray_16x16.png" :width 16 :height 16 :alt "Elevate Priority"})
+(def img-star-yellow { :src "/star_yellow_16x16.png" :width 16 :height 16 :alt "Restore Priority"})
+(def img-arrow-down-gray { :src "/arrow_down_gray_16x16.png" :width 16 :height 16 :alt "Lower Priority"})
+(def img-arrow-down-blue { :src "/arrow_down_blue_16x16.png" :width 16 :height 16 :alt "Restore Priority"})
 
-(def img-edit-list-light
-     [:img { :src "/pen_alt_fill_12x12_light.png" :width 12 :height 12 :alt "Edit List"}])
-
-(def img-star-gray
-     [:img { :src "/star_gray_16x16.png" :width 16 :height 16 :alt "Elevate Priority"}])
-
-(def img-star-yellow
-     [:img { :src "/star_yellow_16x16.png" :width 16 :height 16 :alt "Restore Priority"}])
-
-(def img-arrow-down-gray
-     [:img { :src "/arrow_down_gray_16x16.png" :width 16 :height 16 :alt "Lower Priority"}])
-
-(def img-arrow-down-blue
-     [:img { :src "/arrow_down_blue_16x16.png" :width 16 :height 16 :alt "Restore Priority"}])
+(defn image [ image-spec ]
+  [:img image-spec])
 
 (defn render-new-item-form [ list-id ]
   (form/form-to [:post (str "/list/" list-id)]
@@ -91,6 +88,7 @@
           item-age :age_in_days
           completed-on :completed_on
           is-delete? :is_delete
+          priority :priority
           }
          item-info]
 
@@ -112,16 +110,19 @@
           (render-item-text desc)
           [:span#item_age
            " (" (render-age item-age) ")"]]))]
-     #_[:td img-star-gray]
-     #_[:td img-arrow-down-gray]
-
-]))
+     [:td.item-control
+      (if (<= priority 0)
+        (item-priority-button item-id 1 img-star-gray)
+        (item-priority-button item-id 0 img-star-yellow))]
+     [:td.item-control
+      (if (>= priority 0)
+        (item-priority-button item-id -1 img-arrow-down-gray)
+        (item-priority-button item-id 0 img-arrow-down-blue))]]))
 
 (defn render-todo-list [ list-id completed-within-days ]
-  
   [:table.item-list
    [:tr
-    [:td { :colspan 2 }
+    [:td { :colspan 4 }
      (render-new-item-form list-id)]]
    (map render-todo-item
         (data/get-pending-items list-id completed-within-days )
@@ -137,8 +138,8 @@
             [:td.item-control
              [:a {:href (str "/list/" list-id "/details")}
               (if (core/is-mobile-request?)
-                img-edit-list-light
-                img-edit-list)]]
+                (image img-edit-list-light)
+                (image img-edit-list))]]
             [:td
              [:span { :id (str "list_" list-id ) }
               [:div { :id (str "list_desc_" list-id) :class "hidden"} 
@@ -270,15 +271,20 @@
     (data/add-todo-item list-id item-description))
   (redirect-to-list list-id))
 
-(defn update-item [ item-id item-description ]
+(defn update-item-desc [ item-id item-description ]
   (let [ list-id ((data/get-item-by-id item-id) :todo_list_id)]
     (when (not (string-empty? item-description))
-      (data/update-item-by-id item-id item-description))
+      (data/update-item-desc-by-id item-id item-description))
     (redirect-to-list list-id)))
 
 (defn update-item-list [ item-id target-list-id ] 
   (let [ original-list-id ((data/get-item-by-id item-id) :todo_list_id)]
     (data/update-item-list item-id target-list-id)
+    (redirect-to-list original-list-id)))
+
+(defn update-item-priority [ item-id new-priority ]
+  (let [ original-list-id ((data/get-item-by-id item-id) :todo_list_id)]
+    (data/update-item-priority-by-id item-id new-priority)
     (redirect-to-list original-list-id)))
 
 (defn complete-item [ item-id ]
@@ -338,13 +344,19 @@
 
   (POST "/item/:item-id"  { { item-id :item-id description :description} :params}
         (ensure-item-access item-id)
-        (update-item item-id (string-leftmost description 1024)))
+        (update-item-desc item-id (string-leftmost description 1024)))
   
   (POST "/item-list" { { target-item :target-item target-list :target-list}
                        :params}
         (ensure-item-access target-item)
         (ensure-list-access target-list)
         (update-item-list target-item target-list))
+
+  (POST "/item/:item-id/priority" { { item-id :item-id
+                                     new-priority :new-priority}
+                                    :params }
+        (ensure-item-access item-id)
+        (update-item-priority item-id new-priority))
   
   (POST "/item/:item-id/complete" [ item-id ]
         (ensure-item-access item-id)
