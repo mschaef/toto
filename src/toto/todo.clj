@@ -52,6 +52,18 @@
 (def img-edit-list-light
      [:img { :src "/pen_alt_fill_12x12_light.png" :width 12 :height 12 :alt "Edit List"}])
 
+(def img-star-gray
+     [:img { :src "/star_gray_16x16.png" :width 16 :height 16 :alt "Elevate Priority"}])
+
+(def img-star-yellow
+     [:img { :src "/star_yellow_16x16.png" :width 16 :height 16 :alt "Restore Priority"}])
+
+(def img-arrow-down-gray
+     [:img { :src "/arrow_down_gray_16x16.png" :width 16 :height 16 :alt "Lower Priority"}])
+
+(def img-arrow-down-blue
+     [:img { :src "/arrow_down_blue_16x16.png" :width 16 :height 16 :alt "Restore Priority"}])
+
 (defn render-new-item-form [ list-id ]
   (form/form-to [:post (str "/list/" list-id)]
                 (form/text-field { :class "full-width simple-border" :maxlength "1024" } "item-description")))
@@ -99,7 +111,11 @@
                           :class (if is-delete? "deleted_item" "completed_item"))
           (render-item-text desc)
           [:span#item_age
-           " (" (render-age item-age) ")"]]))]]))
+           " (" (render-age item-age) ")"]]))]
+     #_[:td img-star-gray]
+     #_[:td img-arrow-down-gray]
+
+]))
 
 (defn render-todo-list [ list-id completed-within-days ]
   
