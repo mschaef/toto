@@ -140,6 +140,7 @@
               :todo_item
               {:todo_list_id todo-list-id
                :desc desc
+               :priority 0
                :created_on (java.util.Date.)}))))
 
 (defn get-pending-items [ list-id completed-within-days ]

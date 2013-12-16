@@ -1,14 +1,16 @@
-ALTER TABLE todo_item_completion
-      ADD COLUMN is_delete BOOLEAN DEFAULT FALSE NOT NULL;
-
-INSERT INTO todo_item_completion(item_id, user_id, completed_on, is_delete)
-  SELECT item_id, 0, deleted_on, TRUE
-    FROM todo_item
-    WHERE deleted_on IS NOT NULL;
-
 ALTER TABLE todo_item
-      DROP COLUMN deleted_on;
+      ADD COLUMN priority TINYINT DEFAULT 0 NOT NULL;
 
+CREATE TABLE todo_view (
+       VIEW_ID BIGINT IDENTITY,
+       USER_ID BIGINT REFERENCES user(user_id),
+       VIEW_NAME VARCHAR(32) NOT NULL
+);
 
+CREATE TABLE todo_view_lists (
+       VIEW_ID BIGINT NOT NULL REFERENCES todo_view(view_id),
+       TODO_LIST_ID BIGINT NOT NULL REFERENCES todo_list(todo_list_id),
+       LIST_ORDER INT NOT NULL,
+       PRIMARY KEY(VIEW_ID, TODO_LIST_ID)
+) 
 
-       
