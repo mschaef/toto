@@ -39,6 +39,14 @@
    [:link { :rel "shortcut icon" :href "/favicon.ico"}]
    (standard-includes include-js)])
 
+(defn render-footer [ username t-begin ]
+  [:div#footer
+   (when (and (core/is-mobile-request?) (not (nil? username)))
+     [:div username " - " (logout-button)])
+
+   "All Rights Reserved, Copyright 2013 East Coast Toolworks "
+   (format "(%.1f msec.)" (/ (- (. System (nanoTime)) t-begin) 1000000.0))])
+
 (defn render-page [{ :keys [ page-title include-js sidebar ] }  & contents]
   (let [ t-begin (. System (nanoTime))
         username (core/authenticated-username)]
@@ -63,9 +71,13 @@
             (if sidebar
               (list
                [:div#overlay
-                 [:div#sidebar sidebar]]
+                [:div#sidebar sidebar]]
                [:div.wrapper
-                [:div#contents contents]])
-              [:div#page-contents contents])]])))
+                [:div#contents
+                 contents
+                 (render-footer username t-begin)]])
+              [:div#page-contents
+               contents
+               (render-footer username t-begin)])]])))
 
 
