@@ -97,6 +97,11 @@ table.list-list td.add-list {
     vertical-align: middle;
 }
 
+table.list-list td.add-view {
+    text-align: center;
+    vertical-align: middle;
+}
+
 table.list-list tr.selected {
     background: white;
     border-left: 3px solid red;
