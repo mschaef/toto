@@ -21,10 +21,6 @@
   (unless (data/list-owned-by-user-id? list-id (current-user-id))
           (core/report-unauthorized)))
 
-(defn ensure-view-access [ view-id ]
-  (unless (data/view-owned-by-user-id? view-id (current-user-id))
-          (core/report-unauthorized)))
-
 (defn ensure-item-access [ item-id ]
   (unless (data/item-owned-by-user-id? item-id (current-user-id))
           (core/report-unauthorized)))
@@ -32,12 +28,8 @@
 (defn redirect-to-list [ list-id ]
   (ring/redirect (str "/list/" list-id)))
 
-(defn redirect-to-view-details [ view-id ]
-  (ring/redirect (str "/view/" view-id "/details")))
-
 (defn redirect-to-home []
   (redirect-to-list (current-todo-list-id)))
-
 
 (defn complete-item-button [ item-info ]
   (form/form-to [:post (str "/item/" (item-info :item_id) "/complete")]
@@ -138,26 +130,6 @@
 
 (defn render-todo-list-list [ selected-list-id ]
   [:table.list-list
-    (map (fn [ { view-id :view_id view-name :view_name } ]
-           [:tr { :viewid view-id }
-            [:td.item-control
-             [:a {:href (str "/view/" view-id "/details")}
-              (if (core/is-mobile-request?)
-                (image img-edit-list-light)
-                (image img-edit-list))]]
-            [:td
-             [:span { :id (str "view_" view-id ) }
-              [:div { :id (str "view_name_" view-id) :class "hidden"} 
-               (hiccup.util/escape-html view-name)]
-              [:a {:href (str "/view/" view-id)}
-               (hiccup.util/escape-html view-name)]]]])
-
-         (data/get-todo-views-by-user (current-user-id)))
-
-   [:tr
-    [:td.add-view  { :colspan "2"}
-     (js-link "beginViewCreate" nil "Add Todo View...")]]
-
     (map (fn [ { list-id :todo_list_id list-desc :desc list-item-count :item_count } ]
            [:tr (if (= list-id (Integer. selected-list-id))
                   { :class "selected" :listid list-id }
@@ -259,16 +231,6 @@
   (data/delete-list list-id)
   (redirect-to-home))
 
-(defn add-view [ view-name ]
-  (if (not (string-empty? view-name))
-    (redirect-to-view-details (data/add-view (current-user-id) view-name))
-    (redirect-to-home)))
-
-(defn render-todo-view-details-page [ view-id ]
-    (view/render-page
-     { :page-title "View Details" }
-     "View Details"))
-
 (defmacro catch-validation-errors [ & body ]
   `(try+
     ~@body
@@ -369,16 +331,10 @@
           (add-list-owner list-id share-with-email
                           (selected-user-ids-from-params params))))
 
+
   (POST "/list/:list-id/delete" { { list-id :list-id  } :params }
         (ensure-list-access list-id)
         (delete-list list-id))
-
-  (POST "/view" { { view-name :view-name } :params }
-        (add-view (string-leftmost view-name 32)))
-
-  (GET "/view/:view-id/details" [ view-id ]
-       (ensure-view-access view-id)
-       (render-todo-view-details-page view-id))
 
   (POST "/list/:list-id" { { list-id :list-id
                             item-description :item-description }

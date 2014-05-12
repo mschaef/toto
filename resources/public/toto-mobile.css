@@ -192,13 +192,6 @@ table.list-list td.add-list {
     border-bottom: none;
 }
 
-table.list-list td.add-view {
-    text-align: center;
-    vertical-align: middle;
-
-    border-bottom: none;
-}
-
 table.list-list tr.selected {
     background: white;
     border-left: 3px solid red;

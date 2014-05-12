@@ -64,13 +64,6 @@
                    "   AND todo_list_owners.user_id=?"
                    " ORDER BY todo_list.desc") user-id]))
 
-(defn get-todo-views-by-user [ user-id ]
-  (query-all [(str "SELECT DISTINCT todo_view.view_id,"
-                   "                todo_view.view_name"
-                   "  FROM todo_view"
-                   " WHERE todo_view.user_id=?"
-                   " ORDER BY todo_view.view_name DESC") user-id]))
-
 (defn add-user [ email-addr password ]
   (:user_id (first
              (jdbc/insert-records
@@ -131,13 +124,6 @@
                    user-id])
      0))
 
-(defn view-owned-by-user-id? [ list-id user-id ]
-  (> (query-count [(str "SELECT COUNT(*)"
-                        "  FROM todo_view"
-                        " WHERE user_id=?")
-                   user-id])
-     0))
-
 (defn item-owned-by-user-id? [ item-id user-id ]
   (> (query-count [(str "SELECT COUNT(*)"
                         "  FROM todo_list_owners lo, todo_item item"
@@ -156,13 +142,6 @@
                :desc desc
                :priority 0
                :created_on (java.util.Date.)}))))
-
-(defn add-view [ user-id view-name ]
-  (:view_id (first
-             (jdbc/insert-records
-              :todo_view
-              {:user_id user-id
-               :view_name view-name}))))
 
 (defn get-pending-items [ list-id completed-within-days ]
   (query-all [(str "SELECT item.item_id,"

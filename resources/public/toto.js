@@ -14,7 +14,6 @@ function toggleSidebar()
     sidebarVisible = !sidebarVisible;
 }
 
-
 function beginListCreate()
 {
   var formMarkup = "";
@@ -26,19 +25,6 @@ function beginListCreate()
     $('td.add-list').replaceWith(formMarkup);
 
     $("#list-description").focus();
-}
-
-function beginViewCreate()
-{
-  var formMarkup = "";
-
-    formMarkup += "<td colspan=\"2\"><form action=\"/view\" method=\"POST\">";
-    formMarkup += "<input class=\"full-width simple-border\" id=\"view-name\" name=\"view-name\" type=\"text\" maxlength=\"32\"/>";
-    formMarkup += "</form></td>";
-
-    $('td.add-view').replaceWith(formMarkup);
-
-    $("#view-description").focus();
 }
 
 function beginUserAdd(listId)
