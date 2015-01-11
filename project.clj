@@ -1,20 +1,23 @@
-(defproject toto "0.2.2-SNAPSHOT"
+(defproject toto "0.2.3-SNAPSHOT"
   :description "Toto To-Do List Manager"
-  :license { :name "Copyright East Coast Toolworks (c) 2012-2013"}
+  :license { :name "Copyright East Coast Toolworks (c) 2012-2015"}
 
-  :plugins [[lein-ring "0.8.7"]]
+  :plugins [[lein-ring "0.9.0"
+             ;:exclusions [org.clojure/clojure]
+             ]]
 
-  :dependencies [[org.clojure/clojure "1.5.1"]
+  :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/java.jdbc "0.2.3"]
-                 [org.clojure/tools.logging "0.2.6"]
+                 [org.clojure/tools.logging "0.3.1"]
                  [ch.qos.logback/logback-classic "1.0.9"]
-                 [org.hsqldb/hsqldb "2.3.0"]
-                 [clj-http "0.6.4"]
-                 [hiccup "1.0.4"]
-                 [ring/ring-jetty-adapter "1.2.1"]
-                 [com.cemerick/friend "0.2.0"]
-                 [compojure "1.1.6"]
-                 [slingshot "0.10.3"]]
+                 [org.hsqldb/hsqldb "2.3.2"]
+                 [clj-http "1.0.1"
+                  :exclusions [com.fasterxml.jackson.core/jackson-core]]
+                 [hiccup "1.0.5"]
+                 [ring/ring-jetty-adapter "1.3.2"]
+                 [com.cemerick/friend "0.2.1"]
+                 [compojure "1.3.1"]
+                 [slingshot "0.12.1"]]
 
   :main toto.main
 
