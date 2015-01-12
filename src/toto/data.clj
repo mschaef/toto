@@ -1,11 +1,14 @@
 (ns toto.data
   (:use toto.util)
-  (:require [clojure.java.jdbc :as jdbc]))
+  (:require [clojure.java.jdbc :as jdbc]
+            [sql-file.core :as sql-file]))
+
+(def db-connection (sql-file/open-hsqldb-file-conn "toto-db"  "toto" 0))
 
 (def ^:dynamic *db* nil)
 
 (defmacro with-db-connection [ var & body ]
-  `(binding [ *db* ~var ]
+  `(binding [ *db* db-connection ]
      ~@body))
 
 (defn all-user-names [ ]

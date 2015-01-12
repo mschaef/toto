@@ -7,7 +7,6 @@
             [toto.user :as user]
             [toto.todo :as todo]
             [clojure.java.jdbc :as jdbc]
-            [toto.schema :as schema]
             [cemerick.friend :as friend]
             [compojure.route :as route]
             [compojure.handler :as handler]
@@ -45,9 +44,8 @@
 
 (defn wrap-db-connection [ app ]
   (fn [ req ]
-    (schema/with-db-connection db
-      (data/with-db-connection db
-        (app req)))))
+    (data/with-db-connection db
+      (app req))))
 
 (def handler (-> site-routes
                  (friend/authenticate {:credential-fn db-credential-fn

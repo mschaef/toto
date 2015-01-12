@@ -3,8 +3,6 @@
   (:use toto.util)
   (:require [clojure.tools.logging :as log]
             [ring.adapter.jetty :as jetty]
-            [toto.core :as core]
-            [toto.schema :as schema]
             [toto.handler :as handler]))
 
 (defn start-webserver [ http-port ]
