@@ -18,6 +18,5 @@
 
 (defn -main [& args]
   (log/info "Starting Toto")
-  (schema/ensure-schema-available)
   (start-webserver (config-property "http.port" 8080))
   (log/info "end run."))
