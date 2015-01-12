@@ -46,8 +46,8 @@
 (defn wrap-db-connection [ app ]
   (fn [ req ]
     (schema/with-db-connection db
-      (app (assoc req :db db)))))
-
+      (data/with-db-connection db
+        (app req)))))
 
 (def handler (-> site-routes
                  (friend/authenticate {:credential-fn db-credential-fn

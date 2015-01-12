@@ -24,7 +24,7 @@
                           :toto_schema_version
                           [:version_number "BIGINT"]))
 
-   (jdbc/insert-records
+   (jdbc/insert! db
     :toto_schema_version
     {:version_number 1})
 
@@ -81,26 +81,18 @@
                          [:is_delete "BOOLEAN" "NOT NULL"]))))
 
 (defn version-table-present? []
-  (> (with-db-connection
-       (jdbc/with-query-results rows
-         ["select count(table_name) from information_schema.tables where table_name='TOTO_SCHEMA_VERSION'"]
-         (first (map :c1 rows))))
+  (> (with-db-connection db
+       (query-scalar db
+                     ["select count(table_name) from information_schema.tables where table_name='TOTO_SCHEMA_VERSION'"]))
      0))
 
 (defn installed-schema-version []
-  (with-db-connection
-    (jdbc/with-query-results rows
-      ["select version_number from toto_schema_version"]
-      (first (map :version_number rows)))))
+  (with-db-connection db
+    (:version_number
+     (query-first db ["select version_number from toto_schema_version"]))))
 
 (defn ensure-schema-available []
   (log/trace "Ensuring Schema Available @ " (log-safe-db-connection))
   (unless (version-table-present?)
      (setup-schema)))
-
-(defn all-table-names []
-  (with-db-connection
-    (jdbc/with-query-results rows
-      ["select table_name from information_schema.tables order by table_name"]
-      (doall (map :table_name rows)))))
 
