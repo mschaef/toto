@@ -2,12 +2,10 @@
   :description "Toto To-Do List Manager"
   :license { :name "Copyright East Coast Toolworks (c) 2012-2015"}
 
-  :plugins [[lein-ring "0.9.0"
-             ;:exclusions [org.clojure/clojure]
-             ]]
+  :plugins [[lein-ring "0.9.0"]]
 
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [org.clojure/java.jdbc "0.2.3"]
+                 [org.clojure/java.jdbc "0.3.5"]
                  [org.clojure/tools.logging "0.3.1"]
                  [ch.qos.logback/logback-classic "1.0.9"]
                  [org.hsqldb/hsqldb "2.3.2"]

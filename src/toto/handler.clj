@@ -1,7 +1,7 @@
 (ns toto.handler
   (:use toto.util
         compojure.core)
-  (:require [clojure.tools.logging :as log]
+  (:require [clojure.tools.logging :as log]            
             [toto.data :as data]
             [toto.core :as core]
             [toto.user :as user]
@@ -45,8 +45,8 @@
 
 (defn wrap-db-connection [ app ]
   (fn [ req ]
-    (schema/with-db-connection
-      (app req))))
+    (schema/with-db-connection db
+      (app (assoc req :db db)))))
 
 
 (def handler (-> site-routes

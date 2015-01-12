@@ -12,65 +12,73 @@
 (defn log-safe-db-connection []
  (dissoc db-connection :password))
 
-(defmacro with-db-connection [ & body ]
-  `(jdbc/with-connection db-connection
+(defmacro with-db-connection [ binding & body ]
+  `(jdbc/with-db-connection [~binding db-connection ]
      ~@body))
 
 (defn setup-schema []
   (log/warn "Creating new schema instance")
-  (with-db-connection
-   (jdbc/create-table
-    :toto_schema_version
-    [:version_number "BIGINT"])
+  (with-db-connection db
+    (jdbc/db-do-commands db
+                         (jdbc/create-table-ddl
+                          :toto_schema_version
+                          [:version_number "BIGINT"]))
 
    (jdbc/insert-records
     :toto_schema_version
     {:version_number 1})
-   
-   (jdbc/create-table
-    :user
-    [:user_id "BIGINT" "IDENTITY"]
-    [:email_addr "VARCHAR(255)" "UNIQUE"]
-    [:password "VARCHAR(255)"])
 
-   (jdbc/create-table
-    :todo_list
-    [:todo_list_id "BIGINT" "IDENTITY"]
-    [:desc "VARCHAR(32)"])
+   (jdbc/db-do-commands db
+                        (jdbc/create-table-ddl
+                         :user
+                         [:user_id "BIGINT" "IDENTITY"]
+                         [:email_addr "VARCHAR(255)" "UNIQUE"]
+                         [:password "VARCHAR(255)"]))
 
-   (jdbc/create-table
-    :todo_view
-    [:view_id "BIGINT" "IDENTITY"]
-    [:user_id "BIGINT" "REFERENCES user(user_id)"]
-    [:view_name "VARCHAR(32)" "NOT NULL"])
+   (jdbc/db-do-commands db
+                        (jdbc/create-table-ddl
+                         :todo_list
+                         [:todo_list_id "BIGINT" "IDENTITY"]
+                         [:desc "VARCHAR(32)"]))
 
-   (jdbc/create-table
-    :todo_view_lists
-    [:view_id "BIGINT" "NOT NULL" "REFERENCES todo_view(view_id)"]
-    [:todo_list_id "BIGINT" "NOT NULL" "REFERENCES todo_list(todo_list_id)"]
-    [:list_order "INT" "NOT NULL"]
-    ["PRIMARY KEY(view_id, todo_list_id)"])
+   (jdbc/db-do-commands db
+                        (jdbc/create-table-ddl
+                         :todo_view
+                         [:view_id "BIGINT" "IDENTITY"]
+                         [:user_id "BIGINT" "REFERENCES user(user_id)"]
+                         [:view_name "VARCHAR(32)" "NOT NULL"]))
 
-   (jdbc/create-table
-    :todo_list_owners
-    [:todo_list_id "BIGINT" "NOT NULL" "REFERENCES todo_list(todo_list_id)"]
-    [:user_id "BIGINT" "NOT NULL" "REFERENCES user(user_id)"]
-    ["PRIMARY KEY(todo_list_id, user_id)"])
+   (jdbc/db-do-commands db 
+                        (jdbc/create-table-ddl
+                         :todo_view_lists
+                         [:view_id "BIGINT" "NOT NULL" "REFERENCES todo_view(view_id)"]
+                         [:todo_list_id "BIGINT" "NOT NULL" "REFERENCES todo_list(todo_list_id)"]
+                         [:list_order "INT" "NOT NULL"]
+                         ["PRIMARY KEY(view_id, todo_list_id)"]))
 
-   (jdbc/create-table
-    :todo_item
-    [:item_id "BIGINT" "IDENTITY"]
-    [:todo_list_id "BIGINT" "NOT NULL" "REFERENCES todo_list(todo_list_id)"]
-    [:desc "VARCHAR(1024)" "NOT NULL"]
-    [:priority "TINYINT" "NOT NULL"]
-    [:created_on "TIMESTAMP" "NOT NULL"])
+   (jdbc/db-do-commands db
+                        (jdbc/create-table-ddl
+                         :todo_list_owners
+                         [:todo_list_id "BIGINT" "NOT NULL" "REFERENCES todo_list(todo_list_id)"]
+                         [:user_id "BIGINT" "NOT NULL" "REFERENCES user(user_id)"]
+                         ["PRIMARY KEY(todo_list_id, user_id)"]))
 
-   (jdbc/create-table
-    :todo_item_completion
-    [:item_id "BIGINT" "UNIQUE" "REFERENCES todo_item(item_id)"]
-    [:user_id "BIGINT" "REFERENCES user(user_id)"]
-    [:completed_on "TIMESTAMP" "NOT NULL"]
-    [:is_delete "BOOLEAN" "NOT NULL"])))
+   (jdbc/db-do-commands db
+                        (jdbc/create-table-ddl
+                         :todo_item
+                         [:item_id "BIGINT" "IDENTITY"]
+                         [:todo_list_id "BIGINT" "NOT NULL" "REFERENCES todo_list(todo_list_id)"]
+                         [:desc "VARCHAR(1024)" "NOT NULL"]
+                         [:priority "TINYINT" "NOT NULL"]
+                         [:created_on "TIMESTAMP" "NOT NULL"]))
+
+   (jdbc/db-do-commands db
+                        (jdbc/create-table-ddl
+                         :todo_item_completion
+                         [:item_id "BIGINT" "UNIQUE" "REFERENCES todo_item(item_id)"]
+                         [:user_id "BIGINT" "REFERENCES user(user_id)"]
+                         [:completed_on "TIMESTAMP" "NOT NULL"]
+                         [:is_delete "BOOLEAN" "NOT NULL"]))))
 
 (defn version-table-present? []
   (> (with-db-connection
