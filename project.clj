@@ -5,10 +5,9 @@
   :plugins [[lein-ring "0.9.0"]]
 
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [org.clojure/java.jdbc "0.3.5"]
                  [org.clojure/tools.logging "0.3.1"]
                  [ch.qos.logback/logback-classic "1.0.9"]
-                 [org.hsqldb/hsqldb "2.3.2"]
+                 [com.ksmpartners/sql-file "0.1.0"]
                  [clj-http "1.0.1"
                   :exclusions [com.fasterxml.jackson.core/jackson-core]]
                  [hiccup "1.0.5"]
