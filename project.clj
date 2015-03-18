@@ -2,9 +2,6 @@
   :description "Toto To-Do List Manager"
   :license { :name "Copyright East Coast Toolworks (c) 2012-2015"}
 
-  :plugins [[lein-ring "0.9.0"]
-            [lein-ancient "0.6.5"]]
-
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/tools.logging "0.3.1"]
                  [ch.qos.logback/logback-classic "1.1.2"]
@@ -19,11 +16,7 @@
 
   :main toto.main
 
-  :ring {
-         :port 8080
-         :handler toto.handler/handler
-         :nrepl { :start? true :port 53095 }
-         }
+  :ring {:handler toto.handler/handler }
 
   :jar-name "toto.jar"
   :uberjar-name "toto-standalone.jar")
