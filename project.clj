@@ -15,7 +15,8 @@
                  [slingshot "0.12.2"]]
 
   :main toto.main
-
+  :aot [toto.main]
+  
   :ring {:handler toto.handler/handler }
 
   :jar-name "toto.jar"
