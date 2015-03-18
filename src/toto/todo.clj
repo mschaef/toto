@@ -50,12 +50,15 @@
   [:a {:href (str "javascript:" js-fn-name "(" (clojure.string/join "," args) ")")}
    contents])
 
+
+(def img-star-gray [:i {:class "fa fa-star fa-lg icon-gray"}])
+(def img-star-yellow [:i {:class "fa fa-star fa-lg icon-yellow"}])
+(def img-arrow-down-gray [:i {:class "fa fa-arrow-down fa-lg icon-gray"}])
+(def img-arrow-down-blue [:i {:class "fa fa-arrow-down fa-lg icon-blue"}])
+
 (def img-edit-list { :src "/pen_alt_fill_12x12.png" :width 12 :height 12 :alt "Edit List"})
 (def img-edit-list-light { :src "/pen_alt_fill_12x12_light.png" :width 12 :height 12 :alt "Edit List"})
-(def img-star-gray { :src "/star_gray_16x16.png" :width 16 :height 16 :alt "Elevate Priority"})
-(def img-star-yellow { :src "/star_yellow_16x16.png" :width 16 :height 16 :alt "Restore Priority"})
-(def img-arrow-down-gray { :src "/arrow_down_gray_16x16.png" :width 16 :height 16 :alt "Lower Priority"})
-(def img-arrow-down-blue { :src "/arrow_down_blue_16x16.png" :width 16 :height 16 :alt "Restore Priority"})
+
 
 (defn image [ image-spec ]
   [:img image-spec])

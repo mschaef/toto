@@ -42,7 +42,6 @@
 
 (defn render-footer [ username ]
   [:div#footer
-   [:i {:class "fa fa-star fa-2x"}]
    (when (and (core/is-mobile-request?) (not (nil? username)))
      [:div username " - " (logout-button)])
 
