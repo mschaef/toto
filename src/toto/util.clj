@@ -60,10 +60,14 @@
                   ":"
                   (if-let [authority (.getAuthority url)]
                     (str "//" authority)))]
-    (str base
-         (string-leftmost (.getPath url)
-                          (max 0 (- (- target-length 3) (.length base)))
-                          "..."))))
+    (clojure.string/replace
+     (hiccup.util/escape-html
+      (str base
+           (string-leftmost (.getPath url)
+                            (max 0 (- (- target-length 3) (.length base)))
+                            "...")))
+     #"/" "/&#8203;")))
+
 
 (defn parsable-integer? [ str ]
   (try

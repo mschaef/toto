@@ -71,8 +71,7 @@
 (def url-regex #"(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]") 
 
 (defn render-url [ [ url ] ]
-  [:a { :href url :target "_blank" }
-      (hiccup.util/escape-html (shorten-url-text url 60))])
+  [:a { :href url :target "_blank" } (shorten-url-text url 60)])
 
 (defn render-item-text [ item-text ]
   (interleave (conj (clojure.string/split item-text url-regex) "")
