@@ -94,14 +94,14 @@
           }
          item-info]
 
-    [:tr.item-row
+    [:div.item-row
      (assoc-if {:itemid item-id} (= item-number 0) :class "first-row")
-     [:td.item-control
+     [:div.item-control
       [:div { :id (str "item_control_" item-id)}
        (if (nil? completed-on)
          (complete-item-button item-info)
          (restore-item-button item-info))]]
-     [:td.item-description
+     [:div.item-description
       (let [desc (item-info :desc)]
         (list
          [:div { :id (str "item_desc_" item-id) :class "hidden"}
@@ -112,20 +112,19 @@
           (render-item-text desc)
           [:span#item_age
            " (" (render-age item-age) ")"]]))]
-     [:td.item-control
-      (if (<= priority 0)
-        (item-priority-button item-id 1 img-star-gray)
-        (item-priority-button item-id 0 img-star-yellow))]
-     [:td.item-control
+     [:div.item-priority
       (if (>= priority 0)
         (item-priority-button item-id -1 img-arrow-down-gray)
-        (item-priority-button item-id 0 img-arrow-down-blue))]]))
+        (item-priority-button item-id 0 img-arrow-down-blue))]
+     [:div.item-priority
+      (if (<= priority 0)
+        (item-priority-button item-id 1 img-star-gray)
+        (item-priority-button item-id 0 img-star-yellow))]]))
 
 (defn render-todo-list [ list-id completed-within-days ]
-  [:table.item-list
-   [:tr
-    [:td { :colspan 4 }
-     (render-new-item-form list-id)]]
+  [:div.item-list
+   [:div
+    (render-new-item-form list-id)]
    (map render-todo-item
         (data/get-pending-items list-id completed-within-days )
         (range))])
@@ -165,10 +164,9 @@
                     [:div.query-settings
                      "Include items completed within: "
                      (form/form-to { :class "embedded "} [ :get (str "/list/" selected-list-id)]
-                                   [:select { :id "cwithin" :name "cwithin" } 
+                                   [:select { :id "cwithin" :name "cwithin" :onchange "this.form.submit()"} 
                                     (form/select-options [ [ "-" "-"] [ "1d" "1"] [ "7d" "7"] ]
-                                                         (if (nil? completed-within-days) "-" (str completed-within-days)))
-                                    (form/submit-button "Query")])]))
+                                                         (if (nil? completed-within-days) "-" (str completed-within-days)))])]))
 
 (defn config-panel [ target-url & sections ]
   (form/form-to

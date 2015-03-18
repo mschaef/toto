@@ -29,13 +29,45 @@ div#page-contents {
     background: white;
 }
 
-table.item-list td {
-    vertical-align: middle;
-    padding: 2px;
+div.item-list {
+    width: 100%;
 }
 
-table.item-list tr.item-row {
+
+div.item-list div.item-row:hover {
+    background: #e0e0e0;
+}
+
+
+div.item-control {
+    display: inline-block;
+    vertical-align: top;
+    padding: 0.25em;
+}
+
+div.item-description {
+    display: inline-block;
+    width: 90%;
+    padding: 0.25em;
+}
+
+div.item-description span#item_age {
+    font-weight: bold;
+}
+
+div.item-priority {
+    float: right;
+    padding: 0.25em;
+    padding-right: 0.5em;
+}
+
+div.item-row {
     border-top: 1px solid #e0e0e0;
+    padding: 0.2em;
+}
+
+div.item-row.first-row {
+    border-top: none;
 }
 
 div.drag-item {
@@ -50,9 +82,6 @@ table.item-list tr.item-row td.drag-handle {
     background: #e0e0e0;
 }
 
-table.item-list tr.item-row.first-row {
-    border-top: none;
-}
 
 /* toto.css - Site styles */
 
@@ -126,21 +155,6 @@ table.list-list td.item-control {
     text-align: center;
 }
 
-table.item-list tr.item-row:hover {
-    background: #e0e0e0;
-}
-
-table.item-list td.item-control {
-    min-width: 2em;
-    width: 2em;
-    height: 2em;
-    text-align: center;
-    border-right: 1px solid #e0e0e0;
-}
-
-table.item-list td.item-description {
-    padding-left: 0.67em;
-}
 
 A {
   text-decoration: none;
@@ -155,10 +169,6 @@ A:visited {
 } 
 
 
-table.item-list {
-    width: 100%;
-    border-collapse: collapse;
-}
 
 div#error {
     color: red;

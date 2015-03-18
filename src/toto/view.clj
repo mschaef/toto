@@ -9,9 +9,7 @@
 (def app-name "Toto")
 
 (def img-show-list
-     [:img { :src "/list_24x21.png" :class "show-list"
-            :width 24 :height 21
-            :alt "Show List"}])
+  [:i {:class "fa fa-bars fa-lg icon-bars"}])
 
 (defn logout-button []
   [:span#logout

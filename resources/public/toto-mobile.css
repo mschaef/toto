@@ -220,34 +220,51 @@ table.list-list td.item-control {
 
 /* Item list styling */
 
-table.item-list td {
-    padding: 2px;
-    vertical-align: middle;
+div.item-list {
+    width: 100%;
 }
 
-table.item-list tr.item-row {
+
+div.item-list div.item-row:hover {
+    background: #e0e0e0;
+}
+
+
+div.item-control {
+    display: inline-block;
+    vertical-align: top;
+    padding: 0.25em;
+}
+
+div.item-description {
+    display: inline-block;
+    width: 90%;
+    padding: 0.25em;
+}
+
+div.item-description span#item_age {
+    font-weight: bold;
+}
+
+div.item-priority {
+    float: right;
+    padding: 0.25em;
+    padding-right: 0.5em;
+}
+
+div.item-row {
     border-top: 1px solid #e0e0e0;
+    padding: 0.2em;
 }
 
-table.item-list tr.item-row.first-row {
+div.item-row.first-row {
     border-top: none;
 }
 
-table.item-list td.item-control {
-    min-width: 2em;
-    width: 2em;
-    height: 3em;
-    text-align: center;
-    border-right: 1px solid #e0e0e0;
-}
-
-table.item-list td.item-description {
-    padding-left: 0.67em;
-}
-
-table.item-list {
-    width: 100%;
-    border-collapse: collapse;
+div.drag-item {
+    padding: 0.2em;
+    border: 2px solid black;
+    background: white;
 }
 
 
@@ -329,4 +346,9 @@ i.icon-yellow {
 i.icon-blue {
     color: #7070ff;
     text-shadow: 1px 1px 2px #b0b0f0;
+}
+
+i.icon-bars {
+    color: black;
+    padding: 0.5em;
 }
