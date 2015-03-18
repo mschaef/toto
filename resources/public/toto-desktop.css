@@ -29,44 +29,50 @@ div#page-contents {
     background: white;
 }
 
-div.item-list {
+table.item-list {
     width: 100%;
 }
 
 
-div.item-list div.item-row:hover {
+table.item-list table.item-row:hover {
     background: #e0e0e0;
 }
 
 
-div.item-control {
+td.item-control {
     display: inline-block;
     vertical-align: top;
     padding: 0.25em;
 }
 
-div.item-description {
-    display: inline-block;
-    width: 90%;
+td.item-description {
+    width: 100%;
     padding: 0.25em;
+    vertical-align: top;
+    white-space: normal;
 }
 
-div.item-description span#item_age {
+td.item-description span#item_age {
     font-weight: bold;
 }
 
-div.item-priority {
+td.item-priority {
     float: right;
     padding: 0.25em;
+    whitespace: nowrap;
+}
+
+td.item-priority A {
     padding-right: 0.5em;
 }
 
-div.item-row {
+tr.item-row {
     border-top: 1px solid #e0e0e0;
     padding: 0.2em;
+    white-space: nowrap;
 }
 
-div.item-row.first-row {
+tr.item-row.first-row {
     border-top: none;
 }
 
@@ -74,12 +80,6 @@ div.drag-item {
     padding: 0.2em;
     border: 2px solid black;
     background: white;
-}
-
-table.item-list tr.item-row td.drag-handle {
-    padding: 0px;
-    min-width: 10px;
-    background: #e0e0e0;
 }
 
 
@@ -322,6 +322,11 @@ table.form {
    border-width: 1px;
    padding-left: 0.2em;
    border-color: #707070;
+}
+
+i.icon-edit {
+    color: #000000;
+    text-shadow: 1px 1px 2px #b0b0b0;
 }
 
 i.icon-black {

@@ -220,44 +220,58 @@ table.list-list td.item-control {
 
 /* Item list styling */
 
-div.item-list {
+
+
+
+table.item-list {
     width: 100%;
 }
 
 
-div.item-list div.item-row:hover {
+table.item-list table.item-row:hover {
     background: #e0e0e0;
 }
 
 
-div.item-control {
+td.item-control {
     display: inline-block;
     vertical-align: top;
     padding: 0.25em;
 }
 
-div.item-description {
-    display: inline-block;
-    width: 90%;
+td.item-description {
+    width: 100%;
     padding: 0.25em;
+    vertical-align: top;
+    white-space: normal;
 }
 
-div.item-description span#item_age {
+td.item-description span#item_age {
     font-weight: bold;
 }
 
-div.item-priority {
+td.item-priority {
     float: right;
     padding: 0.25em;
+    whitespace: nowrap;
+}
+
+td.item-priority A {
     padding-right: 0.5em;
 }
 
-div.item-row {
+tr.item-row {
     border-top: 1px solid #e0e0e0;
-    padding: 0.2em;
+    padding: 0.25em;
+    white-space: nowrap;
 }
 
-div.item-row.first-row {
+tr.item-row td {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+}
+
+tr.item-row.first-row {
     border-top: none;
 }
 
@@ -266,19 +280,6 @@ div.drag-item {
     border: 2px solid black;
     background: white;
 }
-
-
-img.show-list {
-    vertical-align: middle;
-
-    border-right: 1px solid #707070;
-
-   padding-left: 0.67em;
-   padding-top: 0.67em;
-   padding-bottom: 0.67em;
-   padding-right: 0.67em;
-}
-
 
 
 div.list-control-footer {
@@ -328,8 +329,13 @@ table.config-panel td.section-heading {
 }
 
 
+i.icon-edit {
+    color: #a0a0a0;
+    text-shadow: 1px 1px 2px #b0b0b0;
+}
+
 i.icon-black {
-    color: #c0c0c0;
+    color: #000000;
     text-shadow: 1px 1px 2px #b0b0b0;
 }
 

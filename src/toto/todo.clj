@@ -35,7 +35,7 @@
 (def img-star-yellow [:i {:class "fa fa-star fa-lg icon-yellow"}])
 (def img-arrow-down-gray [:i {:class "fa fa-arrow-down fa-lg icon-gray"}])
 (def img-arrow-down-blue [:i {:class "fa fa-arrow-down fa-lg icon-blue"}])
-(def img-edit-list [:i {:class "fa fa-pencil icon-black"}])
+(def img-edit-list [:i {:class "fa fa-pencil icon-edit"}])
 
 (def img-check [:i {:class "fa fa-check icon-black"}])
 (def img-trash [:i {:class "fa fa-trash-o icon-black"}])
@@ -94,14 +94,14 @@
           }
          item-info]
 
-    [:div.item-row
+    [:tr.item-row
      (assoc-if {:itemid item-id} (= item-number 0) :class "first-row")
-     [:div.item-control
+     [:td.item-control
       [:div { :id (str "item_control_" item-id)}
        (if (nil? completed-on)
          (complete-item-button item-info)
          (restore-item-button item-info))]]
-     [:div.item-description
+     [:td.item-description
       (let [desc (item-info :desc)]
         (list
          [:div { :id (str "item_desc_" item-id) :class "hidden"}
@@ -112,19 +112,19 @@
           (render-item-text desc)
           [:span#item_age
            " (" (render-age item-age) ")"]]))]
-     [:div.item-priority
-      (if (>= priority 0)
-        (item-priority-button item-id -1 img-arrow-down-gray)
-        (item-priority-button item-id 0 img-arrow-down-blue))]
-     [:div.item-priority
+     [:td.item-priority
       (if (<= priority 0)
         (item-priority-button item-id 1 img-star-gray)
-        (item-priority-button item-id 0 img-star-yellow))]]))
+        (item-priority-button item-id 0 img-star-yellow))
+      (if (>= priority 0)
+        (item-priority-button item-id -1 img-arrow-down-gray)
+        (item-priority-button item-id 0 img-arrow-down-blue))]]))
 
 (defn render-todo-list [ list-id completed-within-days ]
-  [:div.item-list
-   [:div
-    (render-new-item-form list-id)]
+  [:table.item-list
+   [:tr
+    [:td {:colspan "3"}
+     (render-new-item-form list-id)]]
    (map render-todo-item
         (data/get-pending-items list-id completed-within-days )
         (range))])
