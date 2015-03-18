@@ -44,7 +44,7 @@
    (when (and (core/is-mobile-request?) (not (nil? username)))
      [:div username " - " (logout-button)])
 
-   "All Rights Reserved, Copyright 2013 East Coast Toolworks "
+   "All Rights Reserved, Copyright 2013-15 East Coast Toolworks "
    (format "(%.1f msec.)" (/ (- (. System (nanoTime)) t-begin) 1000000.0))])
 
 (defn render-page [{ :keys [ page-title include-js sidebar ] }  & contents]
