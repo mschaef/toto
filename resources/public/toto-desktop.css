@@ -34,15 +34,27 @@ table.item-list {
 }
 
 
-table.item-list table.item-row:hover {
+table.item-list tr.item-row:hover {
     background: #e0e0e0;
 }
 
+table.item-list td {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+}
+
+table.item-list tr.first-row td {
+    padding-top: 0;
+}
 
 td.item-control {
     display: inline-block;
     vertical-align: top;
     padding: 0.25em;
+}
+
+table.item-list td.item-control A {
+    padding-left: 0em;
 }
 
 td.item-description {
@@ -63,7 +75,7 @@ td.item-priority {
 }
 
 td.item-priority A {
-    padding-right: 0.5em;
+    padding-right: 0.66em;
 }
 
 tr.item-row {
@@ -100,6 +112,13 @@ table.list-list {
     padding: 0px;
     padding-top: 0px;
     width: 95%;
+}
+
+table.list-list td.item-control {
+    min-width: 2em;
+    width: 2em;
+    height: 2em;
+    text-align: center;
 }
 
 table.list-list tr:hover {
@@ -147,14 +166,6 @@ table.list-list A:visited {
 table.list-list tr.drop-hover {
     background: #808080;
 }
-
-table.list-list td.item-control {
-    min-width: 2em;
-    width: 2em;
-    height: 2em;
-    text-align: center;
-}
-
 
 A {
   text-decoration: none;
@@ -347,4 +358,16 @@ i.icon-yellow {
 i.icon-blue {
     color: #7070ff;
     text-shadow: 1px 1px 2px #b0b0f0;
+}
+
+i.icon-gray:hover {
+    text-shadow: 1px 1px 3px #ffffb0;
+}
+
+i.icon-yellow {
+    text-shadow: 1px 1px 3px #ffffb0;
+}
+
+i.icon-blue {
+    text-shadow: 1px 1px 3px #ffffb0;
 }

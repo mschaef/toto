@@ -1,6 +1,7 @@
 (ns toto.util
   (:require [clojure.tools.logging :as log]
-            [clojure.java.jdbc :as jdbc]))
+            [clojure.java.jdbc :as jdbc]
+            [hiccup.util :as util]))
 
 (defn query-all [ db-connection query-spec ]
   (log/debug "query-all:" query-spec)
@@ -61,7 +62,7 @@
                   (if-let [authority (.getAuthority url)]
                     (str "//" authority)))]
     (clojure.string/replace
-     (hiccup.util/escape-html
+     (util/escape-html
       (str base
            (string-leftmost (.getPath url)
                             (max 0 (- (- target-length 3) (.length base)))

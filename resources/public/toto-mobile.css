@@ -233,6 +233,15 @@ table.item-list table.item-row:hover {
 }
 
 
+table.item-list td {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+}
+
+table.item-list tr.first-row td {
+    padding-top: 0;
+}
+
 td.item-control {
     display: inline-block;
     vertical-align: top;
