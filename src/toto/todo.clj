@@ -31,33 +31,34 @@
 (defn redirect-to-home []
   (redirect-to-list (current-todo-list-id)))
 
+(def img-star-gray [:i {:class "fa fa-star fa-lg icon-gray"}])
+(def img-star-yellow [:i {:class "fa fa-star fa-lg icon-yellow"}])
+(def img-arrow-down-gray [:i {:class "fa fa-arrow-down fa-lg icon-gray"}])
+(def img-arrow-down-blue [:i {:class "fa fa-arrow-down fa-lg icon-blue"}])
+(def img-edit-list [:i {:class "fa fa-pencil icon-black"}])
+
+(def img-check [:i {:class "fa fa-check icon-black"}])
+(def img-trash [:i {:class "fa fa-trash-o icon-black"}])
+(def img-restore [:i {:class "fa fa-repeat icon-black"}])
+
+
+
+(defn js-link [ js-fn-name args & contents ]
+  [:a {:href (str "javascript:" js-fn-name "(" (clojure.string/join "," args) ")")}
+   contents])
+
 (defn complete-item-button [ item-info ]
-  (form/form-to [:post (str "/item/" (item-info :item_id) "/complete")]
-                [:input {:type "image" :src "/check_12x10.png" :width 12 :height 10 :alt "Complete Item"}]))
+  (js-link "completeItem" [ (item-info :item_id) ] img-check))
 
 (defn restore-item-button [ item-info ]
-  (form/form-to [:post (str "/item/" (item-info :item_id) "/restore")]
-                [:input {:type "image" :src "/reload_12x14.png" :width 12 :height 14 :alt "Restore Item"}]))
+  (js-link "restoreItem" [ (item-info :item_id) ] img-restore))
 
 (defn delete-item-button [ item-info ]
   (form/form-to [:post (str "/item/" (item-info :item_id) "/delete")]
                 [:input {:type "image" :src "/x_11x11.png" :width 11 :height 11 :alt "Delete Item"}]))
 
 (defn item-priority-button [ item-id new-priority image-spec ]
-  (js-link "setItemPriority" [ item-id new-priority ] (image image-spec)))
-
-(defn js-link [ js-fn-name args & contents ]
-  [:a {:href (str "javascript:" js-fn-name "(" (clojure.string/join "," args) ")")}
-   contents])
-
-
-(def img-star-gray [:i {:class "fa fa-star fa-lg icon-gray"}])
-(def img-star-yellow [:i {:class "fa fa-star fa-lg icon-yellow"}])
-(def img-arrow-down-gray [:i {:class "fa fa-arrow-down fa-lg icon-gray"}])
-(def img-arrow-down-blue [:i {:class "fa fa-arrow-down fa-lg icon-blue"}])
-
-(def img-edit-list [:i {:class "fa fa-pencil icon-black"}])
-
+  (js-link "setItemPriority" [ item-id new-priority ]  image-spec))
 
 (defn image [ image-spec ]
   [:img image-spec])
@@ -138,7 +139,7 @@
 
             [:td.item-control
              [:a {:href (str "/list/" list-id "/details")}
-              (image img-edit-list)]]
+              img-edit-list]]
             [:td
              [:span { :id (str "list_" list-id ) }
               [:div { :id (str "list_desc_" list-id) :class "hidden"} 

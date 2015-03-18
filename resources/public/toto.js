@@ -14,6 +14,40 @@ function toggleSidebar()
     sidebarVisible = !sidebarVisible;
 }
 
+function refreshPage()
+{
+    location.reload();
+}
+
+function setItemPriority(itemId, newPriority) {
+    $.post("/item/" + itemId + "/priority",
+           { "new-priority": newPriority },
+           function(data) {
+               refreshPage();
+           });
+}
+
+function completeItem(itemId) {
+    $.post("/item/" + itemId + "/complete",
+           function(data) {
+               refreshPage();
+           });
+}
+
+function restoreItem(itemId) {
+    $.post("/item/" + itemId + "/restore",
+           function(data) {
+               refreshPage();
+           });
+}
+
+function deleteItem(itemId) {
+    $.post("/item/" + itemId + "/delete",
+           function(data) {
+               refreshPage();
+           });
+}
+
 function beginListCreate()
 {
   var formMarkup = "";
@@ -45,7 +79,7 @@ function beginItemEdit(itemId)
   var itemDesc = $('div#item_desc_' + itemId).text();
 
   formMarkup += "<form class=\"embedded\" action=\"/item/" + itemId + "/delete\" method=\"POST\">";
-  formMarkup += "<input alt=\"Delete Item\" height=\"12\" src=\"/trash_stroke_12x12.png\" type=\"image\" width=\"12\" maxlength=\"1024\"/>";
+  formMarkup += "<a href=\"javascript:deleteItem(" + itemId + ")\"><i class=\"fa fa-trash-o icon-black\"></i></a>";
   formMarkup += "</form>";
 
   $('div#item_control_' + itemId).replaceWith(formMarkup);
