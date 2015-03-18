@@ -4,7 +4,8 @@
             [sql-file.core :as sql-file]))
 
 (def db-connection
-  (delay (sql-file/open-hsqldb-file-conn "toto-db"  "toto" 0)))
+  (delay (sql-file/open-hsqldb-file-conn (config-property "db.subname" "toto-db") "toto" 0)))
+
 
 (def ^:dynamic *db* nil)
 
