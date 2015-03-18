@@ -44,12 +44,11 @@
                 [:input {:type "image" :src "/x_11x11.png" :width 11 :height 11 :alt "Delete Item"}]))
 
 (defn item-priority-button [ item-id new-priority image-spec ]
-  (form/form-to [:post (str "/item/" item-id "/priority")]
-                [:input (assoc image-spec :type "image") ]
-                (form/hidden-field "new-priority" new-priority)))
+  (js-link "setItemPriority" [ item-id new-priority ] (image image-spec)))
 
 (defn js-link [ js-fn-name args & contents ]
-  [:a {:href (str "javascript:" js-fn-name "(" args ")")} contents])
+  [:a {:href (str "javascript:" js-fn-name "(" (clojure.string/join "," args) ")")}
+   contents])
 
 (def img-edit-list { :src "/pen_alt_fill_12x12.png" :width 12 :height 12 :alt "Edit List"})
 (def img-edit-list-light { :src "/pen_alt_fill_12x12_light.png" :width 12 :height 12 :alt "Edit List"})

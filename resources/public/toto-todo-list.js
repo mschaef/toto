@@ -1,5 +1,18 @@
 /* toto-todo-list.js */
 
+function refreshPage()
+{
+    location.reload();
+}
+
+function setItemPriority(itemId, newPriority) {
+    $.post("/item/" + itemId + "/priority",
+           { "new-priority": newPriority },
+           function(data) {
+               refreshPage();
+           });
+}
+
 $(document).ready(function () {
   $("#item-description").focus();
 
