@@ -22,7 +22,8 @@
    (page/include-css "/reset.css"
                      (if (core/is-mobile-request?)
                        "/toto-mobile.css"
-                       "/toto-desktop.css"))
+                       "/toto-desktop.css")
+                     "/font-awesome.min.css")
 
    (if (core/is-mobile-request?)
      (page/include-js "/zepto.js")
@@ -41,6 +42,7 @@
 
 (defn render-footer [ username ]
   [:div#footer
+   [:i {:class "fa fa-star fa-2x"}]
    (when (and (core/is-mobile-request?) (not (nil? username)))
      [:div username " - " (logout-button)])
 

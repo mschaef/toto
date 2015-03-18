@@ -92,7 +92,7 @@
           }
          item-info]
 
-    [:tr.item-row 
+    [:tr.item-row
      (assoc-if {:itemid item-id} (= item-number 0) :class "first-row")
      [:td.item-control
       [:div { :id (str "item_control_" item-id)}
