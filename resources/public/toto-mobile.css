@@ -311,3 +311,22 @@ table.config-panel td.section-heading {
 }
 
 
+i.icon-black {
+    color: #c0c0c0;
+    text-shadow: 1px 1px 2px #b0b0b0;
+}
+
+i.icon-gray {
+    color: #d0d0d0;
+    text-shadow: 1px 1px 2px #b0b0b0;
+}
+
+i.icon-yellow {
+    color: #f0d000;
+    text-shadow: 1px 1px 2px #f0b0b0;
+}
+
+i.icon-blue {
+    color: #7070ff;
+    text-shadow: 1px 1px 2px #b0b0f0;
+}

@@ -56,8 +56,7 @@
 (def img-arrow-down-gray [:i {:class "fa fa-arrow-down fa-lg icon-gray"}])
 (def img-arrow-down-blue [:i {:class "fa fa-arrow-down fa-lg icon-blue"}])
 
-(def img-edit-list { :src "/pen_alt_fill_12x12.png" :width 12 :height 12 :alt "Edit List"})
-(def img-edit-list-light { :src "/pen_alt_fill_12x12_light.png" :width 12 :height 12 :alt "Edit List"})
+(def img-edit-list [:i {:class "fa fa-pencil icon-black"}])
 
 
 (defn image [ image-spec ]
@@ -139,9 +138,7 @@
 
             [:td.item-control
              [:a {:href (str "/list/" list-id "/details")}
-              (if (core/is-mobile-request?)
-                (image img-edit-list-light)
-                (image img-edit-list))]]
+              (image img-edit-list)]]
             [:td
              [:span { :id (str "list_" list-id ) }
               [:div { :id (str "list_desc_" list-id) :class "hidden"} 
