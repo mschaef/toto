@@ -33,8 +33,6 @@
 
 (def img-star-gray [:i {:class "fa fa-star fa-lg icon-gray"}])
 (def img-star-yellow [:i {:class "fa fa-star fa-lg icon-yellow"}])
-(def img-arrow-down-gray [:i {:class "fa fa-arrow-down fa-lg icon-gray"}])
-(def img-arrow-down-blue [:i {:class "fa fa-arrow-down fa-lg icon-blue"}])
 (def img-edit-list [:i {:class "fa fa-pencil icon-edit"}])
 
 (def img-check [:i {:class "fa fa-check icon-black"}])
@@ -82,47 +80,54 @@
         (> days 60) (str (quot days 30) "m")
         :else (str days "d")))
 
-(defn render-todo-item [ item-info item-number ]
-  (let [ {
-          item-id :item_id
-          item-desc :desc
-          item-age :age_in_days
-          completed-on :completed_on
-          is-delete? :is_delete
-          priority :priority
-          }
-         item-info]
+(defn class-set [ classes ]
+  (clojure.string/join " " (map str (filter #(classes %)
+                                            (keys classes)))))
 
-    [:tr.item-row
-     (assoc-if {:itemid item-id} (= item-number 0) :class "first-row")
+(defn render-item-priority-control [ item-id priority ]
+     [:td.item-priority
+      (if (<= priority 0)
+        (item-priority-button item-id 1 img-star-gray)
+        (item-priority-button item-id 0 img-star-yellow))]
+  )
+
+(defn render-todo-item [ item-info item-number ]
+  (let [{item-id :item_id
+         item-desc :desc
+         item-age :age_in_days
+         completed-on :completed_on
+         is-delete? :is_delete
+         priority :priority}
+        item-info]
+
+    [:tr.item-row  {:itemid item-id
+                    :class (class-set {"first-row" (= item-number 0)
+                                       "high-priority" (> priority 0)})}
      [:td.item-control
       [:div { :id (str "item_control_" item-id)}
        (if (nil? completed-on)
          (complete-item-button item-info)
          (restore-item-button item-info))]]
+     (unless (core/is-mobile-request?)
+       (render-item-priority-control item-id priority))
      [:td.item-description
       (let [desc (item-info :desc)]
         (list
          [:div { :id (str "item_desc_" item-id) :class "hidden"}
           (hiccup.util/escape-html desc)]
-         [:div (assoc-if { :id (str "item_" item-id)}
-                          (not (nil? completed-on))
-                          :class (if is-delete? "deleted_item" "completed_item"))
+         [:div {:id (str "item_" item-id)
+                :class (class-set {"deleted_item" (and (not (nil? completed-on)) is-delete?)
+                                   "completed_item" (not (nil? completed-on))})}
           (render-item-text desc)
           [:span#item_age
            " (" (render-age item-age) ")"]]))]
-     [:td.item-priority
-      (if (<= priority 0)
-        (item-priority-button item-id 1 img-star-gray)
-        (item-priority-button item-id 0 img-star-yellow))
-      (if (>= priority 0)
-        (item-priority-button item-id -1 img-arrow-down-gray)
-        (item-priority-button item-id 0 img-arrow-down-blue))]]))
+     (when (core/is-mobile-request?)
+       (render-item-priority-control item-id priority))]))
 
 (defn render-todo-list [ list-id completed-within-days ]
   [:table.item-list
    [:tr
-    [:td {:colspan "3"}
+    [:td {:colspan "3" :class "new-item"}
      (render-new-item-form list-id)]]
    (map render-todo-item
         (data/get-pending-items list-id completed-within-days )

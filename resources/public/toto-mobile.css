@@ -66,6 +66,14 @@ div#header {
    border-bottom: 1px solid #c0c0c0;
 
    box-shadow: 1px 1px 1px #c0c0c0;
+
+   padding-top: 0.25em;
+   padding-bottom: 0.25em;
+}
+
+div#header a.click {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
 }
 
 div#footer {
@@ -214,7 +222,7 @@ table.list-list A:visited {
 table.list-list td.item-control {
     min-width: 2em;
     width: 2em;
-    height: 2em;
+
     text-align: center;
 }
 
@@ -228,8 +236,9 @@ table.item-list {
 }
 
 
-table.item-list table.item-row:hover {
-    background: #e0e0e0;
+table.item-list tr.item-row td {
+
+    height: 3em;    
 }
 
 
@@ -238,14 +247,12 @@ table.item-list td {
     padding-bottom: 0.5em;
 }
 
-table.item-list tr.first-row td {
-    padding-top: 0;
-}
-
 td.item-control {
     display: inline-block;
     vertical-align: top;
     padding: 0.25em;
+    padding-left: 1em;
+    padding-right: 1em;
 }
 
 td.item-description {
@@ -266,6 +273,7 @@ td.item-priority {
 }
 
 td.item-priority A {
+    padding-left: 0.5em;
     padding-right: 0.5em;
 }
 
@@ -273,6 +281,10 @@ tr.item-row {
     border-top: 1px solid #e0e0e0;
     padding: 0.25em;
     white-space: nowrap;
+}
+
+table.item-list tr.high-priority {
+    background: #ffffe0;
 }
 
 tr.item-row td {

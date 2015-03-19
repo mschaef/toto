@@ -19,6 +19,7 @@ div#sidebar {
 div#contents {
     padding-top: 3em;
     margin-left: 240px;
+    margin-right: 1em;
     padding-bottom: 10px;
     background: white;
 }
@@ -33,6 +34,17 @@ table.item-list {
     width: 100%;
 }
 
+table.item-list td.new-item {
+    padding-top: 0em;
+}
+
+table.item-list td.new-item input {
+    padding-top: 0em;
+}
+
+table.item-list tr.high-priority {
+    background: #ffffe0;
+}
 
 table.item-list tr.item-row:hover {
     background: #e0e0e0;
@@ -43,12 +55,7 @@ table.item-list td {
     padding-bottom: 0.5em;
 }
 
-table.item-list tr.first-row td {
-    padding-top: 0;
-}
-
 td.item-control {
-    display: inline-block;
     vertical-align: top;
     padding: 0.25em;
 }
@@ -75,7 +82,8 @@ td.item-priority {
 }
 
 td.item-priority A {
-    padding-right: 0.66em;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
 }
 
 tr.item-row {
@@ -225,6 +233,8 @@ div#header {
    position: fixed;
    width: 100%;
    box-shadow: 2px 2px 2px #c0c0c0;
+   
+   z-index: 1;
 }
 
 div#header div.right {
@@ -355,19 +365,10 @@ i.icon-yellow {
     text-shadow: 1px 1px 2px #f0b0b0;
 }
 
-i.icon-blue {
-    color: #7070ff;
-    text-shadow: 1px 1px 2px #b0b0f0;
-}
-
 i.icon-gray:hover {
-    text-shadow: 1px 1px 3px #ffffb0;
+    text-shadow: 1px 1px 3px #a0a0a0;
 }
 
-i.icon-yellow {
-    text-shadow: 1px 1px 3px #ffffb0;
-}
-
-i.icon-blue {
-    text-shadow: 1px 1px 3px #ffffb0;
+i.icon-yellow:hover {
+    text-shadow: 1px 1px 3px #f0f070;
 }
