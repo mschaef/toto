@@ -260,9 +260,11 @@
      (ring/redirect  (str "/list/" list-id "/details")))))
 
 (defn add-list [ list-description ]
-  (when (not (string-empty? list-description))
-    (data/add-list-owner (current-user-id) (data/add-list list-description)))
-  (redirect-to-home))
+  (if (string-empty? list-description)
+    (redirect-to-home)
+    (let [ list-id (data/add-list list-description) ] 
+      (data/add-list-owner (current-user-id) list-id)
+      (redirect-to-list list-id))))
 
 (defn add-item [ list-id item-description ]
   (when (not (string-empty? item-description))
