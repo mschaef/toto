@@ -43,7 +43,7 @@ table.item-list td.new-item input {
 }
 
 table.item-list tr.high-priority {
-    background: #ffffe0;
+    background: #ffffe7;
 }
 
 table.item-list tr.item-row:hover {
@@ -82,8 +82,8 @@ td.item-priority {
 }
 
 td.item-priority A {
-    padding-left: 0.5em;
-    padding-right: 0.5em;
+    padding-left: 0.3em;
+    padding-right: 0.3em;
 }
 
 tr.item-row {
@@ -356,19 +356,20 @@ i.icon-black {
 }
 
 i.icon-gray {
-    color: #d0d0d0;
+    color: black;//#d0d0d0;
     text-shadow: 1px 1px 2px #b0b0b0;
 }
 
+i.icon-gray:hover {
+    text-shadow: 1px 1px 3px #c0b000;
+}
+
 i.icon-yellow {
-    color: #f0d000;
+    color: #ffe000;
     text-shadow: 1px 1px 2px #f0b0b0;
 }
 
-i.icon-gray:hover {
-    text-shadow: 1px 1px 3px #a0a0a0;
+i.icon-yellow:hover {
+    text-shadow: 2px 2px 3px #c0b000;
 }
 
-i.icon-yellow:hover {
-    text-shadow: 1px 1px 3px #f0f070;
-}

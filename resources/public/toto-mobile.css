@@ -273,8 +273,8 @@ td.item-priority {
 }
 
 td.item-priority A {
-    padding-left: 0.5em;
-    padding-right: 0.5em;
+    padding-left: 0.25em;
+    padding-right: 0.25em;
 }
 
 tr.item-row {
@@ -284,7 +284,7 @@ tr.item-row {
 }
 
 table.item-list tr.high-priority {
-    background: #ffffe0;
+    background: #ffffe7;
 }
 
 tr.item-row td {
@@ -361,12 +361,12 @@ i.icon-black {
 }
 
 i.icon-gray {
-    color: #d0d0d0;
+    color: black;
     text-shadow: 1px 1px 2px #b0b0b0;
 }
 
 i.icon-yellow {
-    color: #f0d000;
+    color: #ffe000;
     text-shadow: 1px 1px 2px #f0b0b0;
 }
 
