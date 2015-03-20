@@ -14,30 +14,28 @@
    (form/form-to
     [:post "/login"]
     [:table { :class "form" }
-     [:tr [:td "E-Mail Address:"] [:td (form/text-field { :class "simple-border" } "username" (if email-addr email-addr))]]
-     [:tr [:td "Password:"] [:td (form/password-field { :class "simple-border" } "password")]]
+     (table-row "E-Mail Address:" (form/text-field { :class "simple-border" } "username" (if email-addr email-addr)))
+     (table-row "Password:" (form/password-field { :class "simple-border" } "password"))
      (if login-failure?
        [:tr [:td { :colspan 4 } [:div#error "Invalid username or password."]]])
      [:tr 
       [:td { :colspan 4 }
        [:center
-        [:a { :href "/user"} "Create New User"]
+        [:a { :href "/user"} "Register New User"]
         " - "
         (form/submit-button {} "Login")]]]])))
 
 (defn render-new-user-form [ & { :keys [ error-message ]}]
-  (view/render-page { :page-title "Create New User" }
+  (view/render-page {:page-title "New User Registration"
+                     :include-js [ "/toto-new-user.js" ]}
    (form/form-to
     [:post "/user"]
     [:table { :class "form" }
-     [:tr [:td "E-Mail Address:"] [:td  (form/text-field { :class "simple-border" } "email_addr")]]
-     [:tr [:td "Password:"] [:td (form/password-field { :class "simple-border" } "password")]]
-     [:tr [:td "Verify Password:"] [:td (form/password-field { :class "simple-border" } "password2")]]
-     
-     (unless (empty? error-message)
-       [:tr [:td { :colspan 2 } [:div#error error-message]]])
-     
-     [:tr [:td ] [:td (form/submit-button {} "Create User")]]])))
+     (table-row "E-Mail Address:" (form/text-field { :class "simple-border" } "email_addr"))
+     (table-row "Password:" (form/password-field { :class "simple-border" } "password1"))
+     (table-row "Verify Password:" (form/password-field { :class "simple-border" } "password2"))
+     (table-row "&nbsp;" [:div#error error-message])
+     (table-row "" (form/submit-button {} "Register"))])))
 
 (defn create-user  [ email-addr password ]
   (let [uid (data/add-user email-addr password)
@@ -62,8 +60,8 @@
   (GET "/user" []
        (render-new-user-form))
 
-  (POST "/user" {{email-addr :email_addr password :password password2 :password2} :params}
-        (add-user email-addr password password2))
+  (POST "/user" {{email-addr :email_addr password1 :password1 password2 :password2} :params}
+        (add-user email-addr password1 password2))
 
   (friend/logout (ANY "/logout" []  (ring.util.response/redirect "/")))
 

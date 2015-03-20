@@ -44,14 +44,14 @@ div#sidebar {
 }
 
 div#contents {
-    padding-top: 3em;
-    padding-bottom: 10px;
+    padding-top: 3.5em;
+    padding-bottom: 0.5em;
     background: white;
 }
 
 div#page-contents {
-    padding-top: 3em;
-    padding-bottom: 10px;
+    padding-top: 3.5em;
+    padding-bottom: 0.5em;
     background: white;
 }
 
@@ -128,8 +128,10 @@ form.embedded {
     display: none;
 }
 
-table.form {
-    margin: 10px;
+table.form td {
+    padding-left: 0.5em;
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
 }
 
 .simple-border {

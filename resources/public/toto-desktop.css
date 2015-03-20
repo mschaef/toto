@@ -334,8 +334,10 @@ form.embedded {
     display: none;
 }
 
-table.form {
-    margin: 10px;
+table.form td {
+    padding-left: 0.5em;
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
 }
 
 .simple-border {

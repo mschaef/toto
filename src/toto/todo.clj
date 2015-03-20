@@ -81,16 +81,11 @@
         (> days 60) (str (quot days 30) "m")
         :else (str days "d")))
 
-(defn class-set [ classes ]
-  (clojure.string/join " " (map str (filter #(classes %)
-                                            (keys classes)))))
-
 (defn render-item-priority-control [ item-id priority ]
-     [:td.item-priority
-      (if (<= priority 0)
-        (item-priority-button item-id 1 img-star-gray)
-        (item-priority-button item-id 0 img-star-yellow))]
-  )
+  [:td.item-priority
+   (if (<= priority 0)
+     (item-priority-button item-id 1 img-star-gray)
+     (item-priority-button item-id 0 img-star-yellow))])
 
 (defn render-todo-item [ item-info item-number ]
   (let [{item-id :item_id
