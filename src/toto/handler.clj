@@ -6,6 +6,9 @@
             [toto.core :as core]
             [toto.user :as user]
             [toto.todo :as todo]
+            [ring.util.response :as ring-response]
+            [ring.middleware.resource :as ring-resource]
+            [ring.middleware.file-info :as ring-file-info]
             [clojure.java.jdbc :as jdbc]
             [cemerick.friend :as friend]
             [compojure.route :as route]
@@ -47,7 +50,16 @@
     (data/with-db-connection db
       (app req))))
 
+(defn wrap-cache-control [handler cache-control]
+  (fn [request]
+    (let [response (handler request)]
+      (if (instance? java.io.File (:body response))
+        (-> response (ring-response/header "CacheControl" cache-control))
+        response))))
+
 (def handler (-> site-routes
+                 (ring-resource/wrap-resource "public")
+                 (ring-file-info/wrap-file-info)
                  (friend/authenticate {:credential-fn db-credential-fn
                                        :workflows [(workflows/interactive-form)]})
                  (extend-session-duration 168)

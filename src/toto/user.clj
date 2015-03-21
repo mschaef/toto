@@ -50,7 +50,7 @@
 
    (not (= password password2))
    (render-new-user-form :error-message "Passwords do not match.")
-
+ 
    :else
    (do
      (create-user email-addr (credentials/hash-bcrypt password))
