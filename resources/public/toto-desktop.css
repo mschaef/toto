@@ -231,6 +231,7 @@ div#header {
    padding: 0.7em;
    height: 1em;
    position: fixed;
+   top: 0;
    width: 100%;
    box-shadow: 2px 2px 2px #c0c0c0;
    

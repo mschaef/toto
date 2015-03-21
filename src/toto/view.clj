@@ -45,36 +45,46 @@
 
    "All Rights Reserved, Copyright 2013-15 East Coast Toolworks "])
 
+(defn render-header [ page-title]
+  (let [ username (core/authenticated-username)]
+    [:div#header 
+     (if (core/is-mobile-request?)
+       (if username
+         [:span#toggle-menu  img-show-list "&nbsp;"]
+         [:span#vspace "&nbsp;"])
+       (list [:a { :href "/" } app-name] " - "))
+
+     page-title
+
+     (unless (or (core/is-mobile-request?) (nil? username))
+       [:div.right
+        [:span username " - " (logout-button)]])]))
+
+(defn render-mobile-page-body [ page-title username sidebar contents ]
+  [:body
+   (if sidebar
+     [:div#sidebar sidebar])
+   [:div#contents
+    (render-header page-title)
+    contents
+    (render-footer username)]])
+
+(defn render-desktop-page-body [ page-title username sidebar contents ]
+  [:body
+   (if sidebar
+     [:div#sidebar sidebar])
+   (render-header page-title)
+   [(if sidebar :div#contents :div#page-contents)
+    contents]
+   (render-footer username)])
+
 (defn render-page [{ :keys [ page-title include-js sidebar ] }  & contents]
   (let [username (core/authenticated-username)]
     (html [:html
            (standard-header page-title include-js)
-
-           [:body
-
-            [:div#header 
-             (if (core/is-mobile-request?)
-               (if username
-                 [:a { :href "javascript:toggleSidebar()" :class "click" } img-show-list "&nbsp;"]
-                 [:span#vspace "&nbsp;"])
-               (list [:a { :href "/" } app-name] " - "))
-
-             page-title
-
-             (unless (or (core/is-mobile-request?) (nil? username))
-               [:div.right
-                [:span username " - " (logout-button)]])]
-
-            (if sidebar
-              (list
-               [:div#overlay
-                [:div#sidebar sidebar]]
-               [:div.wrapper
-                [:div#contents
-                 contents]])
-              [:div#page-contents
-               contents])]
-
-           (render-footer username)])))
+           ((if (core/is-mobile-request?)
+              render-mobile-page-body
+              render-desktop-page-body)
+            page-title username sidebar contents)])))
 
 
