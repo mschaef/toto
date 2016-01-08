@@ -11,6 +11,7 @@
                   ]
                  [hiccup "1.0.5"]
                  [ring/ring-jetty-adapter "1.4.0"]
+                 [slester/ring-browser-caching "0.1.1"]
                  [com.cemerick/friend "0.2.1"]
                  [compojure "1.4.0"]
                  [slingshot "0.12.2"]]
