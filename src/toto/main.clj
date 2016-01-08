@@ -5,8 +5,13 @@
             [ring.adapter.jetty :as jetty]
             [toto.handler :as handler]))
 
+(defmacro get-version []
+  ;; Capture compile-time property definition from Lein
+  (System/getProperty "toto.version"))
+
+
 (defn start-webserver [ http-port ]
-  (log/info "Starting Toto Webserver on port" http-port)
+  (log/info "Starting Toto (" (get-version) ") Webserver on port" http-port)
   (let [server (jetty/run-jetty handler/handler  { :port http-port :join? false })]
     (add-shutdown-hook
      (fn []
