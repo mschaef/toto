@@ -15,19 +15,23 @@
   [:span#logout
    [:a { :href "/logout"} "[logout]"]])
 
+(defn resource [ path ]
+  (str "/" (get-version) "/" path))
+
 (defn standard-includes [ include-js ]
   (list
-   (page/include-css "/reset.css"
+   (page/include-css (resource "reset.css")
                      (if (core/is-mobile-request?)
-                       "/toto-mobile.css"
-                       "/toto-desktop.css")
-                     "/font-awesome.min.css")
+                       (resource "toto-mobile.css")
+                       (resource "toto-desktop.css"))
+                     (resource "font-awesome.min.css"))
 
    (if (core/is-mobile-request?)
-     (page/include-js "/zepto.js")
-     (page/include-js "/jquery-1.10.1.js" "/jquery-ui.js"))
+     (page/include-js (resource "zepto.js"))
+     (page/include-js (resource "jquery-1.10.1.js")
+                      (resource "jquery-ui.js")))
 
-   (apply page/include-js (cons "/toto.js" include-js))))
+   (apply page/include-js (cons (resource "toto.js") include-js))))
 
 (defn standard-header [ page-title include-js ]
   [:head

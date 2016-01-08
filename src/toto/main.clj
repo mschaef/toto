@@ -1,7 +1,11 @@
 (ns toto.main
   (:gen-class :main true)
   (:use toto.util
-        compojure.core)
+        compojure.core
+        [ring.middleware resource
+         not-modified
+         content-type
+         browser-caching])
   (:require [clojure.java.jdbc :as jdbc]
             [clojure.tools.logging :as log]            
             [ring.adapter.jetty :as jetty]
@@ -18,14 +22,6 @@
             [toto.todo :as todo]
             [toto.user :as user]))
 
-(defmacro get-version []
-  ;; Capture compile-time property definition from Lein
-  (System/getProperty "toto.version"))
-
-(def site-routes (routes user/public-routes
-                         (route/resources "/")
-                         (friend/wrap-authorize todo/all-routes #{::user})
-                         (route/not-found "Resource Not Found")))
 
 (defn db-credential-fn [ creds ]
   (let [user-record (data/get-user-by-email (creds :username))]
@@ -56,16 +52,16 @@
     (data/with-db-connection db
       (app req))))
 
-(defn wrap-cache-control [handler cache-control]
-  (fn [request]
-    (let [response (handler request)]
-      (if (instance? java.io.File (:body response))
-        (-> response (ring-response/header "CacheControl" cache-control))
-        response))))
+(defroutes all-routes
+  user/public-routes
+  (route/resources  (str "/" (get-version)))
+  (friend/wrap-authorize todo/all-routes #{::user})
+  (route/not-found "Resource Not Found"))
 
-(def handler (-> site-routes
-                 (ring-resource/wrap-resource "public")
-                 (ring-file-info/wrap-file-info)
+(def handler (-> all-routes
+                 (wrap-content-type)
+                 (wrap-browser-caching {"text/javascript" 360000
+                                        "text/css" 360000})
                  (friend/authenticate {:credential-fn db-credential-fn
                                        :workflows [(workflows/interactive-form)]})
                  (extend-session-duration 168)

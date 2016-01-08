@@ -3,6 +3,10 @@
             [clojure.java.jdbc :as jdbc]
             [hiccup.util :as util]))
 
+(defmacro get-version []
+  ;; Capture compile-time property definition from Lein
+  (System/getProperty "toto.version"))
+
 (defn query-all [ db-connection query-spec ]
   (log/debug "query-all:" query-spec)
   (jdbc/query db-connection query-spec))
