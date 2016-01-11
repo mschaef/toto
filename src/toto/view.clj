@@ -31,7 +31,7 @@
      (page/include-js (resource "jquery-1.10.1.js")
                       (resource "jquery-ui.js")))
 
-   (apply page/include-js (cons (resource "toto.js") include-js))))
+   (apply page/include-js (map resource (cons "toto.js" include-js)))))
 
 (defn standard-header [ page-title include-js ]
   [:head
