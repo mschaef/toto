@@ -102,6 +102,10 @@ div.drag-item {
     background: white;
 }
 
+button.item-button {
+    border: 0px none;
+    background: transparent;
+}
 
 /* toto.css - Site styles */
 

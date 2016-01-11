@@ -48,28 +48,6 @@ function refreshPage()
     location.reload();
 }
 
-function setItemPriority(itemId, newPriority) {
-    $.post("/item/" + itemId + "/priority",
-           { "new-priority": newPriority },
-           function(data) {
-               refreshPage();
-           });
-}
-
-function completeItem(itemId) {
-    $.post("/item/" + itemId + "/complete",
-           function(data) {
-               refreshPage();
-           });
-}
-
-function restoreItem(itemId) {
-    $.post("/item/" + itemId + "/restore",
-           function(data) {
-               refreshPage();
-           });
-}
-
 function deleteItem(itemId) {
     $.post("/item/" + itemId + "/delete",
            function(data) {
@@ -108,7 +86,7 @@ function beginItemEdit(itemId)
   var itemDesc = $('div#item_desc_' + itemId).text();
 
   formMarkup += "<form class=\"embedded\" action=\"/item/" + itemId + "/delete\" method=\"POST\">";
-  formMarkup += "<a href=\"javascript:deleteItem(" + itemId + ")\"><i class=\"fa fa-trash-o icon-black\"></i></a>";
+  formMarkup += "<button type=\"submit\" class=\"item-button\"><i class=\"fa fa-trash-o icon-black\"></i></button>";
   formMarkup += "</form>";
 
   $('div#item_control_' + itemId).replaceWith(formMarkup);

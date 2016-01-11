@@ -41,23 +41,22 @@
 (def img-restore [:i {:class "fa fa-repeat icon-black"}])
 
 
-
 (defn js-link [ js-fn-name args & contents ]
   [:a {:href (str "javascript:" js-fn-name "(" (clojure.string/join "," args) ")")}
    contents])
 
 (defn complete-item-button [ item-info ]
-  (js-link "completeItem" [ (item-info :item_id) ] img-check))
+  (form/form-to [:post (str "/item/" (item-info :item_id) "/complete")]
+     [:button.item-button {:type "submit" :value "Complete Item"} img-check]))
 
 (defn restore-item-button [ item-info ]
-  (js-link "restoreItem" [ (item-info :item_id) ] img-restore))
-
-(defn delete-item-button [ item-info ]
-  (form/form-to [:post (str "/item/" (item-info :item_id) "/delete")]
-                [:input {:type "image" :src "/x_11x11.png" :width 11 :height 11 :alt "Delete Item"}]))
+  (form/form-to [:post (str "/item/" (item-info :item_id) "/restore")]
+     [:button.item-button {:type "submit" :value "Restore Item"} img-restore]))
 
 (defn item-priority-button [ item-id new-priority image-spec ]
-  (js-link "setItemPriority" [ item-id new-priority ]  image-spec))
+  (form/form-to [:post (str "/item/"item-id "/priority")]
+     (form/hidden-field "new-priority" new-priority)
+     [:button.item-button {:type "submit"} image-spec]))
 
 (defn image [ image-spec ]
   [:img image-spec])

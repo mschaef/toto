@@ -239,15 +239,11 @@ table.list-list td.item-control {
 /* Item list styling */
 
 
-
-
 table.item-list {
     width: 100%;
 }
 
-
 table.item-list tr.item-row td {
-
     height: 3em;    
 }
 
@@ -304,6 +300,11 @@ tr.item-row td {
 
 tr.item-row.first-row {
     border-top: none;
+}
+
+button.item-button {
+    border: 0px none;
+    background: transparent;
 }
 
 div.drag-item {
