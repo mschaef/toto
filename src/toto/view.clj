@@ -68,10 +68,11 @@
   [:body
    (if sidebar
      [:div#sidebar sidebar])
-   [:div#contents
+   (list
     (render-header page-title)
-    contents
-    (render-footer username)]])
+    [:div#contents
+     contents
+     (render-footer username)])])
 
 (defn render-desktop-page-body [ page-title username sidebar contents ]
   [:body
