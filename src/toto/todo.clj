@@ -131,9 +131,10 @@
 (defn render-todo-list-list [ selected-list-id ]
   [:table.list-list
     (map (fn [ { list-id :todo_list_id list-desc :desc list-item-count :item_count } ]
-           [:tr (if (= list-id (Integer. selected-list-id))
-                  { :class "selected" :listid list-id }
-                  { :listid list-id })
+           [:tr.list-list-item
+            (if (= list-id (Integer. selected-list-id))
+              { :class "selected" :listid list-id }
+              { :listid list-id })
 
             [:td.item-control
              [:a {:href (str "/list/" list-id "/details")}

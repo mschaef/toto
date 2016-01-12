@@ -383,7 +383,6 @@ i.icon-yellow {
 }
 
 i.icon-yellow:hover {
-    //    text-shadow: 2px 2px 3px #c0b000;
-        text-shadow: 1px 1px 1px #707070;
+    text-shadow: 1px 1px 1px #707070;
 }
 

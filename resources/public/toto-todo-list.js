@@ -23,7 +23,7 @@ $(document).ready(function () {
       }
   });
 
-  $( ".list-list tr" ).droppable({
+  $( ".list-list tr.list-list-item" ).droppable({
     hoverClass: "drop-hover",
     accept: ":not(.ui-sortable-helper)",
     tolerance: "pointer",
