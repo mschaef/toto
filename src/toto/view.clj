@@ -39,7 +39,7 @@
      [:meta {:name "viewport"
              :content "width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0"}])
    [:title app-name (unless (nil? page-title) (str " - " page-title))]
-   [:link { :rel "shortcut icon" :href "/favicon.ico"}]
+   [:link { :rel "shortcut icon" :href (resource "/favicon.ico")}]
    (standard-includes include-js)])
 
 (defn render-footer [ username ]
