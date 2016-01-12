@@ -282,9 +282,12 @@ td.item-description span#item_age {
 }
 
 td.item-priority {
-    float: right;
     padding: 0.25em;
     whitespace: nowrap;
+    min-width: 2em;
+    width: 2em;
+
+    text-align: center;
 }
 
 td.item-priority A {
