@@ -156,8 +156,8 @@
                   (form/hidden-field "target-list")))
 
 (defn render-todo-list-page [ selected-list-id completed-within-days ]
-  (view/render-page { :page-title ((data/get-todo-list-by-id selected-list-id) :desc)
-                     :include-js [ "/toto-todo-list.js" ]
+  (view/render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)
+                     :init-map { :page "todo-list" }
                      :sidebar (render-todo-list-list selected-list-id)}
                     (render-item-set-list-form)
                     (render-todo-list selected-list-id completed-within-days )
@@ -182,7 +182,7 @@
   (let [ list-name ((data/get-todo-list-by-id list-id) :desc)
         list-owners (data/get-todo-list-owners-by-list-id list-id) ]
     (view/render-page
-     { :page-title (str "List Details: " list-name) 
+     {:page-title (str "List Details: " list-name) 
       :sidebar (render-todo-list-list list-id) }
      (config-panel
       (str "/list/" list-id "/details")

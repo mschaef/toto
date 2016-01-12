@@ -3,6 +3,7 @@
         clojure.set
         hiccup.core)
   (:require [toto.core :as core]
+            [clojure.data.json :as json]
             [hiccup.form :as form]
             [hiccup.page :as page]))
 
@@ -18,7 +19,7 @@
 (defn resource [ path ]
   (str "/" (get-version) "/" path))
 
-(defn standard-includes [ include-js ]
+(defn standard-includes [ init-map ]
   (list
    (page/include-css (if (core/is-mobile-request?)
                        (resource "toto-mobile.css")
@@ -29,17 +30,19 @@
      (page/include-js (resource "zepto.js"))
      (page/include-js (resource "jquery-1.10.1.js")
                       (resource "jquery-ui.js")))
+   (page/include-js (resource "toto.js"))
 
-   (apply page/include-js (map resource (cons "toto.js" include-js)))))
+   [:script
+    "totoInitialize(" (json/write-str init-map) ");"]))
 
-(defn standard-header [ page-title include-js ]
+(defn standard-header [ page-title init-map ]
   [:head
    (when (core/is-mobile-request?)
      [:meta {:name "viewport"
              :content "width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0"}])
    [:title app-name (unless (nil? page-title) (str " - " page-title))]
    [:link { :rel "shortcut icon" :href (resource "/favicon.ico")}]
-   (standard-includes include-js)])
+   (standard-includes init-map)])
 
 (defn render-footer [ username ]
   [:div#footer
@@ -82,10 +85,10 @@
     contents]
    (render-footer username)])
 
-(defn render-page [{ :keys [ page-title include-js sidebar ] }  & contents]
+(defn render-page [{ :keys [ page-title init-map sidebar ] }  & contents]
   (let [username (core/authenticated-username)]
     (html [:html
-           (standard-header page-title include-js)
+           (standard-header page-title (merge {} init-map))
            ((if (core/is-mobile-request?)
               render-mobile-page-body
               render-desktop-page-body)

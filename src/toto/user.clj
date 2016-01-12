@@ -27,7 +27,7 @@
 
 (defn render-new-user-form [ & { :keys [ error-message ]}]
   (view/render-page {:page-title "New User Registration"
-                     :include-js [ "/toto-new-user.js" ]}
+                     :init-map { :page "new-user" }}
    (form/form-to
     [:post "/user"]
     [:table { :class "form" }

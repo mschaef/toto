@@ -107,3 +107,74 @@ function beginItemEdit(itemId)
 $(document).ready(function () {
     $( '#toggle-menu' ).on('touchstart click', toggleSidebar);
 });
+
+function checkPasswords()
+{
+    var pwd1 = $( "#password1" ).val().trim();
+    var pwd2 = $( "#password2" ).val().trim();
+
+
+    var errDiv = $("#error");
+    
+    if ((pwd1.length > 0) && (pwd2.length > 0) && (pwd1 != pwd2))
+        errDiv.text("Passwords do not match");
+    else
+        errDiv.empty();
+}
+
+var pageInit = {};
+
+//////// todo list
+
+pageInit["todo-list"] = function () {
+  $("#item-description").focus();
+
+  $( ".item-list .item-row" ).dblclick(function (obj){
+      beginItemEdit($(obj.delegateTarget).attr("itemid"));
+  });
+
+  if ($(".item-list .item-row").draggable == undefined)
+      return;
+
+  $( ".item-list .item-row" ).draggable({
+      appendTo: "body",
+      helper: function() {
+          return $("<div class=\"drag-item\">Moving List Item</div>");
+      },
+      cursor: "hand",
+      cursorAt: {
+          left: 0,
+          top: 0
+      }
+  });
+
+  $( ".list-list tr.list-list-item" ).droppable({
+    hoverClass: "drop-hover",
+    accept: ":not(.ui-sortable-helper)",
+    tolerance: "pointer",
+    drop: function( event, ui ) {
+      var itemId = $(ui.draggable[0]).attr("itemid");
+      var newListId = $(this).attr("listid");
+
+      $("#item_set_list_form #target-item")[0].value = itemId;
+      $("#item_set_list_form #target-list")[0].value = newListId;
+      $("#item_set_list_form")[0].submit();
+      }
+  });
+};
+
+pageInit["new-user"] = function () {
+    $( "#password1" ).keyup(checkPasswords);
+    $( "#password1" ).change(checkPasswords);
+    
+    $( "#password2" ).keyup(checkPasswords);
+    $( "#password2" ).change(checkPasswords);
+};
+
+function totoInitialize(initMap) {
+    var pageInitFn = pageInit[initMap.page];
+
+    if (pageInitFn != null) {
+        $(document).ready(pageInitFn);
+    }
+}
