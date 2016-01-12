@@ -20,8 +20,7 @@
 
 (defn standard-includes [ include-js ]
   (list
-   (page/include-css (resource "reset.css")
-                     (if (core/is-mobile-request?)
+   (page/include-css (if (core/is-mobile-request?)
                        (resource "toto-mobile.css")
                        (resource "toto-desktop.css"))
                      (resource "font-awesome.min.css"))

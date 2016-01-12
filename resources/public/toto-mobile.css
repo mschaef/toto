@@ -8,6 +8,11 @@ body, table, select, input {
     line-height:1.2;
 }
 
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
 A { 
   text-decoration: none;
 } 
