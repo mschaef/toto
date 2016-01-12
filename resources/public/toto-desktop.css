@@ -46,10 +46,6 @@ table.item-list tr.high-priority {
     background: #ffffe7;
 }
 
-table.item-list tr.item-row:hover {
-    background: #e0e0e0;
-}
-
 table.item-list td {
     padding-top: 0.5em;
     padding-bottom: 0.5em;
@@ -90,6 +86,7 @@ tr.item-row {
     border-top: 1px solid #e0e0e0;
     padding: 0.2em;
     white-space: nowrap;
+    cursor: hand;
 }
 
 tr.item-row.first-row {
@@ -97,9 +94,14 @@ tr.item-row.first-row {
 }
 
 div.drag-item {
-    padding: 0.2em;
-    border: 2px solid black;
-    background: white;
+    font-weight: bold;
+    font-size: 80%;
+    border-radius: 0.5em;
+    padding: 0.33em;
+    color: black;
+    background: #c0c0c0;
+
+    box-shadow: 1px 1px 1px #c0c0c0;
 }
 
 button.item-button {
@@ -177,7 +179,7 @@ table.list-list A:visited {
 }
 
 table.list-list tr.drop-hover {
-    background: #808080;
+    background: #e0e0e0;
 }
 
 A {
@@ -238,7 +240,7 @@ div#header {
    position: fixed;
    top: 0;
    width: 100%;
-   box-shadow: 2px 2px 2px #c0c0c0;
+   box-shadow: 1px 1px 1px #c0c0c0;
    
    z-index: 1;
 }
@@ -367,12 +369,12 @@ i.icon-black {
 }
 
 i.icon-gray {
-    color: black;//#d0d0d0;
-    text-shadow: 1px 1px 2px #b0b0b0;
+    color: #d0d0d0;
 }
 
 i.icon-gray:hover {
-    text-shadow: 1px 1px 3px #c0b000;
+    color: #707070;
+    text-shadow: 1px 1px 1px #707070;
 }
 
 i.icon-yellow {
@@ -381,6 +383,7 @@ i.icon-yellow {
 }
 
 i.icon-yellow:hover {
-    text-shadow: 2px 2px 3px #c0b000;
+    //    text-shadow: 2px 2px 3px #c0b000;
+        text-shadow: 1px 1px 1px #707070;
 }
 

@@ -31,8 +31,8 @@
 (defn redirect-to-home []
   (redirect-to-list (current-todo-list-id)))
 
-(def img-star-gray [:i {:class "fa fa-star-o icon-gray"}])
-(def img-star-yellow [:i {:class "fa fa-star icon-yellow"}])
+(def img-star-gray [:i {:class "fa fa-lg fa-star-o icon-gray"}])
+(def img-star-yellow [:i {:class "fa fa-lg fa-star icon-yellow"}])
 
 (def img-edit-list [:i {:class "fa fa-pencil icon-edit"}])
 

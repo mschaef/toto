@@ -8,18 +8,19 @@ $(document).ready(function () {
       beginItemEdit($(obj.delegateTarget).attr("itemid"));
   });
 
-  if ($( ".item-list .item-row" ).draggable == undefined)
+  if ($(".item-list .item-row").draggable == undefined)
       return;
 
   $( ".item-list .item-row" ).draggable({
-    appendTo: "body",
-    helper: function() {
-      return $("<div class=\"drag-item\">List Item</div>");
-    },
-    cursorAt: {
-      left: 0,
-      top: 0
-    }
+      appendTo: "body",
+      helper: function() {
+          return $("<div class=\"drag-item\">Moving List Item</div>");
+      },
+      cursor: "hand",
+      cursorAt: {
+          left: 0,
+          top: 0
+      }
   });
 
   $( ".list-list tr" ).droppable({
