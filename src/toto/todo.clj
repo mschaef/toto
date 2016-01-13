@@ -40,7 +40,6 @@
 (def img-trash [:i {:class "fa fa-trash-o icon-black"}])
 (def img-restore [:i {:class "fa fa-repeat icon-black"}])
 
-
 (defn js-link [ js-fn-name args & contents ]
   [:a {:href (str "javascript:" js-fn-name "(" (clojure.string/join "," args) ")")}
    contents])

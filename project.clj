@@ -1,6 +1,6 @@
-(defproject toto "0.2.8-SNAPSHOT"
+(defproject toto "0.3.0-SNAPSHOT"
   :description "Toto To-Do List Manager"
-  :license { :name "Copyright East Coast Toolworks (c) 2012-2015"}
+  :license { :name "Copyright East Coast Toolworks (c) 2012-2016"}
 
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/tools.logging "0.3.1"]
