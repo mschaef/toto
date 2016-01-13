@@ -2,45 +2,19 @@
 
 sidebarVisible = false;
 
-
 function toggleSidebar(e)
 {
     e.preventDefault();
  
-    var $body = $( 'body' ),
-        $contents = $( '#contents' ),
-        $menu = $( '#sidebar' ),
+    var $menu = $( '#sidebar' );
  
-        /* Cross browser support for CSS "transition end" event */
-        transitionEnd = 'transitionend webkitTransitionEnd otransitionend MSTransitionEnd';
- 
+    /* Cross browser support for CSS "transition end" event */
+    transitionEnd = 'transitionend webkitTransitionEnd otransitionend MSTransitionEnd';
+
+    sidebarVisible = !sidebarVisible;
+    
     /* When the toggle menu link is clicked, animation starts */
-    $body.addClass( 'animating' );
- 
-    /***
-     * Determine the direction of the animation and
-     * add the correct direction class depending
-     * on whether the menu was already visible.
-     */
-    if ( $body.hasClass( 'menu-visible' ) ) {
-        $body.addClass( 'left' );
-    } else {
-        $body.addClass( 'right' );
-    }
-  
-    /***
-     * When the animation (technically a CSS transition)
-     * has finished, remove all animating classes and
-     * either add or remove the "menu-visible" class 
-     * depending whether it was visible or not previously.
-     */
-    $contents.on( transitionEnd, function() {
-        $body
-            .removeClass( 'animating left right' )
-            .toggleClass( 'menu-visible' );
- 
-        $contents.off( transitionEnd );
-    } );
+    $menu.toggleClass('menu-visible', sidebarVisible);
 }
 
 function refreshPage()

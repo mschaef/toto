@@ -6,6 +6,13 @@ body, table, select, input {
     font-family: Roboto,Helvetica,sans-serif;
     font-size: 15px;
     line-height:1.2;
+    margin: 0px;
+    padding: 0px;
+}
+
+body {
+    overflow-y: hidden;
+    height: 100%;
 }
 
 table {
@@ -27,45 +34,49 @@ A:visited {
 
 /* Top level page layout. */
 
-body {
-    margin: 0px;
-    padding: 0px;
-}
-
-div#overlay {
-    position: fixed;
-    left: -270px;
-    top: 0;
-    width: 270px;
-    height: 100%;
-}
-
 div#sidebar {
-    
-    display: none;
+    display: block;//none;
 	position: absolute;
 	top: 0;
-	left: 0;
-    
+	left: -270px;
+
     width: 270px;
-    z-index: 10;
 
-    background: #606070;
+    background: white;
 
-    max-height: 100%;
+    z-index: 20;/* 200*/
+    height: 100%;
     overflow-y: auto;
+    
+    box-shadow: 2px 2px 2px #707070;
+
+    transform: translate3d( 0, 0, 0 );
+    transition: transform 0.25s ease-in-out;
+
     padding-top: 3em;
 }
 
+div#sidebar::-webkit-scrollbar {
+    display: none;
+}
+
 div#contents {
-    position: relative;
-    z-index: 20;
+    position: absolute;
+    top: 0px;
+    left: 0px;
 
     padding-top: 3em;
     padding-bottom: 0.5em;
     background: white;
+
+    z-index: 10;
     height: 100%;
-    overflow-y: hide;
+    overflow-y: auto;
+    width: 100%;
+}
+
+div#contents::-webkit-scrollbar {
+    display: none;
 }
 
 div#header {
@@ -200,7 +211,7 @@ table.list-list {
 
 table.list-list tr {
     padding: 2px 8px;
-    border-left: 3px solid #606070;;
+    border-left: 5px solid white;
 
     min-height: 3em;
     height: 3em;
@@ -208,8 +219,6 @@ table.list-list tr {
 
 table.list-list td {
     vertical-align: middle;
-
-    border-bottom: 1px solid #707070;
 }
 
 table.list-list td.add-list {
@@ -220,21 +229,21 @@ table.list-list td.add-list {
 }
 
 table.list-list tr.selected {
-    background: white;
-    border-left: 3px solid red;
+    background: #BDBDBD;
+    border-left: 5px solid #BDBDBD;
 }
 
 table.list-list tr.selected A {
-    color: red;
+    color: #424242;
 }
 
 table.list-list A:link {
-    color: #e0e0e0;
+    color: #424242;
     font-weight: bold;
 }
 
 table.list-list A:visited {
-    color: #e0e0e0;
+    color: #424242;
     font-weight: bold;
 }
 
@@ -408,44 +417,10 @@ i.icon-bars {
 .animating #sidebar, .menu-visible #sidebar {
   display: block;
 }
- 
-/***
- * If the animating class is present then apply
- * the CSS transition to #contents over 250ms.
- */
-.animating #contents {
-  transition: transform .25s ease-in-out;
-  -webkit-transition: -webkit-transform .25s ease-in-out;
-}
- 
-/***
- * If the left class is present then transform
- * the #contents element 270px to the left.
- */	
-.animating.left #contents {
-  transform: translate3d( -270px, 0, 0 );
-  -webkit-transform: translate3d( -270px, 0, 0 );
-}
- 
-/***
- * If the right class is present then transform
- * the #contents element 270px to the right.
- */
-.animating.right #contents {
-  transform: translate3d( 270px, 0, 0 );
-  -webkit-transform: translate3d( 270px, 0, 0 );
-}
- 
-/***
- * If the menu-visible class is present then
- * shift the #contents 270px from the right edge
- * via position: absolute to keep it in the 
- * open position. When .animating, .left and
- * .right classes are not present the CSS
- * transform does not apply to #contents.
- */
-.menu-visible #contents {
-  left: 270px;
+
+div#sidebar.menu-visible {
+    display: block;
+    transform: translate3d( 270px, 0, 0 );
 }
 
 #contents, #sidebar {
