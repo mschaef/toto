@@ -233,18 +233,8 @@ table.list-list tr.selected {
     border-left: 5px solid #BDBDBD;
 }
 
-table.list-list tr.selected A {
+table.list-list A {
     color: #424242;
-}
-
-table.list-list A:link {
-    color: #424242;
-    font-weight: bold;
-}
-
-table.list-list A:visited {
-    color: #424242;
-    font-weight: bold;
 }
 
 table.list-list td.item-control {
@@ -252,6 +242,9 @@ table.list-list td.item-control {
     width: 2em;
 
     text-align: center;
+
+    display: inline-block;    
+    padding: 0.25em;    
 }
 
 /* Item list styling */
@@ -271,26 +264,26 @@ table.item-list td {
     padding-bottom: 0.5em;
 }
 
-td.item-control {
+
+table.item-list td.item-control {
     display: inline-block;
-    vertical-align: top;
     padding: 0.25em;
     padding-left: 1em;
     padding-right: 1em;
 }
 
-td.item-description {
+table.item-list td.item-description {
     width: 100%;
     padding: 0.25em;
     vertical-align: top;
     white-space: normal;
 }
 
-td.item-description span#item_age {
+table.item-list td.item-description span#item_age {
     font-weight: bold;
 }
 
-td.item-priority {
+table.item-list td.item-priority {
     padding: 0.25em;
     whitespace: nowrap;
     min-width: 2em;
@@ -314,12 +307,12 @@ table.item-list tr.high-priority {
     background: #ffffe7;
 }
 
-tr.item-row td {
+table.item-list tr.item-row td {
     padding-top: 0.5em;
     padding-bottom: 0.5em;
 }
 
-tr.item-row.first-row {
+table.item-list tr.item-row.first-row {
     border-top: none;
 }
 
