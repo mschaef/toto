@@ -1,5 +1,6 @@
 (ns toto.data
-  (:use toto.util)
+  (:use toto.util
+        sql-file.sql-util)
   (:require [clojure.java.jdbc :as jdbc]
             [sql-file.core :as sql-file]))
 
