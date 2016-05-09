@@ -7,6 +7,7 @@
   </appender>
 
   <logger name="toto.handler" level="DEBUG"/>
+  <logger name="sql-file.core" level="DEBUG"/>
 
   <root level="INFO">
     <appender-ref ref="CONSOLE"/>
