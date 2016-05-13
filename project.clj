@@ -6,6 +6,7 @@
                  [org.clojure/tools.logging "0.3.1"]
                  [ch.qos.logback/logback-classic "1.1.7"]
                  [sql-file "0.2.0-pre0"]
+                 [yesql "0.5.3"]
                  [org.clojure/data.json "0.2.6"]
                  [clj-http "3.0.1"]
                  [hiccup "1.0.5"]

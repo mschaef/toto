@@ -2,7 +2,11 @@
   (:use toto.util
         sql-file.sql-util)
   (:require [clojure.java.jdbc :as jdbc]
-            [sql-file.core :as sql-file]))
+            [sql-file.core :as sql-file]
+            [yesql.core :refer [defqueries]]))
+
+(defqueries "toto/queries.sql")
+
 
 (def db-connection
   (delay (sql-file/open-sql-file
@@ -16,9 +20,6 @@
 (defmacro with-db-connection [ var & body ]
   `(binding [ *db* @db-connection ]
      ~@body))
-
-(defn all-user-names [ ]
-  (map :name (query-all *db* ["select name from user order by name"])))
 
 (defn get-user-by-email [ email-addr ]
   (query-first *db* ["select * from user where email_addr=?" email-addr]))
@@ -230,6 +231,7 @@
    ["item_id=?" item-id]))
 
 (defn get-item-by-id [ item-id ]
-  (query-first *db* ["select * from todo_item where item_id=?" item-id]))
+  (first (xyzzy { :item_id item-id }
+                { :connection *db* })))
 
 ;; TODO: remove-item-by-id
