@@ -23,50 +23,40 @@
     (get first-row (first (keys first-row)))))
 
 (defn get-user-by-email [ email-addr ]
-  (query-first *db* ["select * from user where email_addr=?" email-addr]))
+  (first
+   (query/get-user-by-email { :email_addr email-addr}
+                            { :connection *db* })))
 
 (defn user-email-exists? [ email-addr ]
   (not (nil? (get-user-by-email email-addr))))
 
 (defn get-user-by-id [ user-id ]
-  (query-first *db* ["select * from user where user_id=?" user-id]))
+  (first
+   (query/get-user-by-id { :user_id user-id }
+                         { :connection *db* })))
 
 (defn get-todo-list-by-id [ list-id ]
-  (query-first *db* ["select * from todo_list where todo_list_id=?" list-id]))
+  (first
+   (query/get-todo-list-by-id { :todo_list_id list-id }
+                              { :connection *db* })))
 
 (defn get-friendly-users-by-id [ user-id ]
-  (query-all *db* [(str "SELECT DISTINCT b.user_id, u.email_addr"
-                      "  FROM todo_list_owners a, todo_list_owners b, user u"
-                      " WHERE a.todo_list_id = b.todo_list_id"
-                      "   AND u.user_id = b.user_id"
-                      "   AND a.user_id = ?"
-                      " ORDER BY u.email_addr")
-                 user-id]))
+  (query/get-friendly-users-by-id { :user_id user-id }
+                                  { :connection *db* }))
 
 (defn get-todo-list-owners-by-list-id [ list-id ]
-  (map :user_id  (query-all *db* [(str "SELECT user_id"
-                                     "  FROM todo_list_owners"
-                                     " WHERE todo_list_id=?")
-                                list-id])))
+  (map :user_id
+       (query/get-todo-list-owners-by-list-id { :todo_list_id list-id }
+                                              { :connection *db* })))
 
 (defn get-todo-list-ids-by-user [ user-id ]
-  (map :todo_list_id (query-all *db* [(str "SELECT DISTINCT todo_list_id"
-                                         "  FROM todo_list_owners"
-                                         "  WHERE user_id=?")
-                                    user-id])))
+  (map :todo_list_id
+       (query/get-todo-list-ids-by-user { :user_id user-id }
+                                        { :connection *db* })))
 
 (defn get-todo-lists-by-user [ user-id ]
-  (query-all *db* [(str "SELECT DISTINCT todo_list.todo_list_id,"
-                      "                todo_list.desc,"
-                      "                (SELECT count(item.item_id)"
-                      "                   FROM todo_item item" 
-                      "                  WHERE item.todo_list_id=todo_list.todo_list_id"
-                      "                    AND NOT EXISTS (SELECT 1 FROM todo_item_completion WHERE item_id=item.item_id))"
-                      "                   AS item_count"
-                      "  FROM todo_list, todo_list_owners"
-                      " WHERE todo_list.todo_list_id=todo_list_owners.todo_list_id"
-                      "   AND todo_list_owners.user_id=?"
-                      " ORDER BY todo_list.desc") user-id]))
+  (query/get-todo-lists-by-user { :user_id user-id }
+                                { :connection *db* }))
 
 (defn add-user [ email-addr password ]
   (:user_id (first
@@ -120,22 +110,15 @@
    ["todo_list_id=?" list-id]))
 
 (defn list-owned-by-user-id? [ list-id user-id ]
-  (> (query-scalar *db* [(str "SELECT COUNT(*)"
-                            "  FROM todo_list_owners"
-                            " WHERE todo_list_id=?"
-                            "   AND user_id=?")
-                       list-id
-                       user-id])
+  (> (scalar
+      (query/list-owned-by-user-id? { :list_id list-id :user_id user-id }
+                                    { :connection *db* }))
      0))
 
 (defn item-owned-by-user-id? [ item-id user-id ]
-  (> (query-scalar *db* [(str "SELECT COUNT(*)"
-                            "  FROM todo_list_owners lo, todo_item item"
-                            " WHERE item.item_id=?"
-                            "   AND lo.todo_list_id=item.todo_list_id"
-                            "   AND lo.user_id=?")
-                       item-id
-                       user-id])
+  (> (scalar
+      (query/item-owned-by-user-id? { :item_id item-id :user_id user-id }
+                                    { :connection *db* }))
      0))
 
 (defn add-todo-item [ todo-list-id desc ]
@@ -148,46 +131,28 @@
                :created_on (java.util.Date.)}))))
 
 (defn get-pending-items [ list-id completed-within-days ]
-  (jdbc/query *db* [(str "SELECT item.item_id,"
-                  "       item.todo_list_id,"
-                  "       item.desc,"
-                  "       item.created_on,"
-                  "       item.priority,"
-                  "       completion.completed_on,"
-                  "       completion.is_delete,"
-                  "       DATEDIFF('day', item.created_on, CURRENT_TIMESTAMP) as age_in_days"
-                  " FROM todo_item item" 
-                  "      LEFT JOIN todo_item_completion completion"
-                  "        ON item.item_id = completion.item_id"
-                  " WHERE item.todo_list_id = ?"
-                  "   AND (completion.completed_on IS NULL "
-                  "        OR  completion.completed_on > DATEADD('day', ?, CURRENT_TIMESTAMP))"
-                  " ORDER BY item.priority DESC,"
-                  "          item.item_id"
-                  )
-             list-id
-             (- completed-within-days)]))
+  (query/get-pending-items {:list_id list-id
+                            :completed_within_days (- completed-within-days)}
+                           { :connection *db* }))
 
 (defn get-pending-item-count [ list-id ]
-  (query-scalar *db* [(str "SELECT count(item.item_id)"
-                         " FROM todo_item item" 
-                         " WHERE todo_list_id=?"
-                         "   AND NOT EXISTS (SELECT 1 FROM todo_item_completion WHERE item_id=item.item_id)")
-                    list-id]))
+  (scalar
+   (query/get-pending-item-count { :list_id list-id }
+                                 { :connection *db* })))
 
 (defn empty-list? [ list-id ]
   (<= (get-pending-item-count list-id) 0))
 
 (defn get-item-by-id [ item-id ]
-  (query-first *db* [(str "SELECT item.item_id, item.todo_list_id, item.desc, item.created_on"
-                        " FROM todo_item item" 
-                        " WHERE item_id=?")
-                   item-id]))
+  (first
+   (query/get-item-by-id { :item_id item-id }
+                         { :Connection *db* })))
 
 
 (defn is-item-completed? [ item-id ]
-  (> (query-scalar *db* ["SELECT COUNT(*) FROM todo_item_completion WHERE item_id=?"
-                   item-id ])
+  (> (scalar
+      (query/item-completion-count { :item_id item-id }
+                                   { :connection *db* }))
      0))
 
 (defn complete-item-by-id [ user-id item-id ]
