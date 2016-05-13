@@ -3,10 +3,7 @@
         sql-file.sql-util)
   (:require [clojure.java.jdbc :as jdbc]
             [sql-file.core :as sql-file]
-            [yesql.core :refer [defqueries]]))
-
-(defqueries "toto/queries.sql")
-
+            [toto.queries :as query]))
 
 (def db-connection
   (delay (sql-file/open-sql-file
@@ -231,7 +228,7 @@
    ["item_id=?" item-id]))
 
 (defn get-item-by-id [ item-id ]
-  (first (xyzzy { :item_id item-id }
-                { :connection *db* })))
+  (first (query/xyzzy { :item_id item-id }
+                      { :connection *db* })))
 
 ;; TODO: remove-item-by-id
