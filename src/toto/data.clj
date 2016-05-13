@@ -18,6 +18,10 @@
   `(binding [ *db* @db-connection ]
      ~@body))
 
+(defn- scalar [ query-result ]
+  (let [first-row (first query-result)]
+    (get first-row (first (keys first-row)))))
+
 (defn get-user-by-email [ email-addr ]
   (query-first *db* ["select * from user where email_addr=?" email-addr]))
 
@@ -228,6 +232,6 @@
    ["item_id=?" item-id]))
 
 (defn get-list-id-by-item-id [ item-id ]
-  (:todo_list_id
-   (first (query/get-list-id-by-item-id { :item_id item-id }
-                                        { :connection *db* }))))
+  (scalar
+   (query/get-list-id-by-item-id { :item_id item-id }
+                                 { :connection *db* })))
