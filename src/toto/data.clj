@@ -227,8 +227,7 @@
    {:todo_list_id list-id}
    ["item_id=?" item-id]))
 
-(defn get-item-by-id [ item-id ]
-  (first (query/xyzzy { :item_id item-id }
-                      { :connection *db* })))
-
-;; TODO: remove-item-by-id
+(defn get-list-id-by-item-id [ item-id ]
+  (:todo_list_id
+   (first (query/get-list-id-by-item-id { :item_id item-id }
+                                        { :connection *db* }))))

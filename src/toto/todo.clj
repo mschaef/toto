@@ -271,33 +271,33 @@
   (redirect-to-list list-id))
 
 (defn update-item-desc [ item-id item-description ]
-  (let [ list-id ((data/get-item-by-id item-id) :todo_list_id)]
+  (let [ list-id (data/get-list-id-by-item-id item-id)]
     (when (not (string-empty? item-description))
       (data/update-item-desc-by-id item-id item-description))
     (redirect-to-list list-id)))
 
 (defn update-item-list [ item-id target-list-id ] 
-  (let [ original-list-id ((data/get-item-by-id item-id) :todo_list_id)]
+  (let [ original-list-id (data/get-list-id-by-item-id item-id)]
     (data/update-item-list item-id target-list-id)
     (redirect-to-list original-list-id)))
 
 (defn update-item-priority [ item-id new-priority ]
-  (let [ original-list-id ((data/get-item-by-id item-id) :todo_list_id)]
+  (let [ original-list-id (data/get-list-id-by-item-id item-id)]
     (data/update-item-priority-by-id item-id new-priority)
     (redirect-to-list original-list-id)))
 
 (defn complete-item [ item-id ]
-  (let [ list-id ((data/get-item-by-id item-id) :todo_list_id)]
+  (let [ list-id (data/get-list-id-by-item-id item-id)]
     (data/complete-item-by-id (current-user-id) item-id)
     (redirect-to-list list-id)))
 
 (defn delete-item [ item-id ]
-  (let [ list-id ((data/get-item-by-id item-id) :todo_list_id)]
+  (let [ list-id (data/get-list-id-by-item-id item-id)]
     (data/delete-item-by-id (current-user-id) item-id)
     (redirect-to-list list-id)))
 
 (defn restore-item [ item-id ]
-  (let [ list-id ((data/get-item-by-id item-id) :todo_list_id)]
+  (let [ list-id (data/get-list-id-by-item-id item-id)]
     (data/restore-item item-id)
     (redirect-to-list list-id)))
 
