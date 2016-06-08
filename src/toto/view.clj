@@ -49,7 +49,7 @@
    (when (and (core/is-mobile-request?) (not (nil? username)))
      [:div username " - " (logout-button)])
 
-   "All Rights Reserved, Copyright 2013-15 East Coast Toolworks "])
+   "All Rights Reserved, Copyright 2013-16 East Coast Toolworks "])
 
 (defn render-header [ page-title]
   (let [ username (core/authenticated-username)]
@@ -69,13 +69,14 @@
 (defn render-mobile-page-body [ page-title username sidebar contents ]
   [:body
    (if sidebar
-     [:div#sidebar sidebar])
+     [:div#sidebar
+      sidebar
+      (render-footer username)])
    (list
     (render-header page-title)
     [:div#contents
      [:div#contents-container
-      contents
-      (render-footer username)]])])
+      contents]])])
 
 (defn render-desktop-page-body [ page-title username sidebar contents ]
   [:body
