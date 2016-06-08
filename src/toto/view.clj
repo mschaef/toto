@@ -73,8 +73,9 @@
    (list
     (render-header page-title)
     [:div#contents
-     contents
-     (render-footer username)])])
+     [:div#contents-container
+      contents
+      (render-footer username)]])])
 
 (defn render-desktop-page-body [ page-title username sidebar contents ]
   [:body
@@ -82,8 +83,9 @@
      [:div#sidebar sidebar])
    (render-header page-title)
    [(if sidebar :div#contents :div#page-contents)
-    contents]
-   (render-footer username)])
+    [:div#contents-container
+     contents
+     (render-footer username)]]])
 
 (defn render-page [{ :keys [ page-title init-map sidebar ] }  & contents]
   (let [username (core/authenticated-username)]

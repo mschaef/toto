@@ -52,7 +52,9 @@ div#sidebar {
 
     transform: translate3d( 0, 0, 0 );
     transition: transform 0.25s ease-in-out;
+}
 
+div#sidebar-container {
     padding-top: 3em;
 }
 
@@ -65,14 +67,17 @@ div#contents {
     top: 0px;
     left: 0px;
 
-    padding-top: 3em;
-    padding-bottom: 0.5em;
     background: white;
 
     z-index: 10;
     height: 100%;
     overflow-y: auto;
     width: 100%;
+}
+
+div#contents-container {
+    padding-top: 3em;
+    padding-bottom: 0.5em;
 }
 
 div#contents::-webkit-scrollbar {
@@ -200,7 +205,7 @@ div.deleted_item {
 
 /* List list styling */
 
-table.list-list {
+.list-list {
     margin: 0px;
     border: 0px;
     padding: 0px;
@@ -208,38 +213,33 @@ table.list-list {
     width: 100%;
 }
 
-table.list-list A {
+.list-list A {
     color: #424242;
 }
 
-table.list-list tr {
+.list-list li {
     padding: 2px 8px;
     border-left: 5px solid white;
 }
 
-table.list-list tr.selected {
-    background: #BDBDBD;
-    border-left: 5px solid #BDBDBD;
-}
-
-table.list-list td {
+.list-list li {
     vertical-align: middle;
     min-height: 3em;
     height: 3em;
     line-height: 3em;
 }
 
-table.list-list td.item-control {
-    min-width: 2em;
-    width: 2em;
-
-    text-align: center;
-
-    display: inline-block;    
-    padding: 0.25em;    
+.list-list li.selected {
+    background: #BDBDBD;
+    border-left: 5px solid #BDBDBD;
 }
 
-table.list-list td.add-list {
+
+.list-list .item-control {
+    padding-right: 0.5em;    
+}
+
+.list-list li.add-list {
     text-align: center;
     vertical-align: middle;
 

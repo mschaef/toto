@@ -126,7 +126,9 @@ A {
   text-decoration: none;
 } 
 
-table.list-list {
+/* List list styling */
+
+.list-list {
     margin: 0px;
     border: 0px;
     padding: 0px;
@@ -134,56 +136,56 @@ table.list-list {
     width: 95%;
 }
 
-table.list-list td.item-control {
+.list-list .item-control {
     min-width: 2em;
     width: 2em;
     height: 2em;
     text-align: center;
+    padding-right: 0.5em;
+    
 }
 
-table.list-list tr:hover {
+.list-list li:hover {
     background: #e0e0e0;
 }
 
-table.list-list tr.selected:hover {
+.list-list li.selected:hover {
     background: #e0e0e0;
 }
 
-table.list-list tr {
+.list-list li {
     padding: 2px 8px;
-    border-left: 3px solid white;
+    border-left: 0.3em solid white;
 
+    line-height: 2em;
     min-height: 2em;
     height: 2em;
-}
-
-table.list-list td {
     vertical-align: middle;
 }
 
-table.list-list td.add-list {
+.list-list li.add-list {
     text-align: center;
     vertical-align: middle;
 }
 
-table.list-list tr.selected {
+.list-list li.selected {
     background: white;
-    border-left: 3px solid red;
+    border-left: 0.3em solid red;
 }
 
-table.list-list tr.selected A {
+.list-list li.selected A {
     color: red;
 }
 
-table.list-list A:link {
+.list-list A:link {
     color: black;
 }
 
-table.list-list A:visited {
+.list-list A:visited {
     color: black;
 }
 
-table.list-list tr.drop-hover {
+.list-list tr.drop-hover {
     background: #e0e0e0;
 }
 
