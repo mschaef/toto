@@ -208,24 +208,13 @@ table.list-list {
     width: 100%;
 }
 
+table.list-list A {
+    color: #424242;
+}
 
 table.list-list tr {
     padding: 2px 8px;
     border-left: 5px solid white;
-
-    min-height: 3em;
-    height: 3em;
-}
-
-table.list-list td {
-    vertical-align: middle;
-}
-
-table.list-list td.add-list {
-    text-align: center;
-    vertical-align: middle;
-
-    border-bottom: none;
 }
 
 table.list-list tr.selected {
@@ -233,8 +222,11 @@ table.list-list tr.selected {
     border-left: 5px solid #BDBDBD;
 }
 
-table.list-list A {
-    color: #424242;
+table.list-list td {
+    vertical-align: middle;
+    min-height: 3em;
+    height: 3em;
+    line-height: 3em;
 }
 
 table.list-list td.item-control {
@@ -247,15 +239,18 @@ table.list-list td.item-control {
     padding: 0.25em;    
 }
 
+table.list-list td.add-list {
+    text-align: center;
+    vertical-align: middle;
+
+    border-bottom: none;
+}
+
 /* Item list styling */
 
 
 table.item-list {
     width: 100%;
-}
-
-table.item-list tr.item-row td {
-    height: 3em;    
 }
 
 
@@ -264,6 +259,9 @@ table.item-list td {
     padding-bottom: 0.5em;
 }
 
+table.item-list tr.item-row td {
+    height: 3em;    
+}
 
 table.item-list td.item-control {
     display: inline-block;
@@ -288,7 +286,7 @@ table.item-list td.item-priority {
     whitespace: nowrap;
     min-width: 2em;
     width: 2em;
-
+    vertical-align: top;
     text-align: center;
 }
 
