@@ -122,7 +122,7 @@ pageInit["todo-list"] = function () {
       }
   });
 
-  $( ".list-list tr.list-list-item" ).droppable({
+  $( ".list-list li" ).droppable({
     hoverClass: "drop-hover",
     accept: ":not(.ui-sortable-helper)",
     tolerance: "pointer",

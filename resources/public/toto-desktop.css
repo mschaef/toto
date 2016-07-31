@@ -185,7 +185,7 @@ A {
     color: black;
 }
 
-.list-list tr.drop-hover {
+.list-list li.drop-hover {
     background: #e0e0e0;
 }
 
