@@ -38,13 +38,13 @@ div#sidebar {
     display: block;//none;
 	position: absolute;
 	top: 0;
-	left: -270px;
+	left: -280px;
 
     width: 270px;
 
     background: white;
 
-    z-index: 20;/* 200*/
+    z-index: 30;
     height: 100%;
     overflow-y: auto;
     
@@ -52,6 +52,27 @@ div#sidebar {
 
     transform: translate3d( 0, 0, 0 );
     transition: transform 0.25s ease-in-out;
+}
+
+div.sidebar-control {
+    border: 0px;
+    border-left: 5px solid #f0f0f0;
+    margin-right: 2px;
+    
+    padding: 2px 8px;    
+    background: #f0f0f0;
+    vertical-align: middle;
+    min-height: 6em;
+    height: 6em;
+    line-height: 3em;
+}
+
+div.username {
+    display: inline-block;
+}
+
+span#close-menu {
+    padding-right: 0.5em;
 }
 
 div#sidebar-container {
@@ -90,7 +111,7 @@ div#header {
    
    position: fixed;
    width: 100%;
-   z-index: 100;
+   z-index: 20;
    top: 0;
 
    border-bottom: 1px solid #c0c0c0;
@@ -411,7 +432,7 @@ i.icon-bars {
 
 div#sidebar.menu-visible {
     display: block;
-    transform: translate3d( 270px, 0, 0 );
+    transform: translate3d( 280px, 0, 0 );
 }
 
 #contents, #sidebar {

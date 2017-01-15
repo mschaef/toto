@@ -312,7 +312,7 @@
                                           0)))
 
   (GET "/list/:list-id/details" [ list-id ]
-       (ensure-list-access list-id)
+    (ensure-list-access list-id)
        (render-todo-list-details-page list-id))
 
   (POST "/list/:list-id/details" { params :params }

@@ -12,6 +12,9 @@
 (def img-show-list
   [:i {:class "fa fa-bars fa-lg icon-bars"}])
 
+(def img-close-list
+  [:i {:class "fa fa-times-circle fa-lg"}])
+
 (defn logout-button []
   [:span#logout
    [:a { :href "/logout"} "[logout]"]])
@@ -49,7 +52,7 @@
    (when (and (core/is-mobile-request?) (not (nil? username)))
      [:div username " - " (logout-button)])
 
-   "All Rights Reserved, Copyright 2013-16 East Coast Toolworks "])
+   "All Rights Reserved, Copyright 2013-17 East Coast Toolworks "])
 
 (defn render-header [ page-title]
   (let [ username (core/authenticated-username)]
@@ -70,6 +73,10 @@
   [:body
    (if sidebar
      [:div#sidebar
+      [:div.sidebar-control
+       [:span#close-menu  img-close-list "&nbsp;"]
+       [:div.username
+        (core/authenticated-username)]]
       sidebar
       (render-footer username)])
    (list

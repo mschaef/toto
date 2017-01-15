@@ -2,10 +2,7 @@
 
 sidebarVisible = false;
 
-function toggleSidebar(e)
-{
-    e.preventDefault();
- 
+function toggleSidebar() {
     var $menu = $( '#sidebar' );
  
     /* Cross browser support for CSS "transition end" event */
@@ -15,6 +12,12 @@ function toggleSidebar(e)
     
     /* When the toggle menu link is clicked, animation starts */
     $menu.toggleClass('menu-visible', sidebarVisible);
+}
+
+function onToggleSidebar(e) {
+    e.preventDefault();
+    
+    toggleSidebar();
 }
 
 function refreshPage()
@@ -79,7 +82,8 @@ function beginItemEdit(itemId)
 
 
 $(document).ready(function () {
-    $( '#toggle-menu' ).on('touchstart click', toggleSidebar);
+    $( '#toggle-menu' ).on('touchstart click', onToggleSidebar);
+    $( '#close-menu' ).on('touchstart click', onToggleSidebar);
 });
 
 function checkPasswords()
