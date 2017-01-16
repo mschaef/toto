@@ -15,15 +15,30 @@ body {
     overflow-x: hidden;
 }
 
-div#sidebar {
-    padding-top: 3em;
-    float:left;
-    width: 240px;
+@media screen {
+    div#sidebar {
+        padding-top: 3em;
+        float:left;
+        width: 240px;
+    }
+    
+    div#contents {    
+        margin-left: 240px;
+    }
+}
+
+@media print {
+    div#sidebar {
+        display: none;
+    }
+    
+    div.query-settings {
+        display: none;
+    }
 }
 
 div#contents {
     padding-top: 3em;
-    margin-left: 240px;
     margin-right: 1em;
     padding-bottom: 10px;
     background: white;
