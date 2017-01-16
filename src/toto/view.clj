@@ -67,7 +67,7 @@
 
      (unless (or (core/is-mobile-request?) (nil? username))
        [:div.right
-        [:span username " - " (logout-button)]])]))
+        [:span username [:span.logout-control " - " (logout-button)]]])]))
 
 (defn render-mobile-page-body [ page-title username sidebar contents ]
   [:body

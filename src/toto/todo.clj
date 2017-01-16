@@ -120,7 +120,7 @@
 
 (defn render-todo-list [ list-id completed-within-days ]
   [:table.item-list
-   [:tr
+   [:tr {:class "new-item"}
     [:td {:colspan "3" :class "new-item"}
      (render-new-item-form list-id)]]
    (map render-todo-item

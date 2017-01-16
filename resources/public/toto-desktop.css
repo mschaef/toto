@@ -28,11 +28,23 @@ body {
 }
 
 @media print {
+    div#header {
+        border-bottom: 1px solid #c0c0c0;
+    }
+    
     div#sidebar {
         display: none;
     }
     
     div.query-settings {
+        display: none;
+    }
+
+    tr.new-item {
+        display: none;
+    }
+
+    span.logout-control {
         display: none;
     }
 }
