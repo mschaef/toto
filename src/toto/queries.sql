@@ -98,3 +98,13 @@ SELECT item.item_id, item.todo_list_id, item.desc, item.created_on
 SELECT COUNT(*)
   FROM todo_item_completion
  WHERE item_id = :item_id
+
+-- name: set-item-completion!
+MERGE INTO todo_item_completion
+   USING (VALUES(:item_id, :user_id, :completed_on, :is_delete))
+     AS vals(item_id, user_id, completed_on, is_delete)
+     ON todo_item_completion.item_id = vals.item_id
+   WHEN MATCHED THEN
+      UPDATE SET todo_item_completion.is_delete = vals.is_delete
+   WHEN NOT MATCHED THEN
+      INSERT VALUES :item_id, :user_id, :completed_on, :is_delete

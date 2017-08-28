@@ -156,22 +156,18 @@
      0))
 
 (defn complete-item-by-id [ user-id item-id ]
-  (jdbc/with-db-transaction [ trans *db* ]
-   (when (not (is-item-completed? item-id))
-     (jdbc/insert! trans
-      :todo_item_completion
-      { :user_id user-id
-       :item_id item-id
-       :completed_on (java.util.Date.)
-       :is_delete false}))))
+  (query/set-item-completion! {:user_id user-id
+                               :item_id item-id
+                               :completed_on (java.util.Date.)
+                               :is_delete false}
+                              {:connection *db*}))
 
 (defn delete-item-by-id [ user-id item-id ]
-  (jdbc/insert! *db*
-   :todo_item_completion
-   { :user_id user-id
-    :item_id item-id
-    :completed_on (java.util.Date.)
-    :is_delete true}))
+  (query/set-item-completion! {:user_id user-id
+                               :item_id item-id
+                               :completed_on (java.util.Date.)
+                               :is_delete true}
+                              {:connection *db*}))
 
 (defn restore-item [ item-id ]
   (jdbc/delete! *db*
