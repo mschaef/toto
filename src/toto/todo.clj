@@ -80,10 +80,9 @@
         :else (str days "d")))
 
 (defn render-item-priority-control [ item-id priority ]
-  [:td.item-priority
-   (if (<= priority 0)
-     (item-priority-button item-id 1 img-star-gray)
-     (item-priority-button item-id 0 img-star-yellow))])
+  (if (<= priority 0)
+    (item-priority-button item-id 1 img-star-gray)
+    (item-priority-button item-id 0 img-star-yellow)))
 
 (defn render-todo-item [ item-info item-number ]
   (let [{item-id :item_id
@@ -102,8 +101,8 @@
        (if (nil? completed-on)
          (complete-item-button item-info)
          (restore-item-button item-info))]]
-     (unless (core/is-mobile-request?)
-       (render-item-priority-control item-id priority))
+     [:td.item-priority.left
+      (render-item-priority-control item-id priority)]
      [:td.item-description
       (let [desc (item-info :desc)]
         (list
@@ -113,10 +112,9 @@
                 :class (class-set {"deleted_item" (and (not (nil? completed-on)) is-delete?)
                                    "completed_item" (not (nil? completed-on))})}
           (render-item-text desc)
-          [:span#item_age
-           " (" (render-age item-age) ")"]]))]
-     (when (core/is-mobile-request?)
-       (render-item-priority-control item-id priority))]))
+          [:span.pill (render-age item-age)]]))]
+     [:td.item-priority.right
+      (render-item-priority-control item-id priority)]]))
 
 (defn render-todo-list [ list-id completed-within-days ]
   [:table.item-list
@@ -139,7 +137,7 @@
             [:div { :id (str "list_desc_" list-id) :class "hidden"} 
              (hiccup.util/escape-html list-desc)]
             [:a {:href (str "/list/" list-id)}
-             (hiccup.util/escape-html list-desc) " (" list-item-count ")"]]])
+             (hiccup.util/escape-html list-desc) [:span.pill list-item-count] ]]])
         (data/get-todo-lists-by-user (current-user-id)))
    [:li.add-list  { :colspan "2"}
     (js-link "beginListCreate" nil "Add Todo List...")]])
@@ -211,8 +209,8 @@
       ["Delete List: " (if (data/empty-list? list-id)
                          (list 
                           [:input.dangerous {:type "submit" :value "Delete List"}]
-                          [:span#warning "Warning, this cannot be undone."])
-                         [:span#warning "To delete this list, remove all items first."])]))))
+                          [:span.warning "Warning, this cannot be undone."])
+                         [:span.warning "To delete this list, remove all items first."])]))))
 
 (defn update-list-description [ list-id list-description ]
   (when (not (string-empty? list-description))

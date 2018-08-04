@@ -80,7 +80,6 @@ function beginItemEdit(itemId)
   $("#iedit_" + itemId + " #description").focus();
 }
 
-
 $(document).ready(function () {
     $( '#toggle-menu' ).on('touchstart click', onToggleSidebar);
     $( '#close-menu' ).on('touchstart click', onToggleSidebar);

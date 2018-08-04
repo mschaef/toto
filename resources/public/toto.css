@@ -1,0 +1,614 @@
+/* toto-mobile.css - Site styles for desktop use */
+
+/* Global font selection */
+
+body, table, select, input {
+    font-family: Roboto,Helvetica,sans-serif;
+    font-size: 11pt;
+    line-height:1.2;
+    margin: 0px;
+    padding: 0px;
+}
+
+@media only screen and (min-device-width : 480px) {
+    body, table, select, input { 
+        font-size: 10pt;
+    }
+}
+
+/* Top level page layout. */
+
+body {
+    overflow-y: hidden;
+    height: 100%;
+}
+
+div#sidebar {
+    z-index: 2;
+    display: block;
+	position: absolute;
+	top: 0;
+	left: -280px;
+    width: 270px;
+
+    background: white;
+
+    height: 100%;
+    overflow-y: auto;
+    
+    box-shadow: 2px 2px 2px #707070;
+
+    transform: translate3d( 0, 0, 0 );
+    transition: transform 0.25s ease-in-out;
+}
+
+@media only screen and (min-device-width : 480px) {
+    div#sidebar {
+        z-index: 0;
+        left: 0px;
+        box-shadow: none;
+        width: 240px;
+        padding-top: 3em;
+    }
+}
+
+div#sidebar::-webkit-scrollbar {
+    display: none;
+}
+
+.dangerous {
+    color: red;
+}
+
+.warning {
+    color: red;
+    padding-left: 0.5em;
+}
+
+div#contents {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    
+    background: white;
+
+    height: 100%;
+    overflow-y: auto;
+
+    padding-top: 2.75em;
+}
+
+@media only screen and (max-device-width : 480px) {
+    padding-top: 3.75em;
+}
+
+div#contents-container {
+    padding-bottom: 6em;
+}
+
+@media only screen and (min-device-width : 480px) {
+    div#contents {
+        left: 240px;
+    }
+}
+
+div#contents::-webkit-scrollbar {
+    display: none;
+}
+
+div#header {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    z-index: 1;
+    
+    background: #e0e0e0;
+    color: #202020;
+
+   border-bottom: 1px solid #c0c0c0;
+
+   box-shadow: 1px 1px 1px #c0c0c0;
+
+   padding: 0.5em;
+}
+
+div#footer {
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
+    
+    background: white;
+
+    border-top: 1px solid #c0c0c0;
+    color: #404040;
+
+    text-align: center;
+    font-size: 0.8rem;
+    font-style: italic;
+}
+
+
+span#close-menu {
+    padding-right: 0.5em;
+}
+
+div.sidebar-control {
+    border: 0px;
+    border-left: 5px solid #f0f0f0;
+    margin-right: 2px;
+    
+    padding: 2px 8px;    
+    background: #f0f0f0;
+    vertical-align: middle;
+    min-height: 6em;
+    height: 6em;
+    line-height: 3em;
+}
+
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+div#header a.click {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+}
+
+div#header .right {
+    float: right;
+}
+
+div.wrapper {
+    overflow-x: hidden;
+    position: relative;
+    left: 0;
+}
+
+div.query-settings {
+    margin-top: 1em;
+
+    right: 0px;
+
+    border-top: 1px solid #707070;
+
+    background: #e0e0e0;
+
+    text-align: center;
+    font-size: 0.8rem;
+    font-style: italic;
+}
+
+div#header span#vspace {
+    min-height: 12pt;
+    display: inline-block;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+}
+
+form {
+    padding: 0px;
+    margin: 0px;
+}
+
+form.embedded {
+    display: inline;
+}
+
+.hidden {
+    display: none;
+}
+
+table.form td {
+    padding-left: 0.5em;
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+}
+
+.simple-border {
+    border-bottom: 1px solid #707070;
+    border-top: 0px none;
+    border-right: 0px none;
+    border-left: 0px none;
+    background: #f0f0f0;
+    padding-left: 0.2em;
+    border-color: #707070;
+}
+
+/* Application fonts */
+
+A { 
+  text-decoration: none;
+} 
+
+A:link { 
+  color: blue;
+} 
+
+A:visited { 
+  color: blue;
+} 
+
+@media only screen and (min-device-width : 480px) {
+    .sidebar-control {
+        display: none;
+    }
+
+    #toggle-menu {
+        display: none;
+    }
+}
+
+@media only screen and (min-device-width : 480px) {
+    div#footer div.logout {
+        display: none;
+    }
+}
+
+@media only screen and (max-device-width : 480px) {
+    #header .logout {
+        display: none;
+    }
+}
+
+.error-message {
+    color: red;
+    text-align: center;
+}
+
+div#header span.app-name A {
+    color: black;
+    font-weight: bold;
+}
+
+div#contents div.logout {
+    padding-top: 1em;
+    text-align: center;
+}
+
+@media only screen and (max-device-width : 480px) {
+    span.app-name {
+        display: none;
+    }
+}
+
+span#logout A {
+    color: red;
+}
+
+div.completed_item {
+    text-decoration: line-through;
+}
+
+div.deleted_item {
+    text-decoration: line-through;
+    color: #c0c0c0;
+}
+
+/* List list styling */
+
+.list-list {
+    margin: 0px;
+    border: 0px;
+    padding: 0px;
+    padding-top: 0px;
+    width: 100%;
+}
+
+.list-list A {
+    color: #424242;
+}
+
+.list-list li {
+    padding: 2px 8px;
+    border-left: 5px solid white;
+}
+
+.list-list li {
+    vertical-align: middle;
+    min-height: 3em;
+    height: 3em;
+    line-height: 3em;
+}
+
+.list-list li.selected {
+    background: #BDBDBD;
+    border-left: 5px solid #BDBDBD;
+}
+
+@media only screen and (min-device-width : 480px) {
+    .list-list li.selected A {
+        color: red;
+    }
+
+    .list-list li {
+        min-height: 1.75em;
+        height: 1.75em;
+        line-height: 1.75em;
+    }
+
+    .list-list li.selected {
+        background: white;
+        border-left: 5px solid red;
+    }
+}
+
+.list-list .item-control {
+    padding-right: 0.5em;    
+}
+
+.list-list li.add-list {
+    text-align: center;
+    vertical-align: middle;
+
+    border-bottom: none;
+}
+
+/* Item list styling */
+
+table.item-list {
+    width: 100%;
+}
+
+table.item-list td {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+}
+
+table.item-list tr.item-row td {
+    height: 3em;    
+}
+
+@media only screen and (min-device-width : 480px) {
+    table.item-list tr.item-row td {
+        height: 1.2em;
+    }
+}
+
+table.item-list td.item-control {
+    display: inline-block;
+    padding: 0.25em;
+    min-width: 1.5em;
+    width: 1.5em;
+}
+
+table.item-list td.item-control div {
+    text-align: center;
+}
+
+@media only screen and (min-device-width : 480px) {
+    table.item-list td.item-control {
+        padding-left: 0.5em;
+        padding-right: 0.5em;
+    }
+}
+
+table.item-list td.item-description {
+    width: 100%;
+    padding: 0.25em;
+    vertical-align: top;
+    white-space: normal;
+}
+
+.pill {
+    margin-left: 0.5em;
+    padding-left: 0.375em;
+    padding-right: 0.375em;
+    font-size: 0.7rem;
+
+    border-radius: 5px;
+    border: 1px solid #f0f0f0;
+    background: #f0f0f0;
+}
+
+table.item-list td.item-priority {
+    padding: 0.25em;
+    min-width: 1.5em;
+    width: 1.5em;
+    vertical-align: top;
+    text-align: center;
+}
+
+table.item-list td.item-priority.right {
+    padding-right: 1em;
+}
+
+@media only screen and (max-device-width : 480px) {
+    table.item-list td.item-priority.left {
+        display: none;
+    }
+}
+
+@media only screen and (min-device-width : 480px) {
+    table.item-list td.item-priority.right {
+        display: none;
+    }
+}
+
+td.item-priority A {
+    padding-left: 0.25em;
+    padding-right: 0.25em;
+}
+
+tr.item-row {
+    border-top: 1px solid #e0e0e0;
+    padding: 0.25em;
+    white-space: nowrap;
+}
+
+table.item-list tr.high-priority {
+    background: #ffffe7;
+}
+
+table.item-list tr.item-row td {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+}
+
+table.item-list tr.item-row.first-row {
+    border-top: none;
+}
+
+button.item-button {
+    border: 0px none;
+    background: transparent;
+    padding: 0.2em;
+}
+
+div.drag-item {
+    padding: 0.2em;
+    border: 2px solid black;
+    background: white;
+}
+
+div.list-control-footer {
+    text-align: center;
+    font-size: 0.8rem;
+    font-style: italic;
+}
+
+.full-width {
+    width: 100%;
+}
+
+p.new-list {
+    text-align: center;
+    font-style: italic;
+
+    padding-top: 1em;
+    padding-bottom: 1em;
+}
+
+p.new-user {
+    font-style: italic;
+}
+
+table.config-panel  {
+    background: #f0f0f0;
+    border-collapse: collapse;
+    width: 100%
+}
+
+table.config-panel > tbody > tr > td {
+    border-top: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+table.config-panel td.section-heading {
+    padding-left: 10px;
+    padding-right: 10px;
+    white-space: nowrap;
+    font-weight: bold;
+    vertical-align: top;
+    width: 2%
+}
+
+i.icon-edit {
+    color: #000000;
+    text-shadow: 1px 1px 2px #b0b0b0;
+}
+
+i.icon-black {
+    color: #000000;
+    text-shadow: 1px 1px 2px #b0b0b0;
+}
+
+i.icon-gray {
+    color: black;
+    text-shadow: 1px 1px 2px #b0b0b0;
+}
+
+i.icon-yellow {
+    color: #ffe000;
+    text-shadow: 1px 1px 2px #f0b0b0;
+}
+
+i.icon-blue {
+    color: #7070ff;
+    text-shadow: 1px 1px 2px #b0b0f0;
+}
+
+i.icon-bars {
+    color: black;
+    padding: 0.5em;
+}
+
+
+.animating #sidebar, .menu-visible #sidebar {
+  display: block;
+}
+
+div#sidebar.menu-visible {
+    display: block;
+    transform: translate3d( 280px, 0, 0 );
+}
+
+#contents, #sidebar {
+  -webkit-backface-visibility: hidden;
+  -webkit-perspective: 1000;
+}
+
+input[type=submit] {
+    padding:5px 15px; 
+    background:#ccc; 
+    border: 1px solid #c0c0c0;
+    cursor:pointer;
+    -webkit-border-radius: 0px;
+    border-radius: 0px; 
+}
+
+
+select {
+    padding: 5px 10px; 
+    background:#ccc; 
+    border: 1px solid #c0c0c0;
+    cursor:pointer;
+    -webkit-border-radius: 0px;
+    border-radius: 0px; 
+}
+
+
+@media print {
+    div#header {
+        display: block;
+        position: static;
+    }
+
+    div#contents {
+        display: block;
+        position: static;
+        padding: 0px;
+    }
+    
+    div#sidebar {
+        display: none;
+    }
+    
+    div.query-settings {
+        display: none;
+    }
+
+    tr.new-item {
+        display: none;
+    }
+
+    span.logout-control {
+        display: none;
+    }
+    
+    table.item-list tr.item-row td {
+        height: 1.2em;
+    }
+    
+    #toggle-menu {
+        display: none;
+    }
+}
+
+
