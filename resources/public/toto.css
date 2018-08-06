@@ -89,6 +89,10 @@ div#contents-container {
 
 @media only screen and (min-device-width : 480px) {
     div#contents {
+        padding-right: 0.5em;
+    }
+    
+    div#contents.with-sidebar {
         left: 240px;
     }
 }
@@ -563,7 +567,10 @@ input[type=submit] {
     border-radius: 0px; 
 }
 
-
+input[type=submit]:hover {
+    background:#ddd;
+}
+    
 select {
     padding: 5px 10px; 
     background:#ccc; 
@@ -571,6 +578,10 @@ select {
     cursor:pointer;
     -webkit-border-radius: 0px;
     border-radius: 0px; 
+}
+
+select:hover {
+    background:#ddd;
 }
 
 
