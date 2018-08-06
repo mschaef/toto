@@ -17,7 +17,7 @@
      (table-row "E-Mail Address:" (form/text-field { :class "simple-border" } "username" (if email-addr email-addr)))
      (table-row "Password:" (form/password-field { :class "simple-border" } "password"))
      (if login-failure?
-       [:tr [:td { :colspan 4 } [:div#error "Invalid username or password."]]])
+       [:tr [:td { :colspan 4 } [:div.error-message "Invalid username or password."]]])
      [:tr 
       [:td { :colspan 4 }
        [:center

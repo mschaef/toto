@@ -6,6 +6,7 @@
             [hiccup.form :as form]
             [hiccup.page :as page]
             [compojure.handler :as handler]
+            [ring.util.response :as ring-response]
             [toto.data :as data]
             [toto.core :as core]
             [toto.view :as view]
@@ -147,6 +148,9 @@
                   (form/hidden-field "target-item")
                   (form/hidden-field "target-list")))
 
+(defn render-todo-list-csv [  list-id ]
+  (clojure.string/join "\n" (map :desc (data/get-pending-items list-id 0))))
+
 (defn render-todo-list-page [ selected-list-id completed-within-days ]
   (view/render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)
                      :init-map { :page "todo-list" }
@@ -180,7 +184,7 @@
       (str "/list/" list-id "/details")
 
       ["List Name:" (form/text-field { :class "full-width" :maxlength "32" } "list-name" list-name)]
-
+      
       ["List Owners:" [:table.item-list
                        (map (fn [ { user-id :user_id user-email-addr :email_addr } ]
                               (let [ user-parameter-name (str "user_" user-id)]
@@ -203,6 +207,10 @@
                                  [:div#error error-message]]])]]
 
       [ nil [:input {:type "submit" :value "Update List Details"}]])
+     
+     (config-panel
+      ""
+      [ "Download List:" [:a { :href (str "/list/" list-id "/list.csv" ) } "Download List as CSV"]])
 
      (config-panel
       (str "/list/" list-id "/delete")
@@ -302,16 +310,22 @@
   (GET "/" [] (redirect-to-home))
 
   (POST "/list" { { list-description :list-description } :params }
-        (add-list (string-leftmost list-description 32)))
+    (add-list (string-leftmost list-description 32)))
 
   (GET "/list/:list-id" { { list-id :list-id completed-within-days :cwithin } :params } 
-       (ensure-list-access list-id)
-       (render-todo-list-page list-id (or (parsable-integer? completed-within-days)
+    (ensure-list-access list-id)
+    (render-todo-list-page list-id (or (parsable-integer? completed-within-days)
                                           0)))
 
-  (GET "/list/:list-id/details" [ list-id ]
+  (GET "/list/:list-id/list.csv" { { list-id :list-id } :params } 
     (ensure-list-access list-id)
-       (render-todo-list-details-page list-id))
+    (-> (render-todo-list-csv list-id)
+        (ring-response/response)
+        (ring-response/header "Content-Type" "text/csv")))
+
+  (GET "/list/:list-id/details"  { { list-id :list-id } :params } 
+    (ensure-list-access list-id)
+    (render-todo-list-details-page list-id))
 
   (POST "/list/:list-id/details" { params :params }
         (let [ { list-id :list-id 
