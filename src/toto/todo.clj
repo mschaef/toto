@@ -2,7 +2,8 @@
   (:use toto.util
         compojure.core
         [slingshot.slingshot :only (throw+ try+)])
-  (:require [ring.util.response :as ring]
+  (:require [clojure.tools.logging :as log]
+            [ring.util.response :as ring]
             [hiccup.form :as form]
             [hiccup.page :as page]
             [compojure.handler :as handler]
@@ -18,8 +19,12 @@
 (defn current-todo-list-id []
   (first (data/get-todo-list-ids-by-user (current-user-id))))
 
-(defn ensure-list-access [ list-id ]
+(defn ensure-list-owner-access [ list-id ]
   (unless (data/list-owned-by-user-id? list-id (current-user-id))
+          (core/report-unauthorized)))
+
+(defn ensure-list-public-access [ list-id ]
+  (unless (data/list-public? list-id)
           (core/report-unauthorized)))
 
 (defn ensure-item-access [ item-id ]
@@ -53,10 +58,12 @@
   (form/form-to [:post (str "/item/" (item-info :item_id) "/restore")]
      [:button.item-button {:type "submit" :value "Restore Item"} img-restore]))
 
-(defn item-priority-button [ item-id new-priority image-spec ]
-  (form/form-to [:post (str "/item/"item-id "/priority")]
-     (form/hidden-field "new-priority" new-priority)
-     [:button.item-button {:type "submit"} image-spec]))
+(defn item-priority-button [ item-id new-priority image-spec writable? ]
+  (if writable?
+    (form/form-to [:post (str "/item/"item-id "/priority")]
+                  (form/hidden-field "new-priority" new-priority)
+                  [:button.item-button {:type "submit"} image-spec])
+    image-spec))
 
 (defn image [ image-spec ]
   [:img image-spec])
@@ -64,7 +71,6 @@
 (defn render-new-item-form [ list-id ]
   (form/form-to [:post (str "/list/" list-id)]
                 (form/text-field { :class "full-width simple-border" :maxlength "1024" } "item-description")))
-
 
 (def url-regex #"(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]") 
 
@@ -80,12 +86,12 @@
         (> days 60) (str (quot days 30) "m")
         :else (str days "d")))
 
-(defn render-item-priority-control [ item-id priority ]
+(defn render-item-priority-control [ item-id priority writable? ]
   (if (<= priority 0)
-    (item-priority-button item-id 1 img-star-gray)
-    (item-priority-button item-id 0 img-star-yellow)))
+    (item-priority-button item-id 1 img-star-gray writable?)
+    (item-priority-button item-id 0 img-star-yellow writable?)))
 
-(defn render-todo-item [ item-info item-number ]
+(defn render-todo-item [ item-info item-number writable? ]
   (let [{item-id :item_id
          item-desc :desc
          item-age :age_in_days
@@ -97,13 +103,14 @@
     [:tr.item-row  {:itemid item-id
                     :class (class-set {"first-row" (= item-number 0)
                                        "high-priority" (> priority 0)})}
-     [:td.item-control
-      [:div { :id (str "item_control_" item-id)}
-       (if (nil? completed-on)
-         (complete-item-button item-info)
-         (restore-item-button item-info))]]
+     (when writable?
+       [:td.item-control
+        [:div { :id (str "item_control_" item-id)}
+         (if (nil? completed-on)
+           (complete-item-button item-info)
+           (restore-item-button item-info))]])
      [:td.item-priority.left
-      (render-item-priority-control item-id priority)]
+      (render-item-priority-control item-id priority writable?)]
      [:td.item-description
       (let [desc (item-info :desc)]
         (list
@@ -115,30 +122,35 @@
           (render-item-text desc)
           [:span.pill (render-age item-age)]]))]
      [:td.item-priority.right
-      (render-item-priority-control item-id priority)]]))
+      (render-item-priority-control item-id priority writable?)]]))
 
-(defn render-todo-list [ list-id completed-within-days ]
+(defn render-todo-list [ list-id completed-within-days writable? ]
   [:table.item-list
-   [:tr {:class "new-item"}
-    [:td {:colspan "3" :class "new-item"}
-     (render-new-item-form list-id)]]
-   (map render-todo-item
+   (when writable?
+     [:tr {:class "new-item"}
+      [:td {:colspan "3" :class "new-item"}
+       (render-new-item-form list-id)]])
+   (map (fn [ item-info item-number ]
+           (render-todo-item item-info item-number writable?))
         (data/get-pending-items list-id completed-within-days )
         (range))])
 
 (defn render-todo-list-list [ selected-list-id ]
   [:ul.list-list
-   (map (fn [ { list-id :todo_list_id list-desc :desc list-item-count :item_count } ]
+   (map (fn [ { list-id :todo_list_id list-desc :desc list-item-count :item_count is-public :is_public } ]
           [:li (if (= list-id (Integer. selected-list-id))
-              { :class "selected" :listid list-id }
-              { :listid list-id })
+                 { :class "selected" :listid list-id }
+                 { :listid list-id })
            [:a.item-control {:href (str "/list/" list-id "/details")}
             img-edit-list]
            [:span { :id (str "list_" list-id ) }
             [:div { :id (str "list_desc_" list-id) :class "hidden"} 
              (hiccup.util/escape-html list-desc)]
             [:a {:href (str "/list/" list-id)}
-             (hiccup.util/escape-html list-desc) [:span.pill list-item-count] ]]])
+             (hiccup.util/escape-html list-desc) [:span.pill list-item-count] ]
+            (when is-public
+              [:span.public-flag
+               [:a { :href (str "/list/" list-id "/public") } "public"]])]])
         (data/get-todo-lists-by-user (current-user-id)))
    [:li.add-list  { :colspan "2"}
     (js-link "beginListCreate" nil "Add Todo List...")]])
@@ -156,7 +168,7 @@
                      :init-map { :page "todo-list" }
                      :sidebar (render-todo-list-list selected-list-id)}
                     (render-item-set-list-form)
-                    (render-todo-list selected-list-id completed-within-days )
+                    (render-todo-list selected-list-id completed-within-days true)
                     [:div.query-settings
                      "Include items completed within: "
                      (form/form-to { :class "embedded "} [ :get (str "/list/" selected-list-id)]
@@ -164,18 +176,24 @@
                                     (form/select-options [ [ "-" "-"] [ "1d" "1"] [ "7d" "7"] ]
                                                          (if (nil? completed-within-days) "-" (str completed-within-days)))])]))
 
+(defn render-todo-list-public-page [ selected-list-id ]
+  (view/render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)
+                     :init-map { :page "todo-list" }}
+                    (render-todo-list selected-list-id 0 false)))
+
 (defn config-panel [ target-url & sections ]
   (form/form-to
    [:post target-url]
    [:table.config-panel
-    (map (fn [ [ heading body ] ]
+    (map (fn [ [ heading & body ] ]
            [:tr
             [:td.section-heading heading]
-            [:td body]])
+            [:td body ]])
          sections)]))
 
 (defn render-todo-list-details-page [ list-id & { :keys [ error-message ]}]
-  (let [ list-name ((data/get-todo-list-by-id list-id) :desc)
+  (let [list-details (data/get-todo-list-by-id list-id)
+        list-name (:desc list-details)
         list-owners (data/get-todo-list-owners-by-list-id list-id) ]
     (view/render-page
      {:page-title (str "List Details: " list-name) 
@@ -183,29 +201,35 @@
      (config-panel
       (str "/list/" list-id "/details")
 
-      ["List Name:" (form/text-field { :class "full-width" :maxlength "32" } "list-name" list-name)]
+      ["List Name:"
+       (form/text-field { :class "full-width" :maxlength "32" } "list-name" list-name)]
       
-      ["List Owners:" [:table.item-list
-                       (map (fn [ { user-id :user_id user-email-addr :email_addr } ]
-                              (let [ user-parameter-name (str "user_" user-id)]
-                                [:tr.item-row
-                                 [:td.item-control
-                                  (if (= (current-user-id) user-id)
-                                    (form/hidden-field user-parameter-name "on")
-                                    (form/check-box user-parameter-name
-                                                    (in? list-owners user-id)))]
-                                 [:td.item-description user-email-addr]]))
-                            (data/get-friendly-users-by-id (current-user-id)))
-                       [:tr
-                        [:td]
-                        [:td
-                         [:p.new-user
-                          (js-link "beginUserAdd" list-id "Add User To List...")]]]
-                       (unless (empty? error-message)
-                               [:tr
-                                [:td { :colspan 2 }
-                                 [:div#error error-message]]])]]
-
+      ["List Permissions:"
+       (form/check-box "is_public" (:is_public list-details))
+       [:label {:for "is_public"} "List publically visible?"]]
+      
+      ["List Owners:"
+       [:table.item-list
+        (map (fn [ { user-id :user_id user-email-addr :email_addr } ]
+               (let [ user-parameter-name (str "user_" user-id)]
+                 [:tr.item-row
+                  [:td.item-control
+                   (if (= (current-user-id) user-id)
+                     (form/hidden-field user-parameter-name "on")
+                     (form/check-box user-parameter-name
+                                     (in? list-owners user-id)))]
+                  [:td.item-description user-email-addr]]))
+             (data/get-friendly-users-by-id (current-user-id)))
+        [:tr
+         [:td]
+         [:td
+          [:p.new-user
+           (js-link "beginUserAdd" list-id "Add User To List...")]]]
+        (unless (empty? error-message)
+                [:tr
+                 [:td { :colspan 2 }
+                  [:div#error error-message]]])]]
+      
       [ nil [:input {:type "submit" :value "Update List Details"}]])
      
      (config-panel
@@ -256,8 +280,7 @@
                               (clojure.set/union (apply hash-set selected-ids)
                                                  (if (nil? email-user-id)
                                                    #{}
-                                                   (hash-set email-user-id))))
-     (ring/redirect  (str "/list/" list-id "/details")))))
+                                                   (hash-set email-user-id)))))))
 
 (defn add-list [ list-description ]
   (if (string-empty? list-description)
@@ -306,46 +329,53 @@
   (map #(Integer/parseInt (.substring % 5))
        (filter #(.startsWith % "user_") (map name (keys params)))))
 
-(defroutes all-routes
+(defroutes public-routes
+  (GET "/list/:list-id/public" { { list-id :list-id } :params } 
+    (ensure-list-public-access list-id)
+    (render-todo-list-public-page list-id)))
+
+(defroutes private-routes
   (GET "/" [] (redirect-to-home))
 
   (POST "/list" { { list-description :list-description } :params }
     (add-list (string-leftmost list-description 32)))
 
   (GET "/list/:list-id" { { list-id :list-id completed-within-days :cwithin } :params } 
-    (ensure-list-access list-id)
+    (ensure-list-owner-access list-id)
     (render-todo-list-page list-id (or (parsable-integer? completed-within-days)
                                           0)))
 
   (GET "/list/:list-id/list.csv" { { list-id :list-id } :params } 
-    (ensure-list-access list-id)
+    (ensure-list-owner-access list-id)
     (-> (render-todo-list-csv list-id)
         (ring-response/response)
         (ring-response/header "Content-Type" "text/csv")))
 
   (GET "/list/:list-id/details"  { { list-id :list-id } :params } 
-    (ensure-list-access list-id)
+    (ensure-list-owner-access list-id)
     (render-todo-list-details-page list-id))
 
   (POST "/list/:list-id/details" { params :params }
-        (let [ { list-id :list-id 
-                list-name :list-name
-                share-with-email :share-with-email }
-               params ]
-          (ensure-list-access list-id)
-          (update-list-description list-id (string-leftmost list-name 32))
-          (add-list-owner list-id share-with-email
-                          (selected-user-ids-from-params params))))
+    (let [ { list-id :list-id
+            list-name :list-name
+            share-with-email :share-with-email
+            is-public :is_public}
+          params ]
+      (ensure-list-owner-access list-id)
+      (update-list-description list-id (string-leftmost list-name 32))
+      (add-list-owner list-id share-with-email (selected-user-ids-from-params params))
+      (data/set-list-public list-id (boolean is-public))
+      (ring/redirect  (str "/list/" list-id "/details"))))
 
 
   (POST "/list/:list-id/delete" { { list-id :list-id  } :params }
-        (ensure-list-access list-id)
+        (ensure-list-owner-access list-id)
         (delete-list list-id))
 
   (POST "/list/:list-id" { { list-id :list-id
                             item-description :item-description }
                            :params }
-        (ensure-list-access list-id)
+        (ensure-list-owner-access list-id)
         (add-item list-id (string-leftmost item-description 1024)))
 
   (POST "/item/:item-id"  { { item-id :item-id description :description} :params}
@@ -355,7 +385,7 @@
   (POST "/item-list" { { target-item :target-item target-list :target-list}
                        :params}
         (ensure-item-access target-item)
-        (ensure-list-access target-list)
+        (ensure-list-owner-access target-list)
         (update-item-list target-item target-list))
 
   (POST "/item/:item-id/priority" { { item-id :item-id

@@ -18,6 +18,11 @@ SELECT *
   FROM todo_list
  WHERE todo_list_id = :todo_list_id
 
+-- name: get-todo-list-is-public-by-id
+SELECT is_public
+  FROM todo_list
+ WHERE todo_list_id = :todo_list_id
+
 -- name: get-friendly-users-by-id
 SELECT DISTINCT b.user_id, u.email_addr
     FROM todo_list_owners a, todo_list_owners b, user u
@@ -39,6 +44,7 @@ SELECT DISTINCT todo_list_id
 -- name: get-todo-lists-by-user
 SELECT DISTINCT todo_list.todo_list_id,
                 todo_list.desc,
+                todo_list.is_public,
                 (SELECT count(item.item_id)
                    FROM todo_item item 
                   WHERE item.todo_list_id=todo_list.todo_list_id

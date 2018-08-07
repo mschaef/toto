@@ -352,6 +352,22 @@ div.deleted_item {
     border-bottom: none;
 }
 
+.list-list li .public-flag {
+    margin-left: 0.5em;
+    padding-left: 0.375em;
+    padding-right: 0.375em;
+    font-size: 0.5rem;
+
+    border-radius: 5px;
+    border: 1px solid #ffffd7;
+    background: #ffffd7;
+    text-transform: uppercase;
+}
+
+.list-list li .public-flag A {
+    color: #707070;
+}
+
 /* Item list styling */
 
 table.item-list {
@@ -513,6 +529,10 @@ table.config-panel td.section-heading {
     width: 2%
 }
 
+table.config-panel label {
+    padding-left: 0.25em;
+}
+
 i.icon-edit {
     color: #000000;
     text-shadow: 1px 1px 2px #b0b0b0;
@@ -524,7 +544,7 @@ i.icon-black {
 }
 
 i.icon-gray {
-    color: black;
+    color: #c0c0c0;
     text-shadow: 1px 1px 2px #b0b0b0;
 }
 

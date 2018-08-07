@@ -9,7 +9,7 @@
   (delay (sql-file/open-sql-file
           (assoc (sql-file/hsqldb-file-conn (config-property "db.subname" "toto-db"))
                  :schema-path [ "sql/" ])
-          [ "toto" 0 ])))
+          [ "toto" 1 ])))
 
 
 (def ^:dynamic *db* nil)
@@ -40,6 +40,11 @@
    (query/get-todo-list-by-id { :todo_list_id list-id }
                               { :connection *db* })))
 
+(defn list-public? [ list-id ]
+  (scalar
+   (query/get-todo-list-is-public-by-id { :todo_list_id list-id }
+                                        { :connection *db* })))
+
 (defn get-friendly-users-by-id [ user-id ]
   (query/get-friendly-users-by-id { :user_id user-id }
                                   { :connection *db* }))
@@ -48,6 +53,7 @@
   (map :user_id
        (query/get-todo-list-owners-by-list-id { :todo_list_id list-id }
                                               { :connection *db* })))
+
 
 (defn get-todo-list-ids-by-user [ user-id ]
   (map :todo_list_id
@@ -107,6 +113,12 @@
   (jdbc/update! *db*
    :todo_list
    {:desc list-description}
+   ["todo_list_id=?" list-id]))
+
+(defn set-list-public [ list-id public? ]
+  (jdbc/update! *db*
+   :todo_list
+   {:is_public public?}
    ["todo_list_id=?" list-id]))
 
 (defn list-owned-by-user-id? [ list-id user-id ]

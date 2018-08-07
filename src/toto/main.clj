@@ -55,7 +55,8 @@
 (defroutes all-routes
   user/public-routes
   (route/resources  (str "/" (get-version)))
-  (friend/wrap-authorize todo/all-routes #{::user})
+  todo/public-routes
+  (friend/wrap-authorize todo/private-routes #{::user})
   (route/not-found "Resource Not Found"))
 
 (def handler (-> all-routes
