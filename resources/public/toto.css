@@ -80,7 +80,9 @@ div#contents {
 }
 
 @media only screen and (max-device-width : 480px) {
-    padding-top: 3.75em;
+    div#contents {
+        padding-top: 3.5em;
+    }
 }
 
 div#contents-container {
@@ -151,7 +153,6 @@ div.sidebar-control {
     height: 6em;
     line-height: 3em;
 }
-
 
 table {
     border-collapse: collapse;
@@ -301,58 +302,50 @@ div.deleted_item {
     padding: 0px;
     padding-top: 0px;
     width: 100%;
+    list-style: none;
 }
 
 .list-list A {
     color: #424242;
 }
 
-.list-list li {
-    padding: 2px 8px;
+.list-list tr {
     border-left: 5px solid white;
+    min-height: 3.5em;
+    height: 3.5em;
 }
 
-.list-list li {
+.list-list td {
+    line-height: 1.5;
     vertical-align: middle;
-    min-height: 3em;
-    height: 3em;
-    line-height: 3em;
 }
 
-.list-list li.selected {
-    background: #BDBDBD;
-    border-left: 5px solid #BDBDBD;
+.list-list td.item-control {
+    padding: 0.5em;
+}
+
+.list-list tr.selected.drop-hover, .list-list tr.drop-hover {
+    background: #e0e0e0;
+}
+
+.list-list tr.selected A {
+    color: red;
+}
+
+.list-list tr.selected {
+    background: white;
+    border-left: 5px solid red;
 }
 
 @media only screen and (min-device-width : 480px) {
-    .list-list li.selected A {
-        color: red;
-    }
-
-    .list-list li {
-        min-height: 1.75em;
-        height: 1.75em;
-        line-height: 1.75em;
-    }
-
-    .list-list li.selected {
-        background: white;
-        border-left: 5px solid red;
+    .list-list tr {
+        min-height: 2.25em;
+        height: 2.25em;
+        line-height: 2.25em;
     }
 }
 
-.list-list .item-control {
-    padding-right: 0.5em;    
-}
-
-.list-list li.add-list {
-    text-align: center;
-    vertical-align: middle;
-
-    border-bottom: none;
-}
-
-.list-list li .public-flag {
+.list-list .public-flag {
     margin-left: 0.5em;
     padding-left: 0.375em;
     padding-right: 0.375em;
@@ -362,6 +355,13 @@ div.deleted_item {
     border: 1px solid #ffffd7;
     background: #ffffd7;
     text-transform: uppercase;
+}
+
+.list-list tr.add-list {
+    text-align: center;
+    vertical-align: middle;
+
+    border-bottom: none;
 }
 
 .list-list li .public-flag A {
@@ -398,13 +398,6 @@ table.item-list td.item-control {
 
 table.item-list td.item-control div {
     text-align: center;
-}
-
-@media only screen and (min-device-width : 480px) {
-    table.item-list td.item-control {
-        padding-left: 0.5em;
-        padding-right: 0.5em;
-    }
 }
 
 table.item-list td.item-description {
