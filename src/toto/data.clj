@@ -9,7 +9,7 @@
   (delay (sql-file/open-sql-file
           (assoc (sql-file/hsqldb-file-conn (config-property "db.subname" "toto-db"))
                  :schema-path [ "sql/" ])
-          [ "toto" 1 ])))
+          [ "toto" 2 ])))
 
 
 (def ^:dynamic *db* nil)
@@ -184,6 +184,12 @@
 (defn restore-item [ item-id ]
   (jdbc/delete! *db*
    :todo_item_completion
+   ["item_id=?" item-id]))
+
+(defn update-item-snooze-by-id [ item-id snoozed-until ]
+  (jdbc/update! *db*
+   :todo_item
+   {:snoozed_until snoozed-until}
    ["item_id=?" item-id]))
 
 (defn update-item-desc-by-id [ item-id item-description ]

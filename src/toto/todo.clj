@@ -46,6 +46,8 @@
 (def img-trash [:i {:class "fa fa-trash-o icon-black"}])
 (def img-restore [:i {:class "fa fa-repeat icon-black"}])
 
+(def img-snooze [:i {:class "fa fa-hourglass-start icon-black"}])
+
 (defn js-link [ js-fn-name args & contents ]
   [:a {:href (str "javascript:" js-fn-name "(" (clojure.string/join "," args) ")")}
    contents])
@@ -57,6 +59,10 @@
 (defn restore-item-button [ item-info ]
   (form/form-to [:post (str "/item/" (item-info :item_id) "/restore")]
      [:button.item-button {:type "submit" :value "Restore Item"} img-restore]))
+
+(defn snooze-item-button [ item-info ]
+  (form/form-to {:class "embedded"} [:post (str "/item/" (item-info :item_id) "/snooze?snooze-days=1")]
+                [:button.item-button {:type "submit" :value "Snooze Item"} img-snooze]))
 
 (defn item-priority-button [ item-id new-priority image-spec writable? ]
   (if writable?
@@ -120,7 +126,8 @@
                 :class (class-set {"deleted_item" (and (not (nil? completed-on)) is-delete?)
                                    "completed_item" (not (nil? completed-on))})}
           (render-item-text desc)
-          [:span.pill (render-age item-age)]]))]
+          [:span.pill (render-age item-age)]
+          (snooze-item-button item-info)]))]
      [:td.item-priority.right
       (render-item-priority-control item-id priority writable?)]]))
 
@@ -300,6 +307,16 @@
       (data/update-item-desc-by-id item-id item-description))
     (redirect-to-list list-id)))
 
+(defn update-item-snooze-days [ item-id snooze-days ]
+  (let [ list-id (data/get-list-id-by-item-id item-id)]
+    (if (string-empty? snooze-days)
+      (data/update-item-snooze-by-id item-id nil)
+      (data/update-item-snooze-by-id item-id
+                                     (add-days (java.util.Date.)
+                                               (or (parsable-integer? snooze-days) 1))))
+    
+    (redirect-to-list list-id)))
+
 (defn update-item-list [ item-id target-list-id ] 
   (let [ original-list-id (data/get-list-id-by-item-id item-id)]
     (data/update-item-list item-id target-list-id)
@@ -381,12 +398,16 @@
   (POST "/item/:item-id"  { { item-id :item-id description :description} :params}
         (ensure-item-access item-id)
         (update-item-desc item-id (string-leftmost description 1024)))
-  
+
   (POST "/item-list" { { target-item :target-item target-list :target-list}
                        :params}
         (ensure-item-access target-item)
         (ensure-list-owner-access target-list)
         (update-item-list target-item target-list))
+
+  (POST "/item/:item-id/snooze"  { { item-id :item-id snooze-days :snooze-days } :params}
+    (ensure-item-access item-id)
+    (update-item-snooze-days item-id snooze-days))
 
   (POST "/item/:item-id/priority" { { item-id :item-id
                                      new-priority :new-priority}

@@ -92,3 +92,9 @@
 (defn class-set [ classes ]
   (clojure.string/join " " (map str (filter #(classes %)
                                             (keys classes)))))
+
+(defn add-days [ date days ]
+  (let [c (java.util.Calendar/getInstance)]
+    (.setTime c date)
+    (.add c java.util.Calendar/DATE days)
+    (.getTime c)))

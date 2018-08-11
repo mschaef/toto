@@ -83,6 +83,8 @@ SELECT item.item_id,
       LEFT JOIN todo_item_completion completion
         ON item.item_id = completion.item_id
    WHERE item.todo_list_id = :list_id
+   AND (item.snoozed_until IS NULL
+        OR item.snoozed_until < CURRENT_TIMESTAMP)
    AND (completion.completed_on IS NULL 
         OR completion.completed_on >
                DATEADD('day', :completed_within_days, CURRENT_TIMESTAMP))
