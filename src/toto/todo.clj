@@ -46,33 +46,27 @@
 (def img-trash [:i {:class "fa fa-trash-o icon-black"}])
 (def img-restore [:i {:class "fa fa-repeat icon-black"}])
 
-(def img-snooze [:i {:class "fa fa-hourglass-start icon-black"}])
-
 (defn js-link [ js-fn-name args & contents ]
   [:a {:href (str "javascript:" js-fn-name "(" (clojure.string/join "," args) ")")}
    contents])
 
+(defn post-button [ target desc body ]
+  (form/form-to { :class "embedded" } [:post target]
+                [:button.item-button {:type "submit" :value desc :title desc} body]))
+
 (defn complete-item-button [ item-info ]
-  (form/form-to [:post (str "/item/" (item-info :item_id) "/complete")]
-     [:button.item-button {:type "submit" :value "Complete Item"} img-check]))
+  (post-button (str "/item/" (item-info :item_id) "/complete") "Complete Item" img-check))
 
 (defn restore-item-button [ item-info ]
-  (form/form-to [:post (str "/item/" (item-info :item_id) "/restore")]
-     [:button.item-button {:type "submit" :value "Restore Item"} img-restore]))
+  (post-button (str "/item/" (item-info :item_id) "/restore") "Restore Item" img-restore))
 
-(defn snooze-item-button [ item-info ]
-  (form/form-to {:class "embedded"} [:post (str "/item/" (item-info :item_id) "/snooze?snooze-days=1")]
-                [:button.item-button {:type "submit" :value "Snooze Item"} img-snooze]))
+(defn snooze-item-button [ item-info body ]
+  (post-button (str "/item/" (item-info :item_id) "/snooze?snooze-days=1") "Snooze Item 1 Day" body))
 
 (defn item-priority-button [ item-id new-priority image-spec writable? ]
   (if writable?
-    (form/form-to [:post (str "/item/"item-id "/priority")]
-                  (form/hidden-field "new-priority" new-priority)
-                  [:button.item-button {:type "submit"} image-spec])
+    (post-button (str "/item/"item-id "/priority?new-priority=" new-priority) "Set Priority" image-spec)
     image-spec))
-
-(defn image [ image-spec ]
-  [:img image-spec])
 
 (defn render-new-item-form [ list-id ]
   (form/form-to [:post (str "/list/" list-id)]
@@ -126,8 +120,7 @@
                 :class (class-set {"deleted_item" (and (not (nil? completed-on)) is-delete?)
                                    "completed_item" (not (nil? completed-on))})}
           (render-item-text desc)
-          [:span.pill (render-age item-age)]
-          (snooze-item-button item-info)]))]
+          (snooze-item-button item-info [:span.pill (render-age item-age)])]))]
      [:td.item-priority.right
       (render-item-priority-control item-id priority writable?)]]))
 
@@ -181,7 +174,9 @@
                      (form/form-to { :class "embedded "} [ :get (str "/list/" selected-list-id)]
                                    [:select { :id "cwithin" :name "cwithin" :onchange "this.form.submit()"} 
                                     (form/select-options [ [ "-" "-"] [ "1d" "1"] [ "7d" "7"] ]
-                                                         (if (nil? completed-within-days) "-" (str completed-within-days)))])]))
+                                                         (if (nil? completed-within-days)
+                                                           "-"
+                                                           (str completed-within-days)))])]))
 
 (defn render-todo-list-public-page [ selected-list-id ]
   (view/render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)

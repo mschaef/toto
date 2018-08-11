@@ -470,6 +470,7 @@ button.item-button {
     border: 0px none;
     background: transparent;
     padding: 0.2em;
+    cursor: pointer;
 }
 
 div.drag-item {
