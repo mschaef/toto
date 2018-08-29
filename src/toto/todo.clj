@@ -346,78 +346,67 @@
     (ensure-list-public-access list-id)
     (render-todo-list-public-page list-id)))
 
+(defn- list-routes [ list-id ]
+  (ensure-list-owner-access list-id)
+  (routes
+   (GET "/" { { completed-within-days :cwithin } :params } 
+     (render-todo-list-page list-id (or (parsable-integer? completed-within-days) 0)))
+   
+   (GET "/list.csv" []
+     (-> (render-todo-list-csv list-id)
+         (ring-response/response)
+         (ring-response/header "Content-Type" "text/csv")))
+
+   (GET "/details"  []
+     (render-todo-list-details-page list-id))
+    
+   (POST "/details" { params :params }
+     (let [ { list-name :list-name share-with-email :share-with-email is-public :is_public } params ]
+       (update-list-description list-id (string-leftmost list-name 32))
+       (add-list-owner list-id share-with-email (selected-user-ids-from-params params))
+       (data/set-list-public list-id (boolean is-public))
+       (ring/redirect  (str "/list/" list-id "/details"))))
+    
+   (POST "/delete" []
+     (delete-list list-id))  
+   
+   (POST "/" { { item-description :item-description } :params }
+     (add-item list-id (string-leftmost item-description 1024)))))
+
+(defn- item-routes [ item-id ]
+  (ensure-item-access item-id)
+  (routes
+   (POST "/"  { { description :description } :params }
+     (update-item-desc item-id (string-leftmost description 1024)))
+  
+   (POST "/snooze" { { snooze-days :snooze-days } :params}
+     (update-item-snooze-days item-id snooze-days))
+
+   (POST "/priority" { { new-priority :new-priority } :params }
+     (update-item-priority item-id new-priority))
+  
+   (POST "/complete" [ ]
+     (complete-item item-id))
+
+   (POST "/delete" [ ]
+     (delete-item item-id))
+
+   (POST "/restore" [ ]
+     (restore-item item-id))))
+
 (defroutes private-routes
   (GET "/" [] (redirect-to-home))
 
   (POST "/list" { { list-description :list-description } :params }
     (add-list (string-leftmost list-description 32)))
 
-  (GET "/list/:list-id" { { list-id :list-id completed-within-days :cwithin } :params } 
-    (ensure-list-owner-access list-id)
-    (render-todo-list-page list-id (or (parsable-integer? completed-within-days)
-                                          0)))
-
-  (GET "/list/:list-id/list.csv" { { list-id :list-id } :params } 
-    (ensure-list-owner-access list-id)
-    (-> (render-todo-list-csv list-id)
-        (ring-response/response)
-        (ring-response/header "Content-Type" "text/csv")))
-
-  (GET "/list/:list-id/details"  { { list-id :list-id } :params } 
-    (ensure-list-owner-access list-id)
-    (render-todo-list-details-page list-id))
-
-  (POST "/list/:list-id/details" { params :params }
-    (let [ { list-id :list-id
-            list-name :list-name
-            share-with-email :share-with-email
-            is-public :is_public}
-          params ]
-      (ensure-list-owner-access list-id)
-      (update-list-description list-id (string-leftmost list-name 32))
-      (add-list-owner list-id share-with-email (selected-user-ids-from-params params))
-      (data/set-list-public list-id (boolean is-public))
-      (ring/redirect  (str "/list/" list-id "/details"))))
-
-
-  (POST "/list/:list-id/delete" { { list-id :list-id  } :params }
-        (ensure-list-owner-access list-id)
-        (delete-list list-id))
-
-  (POST "/list/:list-id" { { list-id :list-id
-                            item-description :item-description }
-                           :params }
-        (ensure-list-owner-access list-id)
-        (add-item list-id (string-leftmost item-description 1024)))
-
-  (POST "/item/:item-id"  { { item-id :item-id description :description} :params}
-        (ensure-item-access item-id)
-        (update-item-desc item-id (string-leftmost description 1024)))
-
-  (POST "/item-list" { { target-item :target-item target-list :target-list}
-                       :params}
+  (context "/list/:list-id" [ list-id ]
+    (list-routes list-id))
+  
+  (POST "/item-list" { { target-item :target-item target-list :target-list} :params}
         (ensure-item-access target-item)
         (ensure-list-owner-access target-list)
         (update-item-list target-item target-list))
 
-  (POST "/item/:item-id/snooze"  { { item-id :item-id snooze-days :snooze-days } :params}
-    (ensure-item-access item-id)
-    (update-item-snooze-days item-id snooze-days))
-
-  (POST "/item/:item-id/priority" { { item-id :item-id
-                                     new-priority :new-priority}
-                                    :params }
-        (ensure-item-access item-id)
-        (update-item-priority item-id new-priority))
-  
-  (POST "/item/:item-id/complete" [ item-id ]
-        (ensure-item-access item-id)
-        (complete-item item-id))
-
-  (POST "/item/:item-id/delete" [ item-id ]
-        (ensure-item-access item-id)
-        (delete-item item-id))
-
-  (POST "/item/:item-id/restore" [ item-id ]
-        (ensure-item-access item-id)
-        (restore-item item-id)))
+  (context "/item/:item-id" [ item-id ]
+    (item-routes item-id)))
