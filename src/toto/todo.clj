@@ -97,7 +97,8 @@
          item-age :age_in_days
          completed-on :completed_on
          is-delete? :is_delete
-         priority :priority}
+         priority :priority
+         snoozed-until :snoozed_until}
         item-info]
 
     [:tr.item-row  {:itemid item-id
@@ -120,7 +121,9 @@
                 :class (class-set {"deleted_item" (and (not (nil? completed-on)) is-delete?)
                                    "completed_item" (not (nil? completed-on))})}
           (render-item-text desc)
-          (snooze-item-button item-info [:span.pill (render-age item-age)])]))]
+          (snooze-item-button item-info [:span.pill (render-age item-age)])
+          (when snoozed-until
+            [:span.pill "snoozed"])]))]
      [:td.item-control.priority.right
       (render-item-priority-control item-id priority writable?)]]))
 
