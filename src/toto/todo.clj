@@ -63,6 +63,9 @@
 (defn snooze-item-button [ item-info body ]
   (post-button (str "/item/" (item-info :item_id) "/snooze?snooze-days=1") "Snooze Item 1 Day" body))
 
+(defn unsnooze-item-button [ item-info body ]
+  (post-button (str "/item/" (item-info :item_id) "/snooze?snooze-days=0") "Un-snooze Item" body))
+
 (defn item-priority-button [ item-id new-priority image-spec writable? ]
   (if writable?
     (post-button (str "/item/"item-id "/priority?new-priority=" new-priority) "Set Priority" image-spec)
@@ -123,7 +126,7 @@
           (render-item-text desc)
           (snooze-item-button item-info [:span.pill (render-age item-age)])
           (when snoozed-until
-            [:span.pill "snoozed"])]))]
+            (unsnooze-item-button item-info [:span.pill "snoozed"]))]))]
      [:td.item-control.priority.right
       (render-item-priority-control item-id priority writable?)]]))
 
@@ -314,13 +317,11 @@
     (redirect-to-list list-id)))
 
 (defn update-item-snooze-days [ item-id snooze-days ]
-  (let [ list-id (data/get-list-id-by-item-id item-id)]
-    (if (string-empty? snooze-days)
-      (data/update-item-snooze-by-id item-id nil)
-      (data/update-item-snooze-by-id item-id
-                                     (add-days (java.util.Date.)
-                                               (or (parsable-integer? snooze-days) 1))))
-    
+  (let [list-id (data/get-list-id-by-item-id item-id)
+        snooze-days (or (parsable-integer? snooze-days) 0)]
+    (data/update-item-snooze-by-id item-id (if (= snooze-days 0)
+                                             nil
+                                             (add-days (java.util.Date.) snooze-days)))
     (redirect-to-list list-id)))
 
 (defn update-item-list [ item-id target-list-id ] 
