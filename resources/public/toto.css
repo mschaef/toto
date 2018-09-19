@@ -20,26 +20,28 @@ body, table, select, input {
 
 body {
     overflow-y: hidden;
-    height: 100%;
 }
 
 div#sidebar {
     z-index: 2;
     display: block;
 	position: absolute;
+    
 	top: 0;
+    bottom: 0;
 	left: -280px;
     width: 270px;
 
     background: white;
 
-    height: 100%;
     overflow-y: auto;
     
     box-shadow: 2px 2px 2px #707070;
 
     transform: translate3d( 0, 0, 0 );
     transition: transform 0.25s ease-in-out;
+
+    padding-bottom: 30px;
 }
 
 @media only screen and (min-device-width : 480px) {
@@ -320,10 +322,6 @@ div.deleted_item {
     vertical-align: middle;
 }
 
-.list-list td.item-control {
-    padding: 0.5em;
-}
-
 .list-list tr.selected.drop-hover, .list-list tr.drop-hover {
     background: #e0e0e0;
 }
@@ -389,11 +387,11 @@ table.item-list tr.item-row td {
     }
 }
 
-table.item-list td.item-control {
-    display: inline-block;
+td.item-control {
     padding: 0.25em;
     min-width: 1.5em;
     width: 1.5em;
+    text-align: center;
 }
 
 table.item-list td.item-control div {
@@ -418,26 +416,14 @@ table.item-list td.item-description {
     background: #f0f0f0;
 }
 
-table.item-list td.item-priority {
-    padding: 0.25em;
-    min-width: 1.5em;
-    width: 1.5em;
-    vertical-align: top;
-    text-align: center;
-}
-
-table.item-list td.item-priority.right {
-    padding-right: 1em;
-}
-
 @media only screen and (max-device-width : 480px) {
-    table.item-list td.item-priority.left {
+    td.priority.left {
         display: none;
     }
 }
 
 @media only screen and (min-device-width : 480px) {
-    table.item-list td.item-priority.right {
+    td.priority.right {
         display: none;
     }
 }
@@ -588,10 +574,12 @@ input[type=submit]:hover {
 select {
     padding: 5px 10px; 
     background:#ccc; 
-    border: 1px solid #c0c0c0;
     cursor:pointer;
-    -webkit-border-radius: 0px;
-    border-radius: 0px; 
+
+    border: 0px;
+    border-radius: 0px;
+    -webkit-appearance: none;
+    -webkit-border-radius: 0px;    
 }
 
 select:hover {
@@ -629,6 +617,10 @@ select:hover {
     
     table.item-list tr.item-row td {
         height: 1.2em;
+    }
+
+    td.priority.right {
+        display: none;
     }
     
     #toggle-menu {
