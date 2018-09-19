@@ -36,11 +36,11 @@ function beginListCreate()
 {
   var formMarkup = "";
 
-    formMarkup += "<li><form action=\"/list\" method=\"POST\">";
+    formMarkup += "<tr><td colspan=\"2\"><form action=\"/list\" method=\"POST\">";
     formMarkup += "<input class=\"full-width simple-border\" id=\"list-description\" name=\"list-description\" type=\"text\" maxlength=\"32\"/>";
-    formMarkup += "</form></li>";
+    formMarkup += "</form></td></tr>";
 
-    $('li.add-list').replaceWith(formMarkup);
+    $('tr.add-list').replaceWith(formMarkup);
 
     $("#list-description").focus();
 }
