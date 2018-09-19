@@ -142,9 +142,10 @@
                :priority 0
                :created_on (java.util.Date.)}))))
 
-(defn get-pending-items [ list-id completed-within-days ]
+(defn get-pending-items [ list-id completed-within-days snoozed-for-days ]
   (query/get-pending-items {:list_id list-id
-                            :completed_within_days (- completed-within-days)}
+                            :completed_within_days (- completed-within-days)
+                            :snoozed_for_days snoozed-for-days}
                            { :connection *db* }))
 
 (defn get-pending-item-count [ list-id ]

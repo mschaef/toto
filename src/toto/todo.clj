@@ -109,7 +109,7 @@
          (if (nil? completed-on)
            (complete-item-button item-info)
            (restore-item-button item-info))]])
-     [:td.item-priority.left
+     [:td.item-control.priority.left
       (render-item-priority-control item-id priority writable?)]
      [:td.item-description
       (let [desc (item-info :desc)]
@@ -121,10 +121,10 @@
                                    "completed_item" (not (nil? completed-on))})}
           (render-item-text desc)
           (snooze-item-button item-info [:span.pill (render-age item-age)])]))]
-     [:td.item-priority.right
+     [:td.item-control.priority.right
       (render-item-priority-control item-id priority writable?)]]))
 
-(defn render-todo-list [ list-id completed-within-days writable? ]
+(defn render-todo-list [ list-id writable? completed-within-days snoozed-for-days ]
   [:table.item-list
    (when writable?
      [:tr {:class "new-item"}
@@ -132,7 +132,7 @@
        (render-new-item-form list-id)]])
    (map (fn [ item-info item-number ]
            (render-todo-item item-info item-number writable?))
-        (data/get-pending-items list-id completed-within-days )
+        (data/get-pending-items list-id completed-within-days snoozed-for-days)
         (range))])
 
 (defn render-todo-list-list [ selected-list-id ]
@@ -163,25 +163,33 @@
 (defn render-todo-list-csv [  list-id ]
   (clojure.string/join "\n" (map :desc (data/get-pending-items list-id 0))))
 
-(defn render-todo-list-page [ selected-list-id completed-within-days ]
+(defn render-todo-list-page [ selected-list-id completed-within-days snoozed-for-days ]
   (view/render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)
                      :init-map { :page "todo-list" }
                      :sidebar (render-todo-list-list selected-list-id)}
                     (render-item-set-list-form)
-                    (render-todo-list selected-list-id completed-within-days true)
+                    (render-todo-list selected-list-id true completed-within-days snoozed-for-days)
                     [:div.query-settings
-                     "Include items completed within: "
                      (form/form-to { :class "embedded "} [ :get (str "/list/" selected-list-id)]
+                                   "Include items completed within "
                                    [:select { :id "cwithin" :name "cwithin" :onchange "this.form.submit()"} 
-                                    (form/select-options [ [ "-" "-"] [ "1d" "1"] [ "7d" "7"] ]
+                                    (form/select-options [ [ "-" "-"] [ "1d" "1"] [ "7d" "7"] [ "30d" "30"] [ "90d" "90"] ]
                                                          (if (nil? completed-within-days)
                                                            "-"
-                                                           (str completed-within-days)))])]))
+                                                           (str completed-within-days)))]
+
+                                   " and those snoozed for "
+                                   [:select { :id "sfor" :name "sfor" :onchange "this.form.submit()"} 
+                                    (form/select-options [ [ "-" "-"] [ "1d" "1"] ]
+                                                         (if (nil? snoozed-for-days)
+                                                           "-"
+                                                           (str snoozed-for-days)))]
+                                   ".")]))
 
 (defn render-todo-list-public-page [ selected-list-id ]
   (view/render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)
                      :init-map { :page "todo-list" }}
-                    (render-todo-list selected-list-id 0 false)))
+                    (render-todo-list selected-list-id false 0 0)))
 
 (defn config-panel [ target-url & sections ]
   (form/form-to
@@ -349,8 +357,10 @@
 (defn- list-routes [ list-id ]
   (ensure-list-owner-access list-id)
   (routes
-   (GET "/" { { completed-within-days :cwithin } :params } 
-     (render-todo-list-page list-id (or (parsable-integer? completed-within-days) 0)))
+   (GET "/" { params :params }
+     (render-todo-list-page list-id
+                            (or (parsable-integer? (:cwithin params)) 0)
+                            (or (parsable-integer? (:sfor params)) 0)))
    
    (GET "/list.csv" []
      (-> (render-todo-list-csv list-id)
