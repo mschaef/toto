@@ -80,8 +80,12 @@
 (defn render-url [ [ url ] ]
   [:a { :href url :target "_blank" } (shorten-url-text url 60)])
 
+(defn render-item-text-segment [ item-text-segment ]
+  (clojure.string/join " " (map #(clojure.string/join "&#8203;" (partition-string 15 %))
+                                (clojure.string/split item-text-segment #"\s"))))
+
 (defn render-item-text [ item-text ]
-  (interleave (conj (clojure.string/split item-text url-regex) "")
+  (interleave (conj (vec (map #(str " " (render-item-text-segment (.trim %)) " ") (clojure.string/split item-text url-regex))) "")
               (conj (vec (map render-url (re-seq url-regex item-text))) "")))
 
 (defn render-age [ days ]

@@ -47,9 +47,7 @@
    (unless (nil? username)
        [:div.logout username " - " (logout-button)])])
 
-
-
-(defn render-header [ page-title]
+(defn render-header [ page-title ]
   (let [ username (core/authenticated-username)]
     [:div#header
      [:span#toggle-menu img-show-list "&nbsp;"]

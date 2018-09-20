@@ -15,6 +15,11 @@
   (or (nil? str)
       (= 0 (count (.trim str)))))
 
+(defn partition-string [ n string ]
+  "Partition a full string into segments of length n, returning a
+  sequence of strings of at most that length."
+  (map (partial apply str) (partition-all n string)))
+
 (defn in? 
   "true if seq contains elm"
   [seq elm]  
