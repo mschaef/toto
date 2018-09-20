@@ -36,7 +36,7 @@ div#sidebar {
 
     overflow-y: auto;
     
-    box-shadow: 2px 2px 2px #707070;
+    box-shadow: 2px 2px 2px #e0e0e0;
 
     transform: translate3d( 0, 0, 0 );
     transition: transform 0.25s ease-in-out;
@@ -117,7 +117,7 @@ div#header {
 
    border-bottom: 1px solid #c0c0c0;
 
-   box-shadow: 1px 1px 1px #c0c0c0;
+   box-shadow: 1px 1px 1px #e0e0e0;
 
    padding: 0.5em;
 }
@@ -181,7 +181,7 @@ div.query-settings {
 
     right: 0px;
 
-    border-top: 1px solid #707070;
+    border-top: 1px solid #c0c0c0;
 
     background: #e0e0e0;
 
@@ -217,13 +217,13 @@ table.form td {
 }
 
 .simple-border {
-    border-bottom: 1px solid #707070;
+    border-color: #c0c0c0;
+    border-bottom: 1px solid #c0c0c0;
     border-top: 0px none;
     border-right: 0px none;
     border-left: 0px none;
     background: #f0f0f0;
     padding-left: 0.2em;
-    border-color: #707070;
 }
 
 /* Application fonts */
@@ -406,7 +406,7 @@ table.item-list td.item-description {
 }
 
 .pill {
-    margin-left: 0.5em;
+    margin-left: 0.25em;
     padding-left: 0.375em;
     padding-right: 0.375em;
     font-size: 0.7rem;
@@ -440,7 +440,7 @@ tr.item-row {
 }
 
 table.item-list tr.high-priority {
-    background: #ffffe7;
+    background: #fffff0;
 }
 
 table.item-list tr.item-row td {
@@ -515,34 +515,34 @@ table.config-panel label {
 
 i.icon-edit {
     color: #000000;
-    text-shadow: 1px 1px 2px #b0b0b0;
 }
 
 i.icon-black {
-    color: #000000;
-    text-shadow: 1px 1px 2px #b0b0b0;
+    color: black;
+    font-weight: bold;
 }
 
 i.icon-gray {
-    color: #c0c0c0;
-    text-shadow: 1px 1px 2px #b0b0b0;
+    color: #b0b0b0;
+}
+
+i.icon-gray:hover {
+    color: black;
+    font-weight: bold;
 }
 
 i.icon-yellow {
-    color: #ffe000;
-    text-shadow: 1px 1px 2px #f0b0b0;
+    color: #ffd000;
 }
 
-i.icon-blue {
-    color: #7070ff;
-    text-shadow: 1px 1px 2px #b0b0f0;
+i.icon-yellow:hover {
+    color: #ffe700;
 }
 
 i.icon-bars {
     color: black;
     padding: 0.5em;
 }
-
 
 .animating #sidebar, .menu-visible #sidebar {
   display: block;
