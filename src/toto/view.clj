@@ -43,7 +43,7 @@
 
 (defn render-footer [ username ]
   [:div#footer
-   "All Rights Reserved, Copyright 2013-17 East Coast Toolworks "
+   "All Rights Reserved, Copyright 2013-18 East Coast Toolworks "
    (unless (nil? username)
        [:div.logout username " - " (logout-button)])])
 
