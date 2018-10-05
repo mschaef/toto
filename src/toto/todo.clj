@@ -129,7 +129,8 @@
                                    "completed_item" (not (nil? completed-on))})}
           (render-item-text desc)
           (snooze-item-button item-info [:span.pill (render-age item-age)])
-          (when snoozed-until
+          (when (and snoozed-until
+                     (.after snoozed-until (java.util.Date.)))
             (unsnooze-item-button item-info [:span.pill "snoozed"]))]))]
      [:td.item-control.priority.right
       (render-item-priority-control item-id priority writable?)]]))
