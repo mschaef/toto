@@ -76,7 +76,8 @@ div#contents {
     background: white;
 
     height: 100%;
-    overflow-y: auto;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
 
     padding-top: 2.75em;
 }
