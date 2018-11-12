@@ -172,7 +172,7 @@
                   (form/hidden-field "target-list")))
 
 (defn render-todo-list-csv [  list-id ]
-  (clojure.string/join "\n" (map :desc (data/get-pending-items list-id 0))))
+  (clojure.string/join "\n" (map :desc (data/get-pending-items list-id 0 0))))
 
 (defn render-todo-list-page [ selected-list-id completed-within-days snoozed-for-days ]
   (view/render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)
