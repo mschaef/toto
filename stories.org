@@ -1,21 +1,26 @@
 * Release 1
-** The website displays correctly on Mobile Safari.
-** The website has links suitable for displaying todo lists in Android meta-widget
 * Release 2
-** Export a todo list to Excel
-** per-list Bookmarklet for adding selected text, etc. to a todo-list
 ** A user can interactively change their password with the web UI.
-** A user can display a list of all todo list items, even if they have been completed.
+** A user can vary the length of time an item is snoozed.
+** per-list Bookmarklet for adding selected text, etc. to a todo-list
 ** A user can display a list of all items on all of their todo lists.
 ** The website remembers whether or not a user has linked to a hyperlink and displays is appropriately in the todo list.
-** A user can denote that a todo item should be deferred until a given date.
-** A to-do list can be printed in a useful/plain format
 ** Item descriptions can be written in Markdown or Markdown-like syntax
+* Release Auth
 ** The user interface stores passwords with a salt.
 ** A user can store multiple e-mail addresses for each account.
+** A user can authenticate using some sort of external authentiation provider.
 ** User e-mail addresses must be validated prior to the account being fully enabled.
 ** Add a means to recover a forgotten password via an e-mail.
+
 * Completed
+** DONE A user can display a list of all todo list items, even if they have been completed.
+** DONE A user can denote that a todo item should be deferred until a given date.
+** DONE The website displays correctly on Mobile Safari.
+
+** DONE A to-do list can be printed in a useful/plain format
+** DONE Export a todo list to Excel
+
 ** DONE A user can move a todo item into another list.
 ** DONE A user can delete one of their todo lists
 ** DONE A user can rename one of their todo lists.
@@ -35,3 +40,7 @@
 ** DONE A user can create multiple named todo lists and select between them.
 ** DONE A todo item where the description looks like a URL is rendered as a hyperlink in the todo list
 ** DONE A user can share a todo list with another user.
+* Deferred
+** NOT-DONE The website has links suitable for displaying todo lists in Android meta-widget
+   Sort of done via public links, but no longer have an Android phone
+   and no longer need meta-widget support.
