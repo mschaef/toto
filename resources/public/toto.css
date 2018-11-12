@@ -34,7 +34,8 @@ div#sidebar {
 
     background: white;
 
-    overflow-y: auto;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
     
     box-shadow: 2px 2px 2px #e0e0e0;
 
