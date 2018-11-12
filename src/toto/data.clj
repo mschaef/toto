@@ -7,9 +7,9 @@
 
 (def db-connection
   (delay (sql-file/open-sql-file
-          (assoc (sql-file/hsqldb-file-conn (config-property "db.subname" "toto-db"))
+          (assoc (sql-file/hsqldb-file-conn (config-property "db.subname" "toto"))
                  :schema-path [ "sql/" ])
-          [ "toto" 2 ])))
+          [ "toto" 3 ])))
 
 
 (def ^:dynamic *db* nil)

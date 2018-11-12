@@ -16,14 +16,6 @@ CREATE CACHED TABLE todo_view (
   view_name VARCHAR(32) NOT NULL
 );
 
-CREATE CACHED TABLE todo_view_lists (
-  view_id BIGINT NOT NULL REFERENCES todo_view(view_id),
-  todo_list_id BIGINT NOT NULL REFERENCES todo_list(todo_list_id),
-  list_order INT NOT NULL,
-
-  PRIMARY KEY(view_id, todo_list_id)
-);
-
 CREATE CACHED TABLE todo_list_owners (
   todo_list_id BIGINT NOT NULL REFERENCES todo_list(todo_list_id),
   user_id BIGINT NOT NULL REFERENCES user(user_id),
