@@ -6,29 +6,20 @@
          not-modified
          content-type
          browser-caching])
-  (:require [clojure.java.jdbc :as jdbc]
-            [clojure.tools.logging :as log]            
+  (:require [clojure.tools.logging :as log]            
             [ring.adapter.jetty :as jetty]
             [ring.middleware.file-info :as ring-file-info]
             [ring.middleware.resource :as ring-resource]
             [ring.util.response :as ring-response]
             [cemerick.friend :as friend]
-            [cemerick.friend.credentials :as credentials]
             [cemerick.friend.workflows :as workflows]
             [compojure.handler :as handler]
             [compojure.route :as route]
             [toto.core :as core]
             [toto.data :as data]
             [toto.todo :as todo]
+            [toto.view :as view]            
             [toto.user :as user]))
-
-
-(defn db-credential-fn [ creds ]
-  (let [user-record (data/get-user-by-email (creds :username))]
-    (if (or (nil? user-record)
-            (not (credentials/bcrypt-verify (creds :password) (user-record :password))))
-      nil
-      { :identity (creds :username) :roles #{ ::user }})))
 
 (defn wrap-request-logging [ app ]
   (fn [req]
@@ -52,19 +43,42 @@
     (data/with-db-connection db
       (app req))))
 
+(defn user-unauthorized [ request ]
+  (view/render-page { :page-title "Access Denied"}
+                    [:h1 "Access Denied"]))
+
+(defn user-unverified [ request ]
+  (view/render-page { :page-title "E-Mail Unverified"}
+                    [:h1 "E-Mail Unverified"]))
+
+(defn missing-verification? [ request ]
+  (= (clojure.set/difference (get-in request [:cemerick.friend/authorization-failure
+                                              :cemerick.friend/required-roles])
+                             (:roles (friend/current-authentication)))
+     #{:metlog.role/verified}))
+
+(defn unauthorized-handler [request]
+  {:status 403
+   :body ((if (missing-verification? request)
+            user-unverified
+            user-unauthorized)
+          request)})
+
 (defroutes all-routes
   user/public-routes
+  (friend/wrap-authorize user/private-routes #{:toto.role/verified})  
   (route/resources  (str "/" (get-version)))
   todo/public-routes
-  (friend/wrap-authorize todo/private-routes #{::user})
+  (friend/wrap-authorize todo/private-routes #{:toto.role/verified})
   (route/not-found "Resource Not Found"))
 
 (def handler (-> all-routes
                  (wrap-content-type)
                  (wrap-browser-caching {"text/javascript" 360000
                                         "text/css" 360000})
-                 (friend/authenticate {:credential-fn db-credential-fn
-                                       :workflows [(workflows/interactive-form)]})
+                 (friend/authenticate {:credential-fn user/get-user-by-credentials
+                                       :workflows [(workflows/interactive-form)]
+                                       unauthorized-handler unauthorized-handler})
                  (extend-session-duration 168)
                  (wrap-db-connection)
                  (wrap-request-logging)

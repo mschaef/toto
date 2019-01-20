@@ -9,7 +9,7 @@
   (delay (sql-file/open-sql-file
           (assoc (sql-file/hsqldb-file-conn (config-property "db.subname" "toto"))
                  :schema-path [ "sql/" ])
-          [ "toto" 3 ])))
+          [ "toto" 4 ])))
 
 
 (def ^:dynamic *db* nil)
@@ -21,6 +21,38 @@
 (defn- scalar [ query-result ]
   (let [first-row (first query-result)]
     (get first-row (first (keys first-row)))))
+
+;;; user
+
+(defn get-user-roles [ user-id ]
+  (set
+   (map #(keyword "toto.role" (:role_name %))
+        (query-all *db* 
+                   [(str "SELECT role_name"
+                         "  FROM user u, role r, user_role ur"
+                         "  WHERE u.user_id = ur.user_id"
+                         "    AND ur.role_id = r.role_id"
+                         "    AND u.user_id = ?")
+                    user-id]))))
+
+(defn- get-role-id [ role-name ]
+  (query-scalar *db*
+                [(str "SELECT role_id"
+                      "  FROM role"
+                      " WHERE role_name = ?")
+                 (name role-name)]))
+
+(defn delete-user-roles [ user-id ]
+  (jdbc/delete! *db* :user_role ["user_id=?" user-id]))
+
+
+(defn set-user-roles [ user-id role-set ]
+  (jdbc/with-db-transaction [ trans *db* ] 
+    (delete-user-roles user-id)
+    (doseq [ role-id (map get-role-id role-set)]
+      (jdbc/insert! *db* :user_role
+                    {:user_id user-id
+                     :role_id role-id}))))
 
 (defn get-user-by-email [ email-addr ]
   (first
@@ -70,6 +102,31 @@
               :user
               {:email_addr email-addr
                :password password}))))
+
+(defn set-user-password [ email-addr password ]
+  (jdbc/update! *db* :user
+                { :password password }
+                ["email_addr=?" email-addr]))
+
+(defn create-verification-link [ user-id ]
+  (:verification_link_id
+   (first
+    (jdbc/insert! *db* :verification_link
+                  {:link_uuid (.toString (java.util.UUID/randomUUID))
+                   :verifies_user_id user-id
+                   :created_on (java.util.Date.)}))))
+
+(defn get-verification-link-by-id [ link-id ]
+  (query-first *db* [(str "SELECT *"
+                          "  FROM verification_link"
+                          " WHERE verification_link_id=?")
+                     link-id]))
+
+(defn get-verification-link-by-uuid [ link-uuid ]
+  (query-first *db* [(str "SELECT *"
+                          "  FROM verification_link"
+                          " WHERE link_uuid=?")
+                     link-uuid]))
 
 (defn add-list [ desc ]
   (:todo_list_id (first
