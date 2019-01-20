@@ -12,7 +12,6 @@
             [ring.middleware.resource :as ring-resource]
             [ring.util.response :as ring-response]
             [cemerick.friend :as friend]
-            [cemerick.friend.workflows :as workflows]
             [compojure.handler :as handler]
             [compojure.route :as route]
             [toto.core :as core]
@@ -23,7 +22,7 @@
 
 (defn wrap-request-logging [ app ]
   (fn [req]
-    (log/debug 'REQUEST (:request-method req) (:uri req))
+    (log/debug 'REQUEST (:request-method req) (:uri req) (:params req))
     (let [resp (app req)]
       (log/trace 'RESPONSE (:status resp))
       resp)))
@@ -43,32 +42,11 @@
     (data/with-db-connection db
       (app req))))
 
-(defn user-unauthorized [ request ]
-  (view/render-page { :page-title "Access Denied"}
-                    [:h1 "Access Denied"]))
-
-(defn user-unverified [ request ]
-  (view/render-page { :page-title "E-Mail Unverified"}
-                    [:h1 "E-Mail Unverified"]))
-
-(defn missing-verification? [ request ]
-  (= (clojure.set/difference (get-in request [:cemerick.friend/authorization-failure
-                                              :cemerick.friend/required-roles])
-                             (:roles (friend/current-authentication)))
-     #{:metlog.role/verified}))
-
-(defn unauthorized-handler [request]
-  {:status 403
-   :body ((if (missing-verification? request)
-            user-unverified
-            user-unauthorized)
-          request)})
-
 (defroutes all-routes
+  (route/resources (str "/" (get-version)))
   user/public-routes
-  (friend/wrap-authorize user/private-routes #{:toto.role/verified})  
-  (route/resources  (str "/" (get-version)))
   todo/public-routes
+  (friend/wrap-authorize user/private-routes #{:toto.role/verified})  
   (friend/wrap-authorize todo/private-routes #{:toto.role/verified})
   (route/not-found "Resource Not Found"))
 
@@ -76,14 +54,11 @@
                  (wrap-content-type)
                  (wrap-browser-caching {"text/javascript" 360000
                                         "text/css" 360000})
-                 (friend/authenticate {:credential-fn user/get-user-by-credentials
-                                       :workflows [(workflows/interactive-form)]
-                                       unauthorized-handler unauthorized-handler})
+                 (user/wrap-authenticate)
                  (extend-session-duration 168)
                  (wrap-db-connection)
                  (wrap-request-logging)
                  (handler/site)))
-
 
 (defn start-webserver [ http-port ]
   (log/info "Starting Webserver on port" http-port)

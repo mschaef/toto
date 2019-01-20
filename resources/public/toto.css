@@ -10,6 +10,10 @@ body, table, select, input {
     padding: 0px;
 }
 
+.addr {
+    font-family: Courier
+}
+
 @media only screen and (min-device-width : 480px) {
     body, table, select, input { 
         font-size: 10pt;
@@ -262,6 +266,10 @@ A:visited {
     #header .logout {
         display: none;
     }
+}
+
+.page-message {
+    margin: 1em;
 }
 
 .error-message {

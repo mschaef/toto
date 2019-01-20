@@ -54,6 +54,12 @@
                     {:user_id user-id
                      :role_id role-id}))))
 
+
+(defn add-user-roles [ user-id role-set ]
+  (set-user-roles user-id (clojure.set/union (get-user-roles user-id)
+                                             role-set)))
+
+
 (defn get-user-by-email [ email-addr ]
   (first
    (query/get-user-by-email { :email_addr email-addr}
@@ -115,6 +121,12 @@
                   {:link_uuid (.toString (java.util.UUID/randomUUID))
                    :verifies_user_id user-id
                    :created_on (java.util.Date.)}))))
+
+(defn get-verification-link-by-user-id [ user-id ]
+  (query-first *db* [(str "SELECT *"
+                          "  FROM verification_link"
+                          " WHERE verifies_user_id=?")
+                     user-id]))
 
 (defn get-verification-link-by-id [ link-id ]
   (query-first *db* [(str "SELECT *"

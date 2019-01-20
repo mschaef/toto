@@ -13,14 +13,11 @@
             [toto.view :as view]
             [toto.user :as user]))
 
-(defn current-user-id []
-  ((data/get-user-by-email (core/authenticated-username)) :user_id))
-
 (defn current-todo-list-id []
-  (first (data/get-todo-list-ids-by-user (current-user-id))))
+  (first (data/get-todo-list-ids-by-user (user/current-user-id))))
 
 (defn ensure-list-owner-access [ list-id ]
-  (unless (data/list-owned-by-user-id? list-id (current-user-id))
+  (unless (data/list-owned-by-user-id? list-id (user/current-user-id))
           (core/report-unauthorized)))
 
 (defn ensure-list-public-access [ list-id ]
@@ -28,7 +25,7 @@
           (core/report-unauthorized)))
 
 (defn ensure-item-access [ item-id ]
-  (unless (data/item-owned-by-user-id? item-id (current-user-id))
+  (unless (data/item-owned-by-user-id? item-id (user/current-user-id))
           (core/report-unauthorized)))
 
 (defn redirect-to-list [ list-id ]
@@ -161,7 +158,7 @@
             (when is-public
               [:span.public-flag
                [:a { :href (str "/list/" list-id "/public") } "public"]])]])
-        (data/get-todo-lists-by-user (current-user-id)))
+        (data/get-todo-lists-by-user (user/current-user-id)))
    [:tr.add-list
     [:td { :colspan "2"}
      (js-link "beginListCreate" nil "Add Todo List...")]]])
@@ -235,12 +232,12 @@
                (let [ user-parameter-name (str "user_" user-id)]
                  [:tr.item-row
                   [:td.item-control
-                   (if (= (current-user-id) user-id)
+                   (if (= (user/current-user-id) user-id)
                      (form/hidden-field user-parameter-name "on")
                      (form/check-box user-parameter-name
                                      (in? list-owners user-id)))]
                   [:td.item-description user-email-addr]]))
-             (data/get-friendly-users-by-id (current-user-id)))
+             (data/get-friendly-users-by-id (user/current-user-id)))
         [:tr
          [:td]
          [:td
@@ -307,7 +304,7 @@
   (if (string-empty? list-description)
     (redirect-to-home)
     (let [ list-id (data/add-list list-description) ] 
-      (data/add-list-owner (current-user-id) list-id)
+      (data/add-list-owner (user/current-user-id) list-id)
       (redirect-to-list list-id))))
 
 (defn add-item [ list-id item-description ]
@@ -341,12 +338,12 @@
 
 (defn complete-item [ item-id ]
   (let [ list-id (data/get-list-id-by-item-id item-id)]
-    (data/complete-item-by-id (current-user-id) item-id)
+    (data/complete-item-by-id (user/current-user-id) item-id)
     (redirect-to-list list-id)))
 
 (defn delete-item [ item-id ]
   (let [ list-id (data/get-list-id-by-item-id item-id)]
-    (data/delete-item-by-id (current-user-id) item-id)
+    (data/delete-item-by-id (user/current-user-id) item-id)
     (redirect-to-list list-id)))
 
 (defn restore-item [ item-id ]

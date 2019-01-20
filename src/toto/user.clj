@@ -5,6 +5,7 @@
             [cemerick.friend.credentials :as credentials]
             [ring.util.response :as ring]
             [cemerick.friend :as friend]
+            [cemerick.friend.workflows :as workflows]            
             [hiccup.form :as form]
             [toto.core :as core]
             [toto.data :as data]
@@ -14,8 +15,50 @@
   (if-let [user-record (data/get-user-by-email (creds :username))]
     (and (credentials/bcrypt-verify (creds :password) (user-record :password))
          {:identity (creds :username)
-          :roles  (data/get-user-roles (:user_id user-record))})
+          :roles (clojure.set/union #{:toto.role/user}
+                                    (data/get-user-roles (:user_id user-record)))})
     nil))
+
+
+(defn user-unauthorized [ request ]
+  (view/render-page { :page-title "Access Denied"}
+                    [:div.page-message
+                     [:h1 "Access Denied"]]))
+
+(defn current-user []
+  (data/get-user-by-email (core/authenticated-username)))
+
+(defn current-user-id []
+  ((current-user) :user_id))
+
+(defn user-unverified [ request ]
+  (view/render-page { :page-title "E-Mail Unverified"}
+                    [:div.page-message
+                     [:h1 "E-Mail Unverified"]
+                     [:p
+                      "Your e-mail address is unverified and your acccount is "
+                      "inactive. An verification e-mail can be sent by following "
+                      [:a {:href (str "/user/verify/" (current-user-id))} "this link"]
+                      "."]]))
+
+(defn missing-verification? [ request ]
+  (= (clojure.set/difference (get-in request [:cemerick.friend/authorization-failure
+                                              :cemerick.friend/required-roles])
+                             (:roles (friend/current-authentication)))
+     #{:toto.role/verified}))
+
+(defn unauthorized-handler [request]
+  {:status 403
+   :body ((if (missing-verification? request)
+            user-unverified
+            user-unauthorized)
+          request)})
+
+(defn wrap-authenticate [ request ]
+  (friend/authenticate request
+                       {:credential-fn get-user-by-credentials
+                        :workflows [(workflows/interactive-form)]
+                        :unauthorized-handler unauthorized-handler}))
 
 (defn render-login-page [ & { :keys [ email-addr login-failure?]}]
   (view/render-page { :page-title "Log In" }
@@ -51,6 +94,12 @@
     (data/add-list-owner user-id list-id)
     user-id))
 
+(defn send-verification-link [ user-id ]
+  (let [user (data/get-user-by-id user-id)
+        verification-link (data/get-verification-link-by-user-id user-id)]
+    (log/info "Sending verification link: " {:link_uuid (:link_uuid verification-link)
+                                             :email_addr (:email_addr user)})))
+
 (defn add-user [ email-addr password password2 ] 
   (cond
    (data/user-email-exists? email-addr)
@@ -61,10 +110,8 @@
  
    :else
    (do
-     (let [user-id (create-user email-addr (credentials/hash-bcrypt password))
-           link-id (data/create-verification-link user-id)]
-       (log/spy :error (data/get-verification-link-by-id link-id))
-       (ring/redirect "/")))))
+     (let [user-id (create-user email-addr (credentials/hash-bcrypt password))]
+       (ring/redirect (str "/user/verify/" user-id))))))
 
 (defn render-change-password-form  [ & { :keys [ error-message ]}]
   (view/render-page { :page-title "Change Password" }
@@ -96,18 +143,43 @@
         (data/set-user-password username (credentials/hash-bcrypt new-password-1))
         (ring/redirect "/")))))
 
-(defn verify-user [ link-uuid ]
+(defn ensure-verification-link [ user-id ]
+  (unless (data/get-verification-link-by-user-id user-id)
+    (data/create-verification-link user-id)))
+
+(defn development-verification-form [ user-id ]
+  (let [ link-uuid (:link_uuid (data/get-verification-link-by-user-id user-id))]
+    (form/form-to [:post (str "/user/verify/" user-id)]
+     (form/hidden-field {} "link-uuid" link-uuid)
+     (form/submit-button {} "Verify"))))
+
+(defn enter-verify-workflow [ user-id ]
+  (let [ user (data/get-user-by-id user-id) ]
+    (ensure-verification-link user-id)
+    (send-verification-link user-id)
+    (view/render-page { :page-title "e-Mail Address Verification" }
+                      [:div.page-message
+                       [:h1 "e-Mail Address Verification"]
+                       [:p "An e-mail has been sent to "  [:span.addr (:email_addr user)]
+                        " with a link you may use to verify your e-mail address. Please"
+                        " check your spam filter if it does not appear within a few minutes."]
+                       [:a {:href "/"} "Login"]
+
+                       (development-verification-form user-id)
+                       ])))
+
+(defn verify-user [ link-user-id link-uuid ]
+  (log/error "verify user " [ link-user-id link-uuid ])
   (when-let [ user-id (:verifies_user_id (data/get-verification-link-by-uuid link-uuid)) ]
     (let [ email-addr (:email_addr (data/get-user-by-id user-id)) ]
-      (data/set-user-roles user-id
-                           (clojure.set/union (data/get-user-roles user-id)
-                                              #{:petros.role/verified}))
+      (data/add-user-roles user-id #{:toto.role/verified})
       (view/render-page { :page-title "e-Mail Address Verified" }
-                        [:h1 "e-Mail Address Verified"]
-                        [:p "Thank you for verifying your e-mail address at: "
-                         [:span.addr email-addr] ". Using the link below, you "
-                         "can log in and start to use the system."]
-                        [:a {:href "/"} "Login"]))))
+                        [:div.page-message
+                         [:h1 "e-Mail Address Verified"]
+                         [:p "Thank you for verifying your e-mail address at: "
+                          [:span.addr email-addr] ". Using the link below, you "
+                          "can log in and start to use the system."]
+                         [:a {:href "/"} "Login"]]))))
 
 (defroutes public-routes
   (GET "/user" []
@@ -121,13 +193,15 @@
        (render-login-page :email-addr email-addr
                           :login-failure? (= login-failed "Y")))
 
+  (GET "/user/verify/:user-id" { { user-id :user-id } :params }
+    (enter-verify-workflow user-id))
+  
   (friend/logout
-   (GET "/user/verify/:uuid" { { link-uuid :uuid } :params }
-     (verify-user link-uuid)))
+   (POST "/user/verify/:user-id" { { user-id :user-id link-uuid :link-uuid } :params }
+     (verify-user user-id link-uuid)))  
   
   (friend/logout
    (ANY "/logout" [] (ring/redirect "/"))))
-
 
 (defroutes private-routes
   (GET "/user/password" []
