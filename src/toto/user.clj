@@ -42,7 +42,7 @@
      (table-row "E-Mail Address:" (form/text-field { :class "simple-border" } "email_addr"))
      (table-row "Password:" (form/password-field { :class "simple-border" } "password1"))
      (table-row "Verify Password:" (form/password-field { :class "simple-border" } "password2"))
-     (table-row "&nbsp;" [:div#error error-message])
+     (table-row "&nbsp;" [:div.error-message error-message])
      (table-row "" (form/submit-button {} "Register"))])))
 
 (defn create-user  [ email-addr password ]
@@ -77,7 +77,7 @@
      (table-row "Verify Password:" (form/password-field "new_password2"))
      
      (unless (empty? error-message)
-       [:tr [:td { :colspan 2 } [:div#error error-message]]])
+       [:tr [:td { :colspan 2 } [:div.error-message error-message]]])
      
      [:tr [:td ] [:td (form/submit-button {} "Change Password")]]]))  )
 
