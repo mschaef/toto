@@ -6,7 +6,7 @@
     </encoder>
   </appender>
 
-  <logger name="toto.handler" level="DEBUG"/>
+  <logger name="toto.main" level="DEBUG"/>
   <logger name="sql-file.core" level="DEBUG"/>
 
   <root level="INFO">
