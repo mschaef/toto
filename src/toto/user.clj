@@ -19,7 +19,6 @@
                                     (data/get-user-roles (:user_id user-record)))})
     nil))
 
-
 (defn user-unauthorized [ request ]
   (view/render-page { :page-title "Access Denied"}
                     [:div.page-message
@@ -148,12 +147,13 @@
     (data/create-verification-link user-id)))
 
 (defn development-verification-form [ user-id ]
-  (let [ link-uuid (:link_uuid (data/get-verification-link-by-user-id user-id))]
-    (form/form-to [:post (str "/user/verify/" user-id)]
-     (form/hidden-field {} "link-uuid" link-uuid)
-     (form/submit-button {} "Verify"))))
+  [:div.dev-tool
+   (let [ link-uuid (:link_uuid (data/get-verification-link-by-user-id user-id))]
+     (form/form-to [:post (str "/user/verify/" user-id)]
+                   (form/hidden-field {} "link-uuid" link-uuid)
+                   (form/submit-button {} "Verify")))])
 
-(defn enter-verify-workflow [ user-id ]
+(defn enter-verify-workflow [ config user-id ]
   (let [ user (data/get-user-by-id user-id) ]
     (ensure-verification-link user-id)
     (send-verification-link user-id)
@@ -164,9 +164,8 @@
                         " with a link you may use to verify your e-mail address. Please"
                         " check your spam filter if it does not appear within a few minutes."]
                        [:a {:href "/"} "Login"]
-
-                       (development-verification-form user-id)
-                       ])))
+                       (when (:development-mode config)
+                         (development-verification-form user-id))])))
 
 (defn verify-user [ link-user-id link-uuid ]
   (log/error "verify user " [ link-user-id link-uuid ])
@@ -181,31 +180,34 @@
                           "can log in and start to use the system."]
                          [:a {:href "/"} "Login"]]))))
 
-(defroutes public-routes
-  (GET "/user" []
-       (render-new-user-form))
+(defn public-routes [ config ]
+  (routes
+   (GET "/user" []
+     (render-new-user-form))
 
-  (POST "/user" {{email-addr :email_addr password1 :password1 password2 :password2} :params}
-        (add-user email-addr password1 password2))
+   (POST "/user" {{email-addr :email_addr password1 :password1 password2 :password2} :params}
+     (add-user email-addr password1 password2))
 
 
-  (GET "/login" { { login-failed :login_failed email-addr :username } :params }
-       (render-login-page :email-addr email-addr
-                          :login-failure? (= login-failed "Y")))
+   (GET "/login" { { login-failed :login_failed email-addr :username } :params }
+     (render-login-page :email-addr email-addr
+                        :login-failure? (= login-failed "Y")))
 
-  (GET "/user/verify/:user-id" { { user-id :user-id } :params }
-    (enter-verify-workflow user-id))
-  
-  (friend/logout
-   (POST "/user/verify/:user-id" { { user-id :user-id link-uuid :link-uuid } :params }
-     (verify-user user-id link-uuid)))  
-  
-  (friend/logout
-   (ANY "/logout" [] (ring/redirect "/"))))
+   (GET "/user/verify/:user-id" { { user-id :user-id } :params }
+     (enter-verify-workflow config user-id))
+   
+   (friend/logout
+    (POST "/user/verify/:user-id" { { user-id :user-id link-uuid :link-uuid } :params }
+      (verify-user user-id link-uuid)))
+   
+   (friend/logout
+    (ANY "/logout" [] (ring/redirect "/")))))
 
-(defroutes private-routes
-  (GET "/user/password" []
-    (render-change-password-form))
+(defn private-routes [ config ]
+  (routes
+   (GET "/user/password" []
+     (render-change-password-form))
 
-  (POST "/user/password" {{password :password new-password-1 :new_password1 new-password-2 :new_password2} :params}
-    (change-password password new-password-1 new-password-2)))
+   (POST "/user/password" {{password :password new-password-1 :new_password1 new-password-2 :new_password2} :params}
+     (change-password password new-password-1 new-password-2))))
+

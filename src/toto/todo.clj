@@ -4,6 +4,7 @@
         [slingshot.slingshot :only (throw+ try+)])
   (:require [clojure.tools.logging :as log]
             [ring.util.response :as ring]
+            [cemerick.friend :as friend]
             [hiccup.form :as form]
             [hiccup.page :as page]
             [compojure.handler :as handler]
@@ -355,10 +356,13 @@
   (map #(Integer/parseInt (.substring % 5))
        (filter #(.startsWith % "user_") (map name (keys params)))))
 
-(defroutes public-routes
-  (GET "/list/:list-id/public" { { list-id :list-id } :params } 
-    (ensure-list-public-access list-id)
-    (render-todo-list-public-page list-id)))
+(defn public-routes [ config ]
+  (routes
+   (GET "/list/:list-id/public" { { list-id :list-id } :params }
+     (log/error "public render " list-id)
+     (ensure-list-public-access list-id)
+     (render-todo-list-public-page list-id))))
+
 
 (defn- list-routes [ list-id ]
   (ensure-list-owner-access list-id)
@@ -410,19 +414,22 @@
    (POST "/restore" [ ]
      (restore-item item-id))))
 
-(defroutes private-routes
-  (GET "/" [] (redirect-to-home))
+(defn private-routes [ config ]
+  (routes
+   (GET "/" [] (redirect-to-home))
 
-  (POST "/list" { { list-description :list-description } :params }
-    (add-list (string-leftmost list-description 32)))
+   (POST "/list" { { list-description :list-description } :params }
+     (add-list (string-leftmost list-description 32)))
 
-  (context "/list/:list-id" [ list-id ]
-    (list-routes list-id))
-  
-  (POST "/item-list" { { target-item :target-item target-list :target-list} :params}
-        (ensure-item-access target-item)
-        (ensure-list-owner-access target-list)
-        (update-item-list target-item target-list))
+   (context "/list/:list-id" [ list-id ]
+     (list-routes list-id))
+   
+   (POST "/item-list" { { target-item :target-item target-list :target-list} :params}
+     (ensure-item-access target-item)
+     (ensure-list-owner-access target-list)
+     (update-item-list target-item target-list))
 
-  (context "/item/:item-id" [ item-id ]
-    (item-routes item-id)))
+   (context "/item/:item-id" [ item-id ]
+     (item-routes item-id))))
+
+

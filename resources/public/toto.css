@@ -14,6 +14,12 @@ body, table, select, input {
     font-family: Courier
 }
 
+.dev-tool {
+    margin: 1em;
+    padding: 1em;
+    border: 1px solid red;
+}
+
 @media only screen and (min-device-width : 480px) {
     body, table, select, input { 
         font-size: 10pt;

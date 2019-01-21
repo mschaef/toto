@@ -6,7 +6,8 @@
          not-modified
          content-type
          browser-caching])
-  (:require [clojure.tools.logging :as log]            
+  (:require [clojure.tools.logging :as log]
+            [cprop.core :as cprop]
             [ring.adapter.jetty :as jetty]
             [ring.middleware.file-info :as ring-file-info]
             [ring.middleware.resource :as ring-resource]
@@ -42,34 +43,39 @@
     (data/with-db-connection db
       (app req))))
 
-(defroutes all-routes
-  (route/resources (str "/" (get-version)))
-  user/public-routes
-  todo/public-routes
-  (friend/wrap-authorize user/private-routes #{:toto.role/verified})  
-  (friend/wrap-authorize todo/private-routes #{:toto.role/verified})
-  (route/not-found "Resource Not Found"))
+(defn all-routes [ config ]
+  (routes
+   (route/resources (str "/" (get-version)))
+   (user/public-routes config)
+   (todo/public-routes config)
+   (friend/wrap-authorize (user/private-routes config) #{:toto.role/verified})
+   (friend/wrap-authorize (todo/private-routes config) #{:toto.role/verified})
+   (route/not-found "Resource Not Found")))
 
-(def handler (-> all-routes
-                 (wrap-content-type)
-                 (wrap-browser-caching {"text/javascript" 360000
-                                        "text/css" 360000})
-                 (user/wrap-authenticate)
-                 (extend-session-duration 168)
-                 (wrap-db-connection)
-                 (wrap-request-logging)
-                 (handler/site)))
+(defn handler [ config ]
+  (-> (all-routes config)
+      (wrap-content-type)
+      (wrap-browser-caching {"text/javascript" 360000
+                             "text/css" 360000})
+      (user/wrap-authenticate)
+      (extend-session-duration 168)
+      (wrap-db-connection)
+      (wrap-request-logging)
+      (handler/site)))
 
-(defn start-webserver [ http-port ]
-  (log/info "Starting Webserver on port" http-port)
-  (let [server (jetty/run-jetty handler { :port http-port :join? false })]
-    (add-shutdown-hook
-     (fn []
-       (log/info "Shutting down webserver")
-       (.stop server)))
-    (.join server)))
+(defn start-webserver [ config ]
+  (let [ { http-port :http-port } config ]
+    (log/info "Starting Webserver on port" http-port)
+    (let [server (jetty/run-jetty (handler config) { :port http-port :join? false })]
+      (add-shutdown-hook
+       (fn []
+         (log/info "Shutting down webserver")
+         (.stop server)))
+      (.join server))))
 
 (defn -main [& args]
   (log/info "Starting Toto" (get-version))
-  (start-webserver (config-property "http.port" 8080))
-  (log/info "end run."))
+  (let [ config (cprop/load-config :resource "config.edn")]
+    (log/debug "config" config)    
+    (start-webserver config)
+    (log/info "end run.")))

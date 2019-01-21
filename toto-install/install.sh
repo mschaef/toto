@@ -43,6 +43,7 @@ install -v --group=toto --owner=toto --directory /var/lib/toto
 
 install -v --group=root --owner=root --directory /etc/toto
 install -v --group=root --owner=root logback.xml /etc/toto
+install -v --group=root --owner=root config.edn /etc/toto
 
 # toto service configuration
 
