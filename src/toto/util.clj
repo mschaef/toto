@@ -79,24 +79,11 @@
 
 ;;; HTML Utilities
 
-(defn table-head [ & tds ]
-    (let [ [ attrs tds ]
-         (if (map? tds)
-           [ (first tds) (rest tds) ]
-           [ {} tds ])]
-      `[:thead
-        [:tr ~attrs ~@(map (fn [ td ] [:th td]) tds)]]))
-
-(defn table-row [ & tds ]
-  (let [ [ attrs tds ]
-         (if (map? (first tds))
-           [ (first tds) (rest tds) ]
-           [ {} tds ])]
-    `[:tr ~attrs ~@(map (fn [ td ] [:td td]) tds)]))
-
 (defn class-set [ classes ]
   (clojure.string/join " " (map str (filter #(classes %)
                                             (keys classes)))))
+
+;;; Date utilities
 
 (defn add-days [ date days ]
   (let [c (java.util.Calendar/getInstance)]

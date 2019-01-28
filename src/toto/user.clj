@@ -63,13 +63,18 @@
   (view/render-page { :page-title "Log In" }
    (form/form-to
     [:post "/login"]
-    [:table { :class "form" }
-     (table-row "E-Mail Address:" (form/text-field { :class "simple-border" } "username" (if email-addr email-addr)))
-     (table-row "Password:" (form/password-field { :class "simple-border" } "password"))
-     (if login-failure?
-       [:tr [:td { :colspan 4 } [:div.error-message "Invalid username or password."]]])
+    [:table.form
+     [:tr
+      [:td "E-Mail Address:"]
+      [:td (form/text-field { :class "simple-border" } "username" email-addr)]]
+     [:tr
+      [:td "Password:"]
+      [:td (form/password-field { :class "simple-border" } "password")]]
+     (when login-failure?
+       [:tr
+        [:td.error-message { :colspan 2 } "Invalid username or password."]])
      [:tr 
-      [:td { :colspan 4 }
+      [:td { :colspan 2 }
        [:center
         [:a { :href "/user"} "Register New User"]
         " - "
@@ -80,12 +85,22 @@
                      :init-map { :page "new-user" }}
    (form/form-to
     [:post "/user"]
-    [:table { :class "form" }
-     (table-row "E-Mail Address:" (form/text-field { :class "simple-border" } "email_addr"))
-     (table-row "Password:" (form/password-field { :class "simple-border" } "password1"))
-     (table-row "Verify Password:" (form/password-field { :class "simple-border" } "password2"))
-     (table-row "&nbsp;" [:div.error-message error-message])
-     (table-row "" (form/submit-button {} "Register"))])))
+    [:table.form
+     [:tr
+      [:td "E-Mail Address:"]
+      [:td (form/text-field { :class "simple-border" } "email_addr")]]
+     [:tr
+      [:td "Password:"]
+      [:td (form/password-field { :class "simple-border" } "password1")]]
+     [:tr
+      [:td "Verify Password:"]
+      [:td (form/password-field { :class "simple-border" } "password2")]]
+     (when error-message
+       [:tr
+        [:td { :colspan 2 } [:div.error-message error-message]]])
+     [:tr
+      [:td]
+      [:td (form/submit-button {} "Register")]]])))
 
 (defn create-user  [ email-addr password ]
   (let [user-id (data/add-user email-addr password)
@@ -116,16 +131,14 @@
   (view/render-page { :page-title "Change Password" }
    (form/form-to
     [:post "/user/password"]
-    [:table { :class "form" }
-     (table-row "E-Mail Address:" (get (friend/current-authentication) :identity))
-     (table-row "Old Password:" (form/password-field "password"))
-     (table-row "New Password:" (form/password-field "new_password1"))
-     (table-row "Verify Password:" (form/password-field "new_password2"))
-     
-     (unless (empty? error-message)
-       [:tr [:td { :colspan 2 } [:div.error-message error-message]]])
-     
-     [:tr [:td ] [:td (form/submit-button {} "Change Password")]]]))  )
+    [:table.form
+     (:tr [:td  "E-Mail Address:"] [:td (get (friend/current-authentication) :identity)])
+     (:tr [:td "Old Password:"] [:td (form/password-field "password")])
+     (:tr [:td "New Password:"] [:td (form/password-field "new_password1")])
+     (:tr [:td "Verify Password:"] [:td (form/password-field "new_password2")])
+     (when error-message
+       [:tr [:td.error-message { :colspan 2 } error-message]])
+     [:tr [:td] [:td (form/submit-button {} "Change Password")]]]))  )
 
 (defn change-password [ password new-password-1 new-password-2 ]
   (let [ username (get (friend/current-authentication) :identity) ]
