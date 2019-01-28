@@ -12,7 +12,7 @@ CREATE CACHED TABLE role (
 
 INSERT INTO role(role_name) values('verified');
 
-CREATE CACHED TABLE user_role (
+CREATE CACHED TABLE user_role ( 
   user_id INTEGER NOT NULL REFERENCES user(user_id),
   role_id INTEGER NOT NULL REFERENCES role(role_id)
 );

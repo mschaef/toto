@@ -180,7 +180,15 @@
                           "can log in and start to use the system."]
                          [:a {:href "/"} "Login"]]))))
 
-(defn public-routes [ config ]
+(defn private-routes [ config ]
+  (routes
+   (GET "/user/password" []
+     (render-change-password-form))
+   
+   (POST "/user/password" {{password :password new-password-1 :new_password1 new-password-2 :new_password2} :params}
+     (change-password password new-password-1 new-password-2))))
+
+(defn all-routes [ config ]
   (routes
    (GET "/user" []
      (render-new-user-form))
@@ -201,13 +209,10 @@
       (verify-user user-id link-uuid)))
    
    (friend/logout
-    (ANY "/logout" [] (ring/redirect "/")))))
+    (ANY "/logout" [] (ring/redirect "/")))
 
-(defn private-routes [ config ]
-  (routes
-   (GET "/user/password" []
-     (render-change-password-form))
+   (wrap-routes (private-routes config)
+                friend/wrap-authorize
+                #{:toto.role/verified})))
 
-   (POST "/user/password" {{password :password new-password-1 :new_password1 new-password-2 :new_password2} :params}
-     (change-password password new-password-1 new-password-2))))
 

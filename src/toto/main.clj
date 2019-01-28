@@ -46,10 +46,8 @@
 (defn all-routes [ config ]
   (routes
    (route/resources (str "/" (get-version)))
-   (user/public-routes config)
-   (todo/public-routes config)
-   (friend/wrap-authorize (user/private-routes config) #{:toto.role/verified})
-   (friend/wrap-authorize (todo/private-routes config) #{:toto.role/verified})
+   (user/all-routes config)
+   (todo/all-routes config)
    (route/not-found "Resource Not Found")))
 
 (defn handler [ config ]

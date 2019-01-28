@@ -4,11 +4,11 @@
         [slingshot.slingshot :only (throw+ try+)])
   (:require [clojure.tools.logging :as log]
             [ring.util.response :as ring]
-            [cemerick.friend :as friend]
             [hiccup.form :as form]
             [hiccup.page :as page]
             [compojure.handler :as handler]
             [ring.util.response :as ring-response]
+            [cemerick.friend :as friend]
             [toto.data :as data]
             [toto.core :as core]
             [toto.view :as view]
@@ -356,7 +356,7 @@
   (map #(Integer/parseInt (.substring % 5))
        (filter #(.startsWith % "user_") (map name (keys params)))))
 
-(defn public-routes [ config ]
+(defn- public-routes [ config ]
   (routes
    (GET "/list/:list-id/public" { { list-id :list-id } :params }
      (log/error "public render " list-id)
@@ -414,7 +414,7 @@
    (POST "/restore" [ ]
      (restore-item item-id))))
 
-(defn private-routes [ config ]
+(defn- private-routes [ config ]
   (routes
    (GET "/" [] (redirect-to-home))
 
@@ -432,4 +432,9 @@
    (context "/item/:item-id" [ item-id ]
      (item-routes item-id))))
 
-
+(defn all-routes [ config ]
+  (routes
+   (public-routes config)
+   (wrap-routes (private-routes config)
+                friend/wrap-authorize
+                #{:toto.role/verified})))
