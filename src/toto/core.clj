@@ -1,5 +1,6 @@
 (ns toto.core
-  (:require [cemerick.friend :as friend]
+  (:require [clojure.tools.logging :as log]
+            [cemerick.friend :as friend]
             [clojure.string :as string]))
 
 (defn authenticated-username []

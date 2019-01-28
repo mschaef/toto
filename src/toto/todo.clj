@@ -15,19 +15,22 @@
             [toto.user :as user]))
 
 (defn current-todo-list-id []
-  (first (data/get-todo-list-ids-by-user (user/current-user-id))))
+  (friend/authorize #{:toto.role/verified}
+                    (first (data/get-todo-list-ids-by-user (user/current-user-id)))))
 
 (defn ensure-list-owner-access [ list-id ]
-  (unless (data/list-owned-by-user-id? list-id (user/current-user-id))
-          (core/report-unauthorized)))
+  (friend/authorize #{:toto.role/verified}
+                    (unless (data/list-owned-by-user-id? list-id (user/current-user-id))
+                            (core/report-unauthorized))))
 
 (defn ensure-list-public-access [ list-id ]
   (unless (data/list-public? list-id)
           (core/report-unauthorized)))
 
 (defn ensure-item-access [ item-id ]
-  (unless (data/item-owned-by-user-id? item-id (user/current-user-id))
-          (core/report-unauthorized)))
+  (friend/authorize #{:toto.role/verified}
+                    (unless (data/item-owned-by-user-id? item-id (user/current-user-id))
+                            (core/report-unauthorized))))
 
 (defn redirect-to-list [ list-id ]
   (ring/redirect (str "/list/" list-id)))

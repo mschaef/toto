@@ -15,6 +15,7 @@
   (if-let [user-record (data/get-user-by-email (creds :username))]
     (and (credentials/bcrypt-verify (creds :password) (user-record :password))
          {:identity (creds :username)
+          :user-id (user-record :user_id)
           :roles (clojure.set/union #{:toto.role/user}
                                     (data/get-user-roles (:user_id user-record)))})
     nil))
@@ -28,7 +29,9 @@
   (data/get-user-by-email (core/authenticated-username)))
 
 (defn current-user-id []
-  ((current-user) :user_id))
+  (if-let [ cauth (friend/current-authentication) ]
+    (:user-id cauth)
+    nil))
 
 (defn user-unverified [ request ]
   (view/render-page { :page-title "E-Mail Unverified"}
