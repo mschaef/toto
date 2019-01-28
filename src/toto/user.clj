@@ -25,9 +25,6 @@
                     [:div.page-message
                      [:h1 "Access Denied"]]))
 
-(defn current-user []
-  (data/get-user-by-email (core/authenticated-username)))
-
 (defn current-user-id []
   (if-let [ cauth (friend/current-authentication) ]
     (:user-id cauth)
@@ -120,7 +117,7 @@
    (form/form-to
     [:post "/user/password"]
     [:table { :class "form" }
-     (table-row "E-Mail Address:" (core/authenticated-username))
+     (table-row "E-Mail Address:" (get (friend/current-authentication) :identity))
      (table-row "Old Password:" (form/password-field "password"))
      (table-row "New Password:" (form/password-field "new_password1"))
      (table-row "Verify Password:" (form/password-field "new_password2"))
@@ -131,7 +128,7 @@
      [:tr [:td ] [:td (form/submit-button {} "Change Password")]]]))  )
 
 (defn change-password [ password new-password-1 new-password-2 ]
-  (let [ username (core/authenticated-username) ]
+  (let [ username (get (friend/current-authentication) :identity) ]
     (cond
       (not (get-user-by-credentials {:username username :password password}))
       (render-change-password-form :error-message "Old Password Incorrect")
