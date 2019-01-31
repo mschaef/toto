@@ -310,8 +310,8 @@
 (defn add-list [ list-description ]
   (if (string-empty? list-description)
     (redirect-to-home)
-    (let [ list-id (data/add-list list-description) ] 
-      (data/add-list-owner (user/current-user-id) list-id)
+    (let [ list-id (data/add-list list-description) ]
+      (data/set-list-ownership list-id #{ (user/current-user-id) })
       (redirect-to-list list-id))))
 
 (defn add-item [ list-id item-description ]

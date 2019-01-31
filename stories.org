@@ -1,13 +1,13 @@
 * Release 1
-* Release 2
 ** A user can interactively change their password with the web UI.
 ** A user can vary the length of time an item is snoozed.
+** The user interface stores passwords with a salt.
+* Release 2
 ** per-list Bookmarklet for adding selected text, etc. to a todo-list
 ** A user can display a list of all items on all of their todo lists.
 ** The website remembers whether or not a user has linked to a hyperlink and displays is appropriately in the todo list.
 ** Item descriptions can be written in Markdown or Markdown-like syntax
 * Release Auth
-** The user interface stores passwords with a salt.
 ** A user can store multiple e-mail addresses for each account.
 ** A user can authenticate using some sort of external authentiation provider.
 ** User e-mail addresses must be validated prior to the account being fully enabled.
@@ -17,10 +17,8 @@
 ** DONE A user can display a list of all todo list items, even if they have been completed.
 ** DONE A user can denote that a todo item should be deferred until a given date.
 ** DONE The website displays correctly on Mobile Safari.
-
 ** DONE A to-do list can be printed in a useful/plain format
 ** DONE Export a todo list to Excel
-
 ** DONE A user can move a todo item into another list.
 ** DONE A user can delete one of their todo lists
 ** DONE A user can rename one of their todo lists.

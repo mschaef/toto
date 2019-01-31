@@ -105,7 +105,7 @@
 (defn create-user  [ email-addr password ]
   (let [user-id (data/add-user email-addr password)
         list-id (data/add-list "Todo")]
-    (data/add-list-owner user-id list-id)
+    (data/set-list-ownership list-id #{ user-id })    
     user-id))
 
 (defn send-verification-link [ user-id ]

@@ -146,13 +146,6 @@
                    :todo_list
                    {:desc desc}))))
 
-(defn add-list-owner [ user-id todo-list-id ]
-  (:todo_list_id (first
-                  (jdbc/insert! *db*
-                   :todo_list_owners
-                   {:user_id user-id
-                    :todo_list_id todo-list-id}))))
-
 (defn set-list-ownership [ todo-list-id user-ids ]
   (jdbc/with-db-transaction [ trans *db* ] 
    (jdbc/delete! trans
