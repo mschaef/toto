@@ -253,7 +253,7 @@
         (unless (empty? error-message)
                 [:tr
                  [:td { :colspan 2 }
-                  [:div#error error-message]]])]]
+                  [:div.error-message error-message]]])]]
       
       [ nil [:input {:type "submit" :value "Update List Details"}]])
      
@@ -291,21 +291,6 @@
   (if-let [ user-info (data/get-user-by-email email) ]
     (user-info :user_id)
     nil))
-
-(defn add-list-owner [ list-id share-with-email selected-ids ]
-  (catch-validation-errors
-   (let [ email-user-id
-         (if (empty? share-with-email)
-           nil
-           (or (get-user-id-by-email share-with-email)
-               (fail-validation
-                (render-todo-list-details-page list-id :error-message "Invalid e-mail address"))))]
-
-     (data/set-list-ownership list-id
-                              (clojure.set/union (apply hash-set selected-ids)
-                                                 (if (nil? email-user-id)
-                                                   #{}
-                                                   (hash-set email-user-id)))))))
 
 (defn add-list [ list-description ]
   (if (string-empty? list-description)
@@ -359,8 +344,9 @@
     (redirect-to-list list-id)))
 
 (defn selected-user-ids-from-params [ params ]
-  (map #(Integer/parseInt (.substring % 5))
-       (filter #(.startsWith % "user_") (map name (keys params)))))
+  (set
+   (map #(Integer/parseInt (.substring % 5))
+        (filter #(.startsWith % "user_") (map name (keys params))))))
 
 (defn- public-routes [ config ]
   (routes
@@ -387,11 +373,22 @@
      (render-todo-list-details-page list-id))
     
    (POST "/details" { params :params }
-     (let [ { list-name :list-name share-with-email :share-with-email is-public :is_public } params ]
-       (update-list-description list-id (string-leftmost list-name 32))
-       (add-list-owner list-id share-with-email (selected-user-ids-from-params params))
-       (data/set-list-public list-id (boolean is-public))
-       (ring/redirect  (str "/list/" list-id "/details"))))
+     (catch-validation-errors
+      (let [{ list-name :list-name share-with-email :share-with-email is-public :is_public } params
+            share-with-email-id (and share-with-email
+                                     (or
+                                      (get-user-id-by-email share-with-email)
+                                      (fail-validation
+                                       (render-todo-list-details-page list-id
+                                                                      :error-message "Invalid e-mail address"))))
+            selected-ids (selected-user-ids-from-params params)]
+        (data/set-list-ownership list-id
+                                 (if share-with-email-id
+                                   (conj selected-ids share-with-email-id)
+                                   selected-ids))
+        (update-list-description list-id (string-leftmost list-name 32))
+        (data/set-list-public list-id (boolean is-public))
+        (ring/redirect  (str "/list/" list-id "/details")))))
     
    (POST "/delete" []
      (delete-list list-id))  
