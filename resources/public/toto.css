@@ -71,11 +71,11 @@ div#sidebar::-webkit-scrollbar {
 
 .dangerous {
     color: red;
+    margin-right: 0.5em;
 }
 
 .warning {
     color: red;
-    padding-left: 0.5em;
 }
 
 div#contents {
@@ -504,21 +504,27 @@ p.new-user {
 }
 
 table.config-panel  {
-    background: #f0f0f0;
     border-collapse: collapse;
     width: 100%
 }
 
-table.config-panel > tbody > tr > td {
-    border-top: 1px solid #e0e0e0;
-    border-bottom: 1px solid #e0e0e0;
-    padding-top: 8px;
-    padding-bottom: 8px;
+table.config-panel > tbody > tr:first-child > td {
+    padding-top: 0.5em;
+}
+    
+table.config-panel > tbody > tr  > td {
+    padding-bottom: 0.75em;
+    padding-left: 0em;
 }
 
-table.config-panel td.section-heading {
-    padding-left: 10px;
-    padding-right: 10px;
+table.config-panel > tbody > tr.divide-at  > td {
+    padding-top: 0.75em;
+    border-top: 1px solid #f0f0f0;
+}
+
+table.config-panel > tbody > tr > td:first-child {
+    padding-left: 1em;
+    padding-right: 1em;
     white-space: nowrap;
     font-weight: bold;
     vertical-align: top;
@@ -527,6 +533,10 @@ table.config-panel td.section-heading {
 
 table.config-panel label {
     padding-left: 0.25em;
+}
+
+table.config-panel table.owner-list td {
+    padding-bottom: 0.75em;
 }
 
 i.icon-edit {
@@ -575,7 +585,7 @@ div#sidebar.menu-visible {
 }
 
 input[type=submit] {
-    padding:5px 15px; 
+    padding: 0.5em 1em;
     background:#ccc; 
     border: 1px solid #c0c0c0;
     cursor:pointer;
