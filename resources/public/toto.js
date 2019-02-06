@@ -111,7 +111,7 @@ var pageInit = {};
 
 //////// todo list
 
-function setupJQueryEdit() {
+function setupEditableItems() {
     foreach_elem('.item-list .item-row', function(el) {
         el.ondblclick = function(obj) {
             beginItemEdit(el.getAttribute('itemid'));
@@ -119,39 +119,43 @@ function setupJQueryEdit() {
     });
 }
 
-function setupJQueryItemDragging() {
+function doMoveItem(itemId, newListId) {
+    elem("target-item").value = itemId;
+    elem("target-list").value = newListId;
+    elem("item_set_list_form").submit();
+}
 
-  if ($(".item-list .item-row").draggable == undefined)
-      return;
+function setupHTML5ItemDragging() {
+    foreach_elem(".item-list .item-row", function(el) {
+        el.setAttribute('draggable', true);
+        
+        el.ondragstart = function(ev) {
+            ev.dataTransfer.dropEffect = 'move';
+            ev.dataTransfer.setData('text/plain', el.getAttribute('itemid'));
+        };
+    });
 
-  $( ".item-list .item-row" ).draggable({
-      appendTo: "body",
-      helper: function() {
-          return $("<div class=\"drag-item\">Moving List Item</div>");
-      },
-      cursor: "hand",
-      cursorAt: { left: 0, top: 0  }
-  });
+    foreach_elem('.list-list tr', function(el) {
+        el.ondragover = function(ev) {
+            ev.preventDefault();
+        };
+        
+        el.ondrop = function(ev) {
+            ev.preventDefault();
 
-  $( ".list-list tr" ).droppable({
-    hoverClass: "drop-hover",
-    accept: ":not(.ui-sortable-helper)",
-    tolerance: "pointer",
-    drop: function( event, ui ) {
-      var itemId = $(ui.draggable[0]).attr("itemid");
-      var newListId = $(this).attr("listid");
+            var itemId = ev.dataTransfer.getData("text/plain");
+            var newListId = ev.currentTarget.getAttribute('listid');
 
-      $("#item_set_list_form #target-item")[0].value = itemId;
-      $("#item_set_list_form #target-list")[0].value = newListId;
-      $("#item_set_list_form")[0].submit();
-      }
-  });
+            doMoveItem(itemId, newListId);
+        };
+    });
 }
 
 pageInit["todo-list"] = function () {
     elem("item-description").focus();
-    setupJQueryEdit();
-    setupJQueryItemDragging();    
+    setupEditableItems();
+    //setupJQueryItemDragging();
+    setupHTML5ItemDragging();
 };
 
 pageInit["new-user"] = function () {
