@@ -107,9 +107,7 @@ var pageInit = {};
 
 //////// todo list
 
-pageInit["todo-list"] = function () {
-  elem("item-description").focus();
-
+function setupJQueryItemDragging() {
   $( ".item-list .item-row" ).dblclick(function (obj){
       beginItemEdit($(obj.delegateTarget).attr("itemid"));
   });
@@ -123,10 +121,7 @@ pageInit["todo-list"] = function () {
           return $("<div class=\"drag-item\">Moving List Item</div>");
       },
       cursor: "hand",
-      cursorAt: {
-          left: 0,
-          top: 0
-      }
+      cursorAt: { left: 0, top: 0  }
   });
 
   $( ".list-list tr" ).droppable({
@@ -142,6 +137,11 @@ pageInit["todo-list"] = function () {
       $("#item_set_list_form")[0].submit();
       }
   });
+}
+
+pageInit["todo-list"] = function () {
+  elem("item-description").focus();
+  setupJQueryItemDragging();    
 };
 
 pageInit["new-user"] = function () {
