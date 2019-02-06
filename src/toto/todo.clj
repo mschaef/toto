@@ -166,7 +166,7 @@
               [:span.public-flag
                [:a { :href (str "/list/" list-id "/public") } "public"]])]])
         (data/get-todo-lists-by-user (user/current-user-id)))
-   [:tr.add-list
+   [:tr#add-list
     [:td { :colspan "2"}
      (js-link "beginListCreate" nil "Add Todo List...")]]])
 
@@ -205,16 +205,6 @@
   (view/render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)
                      :init-map { :page "todo-list" }}
                     (render-todo-list selected-list-id false 0 0)))
-
-(defn config-panel [ target-url & sections ]
-  (form/form-to
-   [:post target-url]
-   [:table.config-panel
-    (map (fn [ [ heading & body ] ]
-           [:tr
-            [:td.section-heading heading]
-            [:td body ]])
-         sections)]))
 
 (defn render-todo-list-details-page [ list-id & { :keys [ error-message ]}]
   (let [list-details (data/get-todo-list-by-id list-id)
@@ -256,7 +246,7 @@
           [:tr
            [:td]
            [:td
-            [:p.new-user
+            [:p#new-user
              (js-link "beginUserAdd" list-id "Add User To List...")]]]
           (when error-message
             [:tr

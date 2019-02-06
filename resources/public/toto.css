@@ -371,7 +371,7 @@ div.deleted_item {
     text-transform: uppercase;
 }
 
-.list-list tr.add-list {
+.list-list tr#add-list {
     text-align: center;
     vertical-align: middle;
 
@@ -499,7 +499,7 @@ p.new-list {
     padding-bottom: 1em;
 }
 
-p.new-user {
+p#new-user {
     font-style: italic;
 }
 

@@ -95,9 +95,9 @@
      [:tr
       [:td "Verify Password:"]
       [:td (form/password-field { :class "simple-border" } "password2")]]
-     (when error-message
-       [:tr
-        [:td { :colspan 2 } [:div.error-message error-message]]])
+     [:tr
+      [:td { :colspan 2 }
+       [:div#error.error-message error-message]]]
      [:tr
       [:td]
       [:td (form/submit-button {} "Register")]]])))

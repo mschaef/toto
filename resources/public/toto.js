@@ -1,17 +1,23 @@
 /* toto.js */
 
+function elem(id) {
+    var element =  document.getElementById(id);
+
+    if(!element) {
+        console.error('Expected missing element with ID: ' + id);
+    }
+    
+    return element;
+}
+
 sidebarVisible = false;
 
 function toggleSidebar() {
-    var $menu = $( '#sidebar' );
+    var menu = elem('sidebar');
  
-    /* Cross browser support for CSS "transition end" event */
-    transitionEnd = 'transitionend webkitTransitionEnd otransitionend MSTransitionEnd';
-
     sidebarVisible = !sidebarVisible;
-    
-    /* When the toggle menu link is clicked, animation starts */
-    $menu.toggleClass('menu-visible', sidebarVisible);
+
+    menu.classList.toggle('menu-visible', sidebarVisible);
 }
 
 function onToggleSidebar(e) {
@@ -26,10 +32,11 @@ function refreshPage()
 }
 
 function deleteItem(itemId) {
-    $.post("/item/" + itemId + "/delete",
-           function(data) {
-               refreshPage();
-           });
+    fetch("/item/" + itemId + "/delete", {
+        method: 'POST'
+    }).then(function(data) {
+        refreshPage();
+    });
 }
 
 function beginListCreate()
@@ -40,9 +47,8 @@ function beginListCreate()
     formMarkup += "<input class=\"full-width simple-border\" id=\"list-description\" name=\"list-description\" type=\"text\" maxlength=\"32\"/>";
     formMarkup += "</form></td></tr>";
 
-    $('tr.add-list').replaceWith(formMarkup);
-
-    $("#list-description").focus();
+    elem('add-list').outerHTML = formMarkup;
+    elem('list-description').focus();
 }
 
 function beginUserAdd(listId)
@@ -51,22 +57,21 @@ function beginUserAdd(listId)
 
     formMarkup += "<input class=\"full-width simple-border\" id=\"share-with-email\" name=\"share-with-email\" type=\"text\" />";
 
-    $('p.new-user').replaceWith(formMarkup);
-
-    $("#share-with-email").focus();
+    elem('new-user').outerHTML = formMarkup;
+    elem('share-with-email').focus();
 }
 
 function beginItemEdit(itemId)
 {
   var formMarkup = "";
 
-  var itemDesc = $('div#item_desc_' + itemId).text();
+  var itemDesc = elem('div#item_desc_' + itemId).textContent;
 
   formMarkup += "<form class=\"embedded\" action=\"/item/" + itemId + "/delete\" method=\"POST\">";
   formMarkup += "<button type=\"submit\" class=\"item-button\"><i class=\"fa fa-trash-o icon-black\"></i></button>";
   formMarkup += "</form>";
 
-  $('div#item_control_' + itemId).replaceWith(formMarkup);
+  elem('div#item_control_' + itemId).outerHTML = formMarkup;
 
   formMarkup = "";
 
@@ -74,10 +79,10 @@ function beginItemEdit(itemId)
   formMarkup += "<input class=\"full-width simple-border\" id=\"description\" name=\"description\" type=\"text\"/>";
   formMarkup += "</form>";
 
-  $('div#item_' + itemId).replaceWith(formMarkup);
+  elem('div#item_' + itemId).outerHTML = formMarkup;
 
-  $("#iedit_" + itemId + " #description").val(itemDesc);
-  $("#iedit_" + itemId + " #description").focus();
+  elem("#iedit_" + itemId + " #description").textContent = itemDesc;
+  elem("#iedit_" + itemId + " #description").focus();
 }
 
 $(document).ready(function () {
@@ -87,16 +92,15 @@ $(document).ready(function () {
 
 function checkPasswords()
 {
-    var pwd1 = $( "#password1" ).val().trim();
-    var pwd2 = $( "#password2" ).val().trim();
+    var pwd1 = elem("password1").value.trim();
+    var pwd2 = elem("password2").value.trim();
 
-
-    var errDiv = $("#error");
+    var errDiv = elem("error");
     
     if ((pwd1.length > 0) && (pwd2.length > 0) && (pwd1 != pwd2))
-        errDiv.text("Passwords do not match");
+        errDiv.innerHTML = "Passwords do not match";
     else
-        errDiv.empty();
+        errDiv.innerHTML = "";
 }
 
 var pageInit = {};
@@ -104,7 +108,7 @@ var pageInit = {};
 //////// todo list
 
 pageInit["todo-list"] = function () {
-  $("#item-description").focus();
+  elem("item-description").focus();
 
   $( ".item-list .item-row" ).dblclick(function (obj){
       beginItemEdit($(obj.delegateTarget).attr("itemid"));
@@ -141,11 +145,10 @@ pageInit["todo-list"] = function () {
 };
 
 pageInit["new-user"] = function () {
-    $( "#password1" ).keyup(checkPasswords);
-    $( "#password1" ).change(checkPasswords);
-    
-    $( "#password2" ).keyup(checkPasswords);
-    $( "#password2" ).change(checkPasswords);
+    elem("password1").onkeyup = checkPasswords;
+    elem("password1").onchange = checkPasswords;
+    elem("password2").onkeyup = checkPasswords;
+    elem("password2").onchange = checkPasswords;
 };
 
 function totoInitialize(initMap) {
