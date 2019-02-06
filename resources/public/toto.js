@@ -10,6 +10,10 @@ function elem(id) {
     return element;
 }
 
+function foreach_elem(selector, fn) {
+    Array.prototype.forEach.call(document.querySelectorAll(selector), function(el, i) { fn(el); });
+}
+
 sidebarVisible = false;
 
 function toggleSidebar() {
@@ -43,46 +47,46 @@ function beginListCreate()
 {
   var formMarkup = "";
 
-    formMarkup += "<tr><td colspan=\"2\"><form action=\"/list\" method=\"POST\">";
-    formMarkup += "<input class=\"full-width simple-border\" id=\"list-description\" name=\"list-description\" type=\"text\" maxlength=\"32\"/>";
-    formMarkup += "</form></td></tr>";
+  formMarkup += "<tr><td colspan=\"2\"><form action=\"/list\" method=\"POST\">";
+  formMarkup += "<input class=\"full-width simple-border\" id=\"list-description\" name=\"list-description\" type=\"text\" maxlength=\"32\"/>";
+  formMarkup += "</form></td></tr>";
 
-    elem('add-list').outerHTML = formMarkup;
-    elem('list-description').focus();
+  elem('add-list').outerHTML = formMarkup;
+  elem('list-description').focus();
 }
 
 function beginUserAdd(listId)
 {
   var formMarkup = "";
 
-    formMarkup += "<input class=\"full-width simple-border\" id=\"share-with-email\" name=\"share-with-email\" type=\"text\" />";
+  formMarkup += "<input class=\"full-width simple-border\" id=\"share-with-email\" name=\"share-with-email\" type=\"text\" />";
 
-    elem('new-user').outerHTML = formMarkup;
-    elem('share-with-email').focus();
+  elem('new-user').outerHTML = formMarkup;
+  elem('share-with-email').focus();
 }
 
 function beginItemEdit(itemId)
 {
   var formMarkup = "";
 
-  var itemDesc = elem('div#item_desc_' + itemId).textContent;
+  var itemDesc = elem('item_desc_' + itemId).textContent;
 
   formMarkup += "<form class=\"embedded\" action=\"/item/" + itemId + "/delete\" method=\"POST\">";
   formMarkup += "<button type=\"submit\" class=\"item-button\"><i class=\"fa fa-trash-o icon-black\"></i></button>";
   formMarkup += "</form>";
 
-  elem('div#item_control_' + itemId).outerHTML = formMarkup;
+  elem('item_control_' + itemId).outerHTML = formMarkup;
 
   formMarkup = "";
 
   formMarkup += "<form id=\"iedit_" + itemId + "\"  class=\"embedded\" action=\"/item/" + itemId + "\" method=\"POST\">";
-  formMarkup += "<input class=\"full-width simple-border\" id=\"description\" name=\"description\" type=\"text\"/>";
+  formMarkup += "<input class=\"full-width simple-border\" id=\"iedit_" + itemId + "_description\" name=\"description\" type=\"text\"/>";
   formMarkup += "</form>";
 
-  elem('div#item_' + itemId).outerHTML = formMarkup;
+  elem('item_' + itemId).outerHTML = formMarkup;
 
-  elem("#iedit_" + itemId + " #description").textContent = itemDesc;
-  elem("#iedit_" + itemId + " #description").focus();
+  elem("iedit_" + itemId + "_description").value = itemDesc;
+  elem("iedit_" + itemId + "_description").focus();
 }
 
 $(document).ready(function () {
@@ -107,10 +111,15 @@ var pageInit = {};
 
 //////// todo list
 
+function setupJQueryEdit() {
+    foreach_elem('.item-list .item-row', function(el) {
+        el.ondblclick = function(obj) {
+            beginItemEdit(el.getAttribute('itemid'));
+        };
+    });
+}
+
 function setupJQueryItemDragging() {
-  $( ".item-list .item-row" ).dblclick(function (obj){
-      beginItemEdit($(obj.delegateTarget).attr("itemid"));
-  });
 
   if ($(".item-list .item-row").draggable == undefined)
       return;
@@ -140,8 +149,9 @@ function setupJQueryItemDragging() {
 }
 
 pageInit["todo-list"] = function () {
-  elem("item-description").focus();
-  setupJQueryItemDragging();    
+    elem("item-description").focus();
+    setupJQueryEdit();
+    setupJQueryItemDragging();    
 };
 
 pageInit["new-user"] = function () {
