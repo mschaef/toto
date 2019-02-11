@@ -27,9 +27,7 @@
   (list
    (page/include-css (resource "toto.css")
                      (resource "font-awesome.min.css"))
-   (page/include-js (resource "jquery-1.10.1.js")
-                    (resource "jquery-ui.js")
-                    (resource "toto.js"))
+   (page/include-js (resource "toto.js"))
    [:script
     "totoInitialize(" (json/write-str init-map) ");"]))
 

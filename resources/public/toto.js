@@ -89,10 +89,13 @@ function beginItemEdit(itemId)
   elem("iedit_" + itemId + "_description").focus();
 }
 
-$(document).ready(function () {
-    $( '#toggle-menu' ).on('touchstart click', onToggleSidebar);
-    $( '#close-menu' ).on('touchstart click', onToggleSidebar);
-});
+function setupSidebar() {
+    elem('toggle-menu').ontouchstart =  onToggleSidebar;
+    elem('toggle-menu').onclick =  onToggleSidebar;
+
+    elem('close-menu').ontouchstart =  onToggleSidebar;
+    elem('close-menu').onclick =  onToggleSidebar;
+};
 
 function checkPasswords()
 {
@@ -125,7 +128,7 @@ function doMoveItem(itemId, newListId) {
     elem("item_set_list_form").submit();
 }
 
-function setupHTML5ItemDragging() {
+function setupItemDragging() {
     foreach_elem(".item-list .item-row", function(el) {
         el.setAttribute('draggable', true);
         
@@ -136,6 +139,26 @@ function setupHTML5ItemDragging() {
     });
 
     foreach_elem('.list-list tr', function(el) {
+        var dragCount = 0;
+        
+        el.ondragenter = function(ev) {
+            ev.preventDefault();
+
+            if (!dragCount)
+                el.classList.add('drop-hover');
+
+            dragCount++;
+        };
+
+        el.ondragleave = function(ev) {
+            ev.preventDefault();
+
+            dragCount--;
+            
+            if (!dragCount)
+                el.classList.remove('drop-hover');
+        };
+        
         el.ondragover = function(ev) {
             ev.preventDefault();
         };
@@ -154,8 +177,7 @@ function setupHTML5ItemDragging() {
 pageInit["todo-list"] = function () {
     elem("item-description").focus();
     setupEditableItems();
-    //setupJQueryItemDragging();
-    setupHTML5ItemDragging();
+    setupItemDragging();
 };
 
 pageInit["new-user"] = function () {
@@ -169,6 +191,8 @@ function totoInitialize(initMap) {
     var pageInitFn = pageInit[initMap.page];
 
     if (pageInitFn != null) {
-        $(document).ready(pageInitFn);
+        document.addEventListener('DOMContentLoaded', pageInitFn);
     }
+    
+    setupSidebar();
 }
