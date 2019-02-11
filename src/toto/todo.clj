@@ -104,14 +104,12 @@
 
 (defn render-todo-item [ item-info item-number writable? ]
   (let [{item-id :item_id
-         item-desc :desc
-         item-age :age_in_days
          completed-on :completed_on
          is-delete? :is_delete
          priority :priority
-         snoozed-until :snoozed_until}
+         snoozed-until :snoozed_until
+         currently-snoozed :currently_snoozed}
         item-info]
-
     [:tr.item-row  {:itemid item-id
                     :class (class-set {"first-row" (= item-number 0)
                                        "high-priority" (> priority 0)})}
@@ -132,23 +130,31 @@
                 :class (class-set {"deleted_item" (and (not (nil? completed-on)) is-delete?)
                                    "completed_item" (not (nil? completed-on))})}
           (render-item-text desc)
-          (snooze-item-button item-info [:span.pill (render-age item-age)])
-          (when (and snoozed-until
-                     (.after snoozed-until (java.util.Date.)))
+          (snooze-item-button item-info [:span.pill (render-age (:age_in_days item-info))])
+          (when currently-snoozed
             (unsnooze-item-button item-info [:span.pill "snoozed"]))]))]
      [:td.item-control.priority.right
       (render-item-priority-control item-id priority writable?)]]))
 
-(defn render-todo-list [ list-id writable? completed-within-days snoozed-for-days ]
-  [:table.item-list
-   (when writable?
-     [:tr {:class "new-item"}
-      [:td {:colspan "3" :class "new-item"}
-       (render-new-item-form list-id)]])
-   (map (fn [ item-info item-number ]
-           (render-todo-item item-info item-number writable?))
-        (data/get-pending-items list-id completed-within-days snoozed-for-days)
-        (range))])
+(defn render-todo-list [ list-id writable? completed-within-days include-snoozed? ]
+  (let [pending-items (data/get-pending-items list-id completed-within-days)
+        n-snoozed-items (count (filter :currently_snoozed pending-items))]
+    [:table.item-list
+     (when writable?
+       [:tr {:class "new-item"}
+        [:td {:colspan "3" :class "new-item"}
+         (render-new-item-form list-id)]])
+     (map (fn [ item-info item-number ]
+            (render-todo-item item-info item-number writable?))
+          (if include-snoozed?
+            pending-items
+            (remove :currently_snoozed pending-items))
+          (range))
+     (when (> n-snoozed-items 0)
+       [:tr.snooze-control
+        [:td {:colspan "3"}
+         [:a {:href (str list-id "?snoozed=" (if include-snoozed? "0" "1")) }
+          (if include-snoozed? "Hide" "Show") " " n-snoozed-items " snoozed item" (if (= 1 n-snoozed-items) "" "s") "."]]])]))
 
 (defn render-todo-list-list [ selected-list-id ]
   [:table.list-list
@@ -193,12 +199,6 @@
                                                            "-"
                                                            (str completed-within-days)))]
 
-                                   " and those snoozed for "
-                                   [:select { :id "sfor" :name "sfor" :onchange "this.form.submit()"} 
-                                    (form/select-options [ [ "-" "-"] [ "1d" "1"] ]
-                                                         (if (nil? snoozed-for-days)
-                                                           "-"
-                                                           (str snoozed-for-days)))]
                                    ".")]))
 
 (defn render-todo-list-public-page [ selected-list-id ]
@@ -362,7 +362,7 @@
    (GET "/" { params :params }
      (render-todo-list-page list-id
                             (or (parsable-integer? (:cwithin params)) 0)
-                            (or (parsable-integer? (:sfor params)) 0)))
+                            (not= 0 (or (parsable-integer? (:snoozed params)) 0))))
    
    (GET "/list.csv" []
      (-> (render-todo-list-csv list-id)

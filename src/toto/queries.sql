@@ -79,12 +79,12 @@ SELECT item.item_id,
        completion.completed_on,
        completion.is_delete,
        DATEDIFF('day', item.created_on, CURRENT_TIMESTAMP) as age_in_days,
-       item.snoozed_until
+       item.snoozed_until,
+       CURRENT_TIMESTAMP < NVL(item.snoozed_until, CURRENT_TIMESTAMP) AS currently_snoozed
    FROM todo_item item 
       LEFT JOIN todo_item_completion completion
         ON item.item_id = completion.item_id
    WHERE item.todo_list_id = :list_id
-   AND DATEADD('day', :snoozed_for_days, CURRENT_TIMESTAMP) >= NVL(item.snoozed_until, CURRENT_TIMESTAMP)
    AND (completion.completed_on IS NULL 
         OR completion.completed_on >
                DATEADD('day', :completed_within_days, CURRENT_TIMESTAMP))

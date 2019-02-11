@@ -397,6 +397,15 @@ table.item-list tr.item-row td {
     height: 3em;    
 }
 
+table.item-list tr.snooze-control {
+    border-top: 1px solid #e0e0e0;
+}
+
+table.item-list tr.snooze-control td {
+    text-align: center;
+    font-style: italic;    
+}
+
 @media only screen and (min-device-width : 480px) {
     table.item-list tr.item-row td {
         height: 1.2em;
