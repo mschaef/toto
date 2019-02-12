@@ -112,7 +112,8 @@
         item-info]
     [:tr.item-row  {:itemid item-id
                     :class (class-set {"first-row" (= item-number 0)
-                                       "high-priority" (> priority 0)})}
+                                       "high-priority" (> priority 0)
+                                       "snoozed" currently-snoozed})}
      (when writable?
        [:td.item-control
         [:div { :id (str "item_control_" item-id)}

@@ -195,8 +195,6 @@ div.query-settings {
 
     border-top: 1px solid #c0c0c0;
 
-    background: #e0e0e0;
-
     text-align: center;
     font-size: 0.8rem;
     font-style: italic;
@@ -466,6 +464,12 @@ tr.item-row {
 
 table.item-list tr.high-priority {
     background: #fffff0;
+    font-weight: bold;    
+}
+
+table.item-list tr.snoozed {
+    background: #e0e0e0;
+    font-style: italic;    
 }
 
 table.item-list tr.item-row td {
