@@ -18,6 +18,31 @@ function foreach_elem(selector, fn) {
     Array.prototype.forEach.call(document.querySelectorAll(selector), function(el, i) { fn(el); });
 }
 
+function doubleTapFilter(onSingleTap, onDoubleTap) {
+    var DOUBLETAP_TIME_MSEC = 700;
+
+    var doubletapTimer_ = null;
+
+    function doubletapTimeout() {
+        if(onSingleTap) {
+            onSingleTap();
+        }
+        doubleTapTimer_ = null;
+    }
+    
+    return function() {
+        if (doubletapTimer_) {
+            clearTimeout(doubletapTimer_);
+            doubletapTimer_ = null;
+            if(onDoubleTap) {
+                onDoubleTap();
+            }
+        } else {
+            doubletapTimer_ = setTimeout(doubletapTimeout, DOUBLETAP_TIME_MSEC);
+        }
+    };
+}
+
 sidebarVisible = false;
 
 function toggleSidebar() {
@@ -124,9 +149,9 @@ var pageInit = {};
 
 function setupEditableItems() {
     foreach_elem('.item-list .item-row', function(el) {
-        el.ondblclick = function(obj) {
+        el.onclick = doubleTapFilter(null, function(obj) {
             beginItemEdit(el.getAttribute('itemid'));
-        };
+        });
     });
 }
 
