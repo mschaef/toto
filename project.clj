@@ -6,7 +6,7 @@
                  [org.clojure/tools.logging "0.4.1"]
                  [ch.qos.logback/logback-classic "1.2.3"]
                  [com.mschaef/sql-file "0.3.0"]
-                 [cprop "0.1.11"]
+                 [cprop "0.1.13"]
                  [yesql "0.5.3"]
                  [org.clojure/data.json "0.2.6"]
                  [clj-http "3.9.1"]
