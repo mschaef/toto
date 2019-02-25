@@ -1,4 +1,4 @@
-/* toto-mobile.css - Site styles for desktop use */
+/* toto.css - Site styling */
 
 /* Global font selection */
 
@@ -414,10 +414,23 @@ table.item-list tr.snooze-control td {
 
 td.item-control {
     padding: 0.25em;
-    min-width: 1.5em;
-    width: 1.5em;
     text-align: center;
 }
+
+@media only screen and (max-device-width : 480px) {
+    td.item-control {
+        min-width: 1.5em;
+        width: 1.5em;
+    }
+}
+
+@media only screen and (min-device-width : 480px) {
+    td.item-control {
+        width: 2em;
+        min-width: 2em;
+    }
+}
+
 
 table.item-list td.item-control div {
     text-align: center;
