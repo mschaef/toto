@@ -1,7 +1,11 @@
 /* toto.js */
 
+function elemOptional(id) {
+    return document.getElementById(id);
+}
+
 function elem(id) {
-    var element =  document.getElementById(id);
+    var element =  elemOptional(id);
 
     if(!element) {
         console.error('Expected missing element with ID: ' + id);
@@ -93,8 +97,12 @@ function setupSidebar() {
     elem('toggle-menu').ontouchstart =  onToggleSidebar;
     elem('toggle-menu').onclick =  onToggleSidebar;
 
-    elem('close-menu').ontouchstart =  onToggleSidebar;
-    elem('close-menu').onclick =  onToggleSidebar;
+    var closeMenu = elemOptional('close-menu');
+
+    if (closeMenu) {
+        closeMenu.ontouchstart = onToggleSidebar;
+        closeMenu.onclick = onToggleSidebar;
+    }
 };
 
 function checkPasswords()
@@ -187,12 +195,18 @@ pageInit["new-user"] = function () {
     elem("password2").onchange = checkPasswords;
 };
 
-function totoInitialize(initMap) {
-    var pageInitFn = pageInit[initMap.page];
-
-    if (pageInitFn != null) {
-        document.addEventListener('DOMContentLoaded', pageInitFn);
-    }
+function pageInitializer(initMap) {
+    return function() {
+        var pageInitFn = pageInit[initMap.page];
     
-    setupSidebar();
+        if (pageInitFn != null) {
+            pageInitFn();
+        }
+    
+        setupSidebar();
+    };
+}
+
+function totoInitialize(initMap) {
+    document.addEventListener('DOMContentLoaded', pageInitializer(initMap));
 }
