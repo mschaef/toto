@@ -1,7 +1,11 @@
 /* toto.js */
 
+function elemOptional(id) {
+    return document.getElementById(id);
+}
+
 function elem(id) {
-    var element =  document.getElementById(id);
+    var element =  elemOptional(id);
 
     if(!element) {
         console.error('Expected missing element with ID: ' + id);
@@ -12,6 +16,31 @@ function elem(id) {
 
 function foreach_elem(selector, fn) {
     Array.prototype.forEach.call(document.querySelectorAll(selector), function(el, i) { fn(el); });
+}
+
+function doubleTapFilter(onSingleTap, onDoubleTap) {
+    var DOUBLETAP_TIME_MSEC = 700;
+
+    var doubletapTimer_ = null;
+
+    function doubletapTimeout() {
+        if(onSingleTap) {
+            onSingleTap();
+        }
+        doubleTapTimer_ = null;
+    }
+    
+    return function() {
+        if (doubletapTimer_) {
+            clearTimeout(doubletapTimer_);
+            doubletapTimer_ = null;
+            if(onDoubleTap) {
+                onDoubleTap();
+            }
+        } else {
+            doubletapTimer_ = setTimeout(doubletapTimeout, DOUBLETAP_TIME_MSEC);
+        }
+    };
 }
 
 sidebarVisible = false;
@@ -93,8 +122,12 @@ function setupSidebar() {
     elem('toggle-menu').ontouchstart =  onToggleSidebar;
     elem('toggle-menu').onclick =  onToggleSidebar;
 
-    elem('close-menu').ontouchstart =  onToggleSidebar;
-    elem('close-menu').onclick =  onToggleSidebar;
+    var closeMenu = elemOptional('close-menu');
+
+    if (closeMenu) {
+        closeMenu.ontouchstart = onToggleSidebar;
+        closeMenu.onclick = onToggleSidebar;
+    }
 };
 
 function checkPasswords()
@@ -116,9 +149,9 @@ var pageInit = {};
 
 function setupEditableItems() {
     foreach_elem('.item-list .item-row', function(el) {
-        el.ondblclick = function(obj) {
+        el.onclick = doubleTapFilter(null, function(obj) {
             beginItemEdit(el.getAttribute('itemid'));
-        };
+        });
     });
 }
 
@@ -187,12 +220,18 @@ pageInit["new-user"] = function () {
     elem("password2").onchange = checkPasswords;
 };
 
-function totoInitialize(initMap) {
-    var pageInitFn = pageInit[initMap.page];
-
-    if (pageInitFn != null) {
-        document.addEventListener('DOMContentLoaded', pageInitFn);
-    }
+function pageInitializer(initMap) {
+    return function() {
+        var pageInitFn = pageInit[initMap.page];
     
-    setupSidebar();
+        if (pageInitFn != null) {
+            pageInitFn();
+        }
+    
+        setupSidebar();
+    };
+}
+
+function totoInitialize(initMap) {
+    document.addEventListener('DOMContentLoaded', pageInitializer(initMap));
 }
