@@ -119,9 +119,13 @@ function beginItemEdit(itemId)
 }
 
 function setupSidebar() {
-    elem('toggle-menu').ontouchstart =  onToggleSidebar;
-    elem('toggle-menu').onclick =  onToggleSidebar;
+    var toggleMenu = elemOptional('toggle-menu');
 
+    if (toggleMenu) {
+        toggleMenu.ontouchstart =  onToggleSidebar;
+        toggleMenu.onclick =  onToggleSidebar;
+    }
+    
     var closeMenu = elemOptional('close-menu');
 
     if (closeMenu) {

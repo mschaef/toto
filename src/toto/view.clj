@@ -45,9 +45,10 @@
    (when username
      [:div.logout username " - " (logout-button)])])
 
-(defn- render-header [ page-title username ]
+(defn- render-header [ page-title username show-menu?]
   [:div#header
-   [:span#toggle-menu img-show-list "&nbsp;"]
+   (when show-menu?
+     [:span#toggle-menu img-show-list "&nbsp;"])
    [:span.app-name
     [:a { :href "/" } app-name] " - "]
    page-title
@@ -68,7 +69,7 @@
   [:body
    (if sidebar
      (render-sidebar username sidebar))
-   (render-header page-title username)
+   (render-header page-title username (not (nil? sidebar)))
    [:div#contents {:class (class-set { "with-sidebar" sidebar })}
     [:div#contents-container
      contents]]
