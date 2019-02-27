@@ -15,10 +15,18 @@
   (or (nil? str)
       (= 0 (count (.trim str)))))
 
-(defn partition-string [ n string ]
+(defn partition-string [ string n ]
   "Partition a full string into segments of length n, returning a
   sequence of strings of at most that length."
   (map (partial apply str) (partition-all n string)))
+
+(def html-breakpoint "&#8203;")
+
+(defn ensure-string-breakpoints [ s n ]
+  (clojure.string/join html-breakpoint (partition-string s n)))
+
+(defn ensure-string-breaks [ string at ]
+  (clojure.string/replace string at (str at html-breakpoint)))
 
 (defn in? 
   "true if seq contains elm"
@@ -47,13 +55,13 @@
                   ":"
                   (if-let [authority (.getAuthority url)]
                     (str "//" authority)))]
-    (clojure.string/replace
-     (util/escape-html
-      (str base
-           (string-leftmost (.getPath url)
-                            (max 0 (- (- target-length 3) (.length base)))
-                            "...")))
-     #"/" "/&#8203;")))
+    (-> (util/escape-html
+         (str base
+              (string-leftmost (.getPath url)
+                               (max 0 (- (- target-length 3) (.length base)))
+                               "...")))
+        (ensure-string-breaks "/")
+        (ensure-string-breaks "."))))
 
 (defn parsable-integer? [ str ]
   (try

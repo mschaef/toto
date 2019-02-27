@@ -85,7 +85,7 @@
   [:a { :href url :target "_blank" } (shorten-url-text url 60)])
 
 (defn render-item-text-segment [ item-text-segment ]
-  (clojure.string/join " " (map #(clojure.string/join "&#8203;" (partition-string 15 %))
+  (clojure.string/join " " (map #(ensure-string-breakpoints % 15)
                                 (clojure.string/split item-text-segment #"\s"))))
 
 (defn render-item-text [ item-text ]
