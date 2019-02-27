@@ -130,12 +130,12 @@
 (defn render-change-password-form  [ & { :keys [ error-message ]}]
   (view/render-page { :page-title "Change Password" }
    (form/form-to
-    [:post "/user/password"]
+    [:post "/user/password-change"]
     [:table.form
-     (:tr [:td  "E-Mail Address:"] [:td (get (friend/current-authentication) :identity)])
-     (:tr [:td "Old Password:"] [:td (form/password-field "password")])
-     (:tr [:td "New Password:"] [:td (form/password-field "new_password1")])
-     (:tr [:td "Verify Password:"] [:td (form/password-field "new_password2")])
+     [:tr [:td "E-Mail Address:"] [:td (get (friend/current-authentication) :identity)]]
+     [:tr [:td "Old Password:"] [:td (form/password-field "password")]]
+     [:tr [:td "New Password:"] [:td (form/password-field "new_password1")]]
+     [:tr [:td "Verify Password:"] [:td (form/password-field "new_password2")]]
      (when error-message
        [:tr [:td.error-message { :colspan 2 } error-message]])
      [:tr [:td] [:td (form/submit-button {} "Change Password")]]]))  )
@@ -195,19 +195,19 @@
 
 (defn private-routes [ config ]
   (routes
-   (GET "/user/password" []
+   (GET "/user/password-change" []
      (render-change-password-form))
    
-   (POST "/user/password" {{password :password new-password-1 :new_password1 new-password-2 :new_password2} :params}
-     (change-password password new-password-1 new-password-2))))
+   (POST "/user/password-change" {params :params}
+     (change-password (:password params) (:new_password1 params) (:new_password2 params)))))
 
 (defn all-routes [ config ]
   (routes
    (GET "/user" []
      (render-new-user-form))
 
-   (POST "/user" {{email-addr :email_addr password1 :password1 password2 :password2} :params}
-     (add-user email-addr password1 password2))
+   (POST "/user" {params :params}
+     (add-user (:email_addr params) (:password1 params) (:password2 params)))
 
 
    (GET "/login" { { login-failed :login_failed email-addr :username } :params }

@@ -53,7 +53,9 @@
    page-title
    (when username
      [:div.right
-      [:span.logout username [:span.logout-control " - " (logout-button)]]])] )
+      [:span.logout
+       [:a {:href "/user/password-change"} username]
+       [:span.logout-control " - " (logout-button)]]])] )
 
 (defn- render-sidebar [ username sidebar ]
   [:div#sidebar
