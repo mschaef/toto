@@ -47,6 +47,7 @@ TOTO_CONFIG_FILE=/etc/${SERVICE_NAME}/config.edn
 
 JAVA_OPTS="-Ddb.subname=/var/lib/${SERVICE_NAME}/${TOTO_DB_SUBNAME}"
 JAVA_OPTS="$JAVA_OPTS -Dconf=${TOTO_CONFIG_FILE}"
+JAVA_OPTS="$JAVA_OPTS -Dlogback.configurationFile=/etc/${SERVICE_NAME}/logback.xml"
 
 if [ "$AUTHBIND" = "yes" -a "$1" = "start" ]; then
    JAVA_OPTS="$JAVA_OPTS -Djava.net.preferIPv4Stack=true"
@@ -59,7 +60,6 @@ TOTO_SH="$JAVA $JAVA_OPTS"
 if [ "$AUTHBIND" = "yes" ]; then
    TOTO_SH="/usr/bin/authbind --deep /bin/bash -c '$TOTO_SH'"
 fi
-
 
 ### Functions
 
