@@ -1,4 +1,4 @@
-(defproject toto "0.5.2"
+(defproject toto "0.5.3-SNAPSHOT"
   :description "Toto To-Do List Manager"
   :license { :name "Copyright East Coast Toolworks (c) 2012-2018"}
 
