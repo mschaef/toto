@@ -1,2 +1,2 @@
-{:http-port 8080
+{:http-port 8088
  :development-mode false}
