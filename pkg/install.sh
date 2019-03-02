@@ -29,7 +29,7 @@ fi
 # Install jar in /usr/share
 
 install -v --group=root --owner=root --directory /usr/share/toto
-install -v --group=root --owner=root toto-standalone.jar /usr/share/toto
+install -v --group=root --owner=root lib/toto-standalone.jar /usr/share/toto
 
 # create log directory
 

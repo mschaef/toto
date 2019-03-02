@@ -17,6 +17,13 @@
                  [compojure "1.6.1"]
                  [slingshot "0.12.2"]]
 
+  :plugins [[lein-tar "3.3.0"]]
+  
+  :tar {:uberjar true
+        :format :tar-gz
+        :output-dir "."
+        :leading-path "toto-install"}
+  
   :main toto.main
   :aot [toto.main]
   
@@ -34,4 +41,5 @@
                   ["uberjar"]
                   ["change" "version" "leiningen.release/bump-version"]
                   ["vcs" "commit"]
-                  ["vcs" "push"]])
+                  ["vcs" "push"]
+                  ["tar"]])

@@ -22,37 +22,3 @@ then
     exit 1
 fi
 
-POM_PROPERTIES_FILE=$(find . -name pom.properties)
-
-if [ ! -r $POM_PROPERTIES_FILE ]
-then
-    echo "Cannot find POM properties file."
-    exit 1
-fi
-
-PROJECT_VERSION=`grep version ${POM_PROPERTIES_FILE} | cut -d= -f2`
-PROJECT_GROUPID=`grep groupId ${POM_PROPERTIES_FILE} | cut -d= -f2`
-PROJECT_ARTIFACTID=`grep artifactId ${POM_PROPERTIES_FILE} | cut -d= -f2`
-
-PROJECT_NAME=${PROJECT_GROUPID}-${PROJECT_ARTIFACTID}
-ARTIFACT_NAME=${PROJECT_NAME}-${PROJECT_VERSION}
-
-echo "Artifact Name: ${ARTIFACT_NAME}"
-
-UBERJAR_FILE=$(find target -name "*-standalone.jar")
-
-if [ ! -r $UBERJAR_FILE ]
-then
-    echo "Cannot find uberjar file."
-    exit 1
-fi
-
-cp ${UBERJAR_FILE} install
-
-INSTALL_PACKAGE_NAME=${PROJECT_NAME}-install
-
-ln -s install ${INSTALL_PACKAGE_NAME}
-
-tar czvf ${INSTALL_PACKAGE_NAME}-${PROJECT_VERSION}.tgz -h --exclude="*~" ${INSTALL_PACKAGE_NAME}
-
-rm ${INSTALL_PACKAGE_NAME}
