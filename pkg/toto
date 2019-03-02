@@ -37,7 +37,7 @@ TOTO_USER=${SERVICE_NAME}
 
 TOTO_JAR=toto-standalone.jar
 TOTO_DB_SUBNAME=toto
-TODO_CONFIG_FILE=/etc/${SERVICE_NAME}/config.edn
+TOTO_CONFIG_FILE=/etc/${SERVICE_NAME}/config.edn
 
 ### Read configuration variable file if it is present
 
