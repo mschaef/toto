@@ -34,6 +34,7 @@
 (defn- render-standard-header [ page-title init-map ]
   [:head
    [:meta {:name "viewport"
+           ;; user-scalable=no fails to work on iOS n where n > 10
            :content "width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0"}]
    [:title app-name (when page-title (str " - " page-title))]
    [:link { :rel "shortcut icon" :href (resource "favicon.ico")}]
