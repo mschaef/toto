@@ -44,6 +44,7 @@
       (app req))))
 
 (defn all-routes [ config ]
+  (log/info "Resources on path: " (str "/" (get-version)))
   (routes
    (route/resources (str "/" (get-version)))
    (user/all-routes config)

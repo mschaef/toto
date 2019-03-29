@@ -19,7 +19,7 @@ function foreach_elem(selector, fn) {
 }
 
 function doubleTapFilter(onSingleTap, onDoubleTap) {
-    var DOUBLETAP_TIME_MSEC = 700;
+    var DOUBLETAP_TIME_MSEC = 300;
 
     var doubletapTimer_ = null;
 
@@ -27,7 +27,7 @@ function doubleTapFilter(onSingleTap, onDoubleTap) {
         if(onSingleTap) {
             onSingleTap();
         }
-        doubleTapTimer_ = null;
+        doubletapTimer_ = null;
     }
     
     return function() {
@@ -152,7 +152,7 @@ var pageInit = {};
 //////// todo list
 
 function setupEditableItems() {
-    foreach_elem('.item-list .item-row', function(el) {
+    foreach_elem('.item-list .item-row .item-description', function(el) {
         el.onclick = doubleTapFilter(null, function(obj) {
             beginItemEdit(el.getAttribute('itemid'));
         });
@@ -175,7 +175,7 @@ function setupItemDragging() {
         };
     });
 
-    foreach_elem('.list-list tr', function(el) {
+    foreach_elem('.list-list td.item-description', function(el) {
         var dragCount = 0;
         
         el.ondragenter = function(ev) {

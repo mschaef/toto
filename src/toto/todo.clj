@@ -122,7 +122,7 @@
            (restore-item-button item-info))]])
      [:td.item-control.priority.left
       (render-item-priority-control item-id priority writable?)]
-     [:td.item-description
+     [:td.item-description {:itemid item-id}
       (let [desc (item-info :desc)]
         (list
          [:div { :id (str "item_desc_" item-id) :class "hidden"}
