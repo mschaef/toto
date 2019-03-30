@@ -12,6 +12,7 @@
                  [clj-http "3.9.1"]
                  [hiccup "1.0.5"]
                  [ring/ring-jetty-adapter "1.7.1"]
+                 [ring/ring-devel "1.7.1"]
                  [slester/ring-browser-caching "0.1.1"]
                  [com.cemerick/friend "0.2.3"]
                  [compojure "1.6.1"]

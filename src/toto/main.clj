@@ -9,6 +9,7 @@
   (:require [clojure.tools.logging :as log]
             [cprop.core :as cprop]
             [ring.adapter.jetty :as jetty]
+            [ring.middleware.reload :as ring-reload]
             [ring.middleware.file-info :as ring-file-info]
             [ring.middleware.resource :as ring-resource]
             [ring.util.response :as ring-response]
@@ -52,18 +53,22 @@
    (route/not-found "Resource Not Found")))
 
 (defn handler [ config ]
-  (-> (all-routes config)
-      (wrap-content-type)
-      (wrap-browser-caching {"text/javascript" 360000
-                             "text/css" 360000})
-      (user/wrap-authenticate)
-      (extend-session-duration 168)
-      (wrap-db-connection)
-      (wrap-request-logging)
-      (handler/site)))
+  (cond-> (ring-reload/wrap-reload
+           (-> (all-routes config)
+               (wrap-content-type)
+               (wrap-browser-caching {"text/javascript" 360000
+                                      "text/css" 360000})
+               (user/wrap-authenticate)
+               (extend-session-duration 168)
+               (wrap-db-connection)
+               (wrap-request-logging)
+               (handler/site)))
+    (:development-mode config) (ring-reload/wrap-reload)))
 
 (defn start-webserver [ config ]
   (let [ { http-port :http-port } config ]
+    (when (:development-mode config)
+      (log/warn "=== DEVELOPMENT MODE ==="))
     (log/info "Starting Webserver on port" http-port)
     (let [server (jetty/run-jetty (handler config) { :port http-port :join? false })]
       (add-shutdown-hook
