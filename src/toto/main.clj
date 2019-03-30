@@ -22,9 +22,12 @@
             [toto.view :as view]            
             [toto.user :as user]))
 
-(defn wrap-request-logging [ app ]
+(defn wrap-request-logging [ app development-mode? ]
   (fn [req]
-    (log/debug 'REQUEST (:request-method req) (:uri req) (:params req))
+    (if development-mode?
+      (log/debug 'REQUEST (:request-method req) (:uri req) (:params req))
+      (log/debug 'REQUEST (:request-method req) (:uri req)))
+
     (let [resp (app req)]
       (log/trace 'RESPONSE (:status resp))
       resp)))
@@ -61,7 +64,7 @@
                (user/wrap-authenticate)
                (extend-session-duration 168)
                (wrap-db-connection)
-               (wrap-request-logging)
+               (wrap-request-logging (:development-mode config))
                (handler/site)))
     (:development-mode config) (ring-reload/wrap-reload)))
 
