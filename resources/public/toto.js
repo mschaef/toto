@@ -175,7 +175,7 @@ function setupItemDragging() {
         };
     });
 
-    foreach_elem('.list-list td.item-description', function(el) {
+    foreach_elem('.list-list tr', function(el) {
         var dragCount = 0;
         
         el.ondragenter = function(ev) {
