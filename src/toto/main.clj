@@ -42,10 +42,6 @@
   (fn [req]
     (assoc (app req) :session-cookie-attrs {:max-age (* duration-in-hours 3600)})))
 
-(defn wrap-db-connection [ app ]
-  (fn [ req ]
-    (data/with-db-connection db
-      (app req))))
 
 (defn all-routes [ config ]
   (log/info "Resources on path: " (str "/" (get-version)))
@@ -63,7 +59,7 @@
                                       "text/css" 360000})
                (user/wrap-authenticate)
                (extend-session-duration 168)
-               (wrap-db-connection)
+               (data/wrap-db-connection)
                (wrap-request-logging (:development-mode config))
                (handler/site)))
     (:development-mode config) (ring-reload/wrap-reload)))

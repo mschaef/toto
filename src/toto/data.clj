@@ -14,9 +14,11 @@
 
 (def ^:dynamic *db* nil)
 
-(defmacro with-db-connection [ var & body ]
-  `(binding [ *db* @db-connection ]
-     ~@body))
+(defn wrap-db-connection [ app ]
+  (fn [ req ]
+    (jdbc/with-db-connection [ conn @db-connection ]
+      (binding [ *db* conn]
+        (app req)))))
 
 (defn- scalar [ query-result ]
   (let [first-row (first query-result)]
