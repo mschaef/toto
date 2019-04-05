@@ -6,11 +6,9 @@
             [toto.queries :as query]))
 
 (def db-connection
-  (delay (sql-file/open-sql-file
-          (assoc (sql-file/hsqldb-file-conn (config-property "db.subname" "toto"))
-                 :schema-path [ "sql/" ])
-          [ "toto" 4 ])))
-
+  (delay (-> (sql-file/open-pool {:name (config-property "db.subname" "toto")
+                                  :schema-path [ "sql/" ]})
+             (sql-file/ensure-schema [ "toto" 4 ]))))
 
 (def ^:dynamic *db* nil)
 
