@@ -595,6 +595,10 @@ i.icon-yellow {
     color: #ffd000;
 }
 
+i.icon-blue {
+    color: #0000ff;
+}
+
 i.icon-yellow:hover {
     color: #ffe700;
 }

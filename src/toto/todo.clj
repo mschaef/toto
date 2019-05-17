@@ -47,6 +47,9 @@
 (def img-star-gray [:i {:class "fa fa-lg fa-star-o icon-gray"}])
 (def img-star-yellow [:i {:class "fa fa-lg fa-star icon-yellow"}])
 
+(def img-arrow-gray [:i {:class "fa fa-lg fa-arrow-down icon-gray"}])
+(def img-arrow-blue [:i {:class "fa fa-lg fa-arrow-down icon-blue"}])
+
 (def img-edit-list [:i {:class "fa fa-pencil icon-edit"}])
 
 (def img-check [:i {:class "fa fa-check icon-black"}])
@@ -119,10 +122,15 @@
     (item-priority-button item-id 1 img-star-gray writable?)
     (item-priority-button item-id 0 img-star-yellow writable?)))
 
-(defn render-list-priority-control [ list-id priority ]
+(defn render-list-star-control [ list-id priority ]
   (if (<= priority 0)
     (list-priority-button list-id 1 img-star-gray)
     (list-priority-button list-id 0 img-star-yellow)))
+
+(defn render-list-arrow-control [ list-id priority ]
+  (if (>= priority 0)
+    (list-priority-button list-id -1 img-arrow-gray)
+    (list-priority-button list-id 0 img-arrow-blue)))
 
 (defn render-todo-item [ item-info item-number writable? ]
   (let [{item-id :item_id
@@ -194,7 +202,9 @@
             (when is-public
               [:span.public-flag
                [:a { :href (str "/list/" list-id "/public") } "public"]])]])
-        (remove :is_hidden (data/get-todo-lists-by-user (user/current-user-id))))
+        (remove #(and (< (:priority %) 0)
+                      (not (= (Integer. selected-list-id) (:todo_list_id %))))
+                (data/get-todo-lists-by-user (user/current-user-id))))
    [:tr.control-row
     [:td { :colspan "2"}
      [:a {:href "/lists"} "All Todo Lists"]]]])
@@ -247,7 +257,8 @@
                 (when (:is_public list)
                   [:span.public-flag
                    [:a { :href (str "/list/" list-id "/public") } "public"]])
-                (render-list-priority-control list-id (:priority list))]]))
+                (render-list-star-control list-id (:priority list))
+                (render-list-arrow-control list-id (:priority list))]]))
           (data/get-todo-lists-by-user (user/current-user-id)))]]))
 
 (defn render-todo-list-details-page [ list-id & { :keys [ error-message ]}]
