@@ -8,7 +8,7 @@
 (def db-connection
   (delay (-> (sql-file/open-pool {:name (config-property "db.subname" "toto")
                                   :schema-path [ "sql/" ]})
-             (sql-file/ensure-schema [ "toto" 4 ]))))
+             (sql-file/ensure-schema [ "toto" 5 ]))))
 
 (def ^:dynamic *db* nil)
 
@@ -158,18 +158,19 @@
       {:user_id user-id
        :todo_list_id todo-list-id}))))
 
+(defn set-list-priority [ todo-list-id user-id list-priority ]
+  (jdbc/update! *db* :todo_list_owners
+                {:priority list-priority}
+                ["todo_list_id=? and user_id=?" todo-list-id user-id]))
+
 (defn remove-list-owner [ todo-list-id user-id ]
-  (jdbc/delete! *db*
-   :todo_list_owners
-   ["todo_list_id=? and user_id=?" 
-    todo-list-id
-    user-id]))
+  (jdbc/delete! *db* :todo_list_owners
+                ["todo_list_id=? and user_id=?" todo-list-id user-id]))
 
 (defn delete-list [ todo-list-id ]
-  (jdbc/delete! *db*
-   :todo_list_owners
-   ["todo_list_id=?" 
-    todo-list-id]))
+  (jdbc/update! *db* :todo_list
+                {:is_deleted true}
+                ["todo_list_id=?" todo-list-id]))
 
 (defn update-list-description [ list-id list-description ]
   (jdbc/update! *db*
@@ -178,10 +179,9 @@
    ["todo_list_id=?" list-id]))
 
 (defn set-list-public [ list-id public? ]
-  (jdbc/update! *db*
-   :todo_list
-   {:is_public public?}
-   ["todo_list_id=?" list-id]))
+  (jdbc/update! *db* :todo_list
+                {:is_public public?}
+                ["todo_list_id=?" list-id]))
 
 (defn list-owned-by-user-id? [ list-id user-id ]
   (> (scalar

@@ -22,6 +22,7 @@ SELECT *
 SELECT is_public
   FROM todo_list
  WHERE todo_list_id = :todo_list_id
+   AND NOT(todo_list.is_deleted)
 
 -- name: get-friendly-users-by-id
 SELECT DISTINCT b.user_id, u.email_addr
@@ -37,14 +38,17 @@ SELECT user_id
  WHERE todo_list_id = :todo_list_id
 
 -- name: get-todo-list-ids-by-user
-SELECT DISTINCT todo_list_id
-  FROM todo_list_owners
- WHERE user_id = :user_id
+SELECT DISTINCT todo_list_owners.todo_list_id
+  FROM todo_list_owners, todo_list
+ WHERE NOT(todo_list.is_deleted)
+   AND todo_list.todo_list_id=todo_list_owners.todo_list_id
+   AND user_id = :user_id
 
 -- name: get-todo-lists-by-user
 SELECT DISTINCT todo_list.todo_list_id,
                 todo_list.desc,
                 todo_list.is_public,
+                todo_list_owners.priority,
                 (SELECT count(item.item_id)
                    FROM todo_item item 
                   WHERE item.todo_list_id=todo_list.todo_list_id
@@ -53,9 +57,11 @@ SELECT DISTINCT todo_list.todo_list_id,
                                     WHERE item_id=item.item_id))
                    AS item_count
   FROM todo_list, todo_list_owners
- WHERE todo_list.todo_list_id=todo_list_owners.todo_list_id
+ WHERE NOT(todo_list.is_deleted)
+   AND todo_list.todo_list_id=todo_list_owners.todo_list_id
    AND todo_list_owners.user_id = :user_id
- ORDER BY todo_list.desc
+ ORDER BY todo_list_owners.priority DESC,
+          todo_list.DESC
 
 -- name: list-owned-by-user-id?
 SELECT COUNT(*)

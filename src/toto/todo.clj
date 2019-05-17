@@ -41,6 +41,9 @@
 (defn redirect-to-home []
   (redirect-to-list (current-todo-list-id)))
 
+(defn redirect-to-lists []
+  (ring/redirect "/lists"))
+
 (def img-star-gray [:i {:class "fa fa-lg fa-star-o icon-gray"}])
 (def img-star-yellow [:i {:class "fa fa-lg fa-star icon-yellow"}])
 
@@ -72,8 +75,12 @@
 
 (defn item-priority-button [ item-id new-priority image-spec writable? ]
   (if writable?
-    (post-button (str "/item/"item-id "/priority?new-priority=" new-priority) "Set Priority" image-spec)
+    (post-button (str "/item/" item-id "/priority?new-priority=" new-priority) "Set Priority" image-spec)
     image-spec))
+
+(defn list-priority-button [ list-id new-priority image-spec ]
+  (post-button (str "/list/" list-id "/priority?new-priority=" new-priority)
+               "Set Priority" image-spec))
 
 (defn render-new-list-form [ ]
   (form/form-to [:post (str "/list" )]
@@ -111,6 +118,11 @@
   (if (<= priority 0)
     (item-priority-button item-id 1 img-star-gray writable?)
     (item-priority-button item-id 0 img-star-yellow writable?)))
+
+(defn render-list-priority-control [ list-id priority ]
+  (if (<= priority 0)
+    (list-priority-button list-id 1 img-star-gray)
+    (list-priority-button list-id 0 img-star-yellow)))
 
 (defn render-todo-item [ item-info item-number writable? ]
   (let [{item-id :item_id
@@ -182,7 +194,7 @@
             (when is-public
               [:span.public-flag
                [:a { :href (str "/list/" list-id "/public") } "public"]])]])
-        (data/get-todo-lists-by-user (user/current-user-id)))
+        (remove :is_hidden (data/get-todo-lists-by-user (user/current-user-id))))
    [:tr.control-row
     [:td { :colspan "2"}
      [:a {:href "/lists"} "All Todo Lists"]]]])
@@ -234,7 +246,8 @@
                 [:span.pill (:item_count list)] 
                 (when (:is_public list)
                   [:span.public-flag
-                   [:a { :href (str "/list/" list-id "/public") } "public"]])]]))
+                   [:a { :href (str "/list/" list-id "/public") } "public"]])
+                (render-list-priority-control list-id (:priority list))]]))
           (data/get-todo-lists-by-user (user/current-user-id)))]]))
 
 (defn render-todo-list-details-page [ list-id & { :keys [ error-message ]}]
@@ -330,6 +343,10 @@
       (data/set-list-ownership list-id #{ (user/current-user-id) })
       (redirect-to-list list-id))))
 
+(defn update-list-priority [ list-id user-id new-priority ]
+  (data/set-list-priority list-id user-id new-priority)
+  (redirect-to-lists))
+
 (defn add-item [ list-id item-description ]
   (when (not (string-empty? item-description))
     (data/add-todo-item list-id item-description))
@@ -419,7 +436,10 @@
         (update-list-description list-id (string-leftmost list-name 32))
         (data/set-list-public list-id (boolean is-public))
         (ring/redirect  (str "/list/" list-id "/details")))))
-    
+
+   (POST "/priority" { { new-priority :new-priority } :params }
+     (update-list-priority list-id (user/current-user-id) new-priority))
+      
    (POST "/delete" []
      (delete-list list-id))  
    
