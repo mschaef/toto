@@ -233,7 +233,11 @@ table.form td {
     border-right: 0px none;
     border-left: 0px none;
     background: #f0f0f0;
-    padding-left: 0.2em;
+    padding: 0.33em;
+}
+
+::placeholder {
+    color: #c0c0c0;
 }
 
 /* Application fonts */
@@ -310,6 +314,12 @@ div.deleted_item {
     color: #c0c0c0;
 }
 
+/* List List Page styling */
+
+.list-page {
+    padding-left: 1em;
+}
+
 /* List list styling */
 
 .list-list {
@@ -369,7 +379,7 @@ div.deleted_item {
     text-transform: uppercase;
 }
 
-.list-list tr#add-list {
+.list-list tr.control-row td {
     text-align: center;
     vertical-align: middle;
 
@@ -388,10 +398,10 @@ table.item-list {
 
 table.item-list td {
     padding-top: 0.5em;
-    padding-bottom: 0.5em;
+    padding-bottom: 0.table;
 }
 
-table.item-list tr.item-row td {
+5em.item-list tr.item-row td {
     height: 3em;    
 }
 

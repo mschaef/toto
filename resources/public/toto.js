@@ -72,18 +72,6 @@ function deleteItem(itemId) {
     });
 }
 
-function beginListCreate()
-{
-  var formMarkup = "";
-
-  formMarkup += "<tr><td colspan=\"2\"><form action=\"/list\" method=\"POST\">";
-  formMarkup += "<input class=\"full-width simple-border\" id=\"list-description\" name=\"list-description\" type=\"text\" maxlength=\"32\"/>";
-  formMarkup += "</form></td></tr>";
-
-  elem('add-list').outerHTML = formMarkup;
-  elem('list-description').focus();
-}
-
 function beginUserAdd(listId)
 {
   var formMarkup = "";

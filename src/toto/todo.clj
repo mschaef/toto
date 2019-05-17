@@ -75,9 +75,19 @@
     (post-button (str "/item/"item-id "/priority?new-priority=" new-priority) "Set Priority" image-spec)
     image-spec))
 
+(defn render-new-list-form [ ]
+  (form/form-to [:post (str "/list" )]
+                (form/text-field {:class "full-width simple-border"
+                                  :maxlength "1024"
+                                  :placeholder "New List Name"}
+                                 "list-description")))
+
 (defn render-new-item-form [ list-id ]
   (form/form-to [:post (str "/list/" list-id)]
-                (form/text-field { :class "full-width simple-border" :maxlength "1024" } "item-description")))
+                (form/text-field {:class "full-width simple-border"
+                                  :maxlength "1024"
+                                  :placeholder "New Item Description"}
+                                 "item-description")))
 
 (def url-regex #"(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]") 
 
@@ -142,8 +152,8 @@
         n-snoozed-items (count (filter :currently_snoozed pending-items))]
     [:table.item-list
      (when writable?
-       [:tr {:class "new-item"}
-        [:td {:colspan "3" :class "new-item"}
+       [:tr.new-item
+        [:td.new-item {:colspan "3"}
          (render-new-item-form list-id)]])
      (map (fn [ item-info item-number ]
             (render-todo-item item-info item-number writable?))
@@ -173,9 +183,9 @@
               [:span.public-flag
                [:a { :href (str "/list/" list-id "/public") } "public"]])]])
         (data/get-todo-lists-by-user (user/current-user-id)))
-   [:tr#add-list
+   [:tr.control-row
     [:td { :colspan "2"}
-     (js-link "beginListCreate" nil "Add Todo List...")]]])
+     [:a {:href "/lists"} "All Todo Lists"]]]])
 
 (defn render-item-set-list-form []
     (form/form-to { :class "embedded" :id (str "item_set_list_form") } [:post "/item-list"]
@@ -206,6 +216,26 @@
   (view/render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)
                      :init-map { :page "todo-list" }}
                     (render-todo-list selected-list-id false 0 0)))
+
+(defn render-list-list-page []
+  (view/render-page
+   {:page-title "All Todo Lists"}
+   [:div.list-page
+    [:table.list-list
+     [:tr.new-list
+      [:td
+       (render-new-list-form)]]
+     (map (fn [ list ]
+            (let [list-id (:todo_list_id list)]
+              [:tr
+               [:td.item
+                [:a {:href (str "/list/" list-id)}
+                 (hiccup.util/escape-html (:desc list))]
+                [:span.pill (:item_count list)] 
+                (when (:is_public list)
+                  [:span.public-flag
+                   [:a { :href (str "/list/" list-id "/public") } "public"]])]]))
+          (data/get-todo-lists-by-user (user/current-user-id)))]]))
 
 (defn render-todo-list-details-page [ list-id & { :keys [ error-message ]}]
   (let [list-details (data/get-todo-list-by-id list-id)
@@ -356,7 +386,6 @@
      (ensure-list-public-access list-id)
      (render-todo-list-public-page list-id))))
 
-
 (defn- list-routes [ list-id ]
   (ensure-list-owner-access list-id)
   (routes
@@ -425,6 +454,9 @@
    (POST "/list" { { list-description :list-description } :params }
      (add-list (string-leftmost list-description 32)))
 
+   (GET "/lists" []
+     (render-list-list-page))
+   
    (context "/list/:list-id" [ list-id ]
      (list-routes list-id))
    
