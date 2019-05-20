@@ -207,7 +207,7 @@
                 (data/get-todo-lists-by-user (user/current-user-id))))
    [:tr.control-row
     [:td { :colspan "2"}
-     [:a {:href "/lists"} "All Todo Lists"]]]])
+     [:a {:href "/lists"} "Manage Todo Lists"]]]])
 
 (defn render-item-set-list-form []
     (form/form-to { :class "embedded" :id (str "item_set_list_form") } [:post "/item-list"]
@@ -241,24 +241,30 @@
 
 (defn render-list-list-page []
   (view/render-page
-   {:page-title "All Todo Lists"}
+   {:page-title "Manage Todo Lists"}
    [:div.list-page
     [:table.list-list
      [:tr.new-list
-      [:td
+      [:td { :colspan 4 }
        (render-new-list-form)]]
      (map (fn [ list ]
-            (let [list-id (:todo_list_id list)]
-              [:tr
+            (let [list-id (:todo_list_id list)
+                  priority (:priority list)]
+              [:tr {:class (class-set {"high-priority" (> priority 0)
+                                       "low-priority" (< priority 0)})}
+               [:td.item-control
+                (render-list-star-control list-id priority)]
+               [:td.item-control
+                (render-list-arrow-control list-id priority)]
+               [:td.item-control
+                [:a {:href (str "/list/" list-id "/details")} img-edit-list]]               
                [:td.item
                 [:a {:href (str "/list/" list-id)}
                  (hiccup.util/escape-html (:desc list))]
                 [:span.pill (:item_count list)] 
                 (when (:is_public list)
                   [:span.public-flag
-                   [:a { :href (str "/list/" list-id "/public") } "public"]])
-                (render-list-star-control list-id (:priority list))
-                (render-list-arrow-control list-id (:priority list))]]))
+                   [:a { :href (str "/list/" list-id "/public") } "public"]])]]))
           (data/get-todo-lists-by-user (user/current-user-id)))]]))
 
 (defn render-todo-list-details-page [ list-id & { :keys [ error-message ]}]

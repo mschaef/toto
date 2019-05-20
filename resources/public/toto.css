@@ -483,12 +483,17 @@ tr.item-row {
     white-space: nowrap;
 }
 
-table.item-list tr.high-priority {
+.high-priority {
     background: #fffff0;
     font-weight: bold;    
 }
 
-table.item-list tr.snoozed {
+.low-priority {
+    background: #e7e7ff;
+    font-style: italic;    
+}
+
+.snoozed {
     background: #e0e0e0;
     font-style: italic;    
 }
