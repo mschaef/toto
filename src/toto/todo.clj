@@ -44,6 +44,8 @@
 (defn redirect-to-lists []
   (ring/redirect "/lists"))
 
+(def img-group [:i {:class "fa fa-group icon-gray"}])
+
 (def img-star-gray [:i {:class "fa fa-lg fa-star-o icon-gray"}])
 (def img-star-yellow [:i {:class "fa fa-lg fa-star icon-yellow"}])
 
@@ -189,7 +191,7 @@
 
 (defn render-todo-list-list [ selected-list-id ]
   [:table.list-list
-   (map (fn [ { list-id :todo_list_id list-desc :desc list-item-count :item_count is-public :is_public } ]
+   (map (fn [ { list-id :todo_list_id list-desc :desc list-item-count :item_count is-public :is_public list-owner-count :list_owner_count} ]
           [:tr (if (= list-id (Integer. selected-list-id))
                  { :class "selected" :listid list-id }
                  { :listid list-id })
@@ -201,7 +203,9 @@
             [:span.pill list-item-count] 
             (when is-public
               [:span.public-flag
-               [:a { :href (str "/list/" list-id "/public") } "public"]])]])
+               [:a { :href (str "/list/" list-id "/public") } "public"]])
+            (when (> list-owner-count 1)
+              [:span.group-list-flag img-group])]])
         (remove #(and (< (:priority %) 0)
                       (not (= (Integer. selected-list-id) (:todo_list_id %))))
                 (data/get-todo-lists-by-user (user/current-user-id))))
@@ -264,7 +268,9 @@
                 [:span.pill (:item_count list)] 
                 (when (:is_public list)
                   [:span.public-flag
-                   [:a { :href (str "/list/" list-id "/public") } "public"]])]]))
+                   [:a { :href (str "/list/" list-id "/public") } "public"]])
+                (when (> (:list_owner_count list) 1)
+                  [:span.group-list-flag img-group])]]))
           (data/get-todo-lists-by-user (user/current-user-id)))]]))
 
 (defn render-todo-list-details-page [ list-id & { :keys [ error-message ]}]

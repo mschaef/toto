@@ -379,6 +379,11 @@ div.deleted_item {
     text-transform: uppercase;
 }
 
+.list-list .group-list-flag {
+    padding-left: 0.25em;
+}
+                       
+
 .list-list tr.control-row td {
     text-align: center;
     vertical-align: middle;

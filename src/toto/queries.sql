@@ -55,7 +55,10 @@ SELECT DISTINCT todo_list.todo_list_id,
                     AND NOT EXISTS (SELECT 1
                                      FROM todo_item_completion
                                     WHERE item_id=item.item_id))
-                   AS item_count
+                   AS item_count,
+                (SELECT count(list_owners.user_id)
+                   FROM todo_list_owners list_owners
+                  WHERE list_owners.todo_list_id = todo_list.todo_list_id) AS list_owner_count
   FROM todo_list, todo_list_owners
  WHERE NOT(todo_list.is_deleted)
    AND todo_list.todo_list_id=todo_list_owners.todo_list_id
