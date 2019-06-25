@@ -97,7 +97,7 @@
       [:td (form/password-field { :class "simple-border" } "password2")]]
      [:tr
       [:td { :colspan 2 }
-       [:div#error.error-message error-message]]]
+       [:div.error.error-message error-message]]]
      [:tr
       [:td]
       [:td (form/submit-button {} "Register")]]])))

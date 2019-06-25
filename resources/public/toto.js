@@ -1,7 +1,13 @@
 /* toto.js */
 
-function elemOptional(id) {
-    return document.getElementById(id);
+function elemOptional(klass) {
+    var elements = document.getElementsByClassName(klass);
+
+    if (elements.length > 0) {
+        return elements[0];
+    }
+    
+    return null;
 }
 
 function elem(id) {

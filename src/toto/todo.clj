@@ -95,7 +95,8 @@
                                  "list-description")))
 
 (defn render-new-item-form [ list-id ]
-  (form/form-to [:post (str "/list/" list-id)]
+  (form/form-to { :class "new-item-form"}
+                [:post (str "/list/" list-id)]
                 (form/text-field {:class "full-width simple-border"
                                   :maxlength "1024"
                                   :placeholder "New Item Description"}
@@ -172,22 +173,22 @@
 (defn render-todo-list [ list-id writable? completed-within-days include-snoozed? ]
   (let [pending-items (data/get-pending-items list-id completed-within-days)
         n-snoozed-items (count (filter :currently_snoozed pending-items))]
-    [:table.item-list
+    [:div.todo-list
      (when writable?
-       [:tr.new-item
-        [:td.new-item {:colspan "3"}
-         (render-new-item-form list-id)]])
-     (map (fn [ item-info item-number ]
-            (render-todo-item item-info item-number writable?))
-          (if include-snoozed?
-            pending-items
-            (remove :currently_snoozed pending-items))
-          (range))
-     (when (> n-snoozed-items 0)
-       [:tr.snooze-control
-        [:td {:colspan "3"}
-         [:a {:href (str list-id "?snoozed=" (if include-snoozed? "0" "1")) }
-          (if include-snoozed? "Hide" "Show") " " n-snoozed-items " snoozed item" (if (= 1 n-snoozed-items) "" "s") "."]]])]))
+       (render-new-item-form list-id))
+     [:div.scrollable
+      [:table.item-list
+       (map (fn [ item-info item-number ]
+              (render-todo-item item-info item-number writable?))
+            (if include-snoozed?
+              pending-items
+              (remove :currently_snoozed pending-items))
+            (range))
+       (when (> n-snoozed-items 0)
+         [:tr.snooze-control
+          [:td {:colspan "3"}
+           [:a {:href (str list-id "?snoozed=" (if include-snoozed? "0" "1")) }
+            (if include-snoozed? "Hide" "Show") " " n-snoozed-items " snoozed item" (if (= 1 n-snoozed-items) "" "s") "."]]])]]]))
 
 (defn render-todo-list-list [ selected-list-id ]
   [:table.list-list
@@ -313,7 +314,7 @@
           [:tr
            [:td]
            [:td
-            [:p#new-user
+            [:p.new-user
              (js-link "beginUserAdd" list-id "Add User To List...")]]]
           (when error-message
             [:tr

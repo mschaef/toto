@@ -17,7 +17,7 @@
   [:i {:class "fa fa-times-circle fa-lg"}])
 
 (defn- logout-button []
-  [:span#logout
+  [:span.logout
    [:a { :href "/logout"} "[logout]"]])
 
 (defn- resource [ path ]
@@ -41,15 +41,15 @@
    (standard-includes init-map)])
 
 (defn- render-footer [ username ]
-  [:div#footer
+  [:div.footer
    "All Rights Reserved, Copyright 2013-19 East Coast Toolworks "
    (when username
      [:div.logout username " - " (logout-button)])])
 
 (defn- render-header [ page-title username show-menu?]
-  [:div#header
+  [:div.header
    (when show-menu?
-     [:span#toggle-menu img-show-list "&nbsp;"])
+     [:span.toggle-menu img-show-list "&nbsp;"])
    [:span.app-name
     [:a { :href "/" } app-name] " - "]
    page-title
@@ -60,20 +60,19 @@
        [:span.logout-control " - " (logout-button)]]])] )
 
 (defn- render-sidebar [ username sidebar ]
-  [:div#sidebar
+  [:div.sidebar
    [:div.sidebar-control
-    [:span#close-menu  img-close-list "&nbsp;"]
+    [:span.close-menu  img-close-list "&nbsp;"]
     [:span.username username]]
    sidebar])
 
 (defn- render-page-body [ page-title username sidebar contents ]
   [:body
-   (if sidebar
-     (render-sidebar username sidebar))
    (render-header page-title username (not (nil? sidebar)))
-   [:div#contents {:class (class-set { "with-sidebar" sidebar })}
-    [:div#contents-container
-     contents]]
+   [:div.contents {:class (class-set { "with-sidebar" sidebar })}
+    (if sidebar
+      (render-sidebar username sidebar))
+    contents]
    (render-footer username)])
 
 (defn render-page [{ :keys [ page-title init-map sidebar ] }  & contents]

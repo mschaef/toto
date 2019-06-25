@@ -3,9 +3,6 @@
 /* Global font selection */
 
 body, table, select, input {
-    font-family: Roboto,Helvetica,sans-serif;
-    font-size: 11pt;
-    line-height:1.2;
     margin: 0px;
     padding: 0px;
 }
@@ -30,9 +27,51 @@ body, table, select, input {
 
 body {
     overflow-y: hidden;
+    display: flex;
+    flex-direction: column;
+    font-family: Roboto,Helvetica,sans-serif;
+    font-size: 11pt;
+    line-height:1.2;
+
+    height: 100vh;
 }
 
-div#sidebar {
+.header {
+    flex: 0 0 auto;
+
+    z-index: 1;
+    
+    background: #e0e0e0;
+    color: #202020;
+
+    border-bottom: 1px solid #c0c0c0;
+
+    box-shadow: 1px 1px 1px #e0e0e0;
+
+    padding: 0.5em;
+}
+
+.contents {
+    background: white;
+    
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+}
+
+.footer {
+    flex: 0 0 auto;
+    
+    background: white;
+
+    border-top: 1px solid #c0c0c0;
+    color: #404040;
+
+    text-align: center;
+    font-size: 0.8rem;
+    font-style: italic;
+}
+
+.sidebar {
     z-index: 2;
     display: block;
 	position: absolute;
@@ -51,21 +90,19 @@ div#sidebar {
 
     transform: translate3d( 0, 0, 0 );
     transition: transform 0.25s ease-in-out;
-
-    padding-bottom: 30px;
 }
 
 @media only screen and (min-device-width : 480px) {
-    div#sidebar {
+    .sidebar {
         z-index: 0;
         left: 0px;
         box-shadow: none;
         width: 240px;
-        padding-top: 3em;
+        padding-top: 10px;
     }
 }
 
-div#sidebar::-webkit-scrollbar {
+div.sidebar::-webkit-scrollbar {
     display: none;
 }
 
@@ -77,81 +114,31 @@ div#sidebar::-webkit-scrollbar {
 .warning {
     color: red;
 }
+.todo-list {
+    height: 100%; 
+    display: flex;
+    flex-direction: column;
+}
 
-div#contents {
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    right: 0px;
-    
-    background: white;
-
-    height: 100%;
+.scrollable {
     overflow-y: scroll;
-    -webkit-overflow-scrolling: touch;
-
-    padding-top: 2.75em;
+    margin-bottom: 30px;
 }
 
-@media only screen and (max-device-width : 480px) {
-    div#contents {
-        padding-top: 3.5em;
-    }
-}
-
-div#contents-container {
-    padding-bottom: 6em;
+.new-item-form {
+    padding: 6px;
 }
 
 @media only screen and (min-device-width : 480px) {
-    div#contents {
-        padding-right: 0.5em;
-    }
-    
-    div#contents.with-sidebar {
-        left: 240px;
+    .contents.with-sidebar {
+        padding-left: 240px;
     }
 }
 
-div#contents::-webkit-scrollbar {
+div.contents::-webkit-scrollbar {
     display: none;
 }
-
-div#header {
-    position: fixed;
-    top: 0px;
-    left: 0px;
-    right: 0px;
-    z-index: 1;
-    
-    background: #e0e0e0;
-    color: #202020;
-
-   border-bottom: 1px solid #c0c0c0;
-
-   box-shadow: 1px 1px 1px #e0e0e0;
-
-   padding: 0.5em;
-}
-
-div#footer {
-    position: absolute;
-    right: 0px;
-    bottom: 0px;
-    left: 0px;
-    
-    background: white;
-
-    border-top: 1px solid #c0c0c0;
-    color: #404040;
-
-    text-align: center;
-    font-size: 0.8rem;
-    font-style: italic;
-}
-
-
-span#close-menu {
+span.close-menu {
     padding-right: 0.5em;
 }
 
@@ -173,12 +160,12 @@ table {
     border-spacing: 0;
 }
 
-div#header a.click {
+div.header a.click {
     padding-left: 0.5em;
     padding-right: 0.5em;
 }
 
-div#header .right {
+div.header .right {
     float: right;
 }
 
@@ -193,14 +180,14 @@ div.query-settings {
 
     right: 0px;
 
-    border-top: 1px solid #c0c0c0;
+    border-top: 1px solid .c0c0c0;
 
     text-align: center;
     font-size: 0.8rem;
     font-style: italic;
 }
 
-div#header span#vspace {
+div.header span.vspace {
     min-height: 12pt;
     display: inline-block;
     padding-top: 0.5em;
@@ -259,19 +246,19 @@ A:visited {
         display: none;
     }
 
-    #toggle-menu {
+    .toggle-menu {
         display: none;
     }
 }
 
 @media only screen and (min-device-width : 480px) {
-    div#footer div.logout {
+    div.footer div.logout {
         display: none;
     }
 }
 
 @media only screen and (max-device-width : 480px) {
-    #header .logout {
+    .header .logout {
         display: none;
     }
 }
@@ -285,12 +272,12 @@ A:visited {
     text-align: center;
 }
 
-div#header span.app-name A {
+div.header span.app-name A {
     color: black;
     font-weight: bold;
 }
 
-div#contents div.logout {
+div.contents div.logout {
     padding-top: 1em;
     text-align: center;
 }
@@ -301,7 +288,7 @@ div#contents div.logout {
     }
 }
 
-span#logout A {
+.logout-control A {
     color: red;
 }
 
@@ -543,7 +530,7 @@ p.new-list {
     padding-bottom: 1em;
 }
 
-p#new-user {
+p.new-user {
     font-style: italic;
 }
 
@@ -618,25 +605,25 @@ i.icon-bars {
     padding: 0.5em;
 }
 
-.animating #sidebar, .menu-visible #sidebar {
+.animating .sidebar, .menu-visible .sidebar {
   display: block;
 }
 
-div#sidebar.menu-visible {
+div.sidebar.menu-visible {
     display: block;
     transform: translate3d( 280px, 0, 0 );
 }
 
-#contents, #sidebar {
+.contents, .sidebar {
   -webkit-backface-visibility: hidden;
   -webkit-perspective: 1000;
 }
 
 input[type=submit] {
     padding: 0.5em 1em;
-    background:#ccc; 
+    background: #ccc; 
     border: 1px solid #c0c0c0;
-    cursor:pointer;
+    cursor: pointer;
     -webkit-border-radius: 0px;
     border-radius: 0px; 
 }
@@ -662,18 +649,18 @@ select:hover {
 
 
 @media print {
-    div#header {
+    div.header {
         display: block;
         position: static;
     }
 
-    div#contents {
+    div.contents {
         display: block;
         position: static;
         padding: 0px;
     }
     
-    div#sidebar {
+    div.sidebar {
         display: none;
     }
     
@@ -697,7 +684,7 @@ select:hover {
         display: none;
     }
     
-    #toggle-menu {
+    .toggle-menu {
         display: none;
     }
 }
