@@ -10,7 +10,6 @@
             [ring.util.response :as ring-response]
             [cemerick.friend :as friend]
             [toto.data :as data]
-            [toto.core :as core]
             [toto.view :as view]
             [toto.user :as user]))
 

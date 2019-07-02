@@ -16,7 +16,6 @@
             [cemerick.friend :as friend]
             [compojure.handler :as handler]
             [compojure.route :as route]
-            [toto.core :as core]
             [toto.data :as data]
             [toto.todo :as todo]
             [toto.view :as view]            

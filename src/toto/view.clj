@@ -2,8 +2,7 @@
   (:use toto.util
         clojure.set
         hiccup.core)
-  (:require [toto.core :as core]
-            [clojure.data.json :as json]
+  (:require [clojure.data.json :as json]
             [cemerick.friend :as friend]            
             [hiccup.form :as form]
             [hiccup.page :as page]))

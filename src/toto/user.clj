@@ -7,7 +7,6 @@
             [cemerick.friend :as friend]
             [cemerick.friend.workflows :as workflows]            
             [hiccup.form :as form]
-            [toto.core :as core]
             [toto.data :as data]
             [toto.view :as view]))
 
