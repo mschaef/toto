@@ -41,7 +41,7 @@
 
 (defn- render-footer [ username ]
   [:div.footer
-   "All Rights Reserved, Copyright 2013-19 East Coast Toolworks "
+   "Copyright 2019 East Coast Toolworks "
    (when username
      [:div.logout username " - " (logout-button)])])
 

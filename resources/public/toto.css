@@ -23,6 +23,10 @@ body, table, select, input {
     }
 }
 
+input {
+    padding: 4px;
+}
+
 /* Top level page layout. */
 
 body {
@@ -56,6 +60,8 @@ body {
     
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
 .footer {
@@ -118,6 +124,8 @@ div.sidebar::-webkit-scrollbar {
     height: 100%; 
     display: flex;
     flex-direction: column;
+    padding-left: 6px;
+    padding-right: 6px;
 }
 
 .scrollable {
@@ -127,6 +135,27 @@ div.sidebar::-webkit-scrollbar {
 
 .new-item-form {
     padding: 6px;
+}
+
+form {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+form input {
+    display: block;
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+.submit-panel {
+    text-align: center;
+}
+
+.submit-panel input {
+    display: inline;
+    width: auto;
+    margin-bottom: 0px;
 }
 
 @media only screen and (min-device-width : 480px) {
@@ -187,30 +216,21 @@ div.query-settings {
     font-style: italic;
 }
 
-div.header span.vspace {
+.header .vspace {
     min-height: 12pt;
     display: inline-block;
     padding-top: 0.5em;
     padding-bottom: 0.5em;
 }
 
-form {
+.embedded {
+    display: inline;
     padding: 0px;
     margin: 0px;
 }
 
-form.embedded {
-    display: inline;
-}
-
 .hidden {
     display: none;
-}
-
-table.form td {
-    padding-left: 0.5em;
-    padding-top: 0.2em;
-    padding-bottom: 0.2em;
 }
 
 .simple-border {
@@ -220,7 +240,7 @@ table.form td {
     border-right: 0px none;
     border-left: 0px none;
     background: #f0f0f0;
-    padding: 0.33em;
+//    padding: 0.33em;
 }
 
 ::placeholder {
@@ -305,6 +325,7 @@ div.deleted_item {
 
 .list-page {
     padding-left: 1em;
+    padding-right: 6px;
 }
 
 /* List list styling */

@@ -87,19 +87,22 @@
                "Set Priority" image-spec))
 
 (defn render-new-list-form [ ]
-  (form/form-to [:post (str "/list" )]
-                (form/text-field {:class "full-width simple-border"
-                                  :maxlength "1024"
-                                  :placeholder "New List Name"}
-                                 "list-description")))
+  (form/form-to
+   {:class "embedded"}
+   [:post (str "/list" )]
+   (form/text-field {:class "full-width simple-border"
+                     :maxlength "1024"
+                     :placeholder "New List Name"}
+                    "list-description")))
 
 (defn render-new-item-form [ list-id ]
-  (form/form-to { :class "new-item-form"}
-                [:post (str "/list/" list-id)]
-                (form/text-field {:class "full-width simple-border"
-                                  :maxlength "1024"
-                                  :placeholder "New Item Description"}
-                                 "item-description")))
+  (form/form-to
+   {:class "embedded new-item-form"}
+   [:post (str "/list/" list-id)]
+   (form/text-field {:class "full-width simple-border"
+                     :maxlength "1024"
+                     :placeholder "New Item Description"}
+                    "item-description")))
 
 (def url-regex #"(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]") 
 
@@ -422,7 +425,7 @@
 (defn- public-routes [ config ]
   (routes
    (GET "/list/:list-id/public" { { list-id :list-id } :params }
-     (log/error "public render " list-id)
+     (log/debug "public render: " list-id)
      (ensure-list-public-access list-id)
      (render-todo-list-public-page list-id))))
 
@@ -475,7 +478,7 @@
    (POST "/"  { { description :description } :params }
      (update-item-desc item-id (string-leftmost description 1024)))
   
-   (POST "/snooze" { { snooze-days :snooze-days } :params}
+   (POST "/snooze" { { snooze-days :snooze-days } :params }
      (update-item-snooze-days item-id snooze-days))
 
    (POST "/priority" { { new-priority :new-priority } :params }

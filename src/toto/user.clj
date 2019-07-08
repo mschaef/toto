@@ -62,44 +62,33 @@
   (view/render-page { :page-title "Log In" }
    (form/form-to
     [:post "/login"]
-    [:table.form
-     [:tr
-      [:td "E-Mail Address:"]
-      [:td (form/text-field { :class "simple-border" } "username" email-addr)]]
-     [:tr
-      [:td "Password:"]
-      [:td (form/password-field { :class "simple-border" } "password")]]
-     (when login-failure?
-       [:tr
-        [:td.error-message { :colspan 2 } "Invalid username or password."]])
-     [:tr 
-      [:td { :colspan 2 }
-       [:center
-        [:a { :href "/user"} "Register New User"]
-        " - "
-        (form/submit-button {} "Login")]]]])))
+    (form/text-field {:class "simple-border"
+                      :placeholder "E-Mail Address"} "username" email-addr)
+    (form/password-field {:class "simple-border"
+                          :placeholder "Password"} "password")
+    (when login-failure?
+      [:div.error-message
+       "Invalid username or password."])
+    [:div.submit-panel
+     [:a { :href "/user"} "Register New User"]
+     " - "
+     (form/submit-button {} "Login")])))
 
 (defn render-new-user-form [ & { :keys [ error-message ]}]
   (view/render-page {:page-title "New User Registration"
                      :init-map { :page "new-user" }}
    (form/form-to
     [:post "/user"]
-    [:table.form
-     [:tr
-      [:td "E-Mail Address:"]
-      [:td (form/text-field { :class "simple-border" } "email_addr")]]
-     [:tr
-      [:td "Password:"]
-      [:td (form/password-field { :class "simple-border" } "password1")]]
-     [:tr
-      [:td "Verify Password:"]
-      [:td (form/password-field { :class "simple-border" } "password2")]]
-     [:tr
-      [:td { :colspan 2 }
-       [:div.error.error-message error-message]]]
-     [:tr
-      [:td]
-      [:td (form/submit-button {} "Register")]]])))
+    (form/text-field {:placeholder "E-Mail Address"
+                      :class "simple-border" } "email_addr")
+    (form/password-field {:placeholder "Password"
+                          :class "simple-border"} "password1")
+    (form/password-field {:placeholder "Verify Password"
+                          :class "simple-border"} "password2")
+    (when error-message
+      [:div.error-message error-message])
+    [:div.submit-panel
+     (form/submit-button {} "Register")])))
 
 (defn create-user  [ email-addr password ]
   (let [user-id (data/add-user email-addr password)
