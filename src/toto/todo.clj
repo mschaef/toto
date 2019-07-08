@@ -92,7 +92,8 @@
    [:post (str "/list" )]
    (form/text-field {:class "full-width simple-border"
                      :maxlength "1024"
-                     :placeholder "New List Name"}
+                     :placeholder "New List Name"
+                     :autofocus "autofocus"}
                     "list-description")))
 
 (defn render-new-item-form [ list-id ]
@@ -101,7 +102,8 @@
    [:post (str "/list/" list-id)]
    (form/text-field {:class "full-width simple-border"
                      :maxlength "1024"
-                     :placeholder "New Item Description"}
+                     :placeholder "New Item Description"
+                     :autofocus "autofocus"}
                     "item-description")))
 
 (def url-regex #"(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]") 
@@ -447,7 +449,9 @@
     
    (POST "/details" { params :params }
      (catch-validation-errors
-      (let [{ list-name :list-name share-with-email :share-with-email is-public :is_public } params
+      (let [{list-name :list-name
+             share-with-email :share-with-email
+             is-public :is_public} params
             share-with-email-id (and share-with-email
                                      (or
                                       (get-user-id-by-email share-with-email)

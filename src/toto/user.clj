@@ -66,9 +66,9 @@
                       :placeholder "E-Mail Address"} "username" email-addr)
     (form/password-field {:class "simple-border"
                           :placeholder "Password"} "password")
-    (when login-failure?
-      [:div.error-message
-       "Invalid username or password."])
+    [:div.error-message
+     (when login-failure?
+           "Invalid username or password.")]
     [:div.submit-panel
      [:a { :href "/user"} "Register New User"]
      " - "
@@ -85,8 +85,8 @@
                           :class "simple-border"} "password1")
     (form/password-field {:placeholder "Verify Password"
                           :class "simple-border"} "password2")
-    (when error-message
-      [:div.error-message error-message])
+    [:div#error.error-message
+     error-message]
     [:div.submit-panel
      (form/submit-button {} "Register")])))
 

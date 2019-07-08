@@ -10,16 +10,26 @@ function elemOptional(klass) {
     return null;
 }
 
-function elem(id) {
-    var element =  elemOptional(id);
+function elem(klass) {
+    var element =  elemOptional(klass);
 
     if(!element) {
-        console.error('Expected missing element with ID: ' + id);
+        console.error('Expected missing element with class: ' + klass);
     }
     
     return element;
 }
 
+function elemById(id) {
+    var element = document.getElementById(id);
+
+    if(!element) {
+        console.error('Expected missing element with id: ' + id);
+    }
+
+    return element;
+}
+    
 function foreach_elem(selector, fn) {
     Array.prototype.forEach.call(document.querySelectorAll(selector), function(el, i) { fn(el); });
 }
@@ -92,13 +102,13 @@ function beginItemEdit(itemId)
 {
   var formMarkup = "";
 
-  var itemDesc = elem('item_desc_' + itemId).textContent;
+  var itemDesc = elemById('item_desc_' + itemId).textContent;
 
   formMarkup += "<form class=\"embedded\" action=\"/item/" + itemId + "/delete\" method=\"POST\">";
   formMarkup += "<button type=\"submit\" class=\"item-button\"><i class=\"fa fa-trash-o icon-black\"></i></button>";
   formMarkup += "</form>";
 
-  elem('item_control_' + itemId).outerHTML = formMarkup;
+  elemById('item_control_' + itemId).outerHTML = formMarkup;
 
   formMarkup = "";
 
@@ -106,10 +116,9 @@ function beginItemEdit(itemId)
   formMarkup += "<input class=\"full-width simple-border\" id=\"iedit_" + itemId + "_description\" name=\"description\" type=\"text\"/>";
   formMarkup += "</form>";
 
-  elem('item_' + itemId).outerHTML = formMarkup;
-
-  elem("iedit_" + itemId + "_description").value = itemDesc;
-  elem("iedit_" + itemId + "_description").focus();
+  elemById('item_' + itemId).outerHTML = formMarkup;
+  elemById("iedit_" + itemId + "_description").value = itemDesc;
+  elemById("iedit_" + itemId + "_description").focus();
 }
 
 function setupSidebar() {
@@ -130,10 +139,10 @@ function setupSidebar() {
 
 function checkPasswords()
 {
-    var pwd1 = elem("password1").value.trim();
-    var pwd2 = elem("password2").value.trim();
+    var pwd1 = elemById("password1").value.trim();
+    var pwd2 = elemById("password2").value.trim();
 
-    var errDiv = elem("error");
+    var errDiv = elemById("error");
     
     if ((pwd1.length > 0) && (pwd2.length > 0) && (pwd1 != pwd2))
         errDiv.innerHTML = "Passwords do not match";
@@ -154,9 +163,9 @@ function setupEditableItems() {
 }
 
 function doMoveItem(itemId, newListId) {
-    elem("target-item").value = itemId;
-    elem("target-list").value = newListId;
-    elem("item_set_list_form").submit();
+    elemById("target-item").value = itemId;
+    elemById("target-list").value = newListId;
+    elemById("item_set_list_form").submit();
 }
 
 function setupItemDragging() {
@@ -206,16 +215,15 @@ function setupItemDragging() {
 }
 
 pageInit["todo-list"] = function () {
-    elem("item-description").focus();
     setupEditableItems();
     setupItemDragging();
 };
 
 pageInit["new-user"] = function () {
-    elem("password1").onkeyup = checkPasswords;
-    elem("password1").onchange = checkPasswords;
-    elem("password2").onkeyup = checkPasswords;
-    elem("password2").onchange = checkPasswords;
+    elemById("password1").onkeyup = checkPasswords;
+    elemById("password1").onchange = checkPasswords;
+    elemById("password2").onkeyup = checkPasswords;
+    elemById("password2").onchange = checkPasswords;
 };
 
 function pageInitializer(initMap) {

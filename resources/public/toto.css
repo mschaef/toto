@@ -99,6 +99,10 @@ body {
 }
 
 @media only screen and (min-device-width : 480px) {
+    form {
+        width: 480px;
+    }
+    
     .sidebar {
         z-index: 0;
         left: 0px;
@@ -227,6 +231,7 @@ div.query-settings {
     display: inline;
     padding: 0px;
     margin: 0px;
+    width: 100%;
 }
 
 .hidden {
@@ -290,6 +295,7 @@ A:visited {
 .error-message {
     color: red;
     text-align: center;
+    height: 30px;
 }
 
 div.header span.app-name A {
