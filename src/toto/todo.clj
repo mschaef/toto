@@ -197,7 +197,7 @@
 (defn render-todo-list-list [ selected-list-id ]
   [:table.list-list
    (map (fn [ { list-id :todo_list_id list-desc :desc list-item-count :item_count is-public :is_public list-owner-count :list_owner_count} ]
-          [:tr (if (= list-id (Integer. selected-list-id))
+          [:tr.list-row (if (= list-id (Integer. selected-list-id))
                  { :class "selected" :listid list-id }
                  { :listid list-id })
            [:td.item-control
