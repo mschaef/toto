@@ -41,7 +41,7 @@
 
 (defn- render-footer [ username ]
   [:div.footer
-   "Copyright 2019 East Coast Toolworks "
+   "&#9400; 2019 East Coast Toolworks "
    (when username
      [:div.logout username " - " (logout-button)])])
 
@@ -62,8 +62,12 @@
   [:div.sidebar
    [:div.sidebar-control
     [:span.close-menu  img-close-list "&nbsp;"]
-    [:span.username username]]
-   sidebar])
+    [:span.logout
+     [:a {:href "/user/password-change"} username]
+     [:span.logout-control " - " (logout-button)]]]
+   sidebar
+   [:div.copyright
+    "&#9400; 2019 East Coast Toolworks "]])
 
 (defn- render-page-body [ page-title username sidebar contents ]
   [:body
@@ -71,8 +75,7 @@
    [:div.contents {:class (class-set { "with-sidebar" sidebar })}
     (if sidebar
       (render-sidebar username sidebar))
-    contents]
-   (render-footer username)])
+    contents]])
 
 (defn render-page [{ :keys [ page-title init-map sidebar ] }  & contents]
   (let [username (get (friend/current-authentication) :identity)]

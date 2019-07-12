@@ -124,6 +124,7 @@ div.sidebar::-webkit-scrollbar {
 .warning {
     color: red;
 }
+
 .todo-list {
     height: 100%; 
     display: flex;
@@ -135,6 +136,7 @@ div.sidebar::-webkit-scrollbar {
 .scrollable {
     overflow-y: scroll;
     margin-bottom: 30px;
+    height: 100%;
 }
 
 .new-item-form {
@@ -332,6 +334,9 @@ div.deleted_item {
 .list-page {
     padding-left: 1em;
     padding-right: 6px;
+
+    height: 100%;
+    overflow-y: hidden;
 }
 
 /* List list styling */
@@ -351,13 +356,19 @@ div.deleted_item {
 
 .list-list tr {
     border-left: 5px solid white;
-    min-height: 3.5em;
-    height: 3.5em;
 }
 
 .list-list td {
-    line-height: 1.5;
-    vertical-align: middle;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    line-height: 150%;
+}
+
+.list-list td.item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
 }
 
 .list-list tr.selected.drop-hover, .list-list tr.drop-hover {
@@ -636,9 +647,19 @@ i.icon-bars {
   display: block;
 }
 
-div.sidebar.menu-visible {
+.sidebar.menu-visible {
     display: block;
     transform: translate3d( 280px, 0, 0 );
+}
+
+.sidebar .copyright {
+    border-top: 1px solid #c0c0c0;
+    margin-top: 20px;
+    font-size: 10pt;
+    text-align: center;
+    font-style: italic;
+
+    padding: 10px;
 }
 
 .contents, .sidebar {
