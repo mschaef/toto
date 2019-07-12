@@ -192,7 +192,17 @@
          [:tr.snooze-control
           [:td {:colspan "3"}
            [:a {:href (str list-id "?snoozed=" (if include-snoozed? "0" "1")) }
-            (if include-snoozed? "Hide" "Show") " " n-snoozed-items " snoozed item" (if (= 1 n-snoozed-items) "" "s") "."]]])]]]))
+            (if include-snoozed? "Hide" "Show") " " n-snoozed-items " snoozed item" (if (= 1 n-snoozed-items) "" "s") "."]]])]
+      [:div.query-settings
+       (form/form-to { :class "embedded "} [ :get (str "/list/" list-id)]
+                     "Include items completed within "
+                     [:select { :id "cwithin" :name "cwithin" :onchange "this.form.submit()"} 
+                      (form/select-options [ [ "-" "-"] [ "1d" "1"] [ "7d" "7"] [ "30d" "30"] [ "90d" "90"] ]
+                                           (if (nil? completed-within-days)
+                                             "-"
+                                             (str completed-within-days)))]
+                     
+                     ".")]]]))
 
 (defn render-todo-list-list [ selected-list-id ]
   [:table.list-list
@@ -231,17 +241,7 @@
                      :init-map { :page "todo-list" }
                      :sidebar (render-todo-list-list selected-list-id)}
                     (render-item-set-list-form)
-                    (render-todo-list selected-list-id true completed-within-days snoozed-for-days)
-                    [:div.query-settings
-                     (form/form-to { :class "embedded "} [ :get (str "/list/" selected-list-id)]
-                                   "Include items completed within "
-                                   [:select { :id "cwithin" :name "cwithin" :onchange "this.form.submit()"} 
-                                    (form/select-options [ [ "-" "-"] [ "1d" "1"] [ "7d" "7"] [ "30d" "30"] [ "90d" "90"] ]
-                                                         (if (nil? completed-within-days)
-                                                           "-"
-                                                           (str completed-within-days)))]
-
-                                   ".")]))
+                    (render-todo-list selected-list-id true completed-within-days snoozed-for-days)))
 
 (defn render-todo-list-public-page [ selected-list-id ]
   (view/render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)
@@ -252,11 +252,9 @@
   (view/render-page
    {:page-title "Manage Todo Lists"}
    [:div.list-page
+    (render-new-list-form)
     [:div.scrollable
      [:table.list-list
-      [:tr.new-list
-       [:td { :colspan 4 }
-        (render-new-list-form)]]
       (map (fn [ list ]
              (let [list-id (:todo_list_id list)
                    priority (:priority list)]
