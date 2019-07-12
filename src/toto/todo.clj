@@ -234,7 +234,7 @@
                   (form/hidden-field "target-list")))
 
 (defn render-todo-list-csv [  list-id ]
-  (clojure.string/join "\n" (map :desc (data/get-pending-items list-id 0 0))))
+  (clojure.string/join "\n" (map :desc (data/get-pending-items list-id 0))))
 
 (defn render-todo-list-page [ selected-list-id completed-within-days snoozed-for-days ]
   (view/render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)
@@ -285,60 +285,50 @@
      {:page-title (str "List Details: " list-name) 
       :sidebar (render-todo-list-list list-id) }
      (form/form-to
+      {:class "details"}
       [:post (str "/list/" list-id "/details")]
-      [:table.config-panel
-       [:tr
-        [:td "List Name:"]
-        [:td (form/text-field { :class "full-width" :maxlength "32" } "list-name" list-name)]]
+       [:div.config-panel
+        [:div.panel-heading "List Name:"]
+        [:div.panel-body (form/text-field { :class "full-width" :maxlength "32" } "list-name" list-name)]]
       
-       [:tr
-        [:td "List Permissions:"]
-        [:td
+       [:div.config-panel
+        [:div.panel-heading  "List Permissions:"]
+        [:div.panel-body
          (form/check-box "is_public" (:is_public list-details))
          [:label {:for "is_public"} "List publically visible?"]]]
-      
-       [:tr
-        [:td "List Owners:"]
-        [:td
-         [:table.owner-list
-          (map (fn [ { user-id :user_id user-email-addr :email_addr } ]
-                 (let [ user-parameter-name (str "user_" user-id)]
-                   [:tr
-                    [:td
-                     (if (= (user/current-user-id) user-id)
-                       (form/hidden-field user-parameter-name "on")
-                       (form/check-box user-parameter-name (in? list-owners user-id)))]
-                    [:td
-                     [:label {:for user-parameter-name}
-                      user-email-addr
-                      (when (= (user/current-user-id) user-id)
-                        [:span.pill "you"])]]]))
-               (data/get-friendly-users-by-id (user/current-user-id)))
-          [:tr
-           [:td]
-           [:td
-            [:p.new-user
-             (js-link "beginUserAdd" list-id "Add User To List...")]]]
-          (when error-message
-            [:tr
-             [:td { :colspan 2 }
-              [:div.error-message error-message]]])]]]
-       [:tr
-        [:td "&nbsp"]
-        [:td [:input {:type "submit" :value "Update List Details"}]]]
+       
+       [:div.config-panel
+        [:div.panel-heading  "List Owners:"]
+        [:div.list-owners.panel-body
+         (map (fn [ { user-id :user_id user-email-addr :email_addr } ]
+                (let [ user-parameter-name (str "user_" user-id)]                  
+                  [:div.list-owner
+                   (if (= (user/current-user-id) user-id)
+                     [:div.self-owner
+                      "&nbsp;"
+                      (form/hidden-field user-parameter-name "on")]
+                     (form/check-box user-parameter-name (in? list-owners user-id)))
+                   [:label {:for user-parameter-name}
+                    user-email-addr
+                    (when (= (user/current-user-id) user-id)
+                      [:span.pill "you"])]]))
+              (data/get-friendly-users-by-id (user/current-user-id)))]]
+       
+       [:div.config-panel
+        [:div.panel-body [:input {:type "submit" :value "Update List Details"}]]]
 
-       [:tr.divide-at
-        [:td "Download List"]
-        [:td [:a { :href (str "/list/" list-id "/list.csv" ) } "Download List as CSV"]]]
+       [:div.config-panel
+        [:div.panel-heading  "Download List"]
+        [:div.panel-body [:a { :href (str "/list/" list-id "/list.csv" ) } "Download List as CSV"]]]
 
-       [:tr.divide-at
-        [:td "Delete List"]
-        [:td
+       [:div.config-panel
+        [:div.panel-heading  "Delete List"]
+        [:div.panel-body
          (if (data/empty-list? list-id)
            (list 
             [:input.dangerous {:type "submit" :value "Delete List" :formaction (str "/list/" list-id "/delete")}]
             [:span.warning "Warning, this cannot be undone."])
-           [:span.warning "To delete this list, remove all items first."])]]]))))
+           [:span.warning "To delete this list, remove all items first."])]]))))
 
 (defn update-list-description [ list-id list-description ]
   (when (not (string-empty? list-description))

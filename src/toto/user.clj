@@ -60,7 +60,8 @@
 
 (defn render-login-page [ & { :keys [ email-addr login-failure?]}]
   (view/render-page { :page-title "Log In" }
-   (form/form-to
+  (form/form-to
+   {:class "auth-form"}
     [:post "/login"]
     (form/text-field {:class "simple-border"
                       :placeholder "E-Mail Address"} "username" email-addr)
@@ -78,6 +79,7 @@
   (view/render-page {:page-title "New User Registration"
                      :init-map { :page "new-user" }}
    (form/form-to
+    {:class "auth-form"}
     [:post "/user"]
     (form/text-field {:placeholder "E-Mail Address"
                       :class "simple-border" } "email_addr")

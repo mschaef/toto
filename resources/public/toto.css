@@ -151,10 +151,18 @@ form {
     padding-right: 10px;
 }
 
-form input {
+.auth-form input {
     display: block;
     width: 100%;
     margin-bottom: 5px;
+}
+
+.config-panel input[type=checkbox] {
+    width: 32px;
+}
+
+.config-panel input[type=hidden] {
+    width: 32px;
 }
 
 .submit-panel {
@@ -579,40 +587,31 @@ p.new-user {
     font-style: italic;
 }
 
-table.config-panel  {
-    border-collapse: collapse;
-    width: 100%
+.config-panel  {
+    width: 100%;
+    padding-bottom: 16px;
 }
 
-table.config-panel > tbody > tr:first-child > td {
-    padding-top: 0.5em;
-}
-    
-table.config-panel > tbody > tr  > td {
-    padding-bottom: 0.75em;
-    padding-left: 0em;
+.config-panel .panel-body {
+    padding-left: 16px;
 }
 
-table.config-panel > tbody > tr.divide-at  > td {
-    padding-top: 0.75em;
-    border-top: 1px solid #f0f0f0;
+.config-panel .list-owner {
+    padding-top: 4px;
+    padding-bottom: 4px;
 }
 
-table.config-panel > tbody > tr > td:first-child {
-    padding-left: 1em;
-    padding-right: 1em;
-    white-space: nowrap;
+.config-panel .list-owner .self-owner {
+    display: inline-block;
+
+    width: 32px;
+}
+
+
+.config-panel .panel-heading {
     font-weight: bold;
-    vertical-align: top;
-    width: 2%
-}
-
-table.config-panel label {
-    padding-left: 0.25em;
-}
-
-table.config-panel table.owner-list td {
-    padding-bottom: 0.75em;
+    padding-top: 2px;
+    padding-bottom: 4px;
 }
 
 i.icon-edit {
