@@ -98,13 +98,15 @@
 
 (defn render-new-item-form [ list-id ]
   (form/form-to
-   {:class "embedded new-item-form"}
+   {:class "new-item-form"}
    [:post (str "/list/" list-id)]
-   (form/text-field {:class "full-width simple-border"
+   (form/text-field {:class "simple-border"
                      :maxlength "1024"
                      :placeholder "New Item Description"
                      :autofocus "autofocus"}
-                    "item-description")))
+                    "item-description")
+   (form/hidden-field "item-priority" "0")
+   img-star-gray))
 
 (def url-regex #"(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]") 
 
@@ -365,9 +367,9 @@
   (data/set-list-priority list-id user-id new-priority)
   (redirect-to-lists))
 
-(defn add-item [ list-id item-description ]
+(defn add-item [ list-id item-description item-priority]
   (when (not (string-empty? item-description))
-    (data/add-todo-item list-id item-description))
+    (data/add-todo-item list-id item-description item-priority))
   (redirect-to-list list-id))
 
 (defn update-item-desc [ item-id item-description ]
@@ -463,8 +465,8 @@
    (POST "/delete" []
      (delete-list list-id))  
    
-   (POST "/" { { item-description :item-description } :params }
-     (add-item list-id (string-leftmost item-description 1024)))))
+   (POST "/" { { item-description :item-description item-priority :item-priority } :params }
+     (add-item list-id (string-leftmost item-description 1024) item-priority))))
 
 (defn- item-routes [ item-id ]
   (ensure-item-access item-id)

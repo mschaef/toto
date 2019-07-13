@@ -195,13 +195,13 @@
                                     { :connection *db* }))
      0))
 
-(defn add-todo-item [ todo-list-id desc ]
+(defn add-todo-item [ todo-list-id desc priority ]
   (:item_id (first
              (jdbc/insert! *db*
               :todo_item
               {:todo_list_id todo-list-id
                :desc desc
-               :priority 0
+               :priority priority
                :created_on (java.util.Date.)}))))
 
 (defn get-pending-items [ list-id completed-within-days]

@@ -144,6 +144,25 @@ div.sidebar::-webkit-scrollbar {
 
 .new-item-form {
     padding: 6px;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+
+    margin: 0px;
+    width: 100%;
+    align-items: center;
+}
+
+.new-item-form input {
+    flex: 1;
+    min-width: auto;
+    width: auto;
+}
+
+.new-item-form i {
+    flex: 0;
+    padding-left: 6px;
+    padding-right: 3px;
 }
 
 form {

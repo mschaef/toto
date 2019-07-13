@@ -29,7 +29,23 @@ function elemById(id) {
 
     return element;
 }
-    
+
+function elemBySelector(selector) {
+    var elements = document.querySelectorAll(selector);
+
+    if (elements.length == 0) {
+        console.error('Expected missing element with selector: ' + selector);
+    } else if (elements.length > 0) {
+        if (elements.length > 1) {
+            console.error('Warning: more than one element with selector: ' + selector);
+        }
+        
+        return elements[0];
+    }
+
+    return null;
+}
+
 function foreach_elem(selector, fn) {
     Array.prototype.forEach.call(document.querySelectorAll(selector), function(el, i) { fn(el); });
 }
@@ -214,9 +230,25 @@ function setupItemDragging() {
     });
 }
 
+function setupNewItemForm() {
+    var starToggle = elemBySelector('.new-item-form i');
+    var priorityField = elemBySelector('.new-item-form #item-priority');
+    
+    starToggle.onclick = function() {
+        if (starToggle.className === "fa fa-lg fa-star-o icon-gray") {
+            starToggle.className = "fa fa-lg fa-star icon-yellow";
+            priorityField.value = "1";
+        } else {
+            starToggle.className = "fa fa-lg fa-star-o icon-gray";
+            priorityField.value = "0";
+        }
+    };
+}
+
 pageInit["todo-list"] = function () {
     setupEditableItems();
     setupItemDragging();
+    setupNewItemForm();
 };
 
 pageInit["new-user"] = function () {
