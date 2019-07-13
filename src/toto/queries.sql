@@ -97,8 +97,9 @@ SELECT item.item_id,
    AND (completion.completed_on IS NULL 
         OR completion.completed_on >
                DATEADD('day', :completed_within_days, CURRENT_TIMESTAMP))
-   ORDER BY item.priority DESC,
-            item.item_id
+   ORDER BY NVL2(completion.completed_on, 1, 0),
+            item.priority DESC,
+            age_in_days DESC
 
 -- name: get-pending-item-count
 SELECT count(item.item_id)
