@@ -289,7 +289,8 @@
       [:post (str "/list/" list-id "/details")]
        [:div.config-panel
         [:div.panel-heading "List Name:"]
-        [:div.panel-body (form/text-field { :class "full-width" :maxlength "32" } "list-name" list-name)]]
+        [:div.panel-body (form/text-field { :class "full-width simple-border" :maxlength "32" }
+                                          "list-name" list-name)]]
       
        [:div.config-panel
         [:div.panel-heading  "List Permissions:"]

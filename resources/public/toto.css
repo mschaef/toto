@@ -590,10 +590,14 @@ p.new-user {
 .config-panel  {
     width: 100%;
     padding-bottom: 16px;
+    font-size: 10pt;
 }
 
 .config-panel .panel-body {
     padding-left: 16px;
+    padding-right: 16px;
+    padding-bottom: 8px;
+    font-size: 95%;
 }
 
 .config-panel .list-owner {
@@ -609,9 +613,9 @@ p.new-user {
 
 
 .config-panel .panel-heading {
-    font-weight: bold;
     padding-top: 2px;
     padding-bottom: 4px;
+    font-weight: 600;
 }
 
 i.icon-edit {
