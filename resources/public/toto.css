@@ -37,7 +37,7 @@ body {
     font-size: 11pt;
     line-height:1.2;
 
-    height: 100vh;
+    height: 100%;
 }
 
 .header {
@@ -61,7 +61,6 @@ body {
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
     padding-top: 10px;
-    padding-bottom: 10px;
 
     display: flex;
     flex-direction: column;
@@ -88,8 +87,8 @@ body {
     
 	top: 0;
     bottom: 0;
-	left: -280px;
-    width: 270px;
+	left: -320px;
+    width: 310px;
 
     background: white;
 
@@ -111,7 +110,7 @@ body {
         z-index: 0;
         left: 0px;
         box-shadow: none;
-        width: 240px;
+        width: 270px;
         padding-top: 10px;
     }
 }
@@ -196,7 +195,7 @@ form {
 
 @media only screen and (min-device-width : 480px) {
     .contents.with-sidebar {
-        padding-left: 240px;
+        padding-left: 320px;
     }
 }
 
@@ -240,9 +239,10 @@ div.wrapper {
     left: 0;
 }
 
-div.query-settings {
+.query-settings {
     margin-top: 1em;
-
+    margin-bottom: 1em;
+    
     right: 0px;
 
     border-top: 1px solid .c0c0c0;
@@ -363,10 +363,9 @@ div.deleted_item {
 
 .list-page {
     padding-left: 1em;
-    padding-right: 6px;
+    padding-right: 1em;
 
     height: 100%;
-    width: 100%;
     overflow-y: hidden;
 
     display: flex;
@@ -374,6 +373,11 @@ div.deleted_item {
 }
 
 /* List list styling */
+
+
+.list-page .list-list {
+    margin-top: 6px;
+}
 
 .list-list {
     margin: 0px;
@@ -678,7 +682,7 @@ i.icon-bars {
 
 .sidebar.menu-visible {
     display: block;
-    transform: translate3d( 280px, 0, 0 );
+    transform: translate3d( 320px, 0, 0 );
 }
 
 .sidebar .copyright {
