@@ -7,6 +7,7 @@
             [cemerick.friend :as friend]
             [cemerick.friend.workflows :as workflows]            
             [hiccup.form :as form]
+            [postal.core :as postal]
             [toto.data :as data]
             [toto.view :as view]))
 
@@ -36,7 +37,7 @@
                      [:p
                       "Your e-mail address is unverified and your acccount is "
                       "inactive. An verification e-mail can be sent by following "
-                      [:a {:href (str "/user/verify/" (current-user-id))} "this link"]
+                      [:a {:href (str "/user/begin-verify/" (current-user-id))} "this link"]
                       "."]]))
 
 (defn missing-verification? [ request ]
@@ -98,11 +99,27 @@
     (data/set-list-ownership list-id #{ user-id })    
     user-id))
 
-(defn send-verification-link [ user-id ]
+(defn send-verification-link [ config user-id ]
   (let [user (data/get-user-by-id user-id)
-        verification-link (data/get-verification-link-by-user-id user-id)]
-    (log/info "Sending verification link: " {:link_uuid (:link_uuid verification-link)
-                                             :email_addr (:email_addr user)})))
+        verification-link (data/get-verification-link-by-user-id user-id)
+        smtp (:smtp config)]
+    (log/debug "SMTP Config: " smtp)
+    (let [link-url (str (:base-url config) "user/verify/" user-id "/"
+                        (:link_uuid verification-link))]
+      (if (:enabled smtp)
+        (do
+          (log/info "Sending verification link: " {:link link-url
+                                                   :email_addr (:email_addr user)})
+          (let [result (postal/send-message {:host (:host smtp)
+                                             :user (:user smtp)
+                                             :pass (:password smtp)
+                                             :ssl true}
+                                            {:from (:from smtp)
+                                             :to [ (:email_addr user) ]
+                                             :subject "Todo Account Update"
+                                             :body (str "Confirmation link: " link-url)})]
+            (log/info "SMTP Result: " result)))
+        (log/warn "SMTP disabled, no verification mail sent. Link: " link-url)))))
 
 (defn add-user [ email-addr password password2 ] 
   (cond
@@ -115,7 +132,7 @@
    :else
    (do
      (let [user-id (create-user email-addr (credentials/hash-bcrypt password))]
-       (ring/redirect (str "/user/verify/" user-id))))))
+       (ring/redirect (str "/user/begin-verify/" user-id))))))
 
 (defn render-change-password-form  [ & { :keys [ error-message ]}]
   (view/render-page { :page-title "Change Password" }
@@ -152,14 +169,12 @@
 (defn development-verification-form [ user-id ]
   [:div.dev-tool
    (let [ link-uuid (:link_uuid (data/get-verification-link-by-user-id user-id))]
-     (form/form-to [:post (str "/user/verify/" user-id)]
-                   (form/hidden-field {} "link-uuid" link-uuid)
-                   (form/submit-button {} "Verify")))])
+     [:a {:href (str "/user/verify/" user-id "/" link-uuid)} "Verify"])])
 
 (defn enter-verify-workflow [ config user-id ]
   (let [ user (data/get-user-by-id user-id) ]
     (ensure-verification-link user-id)
-    (send-verification-link user-id)
+    (send-verification-link config user-id)
     (view/render-page { :page-title "e-Mail Address Verification" }
                       [:div.page-message
                        [:h1 "e-Mail Address Verification"]
@@ -204,11 +219,11 @@
      (render-login-page :email-addr email-addr
                         :login-failure? (= login-failed "Y")))
 
-   (GET "/user/verify/:user-id" { { user-id :user-id } :params }
+   (GET "/user/begin-verify/:user-id" { { user-id :user-id } :params }
      (enter-verify-workflow config user-id))
    
    (friend/logout
-    (POST "/user/verify/:user-id" { { user-id :user-id link-uuid :link-uuid } :params }
+    (GET "/user/verify/:user-id/:link-uuid" { { user-id :user-id link-uuid :link-uuid } :params }
       (verify-user user-id link-uuid)))
    
    (friend/logout

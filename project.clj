@@ -1,4 +1,4 @@
-(defproject toto "0.7.2"
+(defproject toto "0.7.7-SNAPSHOT"
   :description "Toto To-Do List Manager"
   :license { :name "Copyright East Coast Toolworks (c) 2012-2019"}
 
@@ -16,7 +16,8 @@
                  [slester/ring-browser-caching "0.1.1"]
                  [com.cemerick/friend "0.2.3"]
                  [compojure "1.6.1"]
-                 [slingshot "0.12.2"]]
+                 [slingshot "0.12.2"]
+                 [com.draines/postal "2.0.3"]]
 
   :plugins [[lein-tar "3.3.0"]]
   
@@ -30,7 +31,8 @@
   
   :ring {:handler toto.handler/handler }
 
-  :jvm-opts ["-Dconf=local-config.edn"]
+  :jvm-opts ["-Dconf=local-config.edn"
+             "-Dcreds=local-creds.edn"]
   
   :jar-name "toto.jar"
   :uberjar-name "toto-standalone.jar"
