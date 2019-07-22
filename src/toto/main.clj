@@ -8,6 +8,7 @@
          browser-caching])
   (:require [clojure.tools.logging :as log]
             [cprop.core :as cprop]
+            [cprop.source :as cprop-source]
             [ring.adapter.jetty :as jetty]
             [ring.middleware.reload :as ring-reload]
             [ring.middleware.file-info :as ring-file-info]
@@ -75,21 +76,22 @@
          (.stop server)))
       (.join server))))
 
-(defn creds-file-path []
-  (if-let [prop (System/getProperty "creds")]
+(defn maybe-config-file [ prop-name ]
+  (if-let [prop (System/getProperty prop-name)]
     (if (.exists (java.io.File. prop))
       (do
-        (log/info "Creds file found: " prop)
-        prop)
+        (log/info (str "Config file found: " prop "(specified by property: " prop-name ")"))
+        (cprop-source/from-file prop))
       (do
-        (log/warn "Creds file specified, but not found: " prop)
-        false))
-    false))
+        (log/warn (str "CONFIG FILE NOT FOUND: " prop "(specified by property: " prop-name ")"))
+        {}))
+    {}))
 
 (defn -main [& args]
   (log/info "Starting Toto" (get-version))
-  (let [config (cprop/load-config :resource "config.edn"
-                                  :file (creds-file-path))]
+  (let [config (cprop/load-config :merge [(cprop-source/from-resource "config.edn")
+                                          (maybe-config-file "conf")
+                                          (maybe-config-file "creds")])]
     (log/debug "config" config)    
     (start-webserver config)
     (log/info "end run.")))
