@@ -112,12 +112,12 @@
                                                    :email_addr (:email_addr user)})
           (let [result (postal/send-message {:host (:host smtp)
                                              :user (:user smtp)
-                                             :password (:password smtp)
+                                             :pass (:password smtp)
                                              :ssl true}
                                             {:from (:from smtp)
                                              :to [ (:email_addr user) ]
                                              :subject "Todo Account Update"
-                                             :both (str "Confirmation link: " link-url)})]
+                                             :body (str "Confirmation link: " link-url)})]
             (log/info "SMTP Result: " result)))
         (log/warn "SMTP disabled, no verification mail sent. Link: " link-url)))))
 
