@@ -38,6 +38,7 @@ TOTO_USER=${SERVICE_NAME}
 TOTO_JAR=toto-standalone.jar
 TOTO_DB_SUBNAME=toto
 TOTO_CONFIG_FILE=/etc/${SERVICE_NAME}/config.edn
+TOTO_CREDS_FILE=/etc/${SERVICE_NAME}/creds.edn
 
 ### Read configuration variable file if it is present
 
@@ -47,6 +48,7 @@ TOTO_CONFIG_FILE=/etc/${SERVICE_NAME}/config.edn
 
 JAVA_OPTS="-Ddb.subname=/var/lib/${SERVICE_NAME}/${TOTO_DB_SUBNAME}"
 JAVA_OPTS="$JAVA_OPTS -Dconf=${TOTO_CONFIG_FILE}"
+JAVA_OPTS="$JAVA_OPTS -Dcreds=${TOTO_CREDS_FILE}"
 JAVA_OPTS="$JAVA_OPTS -Dlogback.configurationFile=/etc/${SERVICE_NAME}/logback.xml"
 
 if [ "$AUTHBIND" = "yes" -a "$1" = "start" ]; then

@@ -75,9 +75,21 @@
          (.stop server)))
       (.join server))))
 
+(defn creds-file-path []
+  (if-let [prop (System/getProperty "creds")]
+    (if (.exists (java.io.File. prop))
+      (do
+        (log/info "Creds file found: " prop)
+        prop)
+      (do
+        (log/warn "Creds file specified, but not found: " prop)
+        false))
+    false))
+
 (defn -main [& args]
   (log/info "Starting Toto" (get-version))
-  (let [ config (cprop/load-config :resource "config.edn")]
+  (let [config (cprop/load-config :resource "config.edn"
+                                  :file (creds-file-path))]
     (log/debug "config" config)    
     (start-webserver config)
     (log/info "end run.")))

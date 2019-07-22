@@ -1,2 +1,3 @@
 {:http-port 8080
- :development-mode false}
+ :development-mode false
+ :smtp {:enabled false}}
