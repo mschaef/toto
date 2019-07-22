@@ -29,8 +29,6 @@ JAVA=/usr/bin/java
 
 PIDFILE=/var/run/${SERVICE_NAME}.pid
 
-AUTHBIND=no
-
 JAVA_OPTS=""
 
 TOTO_USER=${SERVICE_NAME}
@@ -51,17 +49,9 @@ JAVA_OPTS="$JAVA_OPTS -Dconf=${TOTO_CONFIG_FILE}"
 JAVA_OPTS="$JAVA_OPTS -Dcreds=${TOTO_CREDS_FILE}"
 JAVA_OPTS="$JAVA_OPTS -Dlogback.configurationFile=/etc/${SERVICE_NAME}/logback.xml"
 
-if [ "$AUTHBIND" = "yes" -a "$1" = "start" ]; then
-   JAVA_OPTS="$JAVA_OPTS -Djava.net.preferIPv4Stack=true"
-fi
-
 JAVA_OPTS="$JAVA_OPTS -jar /usr/share/${SERVICE_NAME}/${TOTO_JAR}"
 
-TOTO_SH="$JAVA $JAVA_OPTS"
-
-if [ "$AUTHBIND" = "yes" ]; then
-   TOTO_SH="/usr/bin/authbind --deep /bin/bash -c '$TOTO_SH'"
-fi
+TOTO_SH="$JAVA $JAVA_OPTS >> /var/log/${SERVICE_NAME}/${SERVICE_NAME}-console.log 2>&1"
 
 ### Functions
 
@@ -83,7 +73,7 @@ do_start()
 
 	start-stop-daemon --start --quiet --pidfile $PIDFILE  --background \
                       --make-pidfile --chuid ${TOTO_USER} \
-                      --exec /bin/bash -- -c "${TOTO_SH}" \
+                      --startas /bin/bash -- -c "exec ${TOTO_SH}" \
 		|| return 2 # daemon could not be started
 }
 
