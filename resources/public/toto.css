@@ -458,6 +458,11 @@ div.deleted_item {
     color: #707070;
 }
 
+.list-list .item-control {
+    width: 1.5em;
+    min-width: 1.5em;
+}
+
 /* Item list styling */
 
 table.item-list {

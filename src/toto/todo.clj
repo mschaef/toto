@@ -293,7 +293,7 @@
         [:div.panel-heading "List Name:"]
         [:div.panel-body (form/text-field { :class "full-width simple-border" :maxlength "32" }
                                           "list-name" list-name)]]
-      
+
        [:div.config-panel
         [:div.panel-heading  "List Permissions:"]
         [:div.panel-body
@@ -320,6 +320,10 @@
        [:div.config-panel
         [:div.panel-body [:input {:type "submit" :value "Update List Details"}]]]
 
+       [:div.config-panel
+        [:div.panel-heading  "View List"]
+        [:div.panel-body [:a { :href (str "/list/" list-id) } "View List"]]]
+       
        [:div.config-panel
         [:div.panel-heading  "Download List"]
         [:div.panel-body [:a { :href (str "/list/" list-id "/list.csv" ) } "Download List as CSV"]]]
