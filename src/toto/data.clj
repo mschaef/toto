@@ -146,17 +146,25 @@
                    :todo_list
                    {:desc desc}))))
 
+
+ 
+
 (defn set-list-ownership [ todo-list-id user-ids ]
   (jdbc/with-db-transaction [ trans *db* ] 
-   (jdbc/delete! trans
-    :todo_list_owners
-    ["todo_list_id=?" todo-list-id])
-
-   (doseq [ user-id user-ids ]
-     (jdbc/insert! trans
-      :todo_list_owners
-      {:user_id user-id
-       :todo_list_id todo-list-id}))))
+    (let [next-owners (set user-ids)
+          current-owners (set (get-todo-list-owners-by-list-id todo-list-id))
+          add-ids (clojure.set/difference next-owners current-owners)
+          remove-ids (clojure.set/difference current-owners next-owners)]
+      (doseq [id remove-ids]
+        (jdbc/delete! trans
+                      :todo_list_owners
+                      ["todo_list_id=? and user_id=?" todo-list-id id]))
+      
+      (doseq [ user-id add-ids ]
+        (jdbc/insert! trans
+                      :todo_list_owners
+                      {:user_id user-id
+                       :todo_list_id todo-list-id})))))
 
 (defn set-list-priority [ todo-list-id user-id list-priority ]
   (jdbc/update! *db* :todo_list_owners
