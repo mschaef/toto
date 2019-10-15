@@ -108,7 +108,7 @@
    (form/hidden-field "item-priority" "0")
    img-star-gray))
 
-(def url-regex #"(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]") 
+(def url-regex #"(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
 
 (defn render-url [ [ url ] ]
   [:a { :href url :target "_blank" } (shorten-url-text url 60)])
@@ -198,12 +198,12 @@
       [:div.query-settings
        (form/form-to { :class "embedded "} [ :get (str "/list/" list-id)]
                      "Include items completed within "
-                     [:select { :id "cwithin" :name "cwithin" :onchange "this.form.submit()"} 
+                     [:select { :id "cwithin" :name "cwithin" :onchange "this.form.submit()"}
                       (form/select-options [ [ "-" "-"] [ "1d" "1"] [ "7d" "7"] [ "30d" "30"] [ "90d" "90"] ]
                                            (if (nil? completed-within-days)
                                              "-"
                                              (str completed-within-days)))]
-                     
+
                      ".")]]]))
 
 (defn render-todo-list-list [ selected-list-id ]
@@ -217,9 +217,9 @@
            [:td.item
             [:a {:href (str "/list/" list-id)}
              (hiccup.util/escape-html list-desc)]
-            [:span.pill list-item-count] 
+            [:span.pill list-item-count]
             (when is-public
-              [:span.public-flag
+              [:span.pill.public-flag
                [:a { :href (str "/list/" list-id "/public") } "public"]])
             (when (> list-owner-count 1)
               [:span.group-list-flag img-group])]])
@@ -267,11 +267,11 @@
                 [:td.item-control
                  (render-list-arrow-control list-id priority)]
                 [:td.item-control
-                 [:a {:href (str "/list/" list-id "/details")} img-edit-list]]               
+                 [:a {:href (str "/list/" list-id "/details")} img-edit-list]]
                 [:td.item
                  [:a {:href (str "/list/" list-id)}
                   (hiccup.util/escape-html (:desc list))]
-                 [:span.pill (:item_count list)] 
+                 [:span.pill (:item_count list)]
                  (when (:is_public list)
                    [:span.public-flag
                     [:a { :href (str "/list/" list-id "/public") } "public"]])
@@ -284,7 +284,7 @@
         list-name (:desc list-details)
         list-owners (data/get-todo-list-owners-by-list-id list-id) ]
     (view/render-page
-     {:page-title (str "List Details: " list-name) 
+     {:page-title (str "List Details: " list-name)
       :sidebar (render-todo-list-list list-id) }
      (form/form-to
       {:class "details"}
@@ -299,12 +299,12 @@
         [:div.panel-body
          (form/check-box "is_public" (:is_public list-details))
          [:label {:for "is_public"} "List publically visible?"]]]
-       
+
        [:div.config-panel
         [:div.panel-heading  "List Owners:"]
         [:div.list-owners.panel-body
          (map (fn [ { user-id :user_id user-email-addr :email_addr } ]
-                (let [ user-parameter-name (str "user_" user-id)]                  
+                (let [ user-parameter-name (str "user_" user-id)]
                   [:div.list-owner
                    (if (= (user/current-user-id) user-id)
                      [:div.self-owner
@@ -316,14 +316,14 @@
                     (when (= (user/current-user-id) user-id)
                       [:span.pill "you"])]]))
               (data/get-friendly-users-by-id (user/current-user-id)))]]
-       
+
        [:div.config-panel
         [:div.panel-body [:input {:type "submit" :value "Update List Details"}]]]
 
        [:div.config-panel
         [:div.panel-heading  "View List"]
         [:div.panel-body [:a { :href (str "/list/" list-id) } "View List"]]]
-       
+
        [:div.config-panel
         [:div.panel-heading  "Download List"]
         [:div.panel-body [:a { :href (str "/list/" list-id "/list.csv" ) } "Download List as CSV"]]]
@@ -332,7 +332,7 @@
         [:div.panel-heading  "Delete List"]
         [:div.panel-body
          (if (data/empty-list? list-id)
-           (list 
+           (list
             [:input.dangerous {:type "submit" :value "Delete List" :formaction (str "/list/" list-id "/delete")}]
             [:span.warning "Warning, this cannot be undone."])
            [:span.warning "To delete this list, remove all items first."])]]))))
@@ -390,7 +390,7 @@
                                              (add-days (java.util.Date.) snooze-days)))
     (redirect-to-list list-id)))
 
-(defn update-item-list [ item-id target-list-id ] 
+(defn update-item-list [ item-id target-list-id ]
   (let [ original-list-id (data/get-list-id-by-item-id item-id)]
     (data/update-item-list item-id target-list-id)
     (redirect-to-list original-list-id)))
@@ -434,7 +434,7 @@
      (render-todo-list-page list-id
                             (or (parsable-integer? (:cwithin params)) 0)
                             (not= 0 (or (parsable-integer? (:snoozed params)) 0))))
-   
+
    (GET "/list.csv" []
      (-> (render-todo-list-csv list-id)
          (ring-response/response)
@@ -442,7 +442,7 @@
 
    (GET "/details"  []
      (render-todo-list-details-page list-id))
-    
+
    (POST "/details" { params :params }
      (catch-validation-errors
       (let [{list-name :list-name
@@ -465,10 +465,10 @@
 
    (POST "/priority" { { new-priority :new-priority } :params }
      (update-list-priority list-id (user/current-user-id) new-priority))
-      
+
    (POST "/delete" []
-     (delete-list list-id))  
-   
+     (delete-list list-id))
+
    (POST "/" { { item-description :item-description item-priority :item-priority } :params }
      (add-item list-id (string-leftmost item-description 1024) item-priority))))
 
@@ -477,13 +477,13 @@
   (routes
    (POST "/"  { { description :description } :params }
      (update-item-desc item-id (string-leftmost description 1024)))
-  
+
    (POST "/snooze" { { snooze-days :snooze-days } :params }
      (update-item-snooze-days item-id snooze-days))
 
    (POST "/priority" { { new-priority :new-priority } :params }
      (update-item-priority item-id new-priority))
-  
+
    (POST "/complete" [ ]
      (complete-item item-id))
 
@@ -502,10 +502,10 @@
 
    (GET "/lists" []
      (render-list-list-page))
-   
+
    (context "/list/:list-id" [ list-id ]
      (list-routes list-id))
-   
+
    (POST "/item-list" { { target-item :target-item target-list :target-list} :params}
      (ensure-item-access target-item)
      (ensure-list-owner-access target-list)

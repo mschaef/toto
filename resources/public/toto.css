@@ -17,14 +17,16 @@ body, table, select, input {
     border: 1px solid red;
 }
 
-@media only screen and (min-device-width : 480px) {
-    body, table, select, input { 
-        font-size: 10pt;
-    }
-}
-
 input {
     padding: 4px;
+}
+
+input[type="text"] {
+    font-size: 18px;
+}
+
+input[type="password"] {
+    font-size: 18px;
 }
 
 /* Top level page layout. */
@@ -34,7 +36,6 @@ body {
     display: flex;
     flex-direction: column;
     font-family: Roboto,Helvetica,sans-serif;
-    font-size: 11pt;
     line-height:1.2;
 
     height: 100%;
@@ -44,7 +45,7 @@ body {
     flex: 0 0 auto;
 
     z-index: 1;
-    
+
     background: #e0e0e0;
     color: #202020;
 
@@ -57,7 +58,7 @@ body {
 
 .contents {
     background: white;
-    
+
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
     padding-top: 10px;
@@ -69,14 +70,13 @@ body {
 
 .footer {
     flex: 0 0 auto;
-    
+
     background: white;
 
     border-top: 1px solid #c0c0c0;
     color: #404040;
 
     text-align: center;
-    font-size: 0.8rem;
     font-style: italic;
 }
 
@@ -84,7 +84,7 @@ body {
     z-index: 2;
     display: block;
 	position: absolute;
-    
+
 	top: 0;
     bottom: 0;
 	left: -320px;
@@ -94,7 +94,7 @@ body {
 
     overflow-y: scroll;
     -webkit-overflow-scrolling: touch;
-    
+
     box-shadow: 2px 2px 2px #e0e0e0;
 
     transform: translate3d( 0, 0, 0 );
@@ -105,7 +105,7 @@ body {
     form {
         width: 480px;
     }
-    
+
     .sidebar {
         z-index: 0;
         left: 0px;
@@ -129,7 +129,7 @@ div.sidebar::-webkit-scrollbar {
 }
 
 .todo-list {
-    height: 100%; 
+    height: 100%;
     display: flex;
     flex-direction: column;
     padding-left: 6px;
@@ -210,8 +210,8 @@ div.sidebar-control {
     border: 0px;
     border-left: 5px solid #f0f0f0;
     margin-right: 2px;
-    
-    padding: 2px 8px;    
+
+    padding: 2px 8px;
     background: #f0f0f0;
     vertical-align: middle;
     min-height: 6em;
@@ -242,13 +242,12 @@ div.wrapper {
 .query-settings {
     margin-top: 1em;
     margin-bottom: 1em;
-    
+
     right: 0px;
 
     border-top: 1px solid .c0c0c0;
 
     text-align: center;
-    font-size: 0.8rem;
     font-style: italic;
 }
 
@@ -277,7 +276,6 @@ div.wrapper {
     border-right: 0px none;
     border-left: 0px none;
     background: #f0f0f0;
-//    padding: 0.33em;
 }
 
 ::placeholder {
@@ -286,17 +284,17 @@ div.wrapper {
 
 /* Application fonts */
 
-A { 
+A {
   text-decoration: none;
-} 
+}
 
-A:link { 
+A:link {
   color: blue;
-} 
+}
 
-A:visited { 
+A:visited {
   color: blue;
-} 
+}
 
 @media only screen and (min-device-width : 480px) {
     .sidebar-control {
@@ -430,22 +428,10 @@ div.deleted_item {
     }
 }
 
-.list-list .public-flag {
-    margin-left: 0.5em;
-    padding-left: 0.375em;
-    padding-right: 0.375em;
-    font-size: 0.5rem;
-
-    border-radius: 5px;
-    border: 1px solid #ffffd7;
-    background: #ffffd7;
-    text-transform: uppercase;
-}
-
 .list-list .group-list-flag {
     padding-left: 0.25em;
 }
-                       
+
 
 .list-list tr.control-row td {
     text-align: center;
@@ -475,7 +461,7 @@ table.item-list td {
 }
 
 5em.item-list tr.item-row td {
-    height: 3em;    
+    height: 3em;
 }
 
 table.item-list tr.snooze-control {
@@ -484,7 +470,7 @@ table.item-list tr.snooze-control {
 
 table.item-list tr.snooze-control td {
     text-align: center;
-    font-style: italic;    
+    font-style: italic;
 }
 
 @media only screen and (min-device-width : 480px) {
@@ -526,11 +512,17 @@ table.item-list td.item-description {
     margin-left: 0.25em;
     padding-left: 0.375em;
     padding-right: 0.375em;
-    font-size: 0.7rem;
+    font-size: 13px;
 
     border-radius: 5px;
     border: 1px solid #f0f0f0;
     background: #f0f0f0;
+}
+
+.public-flag {
+    border: 1px solid #ffffd7;
+    background: #ffffd7;
+    text-transform: uppercase;
 }
 
 @media only screen and (max-device-width : 480px) {
@@ -558,17 +550,17 @@ tr.item-row {
 
 .high-priority {
     background: #fffff0;
-    font-weight: bold;    
+    font-weight: bold;
 }
 
 .low-priority {
     background: #e7e7ff;
-    font-style: italic;    
+    font-style: italic;
 }
 
 .snoozed {
     background: #e0e0e0;
-    font-style: italic;    
+    font-style: italic;
 }
 
 table.item-list tr.item-row td {
@@ -595,7 +587,6 @@ div.drag-item {
 
 div.list-control-footer {
     text-align: center;
-    font-size: 0.8rem;
     font-style: italic;
 }
 
@@ -618,14 +609,12 @@ p.new-user {
 .config-panel  {
     width: 100%;
     padding-bottom: 16px;
-    font-size: 10pt;
 }
 
 .config-panel .panel-body {
     padding-left: 16px;
     padding-right: 16px;
     padding-bottom: 8px;
-    font-size: 95%;
 }
 
 .config-panel .list-owner {
@@ -693,7 +682,6 @@ i.icon-bars {
 .sidebar .copyright {
     border-top: 1px solid #c0c0c0;
     margin-top: 20px;
-    font-size: 10pt;
     text-align: center;
     font-style: italic;
 
@@ -707,26 +695,26 @@ i.icon-bars {
 
 input[type=submit] {
     padding: 0.5em 1em;
-    background: #ccc; 
+    background: #ccc;
     border: 1px solid #c0c0c0;
     cursor: pointer;
     -webkit-border-radius: 0px;
-    border-radius: 0px; 
+    border-radius: 0px;
 }
 
 input[type=submit]:hover {
     background:#ddd;
 }
-    
+
 select {
-    padding: 5px 10px; 
-    background:#ccc; 
+    padding: 5px 10px;
+    background:#ccc;
     cursor:pointer;
 
     border: 0px;
     border-radius: 0px;
     -webkit-appearance: none;
-    -webkit-border-radius: 0px;    
+    -webkit-border-radius: 0px;
 }
 
 select:hover {
@@ -745,11 +733,11 @@ select:hover {
         position: static;
         padding: 0px;
     }
-    
+
     div.sidebar {
         display: none;
     }
-    
+
     div.query-settings {
         display: none;
     }
@@ -761,7 +749,7 @@ select:hover {
     span.logout-control {
         display: none;
     }
-    
+
     table.item-list tr.item-row td {
         height: 1.2em;
     }
@@ -769,7 +757,7 @@ select:hover {
     td.priority.right {
         display: none;
     }
-    
+
     .toggle-menu {
         display: none;
     }
