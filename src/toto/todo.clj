@@ -88,7 +88,7 @@
 
 (defn render-new-list-form [ ]
   (form/form-to
-   {:class "embedded"}
+   {:class "new-item-form"}
    [:post (str "/list" )]
    (form/text-field {:class "full-width simple-border"
                      :maxlength "1024"
@@ -154,7 +154,7 @@
                                        "high-priority" (> priority 0)
                                        "snoozed" currently-snoozed})}
      (when writable?
-       [:td.item-control
+       [:td.item-control.complete
         [:div { :id (str "item_control_" item-id)}
          (if (nil? completed-on)
            (complete-item-button item-info)
@@ -183,7 +183,7 @@
      (when writable?
        (render-new-item-form list-id))
      [:div.scrollable
-      [:table.item-list
+      [:table.toplevel-list.item-list
        (map (fn [ item-info item-number ]
               (render-todo-item item-info item-number writable?))
             (if include-snoozed?
@@ -206,7 +206,7 @@
 
                      ".")]]]))
 
-(defn render-todo-list-list [ selected-list-id ]
+(defn render-sidebar-list-list [ selected-list-id ]
   [:table.list-list
    (map (fn [ { list-id :todo_list_id list-desc :desc list-item-count :item_count is-public :is_public list-owner-count :list_owner_count} ]
           [:tr.list-row (if (= list-id (Integer. selected-list-id))
@@ -241,7 +241,7 @@
 (defn render-todo-list-page [ selected-list-id completed-within-days snoozed-for-days ]
   (view/render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)
                      :init-map { :page "todo-list" }
-                     :sidebar (render-todo-list-list selected-list-id)}
+                     :sidebar (render-sidebar-list-list selected-list-id)}
                     (render-item-set-list-form)
                     (render-todo-list selected-list-id true completed-within-days snoozed-for-days)))
 
@@ -250,34 +250,36 @@
                      :init-map { :page "todo-list" }}
                     (render-todo-list selected-list-id false 0 0)))
 
+(defn render-list-list []
+  [:div.list-list.toplevel-list
+   (render-new-list-form)
+   [:div.scrollable
+    [:table.list-list
+     (map (fn [ list ]
+            (let [list-id (:todo_list_id list)
+                  priority (:priority list)]
+              [:tr {:class (class-set {"high-priority" (> priority 0)
+                                       "low-priority" (< priority 0)})}
+               [:td.item-control
+                (render-list-star-control list-id priority)]
+               [:td.item-control
+                (render-list-arrow-control list-id priority)]
+               [:td.item-control
+                [:a {:href (str "/list/" list-id "/details")} img-edit-list]]
+               [:td.item
+                [:a {:href (str "/list/" list-id)}
+                 (hiccup.util/escape-html (:desc list))]
+                [:span.pill (:item_count list)]
+                (when (:is_public list)
+                  [:span.pill.public-flag
+                   [:a { :href (str "/list/" list-id "/public") } "public"]])
+                (when (> (:list_owner_count list) 1)
+                  [:span.group-list-flag img-group])]]))
+          (data/get-todo-lists-by-user (user/current-user-id)))]]])
+
 (defn render-list-list-page []
-  (view/render-page
-   {:page-title "Manage Todo Lists"}
-   [:div.list-page
-    (render-new-list-form)
-    [:div.scrollable
-     [:table.list-list
-      (map (fn [ list ]
-             (let [list-id (:todo_list_id list)
-                   priority (:priority list)]
-               [:tr {:class (class-set {"high-priority" (> priority 0)
-                                        "low-priority" (< priority 0)})}
-                [:td.item-control
-                 (render-list-star-control list-id priority)]
-                [:td.item-control
-                 (render-list-arrow-control list-id priority)]
-                [:td.item-control
-                 [:a {:href (str "/list/" list-id "/details")} img-edit-list]]
-                [:td.item
-                 [:a {:href (str "/list/" list-id)}
-                  (hiccup.util/escape-html (:desc list))]
-                 [:span.pill (:item_count list)]
-                 (when (:is_public list)
-                   [:span.public-flag
-                    [:a { :href (str "/list/" list-id "/public") } "public"]])
-                 (when (> (:list_owner_count list) 1)
-                   [:span.group-list-flag img-group])]]))
-           (data/get-todo-lists-by-user (user/current-user-id)))]]]))
+  (view/render-page {:page-title "Manage Todo Lists"}
+                    (render-list-list)))
 
 (defn render-todo-list-details-page [ list-id & { :keys [ error-message ]}]
   (let [list-details (data/get-todo-list-by-id list-id)
@@ -285,7 +287,7 @@
         list-owners (data/get-todo-list-owners-by-list-id list-id) ]
     (view/render-page
      {:page-title (str "List Details: " list-name)
-      :sidebar (render-todo-list-list list-id) }
+      :sidebar (render-sidebar-list-list list-id) }
      (form/form-to
       {:class "details"}
       [:post (str "/list/" list-id "/details")]
