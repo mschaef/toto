@@ -6,7 +6,7 @@ function elemOptional(klass) {
     if (elements.length > 0) {
         return elements[0];
     }
-    
+
     return null;
 }
 
@@ -16,7 +16,7 @@ function elem(klass) {
     if(!element) {
         console.error('Expected missing element with class: ' + klass);
     }
-    
+
     return element;
 }
 
@@ -39,7 +39,7 @@ function elemBySelector(selector) {
         if (elements.length > 1) {
             console.error('Warning: more than one element with selector: ' + selector);
         }
-        
+
         return elements[0];
     }
 
@@ -61,7 +61,7 @@ function doubleTapFilter(onSingleTap, onDoubleTap) {
         }
         doubletapTimer_ = null;
     }
-    
+
     return function() {
         if (doubletapTimer_) {
             clearTimeout(doubletapTimer_);
@@ -79,7 +79,7 @@ sidebarVisible = false;
 
 function toggleSidebar() {
     var menu = elem('sidebar');
- 
+
     sidebarVisible = !sidebarVisible;
 
     menu.classList.toggle('menu-visible', sidebarVisible);
@@ -87,7 +87,7 @@ function toggleSidebar() {
 
 function onToggleSidebar(e) {
     e.preventDefault();
-    
+
     toggleSidebar();
 }
 
@@ -144,7 +144,7 @@ function setupSidebar() {
         toggleMenu.ontouchstart =  onToggleSidebar;
         toggleMenu.onclick =  onToggleSidebar;
     }
-    
+
     var closeMenu = elemOptional('close-menu');
 
     if (closeMenu) {
@@ -159,7 +159,7 @@ function checkPasswords()
     var pwd2 = elemById("password2").value.trim();
 
     var errDiv = elemById("error");
-    
+
     if ((pwd1.length > 0) && (pwd2.length > 0) && (pwd1 != pwd2))
         errDiv.innerHTML = "Passwords do not match";
     else
@@ -187,7 +187,7 @@ function doMoveItem(itemId, newListId) {
 function setupItemDragging() {
     foreach_elem(".item-list .item-row", function(el) {
         el.setAttribute('draggable', true);
-        
+
         el.ondragstart = function(ev) {
             ev.dataTransfer.dropEffect = 'move';
             ev.dataTransfer.setData('text/plain', el.getAttribute('itemid'));
@@ -196,7 +196,7 @@ function setupItemDragging() {
 
     foreach_elem('.list-list tr.list-row', function(el) {
         var dragCount = 0;
-        
+
         el.ondragenter = function(ev) {
             ev.preventDefault();
 
@@ -210,15 +210,15 @@ function setupItemDragging() {
             ev.preventDefault();
 
             dragCount--;
-            
+
             if (!dragCount)
                 el.classList.remove('drop-hover');
         };
-        
+
         el.ondragover = function(ev) {
             ev.preventDefault();
         };
-        
+
         el.ondrop = function(ev) {
             ev.preventDefault();
 
@@ -233,7 +233,7 @@ function setupItemDragging() {
 function setupNewItemForm() {
     var starToggle = elemBySelector('.new-item-form i');
     var priorityField = elemBySelector('.new-item-form #item-priority');
-    
+
     starToggle.onclick = function() {
         if (starToggle.className === "fa fa-lg fa-star-o icon-gray") {
             starToggle.className = "fa fa-lg fa-star icon-yellow";
@@ -261,11 +261,11 @@ pageInit["new-user"] = function () {
 function pageInitializer(initMap) {
     return function() {
         var pageInitFn = pageInit[initMap.page];
-    
+
         if (pageInitFn != null) {
             pageInitFn();
         }
-    
+
         setupSidebar();
     };
 }
