@@ -172,6 +172,9 @@ var pageInit = {};
 
 function setupEditableItems() {
     foreach_elem('.item-list .item-row .item-description', function(el) {
+        el.ontouchstart = doubleTapFilter(null, function(obj) {
+            beginItemEdit(el.getAttribute('itemid'));
+        });
         el.onclick = doubleTapFilter(null, function(obj) {
             beginItemEdit(el.getAttribute('itemid'));
         });
