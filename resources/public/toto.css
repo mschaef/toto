@@ -61,15 +61,21 @@ body {
 
 .contents {
     flex: 1;
-
+    
     background: white;
 
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
-    padding-top: 10px;
+    padding-top: 4px;
 
     display: flex;
     flex-direction: column;
+}
+
+@media only screen and (min-device-width : 480px) {
+    .contents.with-sidebar {
+        padding-left: 270px;
+    }
 }
 
 .footer {
@@ -132,21 +138,31 @@ body {
     color: red;
 }
 
-.scrollable {
+.scroll-column {
+    display: flex;
+    flex-direction: column;
+    overflow-y: hidden;
+}
+
+.scroll-column .fixed {
+    display: flex;
+    flex: 0;
+}
+
+.scroll-column .scrollable {
     flex: 1;
     overflow-y: scroll;
-    padding-bottom: 60px;
 }
 
 .new-item-form {
+    flex: 1;
+
     display: flex;
     flex-direction: row;
     margin: 6px;
     padding: 0px;
 
     align-items: center;
-    width: 100%;
-    box-sizing: border-box;
 }
 
 .new-item-form input {
@@ -190,12 +206,6 @@ form {
     margin-bottom: 0px;
 }
 
-@media only screen and (min-device-width : 480px) {
-    .contents.with-sidebar {
-        padding-left: 320px;
-    }
-}
-
 .contents::-webkit-scrollbar {
     display: none;
 }
@@ -226,12 +236,6 @@ span.close-menu {
     float: right;
 }
 
-.wrapper {
-    overflow-x: hidden;
-    position: relative;
-    left: 0;
-}
-
 .query-settings {
     margin-top: 1em;
     margin-bottom: 1em;
@@ -242,13 +246,6 @@ span.close-menu {
 
     text-align: center;
     font-style: italic;
-}
-
-.header .vspace {
-    min-height: 12pt;
-    display: inline-block;
-    padding-top: 0.5em;
-    padding-bottom: 0.5em;
 }
 
 .embedded {
@@ -276,7 +273,6 @@ span.close-menu {
 }
 
 /* Application fonts */
-
 
 A {
   text-decoration: none;
@@ -351,28 +347,28 @@ A {
     padding-right: 0.5em;
 }
 
-.todo-list, .list-list.toplevel-list {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    overflow-y: hidden;
-}
-
-.scrollable .list-list {
-    width: 100%;
-}
 
 /* Toplevel list styling */
+
+.toplevel-list {
+    width: 100%;
+}
 
 .toplevel-list tr {
     width: 100%;
 }
 
 .toplevel-list td {
-    padding-top: 0.66em;
-    padding-bottom: 0.66m;
+    padding-top: 8px;
+    padding-bottom: 8px;
 }
 
+@media only screen and (min-device-width : 480px) {
+    .toplevel-list td {
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+}
 
 .toplevel-list .item-description {
     width: 100%;
@@ -386,16 +382,21 @@ A {
 
 /* List list styling */
 
-.sidebar .list-list tr {
+.sidebar .list-list .list-row {
     border-left: 5px solid white;
 }
 
-.sidebar .list-list tr td {
+.sidebar .list-list .item-control {
+    padding-right: 12px;
+}
+
+.sidebar .list-list .list-row, .sidebar .list-list .control-row {
     padding-top: 0.75em;
     padding-bottom: 0.75em;
 }
 
-.list-list .selected.drop-hover, .list-list .drop-hover {
+.sidebar .list-list .selected.drop-hover,
+.sidebar .list-list .drop-hover {
     background: #e0e0e0;
 }
 
@@ -408,10 +409,13 @@ A {
     border-left: 5px solid red;
 }
 
-.sidebar .list-list .control-row td {
+.sidebar .list-list .control-row {
     text-align: center;
 }
 
+.sidebar .list-list .item {
+    padding-right: 10px;
+}
 .pill {
     margin-left: 0.25em;
     padding-left: 0.375em;

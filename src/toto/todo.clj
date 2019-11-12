@@ -176,59 +176,59 @@
      [:td.item-control.priority.right
       (render-item-priority-control item-id priority writable?)]]))
 
+(defn render-scroll-column [ title & contents ]
+  [:div.scroll-column
+   [:div.fixed title]
+   [:div.scrollable contents]])
+
 (defn render-todo-list [ list-id writable? completed-within-days include-snoozed? ]
   (let [pending-items (data/get-pending-items list-id completed-within-days)
         n-snoozed-items (count (filter :currently_snoozed pending-items))]
-    [:div.todo-list
+    (render-scroll-column
      (when writable?
-       (render-new-item-form list-id))
-     [:div.scrollable
-      [:table.toplevel-list.item-list
-       (map (fn [ item-info item-number ]
-              (render-todo-item item-info item-number writable?))
-            (if include-snoozed?
-              pending-items
-              (remove :currently_snoozed pending-items))
-            (range))
-       (when (> n-snoozed-items 0)
-         [:tr.snooze-control
-          [:td {:colspan "3"}
-           [:a {:href (str list-id "?snoozed=" (if include-snoozed? "0" "1")) }
-            (if include-snoozed? "Hide" "Show") " " n-snoozed-items " snoozed item" (if (= 1 n-snoozed-items) "" "s") "."]]])]
-      [:div.query-settings
-       (form/form-to { :class "embedded "} [ :get (str "/list/" list-id)]
-                     "Include items completed within "
-                     [:select { :id "cwithin" :name "cwithin" :onchange "this.form.submit()"}
-                      (form/select-options [ [ "-" "-"] [ "1d" "1"] [ "7d" "7"] [ "30d" "30"] [ "90d" "90"] ]
-                                           (if (nil? completed-within-days)
-                                             "-"
-                                             (str completed-within-days)))]
+       (render-new-item-form list-id))    
+     [:table.toplevel-list.item-list
+      (map (fn [ item-info item-number ]
+             (render-todo-item item-info item-number writable?))
+           (if include-snoozed?
+             pending-items
+             (remove :currently_snoozed pending-items))
+           (range))
+      (when (> n-snoozed-items 0)
+        [:tr.snooze-control
+         [:td {:colspan "3"}
+          [:a {:href (str list-id "?snoozed=" (if include-snoozed? "0" "1")) }
+           (if include-snoozed? "Hide" "Show") " " n-snoozed-items " snoozed item" (if (= 1 n-snoozed-items) "" "s") "."]]])]
+     [:div.query-settings
+      (form/form-to { :class "embedded "} [ :get (str "/list/" list-id)]
+                    "Include items completed within "
+                    [:select { :id "cwithin" :name "cwithin" :onchange "this.form.submit()"}
+                     (form/select-options [ [ "-" "-"] [ "1d" "1"] [ "7d" "7"] [ "30d" "30"] [ "90d" "90"] ]
+                                          (if (nil? completed-within-days)
+                                            "-"
+                                            (str completed-within-days)))]
 
-                     ".")]]]))
+                    ".")])))
 
 (defn render-sidebar-list-list [ selected-list-id ]
-  [:table.list-list
+  [:div.list-list
    (map (fn [ { list-id :todo_list_id list-desc :desc list-item-count :item_count is-public :is_public list-owner-count :list_owner_count} ]
-          [:tr.list-row (if (= list-id (Integer. selected-list-id))
-                 { :class "selected" :listid list-id }
-                 { :listid list-id })
-           [:td.item-control
-            [:a {:href (str "/list/" list-id "/details")} img-edit-list]]
-           [:td.item
-            [:a {:href (str "/list/" list-id)}
-             (hiccup.util/escape-html list-desc)]
-            [:span.pill list-item-count]
-            (when is-public
-              [:span.pill.public-flag
-               [:a { :href (str "/list/" list-id "/public") } "public"]])
-            (when (> list-owner-count 1)
-              [:span.group-list-flag img-group])]])
+          [:div.list-row {:class (class-set {"selected" (= list-id (Integer. selected-list-id))})
+                          :listid list-id}
+           [:a.item-control {:href (str "/list/" list-id "/details")} img-edit-list]
+           [:a.item {:href (str "/list/" list-id)}
+            (hiccup.util/escape-html list-desc)] 
+           [:span.pill list-item-count]
+           (when is-public
+             [:span.pill.public-flag
+              [:a { :href (str "/list/" list-id "/public") } "public"]])
+           (when (> list-owner-count 1)
+             [:span.group-list-flag img-group])])
         (remove #(and (< (:priority %) 0)
                       (not (= (Integer. selected-list-id) (:todo_list_id %))))
                 (data/get-todo-lists-by-user (user/current-user-id))))
-   [:tr.control-row
-    [:td { :colspan "2"}
-     [:a {:href "/lists"} "Manage Todo Lists"]]]])
+   [:div.control-row
+    [:a {:href "/lists"} "Manage Todo Lists"]]])
 
 (defn render-item-set-list-form []
     (form/form-to { :class "embedded" :id (str "item_set_list_form") } [:post "/item-list"]
@@ -250,11 +250,12 @@
                      :init-map { :page "todo-list" }}
                     (render-todo-list selected-list-id false 0 0)))
 
-(defn render-list-list []
-  [:div.list-list.toplevel-list
-   (render-new-list-form)
-   [:div.scrollable
-    [:table.list-list
+(defn render-list-list-page []
+  (view/render-page
+   {:page-title "Manage Todo Lists"}
+   (render-scroll-column
+    (render-new-list-form)
+    [:table.toplevel-list
      (map (fn [ list ]
             (let [list-id (:todo_list_id list)
                   priority (:priority list)]
@@ -275,11 +276,7 @@
                    [:a { :href (str "/list/" list-id "/public") } "public"]])
                 (when (> (:list_owner_count list) 1)
                   [:span.group-list-flag img-group])]]))
-          (data/get-todo-lists-by-user (user/current-user-id)))]]])
-
-(defn render-list-list-page []
-  (view/render-page {:page-title "Manage Todo Lists"}
-                    (render-list-list)))
+          (data/get-todo-lists-by-user (user/current-user-id)))])))
 
 (defn render-todo-list-details-page [ list-id & { :keys [ error-message ]}]
   (let [list-details (data/get-todo-list-by-id list-id)
