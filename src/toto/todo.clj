@@ -289,19 +289,18 @@
       {:class "details"}
       [:post (str "/list/" list-id "/details")]
        [:div.config-panel
-        [:div.panel-heading "List Name:"]
-        [:div.panel-body (form/text-field { :class "full-width simple-border" :maxlength "32" }
-                                          "list-name" list-name)]]
+        [:h1 "List Name:"]
+        (form/text-field { :class "full-width simple-border" :maxlength "32" }
+                                          "list-name" list-name)]
 
        [:div.config-panel
-        [:div.panel-heading  "List Permissions:"]
-        [:div.panel-body
-         (form/check-box "is_public" (:is_public list-details))
-         [:label {:for "is_public"} "List publically visible?"]]]
+        [:h1  "List Permissions:"]
+        (form/check-box "is_public" (:is_public list-details))
+        [:label {:for "is_public"} "List publically visible?"]]
 
        [:div.config-panel
-        [:div.panel-heading  "List Owners:"]
-        [:div.list-owners.panel-body
+        [:h1  "List Owners:"]
+        [:div.list-owners
          (map (fn [ { user-id :user_id user-email-addr :email_addr } ]
                 (let [ user-parameter-name (str "user_" user-id)]
                   [:div.list-owner
@@ -317,24 +316,23 @@
               (data/get-friendly-users-by-id (user/current-user-id)))]]
 
        [:div.config-panel
-        [:div.panel-body [:input {:type "submit" :value "Update List Details"}]]]
+        [:input {:type "submit" :value "Update List Details"}]]
 
        [:div.config-panel
-        [:div.panel-heading  "View List"]
-        [:div.panel-body [:a { :href (str "/list/" list-id) } "View List"]]]
+        [:h1  "View List"]
+        [:a { :href (str "/list/" list-id) } "View List"]]
 
        [:div.config-panel
-        [:div.panel-heading  "Download List"]
-        [:div.panel-body [:a { :href (str "/list/" list-id "/list.csv" ) } "Download List as CSV"]]]
+        [:h1  "Download List"]
+        [:a { :href (str "/list/" list-id "/list.csv" ) } "Download List as CSV"]]
 
        [:div.config-panel
-        [:div.panel-heading  "Delete List"]
-        [:div.panel-body
-         (if (data/empty-list? list-id)
-           (list
-            [:input.dangerous {:type "submit" :value "Delete List" :formaction (str "/list/" list-id "/delete")}]
-            [:span.warning "Warning, this cannot be undone."])
-           [:span.warning "To delete this list, remove all items first."])]]))))
+        [:h1  "Delete List"]
+        (if (data/empty-list? list-id)
+          (list
+           [:input.dangerous {:type "submit" :value "Delete List" :formaction (str "/list/" list-id "/delete")}]
+           [:span.warning "Warning, this cannot be undone."])
+          [:span.warning "To delete this list, remove all items first."])]))))
 
 (defn update-list-description [ list-id list-description ]
   (when (not (string-empty? list-description))
