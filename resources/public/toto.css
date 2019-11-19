@@ -61,12 +61,13 @@ body {
 
 .contents {
     flex: 1;
-    
+
     background: white;
 
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
     padding-top: 6px;
+    padding-right: 6px;
 
     display: flex;
     flex-direction: column;
@@ -142,6 +143,7 @@ body {
     display: flex;
     flex-direction: column;
     overflow-y: hidden;
+    flex: 1;
 }
 
 .scroll-column .fixed {
@@ -210,7 +212,7 @@ form {
     display: none;
 }
 
-span.close-menu {
+.close-menu {
     padding-right: 0.5em;
 }
 
@@ -354,17 +356,13 @@ A {
     width: 100%;
 }
 
-.toplevel-list tr {
-    width: 100%;
-}
-
-.toplevel-list td {
-    padding-top: 8px;
-    padding-bottom: 8px;
+.toplevel-list .item-row {
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
 @media only screen and (min-device-width : 480px) {
-    .toplevel-list td {
+    .toplevel-list .item-row {
         padding-top: 5px;
         padding-bottom: 5px;
     }
@@ -456,6 +454,8 @@ A {
 }
 
 .item-row {
+    display: flex;
+    flex-direction: row;
     border-top: 1px solid #e0e0e0;
     padding: 0.25em;
     white-space: nowrap;
@@ -541,7 +541,6 @@ p.new-user {
 .config-panel A, .item-list A {
     color: blue;
 }
-
 
 i.icon-edit {
     color: #000000;

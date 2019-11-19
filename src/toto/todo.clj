@@ -149,19 +149,18 @@
          snoozed-until :snoozed_until
          currently-snoozed :currently_snoozed}
         item-info]
-    [:tr.item-row  {:itemid item-id
+    [:div.item-row {:itemid item-id
                     :class (class-set {"first-row" (= item-number 0)
                                        "high-priority" (> priority 0)
                                        "snoozed" currently-snoozed})}
      (when writable?
-       [:td.item-control.complete
-        [:div { :id (str "item_control_" item-id)}
-         (if (nil? completed-on)
-           (complete-item-button item-info)
-           (restore-item-button item-info))]])
-     [:td.item-control.priority.left
+       [:div.item-control.complete { :id (str "item_control_" item-id)}
+        (if (nil? completed-on)
+          (complete-item-button item-info)
+          (restore-item-button item-info))])
+     [:div.item-control.priority.left
       (render-item-priority-control item-id priority writable?)]
-     [:td.item-description {:itemid item-id}
+     [:div.item-description {:itemid item-id}
       (let [desc (item-info :desc)]
         (list
          [:div { :id (str "item_desc_" item-id) :class "hidden"}
@@ -173,7 +172,7 @@
           (snooze-item-button item-info [:span.pill (render-age (:age_in_days item-info))])
           (when currently-snoozed
             (unsnooze-item-button item-info [:span.pill "snoozed"]))]))]
-     [:td.item-control.priority.right
+     [:div.item-control.priority.right
       (render-item-priority-control item-id priority writable?)]]))
 
 (defn render-scroll-column [ title & contents ]
@@ -186,8 +185,8 @@
         n-snoozed-items (count (filter :currently_snoozed pending-items))]
     (render-scroll-column
      (when writable?
-       (render-new-item-form list-id))    
-     [:table.toplevel-list.item-list
+       (render-new-item-form list-id))
+     [:div.toplevel-list.item-list
       (map (fn [ item-info item-number ]
              (render-todo-item item-info item-number writable?))
            (if include-snoozed?
@@ -195,10 +194,9 @@
              (remove :currently_snoozed pending-items))
            (range))
       (when (> n-snoozed-items 0)
-        [:tr.snooze-control
-         [:td {:colspan "3"}
-          [:a {:href (str list-id "?snoozed=" (if include-snoozed? "0" "1")) }
-           (if include-snoozed? "Hide" "Show") " " n-snoozed-items " snoozed item" (if (= 1 n-snoozed-items) "" "s") "."]]])]
+        [:div.snooze-control
+         [:a {:href (str list-id "?snoozed=" (if include-snoozed? "0" "1")) }
+          (if include-snoozed? "Hide" "Show") " " n-snoozed-items " snoozed item" (if (= 1 n-snoozed-items) "" "s") "."]])]
      [:div.query-settings
       (form/form-to { :class "embedded "} [ :get (str "/list/" list-id)]
                     "Include items completed within "
@@ -255,19 +253,19 @@
    {:page-title "Manage Todo Lists"}
    (render-scroll-column
     (render-new-list-form)
-    [:table.toplevel-list
+    [:div.toplevel-list
      (map (fn [ list ]
             (let [list-id (:todo_list_id list)
                   priority (:priority list)]
-              [:tr {:class (class-set {"high-priority" (> priority 0)
+              [:div.item-row {:class (class-set {"high-priority" (> priority 0)
                                        "low-priority" (< priority 0)})}
-               [:td.item-control
+               [:div.item-control
                 (render-list-star-control list-id priority)]
-               [:td.item-control
+               [:div.item-control
                 (render-list-arrow-control list-id priority)]
-               [:td.item-control
+               [:div.item-control
                 [:a {:href (str "/list/" list-id "/details")} img-edit-list]]
-               [:td.item
+               [:div.item
                 [:a {:href (str "/list/" list-id)}
                  (hiccup.util/escape-html (:desc list))]
                 [:span.pill (:item_count list)]
