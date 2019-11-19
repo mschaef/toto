@@ -360,7 +360,7 @@
     (redirect-to-home)
     (let [ list-id (data/add-list list-description) ]
       (data/set-list-ownership list-id #{ (user/current-user-id) })
-      (redirect-to-list list-id))))
+      (redirect-to-lists))))
 
 (defn update-list-priority [ list-id user-id new-priority ]
   (data/set-list-priority list-id user-id new-priority)
