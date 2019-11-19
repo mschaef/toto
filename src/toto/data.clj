@@ -8,7 +8,7 @@
 (def db-connection
   (delay (-> (sql-file/open-pool {:name (config-property "db.subname" "toto")
                                   :schema-path [ "sql/" ]})
-             (sql-file/ensure-schema [ "toto" 5 ]))))
+             (sql-file/ensure-schema [ "toto" 6 ]))))
 
 (def ^:dynamic *db* nil)
 
@@ -22,12 +22,15 @@
   (let [first-row (first query-result)]
     (get first-row (first (keys first-row)))))
 
+(defn current-time []
+  (java.util.Date.))
+
 ;;; user
 
 (defn get-user-roles [ user-id ]
   (set
    (map #(keyword "toto.role" (:role_name %))
-        (query-all *db* 
+        (query-all *db*
                    [(str "SELECT role_name"
                          "  FROM user u, role r, user_role ur"
                          "  WHERE u.user_id = ur.user_id"
@@ -47,7 +50,7 @@
 
 
 (defn set-user-roles [ user-id role-set ]
-  (jdbc/with-db-transaction [ trans *db* ] 
+  (jdbc/with-db-transaction [ trans *db* ]
     (delete-user-roles user-id)
     (doseq [ role-id (map get-role-id role-set)]
       (jdbc/insert! *db* :user_role
@@ -120,7 +123,7 @@
     (jdbc/insert! *db* :verification_link
                   {:link_uuid (.toString (java.util.UUID/randomUUID))
                    :verifies_user_id user-id
-                   :created_on (java.util.Date.)}))))
+                   :created_on (current-time)}))))
 
 (defn get-verification-link-by-user-id [ user-id ]
   (query-first *db* [(str "SELECT *"
@@ -147,10 +150,10 @@
                    {:desc desc}))))
 
 
- 
+
 
 (defn set-list-ownership [ todo-list-id user-ids ]
-  (jdbc/with-db-transaction [ trans *db* ] 
+  (jdbc/with-db-transaction [ trans *db* ]
     (let [next-owners (set user-ids)
           current-owners (set (get-todo-list-owners-by-list-id todo-list-id))
           add-ids (clojure.set/difference next-owners current-owners)
@@ -159,7 +162,7 @@
         (jdbc/delete! trans
                       :todo_list_owners
                       ["todo_list_id=? and user_id=?" todo-list-id id]))
-      
+
       (doseq [ user-id add-ids ]
         (jdbc/insert! trans
                       :todo_list_owners
@@ -203,14 +206,18 @@
                                     { :connection *db* }))
      0))
 
-(defn add-todo-item [ todo-list-id desc priority ]
+(defn add-todo-item [ user-id todo-list-id desc priority ]
   (:item_id (first
              (jdbc/insert! *db*
               :todo_item
               {:todo_list_id todo-list-id
                :desc desc
+               :created_on (current-time)
                :priority priority
-               :created_on (java.util.Date.)}))))
+               :updated_by user-id
+               :updated_on (current-time)
+               :is_deleted false
+               :is_complete false}))))
 
 (defn get-pending-items [ list-id completed-within-days]
   (query/get-pending-items {:list_id list-id
@@ -228,57 +235,43 @@
 (defn get-item-by-id [ item-id ]
   (first
    (query/get-item-by-id { :item_id item-id }
-                         { :Connection *db* })))
+                         { :connection *db* })))
 
-
-(defn is-item-completed? [ item-id ]
-  (> (scalar
-      (query/item-completion-count { :item_id item-id }
-                                   { :connection *db* }))
-     0))
+(defn update-item-by-id! [ user-id item-id values ]
+  (jdbc/update! *db*
+                :todo_item
+                (merge
+                 values
+                 {:updated_by user-id
+                  :updated_on (current-time)})
+                ["item_id=?" item-id]))
 
 (defn complete-item-by-id [ user-id item-id ]
-  (query/set-item-completion! {:user_id user-id
-                               :item_id item-id
-                               :completed_on (java.util.Date.)
-                               :is_delete false}
-                              {:connection *db*}))
+  (update-item-by-id! user-id item-id {:is_complete true}))
 
 (defn delete-item-by-id [ user-id item-id ]
-  (query/set-item-completion! {:user_id user-id
-                               :item_id item-id
-                               :completed_on (java.util.Date.)
-                               :is_delete true}
-                              {:connection *db*}))
+  (update-item-by-id! user-id item-id {:is_deleted true}))
 
-(defn restore-item [ item-id ]
-  (jdbc/delete! *db*
-   :todo_item_completion
-   ["item_id=?" item-id]))
+(defn restore-item [ user-id item-id ]
+  (update-item-by-id! user-id item-id
+                      {:is_deleted false
+                       :is_complete false}))
 
-(defn update-item-snooze-by-id [ item-id snoozed-until ]
-  (jdbc/update! *db*
-   :todo_item
-   {:snoozed_until snoozed-until}
-   ["item_id=?" item-id]))
+(defn update-item-snooze-by-id [ user-id item-id snoozed-until ]
+  (update-item-by-id! user-id item-id
+                      {:snoozed_until snoozed-until}))
 
-(defn update-item-desc-by-id [ item-id item-description ]
-  (jdbc/update! *db*
-   :todo_item
-   {:desc item-description}
-   ["item_id=?" item-id]))
+(defn update-item-desc-by-id [ user-id item-id item-description ]
+  (update-item-by-id! user-id item-id
+                      {:desc item-description}))
 
-(defn update-item-priority-by-id [ item-id item-priority ]
-  (jdbc/update! *db*
-   :todo_item
-   {:priority item-priority}
-   ["item_id=?" item-id]))
+(defn update-item-priority-by-id [ user-id item-id item-priority ]
+  (update-item-by-id! user-id item-id
+                      {:priority item-priority}))
 
-(defn update-item-list [ item-id list-id ]
-  (jdbc/update! *db*
-   :todo_item
-   {:todo_list_id list-id}
-   ["item_id=?" item-id]))
+(defn update-item-list [ user-id item-id list-id ]
+  (update-item-by-id! user-id item-id
+                      {:todo_list_id list-id}))
 
 (defn get-list-id-by-item-id [ item-id ]
   (scalar

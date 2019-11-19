@@ -50,11 +50,10 @@ SELECT DISTINCT todo_list.todo_list_id,
                 todo_list.is_public,
                 todo_list_owners.priority,
                 (SELECT count(item.item_id)
-                   FROM todo_item item 
+                   FROM todo_item item
                   WHERE item.todo_list_id=todo_list.todo_list_id
-                    AND NOT EXISTS (SELECT 1
-                                     FROM todo_item_completion
-                                    WHERE item_id=item.item_id))
+                    AND NOT item.is_deleted
+                    AND NOT item.is_complete)
                    AS item_count,
                 (SELECT count(list_owners.user_id)
                    FROM todo_list_owners list_owners
@@ -71,7 +70,7 @@ SELECT COUNT(*)
   FROM todo_list_owners
  WHERE todo_list_id = :list_id
    AND user_id = :user_id
-   
+
 -- name: item-owned-by-user-id?
 SELECT COUNT(*)
  FROM todo_list_owners lo, todo_item item
@@ -85,36 +84,30 @@ SELECT item.item_id,
        item.desc,
        item.created_on,
        item.priority,
-       completion.completed_on,
-       completion.is_delete,
+       item.updated_on,
+       item.is_deleted,
+       item.is_complete,
        DATEDIFF('day', item.created_on, CURRENT_TIMESTAMP) as age_in_days,
        item.snoozed_until,
        CURRENT_TIMESTAMP < NVL(item.snoozed_until, CURRENT_TIMESTAMP) AS currently_snoozed
-   FROM todo_item item 
-      LEFT JOIN todo_item_completion completion
-        ON item.item_id = completion.item_id
+   FROM todo_item item
    WHERE item.todo_list_id = :list_id
-   AND (completion.completed_on IS NULL 
-        OR completion.completed_on >
+   AND (NOT(item.is_deleted OR item.is_complete)
+        OR item.updated_on >
                DATEADD('day', :completed_within_days, CURRENT_TIMESTAMP))
-   ORDER BY NVL2(completion.completed_on, 1, 0),
+   ORDER BY CASEWHEN(item.is_deleted or item.is_complete, 1, 0),
             item.priority DESC,
             age_in_days DESC
 
 -- name: get-pending-item-count
 SELECT count(item.item_id)
-  FROM todo_item item 
+  FROM todo_item item
  WHERE todo_list_id= :list_id
-   AND NOT EXISTS (SELECT 1 FROM todo_item_completion WHERE item_id=item.item_id)
+   AND NOT (item.is_deleted OR item.is_complete)
 
 -- name: get-item-by-id
 SELECT item.item_id, item.todo_list_id, item.desc, item.created_on
-  FROM todo_item item 
- WHERE item_id = :item_id
-
--- name: item-completion-count
-SELECT COUNT(*)
-  FROM todo_item_completion
+  FROM todo_item item
  WHERE item_id = :item_id
 
 -- name: set-item-completion!

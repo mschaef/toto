@@ -143,8 +143,8 @@
 
 (defn render-todo-item [ item-info item-number writable? ]
   (let [{item-id :item_id
-         completed-on :completed_on
-         is-delete? :is_delete
+         is-complete? :is_complete
+         is-deleted? :is_deleted
          priority :priority
          snoozed-until :snoozed_until
          currently-snoozed :currently_snoozed}
@@ -155,9 +155,9 @@
                                        "snoozed" currently-snoozed})}
      (when writable?
        [:div.item-control.complete { :id (str "item_control_" item-id)}
-        (if (nil? completed-on)
-          (complete-item-button item-info)
-          (restore-item-button item-info))])
+        (if (or is-complete? is-deleted?)
+          (restore-item-button item-info)
+          (complete-item-button item-info))])
      [:div.item-control.priority.left
       (render-item-priority-control item-id priority writable?)]
      [:div.item-description {:itemid item-id}
@@ -166,8 +166,8 @@
          [:div { :id (str "item_desc_" item-id) :class "hidden"}
           (hiccup.util/escape-html desc)]
          [:div {:id (str "item_" item-id)
-                :class (class-set {"deleted_item" (and (not (nil? completed-on)) is-delete?)
-                                   "completed_item" (not (nil? completed-on))})}
+                :class (class-set {"deleted_item" is-deleted?
+                                   "completed_item" is-complete?})}
           (render-item-text desc)
           (snooze-item-button item-info [:span.pill (render-age (:age_in_days item-info))])
           (when currently-snoozed
@@ -366,33 +366,34 @@
   (data/set-list-priority list-id user-id new-priority)
   (redirect-to-lists))
 
-(defn add-item [ list-id item-description item-priority]
+(defn add-item [ list-id item-description item-priority ]
   (when (not (string-empty? item-description))
-    (data/add-todo-item list-id item-description item-priority))
+    (data/add-todo-item (user/current-user-id) list-id item-description item-priority))
   (redirect-to-list list-id))
 
 (defn update-item-desc [ item-id item-description ]
   (let [ list-id (data/get-list-id-by-item-id item-id)]
     (when (not (string-empty? item-description))
-      (data/update-item-desc-by-id item-id item-description))
+      (data/update-item-desc-by-id (user/current-user-id) item-id item-description))
     (redirect-to-list list-id)))
 
 (defn update-item-snooze-days [ item-id snooze-days ]
   (let [list-id (data/get-list-id-by-item-id item-id)
         snooze-days (or (parsable-integer? snooze-days) 0)]
-    (data/update-item-snooze-by-id item-id (if (= snooze-days 0)
-                                             nil
-                                             (add-days (java.util.Date.) snooze-days)))
+    (data/update-item-snooze-by-id  (user/current-user-id) item-id
+                                    (if (= snooze-days 0)
+                                      nil
+                                      (add-days (java.util.Date.) snooze-days)))
     (redirect-to-list list-id)))
 
 (defn update-item-list [ item-id target-list-id ]
   (let [ original-list-id (data/get-list-id-by-item-id item-id)]
-    (data/update-item-list item-id target-list-id)
+    (data/update-item-list (user/current-user-id) item-id target-list-id)
     (redirect-to-list original-list-id)))
 
 (defn update-item-priority [ item-id new-priority ]
   (let [ original-list-id (data/get-list-id-by-item-id item-id)]
-    (data/update-item-priority-by-id item-id new-priority)
+    (data/update-item-priority-by-id (user/current-user-id) item-id new-priority)
     (redirect-to-list original-list-id)))
 
 (defn complete-item [ item-id ]
@@ -407,7 +408,7 @@
 
 (defn restore-item [ item-id ]
   (let [ list-id (data/get-list-id-by-item-id item-id)]
-    (data/restore-item item-id)
+    (data/restore-item (user/current-user-id) item-id)
     (redirect-to-list list-id)))
 
 (defn selected-user-ids-from-params [ params ]
