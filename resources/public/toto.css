@@ -384,13 +384,21 @@ A {
     border-left: 5px solid white;
 }
 
-.sidebar .list-list .item-control {
-    padding-right: 12px;
+.item-control {
+    flex: 0;
+    text-align: center;
 }
 
 .sidebar .list-list .list-row, .sidebar .list-list .control-row {
     padding-top: 0.75em;
     padding-bottom: 0.75em;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.sidebar .list-list .control-row {
+    justify-content: center;
 }
 
 .sidebar .list-list .selected.drop-hover,
@@ -411,12 +419,10 @@ A {
     text-align: center;
 }
 
-.sidebar .list-list .item {
-    padding-right: 10px;
-}
-
 .pill {
     margin-left: 0.25em;
+    margin-right: 0.25em;
+
     padding-left: 0.375em;
     padding-right: 0.375em;
     font-size: 13px;
