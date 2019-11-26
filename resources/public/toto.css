@@ -75,7 +75,7 @@ body {
 
 @media only screen and (min-device-width : 480px) {
     .contents.with-sidebar {
-        padding-left: 270px;
+        padding-left: 280px;
     }
 }
 
@@ -95,7 +95,7 @@ body {
     z-index: 2;
     display: block;
 	position: absolute;
-    padding-top: 6px;
+    margin-right: 12px;
 
 	top: 0;
     bottom: 0;
@@ -395,6 +395,10 @@ A {
     display: flex;
     flex-direction: row;
     align-items: center;
+}
+
+.sidebar .list-list .list-row .item {
+    flex: 1;
 }
 
 .sidebar .list-list .control-row {
