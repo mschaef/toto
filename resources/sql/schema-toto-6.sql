@@ -36,3 +36,18 @@ UPDATE TODO_ITEM LI
         WHERE li.item_id = tic2.item_id) > 0;
 
 DROP TABLE todo_item_completion;
+
+CREATE CACHED TABLE todo_item_history (
+  todo_item_history_id BIGINT IDENTITY,
+  item_id BIGINT NOT NULL REFERENCES todo_item(item_id),
+  todo_list_id BIGINT NOT NULL REFERENCES todo_list(todo_list_id),
+  desc VARCHAR(1024) NOT NULL,
+  created_on TIMESTAMP NOT NULL,
+  priority TINYINT NOT NULL,
+  snoozed_until TIMESTAMP NULL,
+  updated_by BIGINT NOT NULL REFERENCES user(user_id),
+  updated_on TIMESTAMP NOT NULL,
+  is_deleted BOOLEAN NOT NULL,
+  is_complete BOOLEAN NOT NULL
+);
+

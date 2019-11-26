@@ -149,9 +149,6 @@
                    :todo_list
                    {:desc desc}))))
 
-
-
-
 (defn set-list-ownership [ todo-list-id user-ids ]
   (jdbc/with-db-transaction [ trans *db* ]
     (let [next-owners (set user-ids)
@@ -237,14 +234,23 @@
    (query/get-item-by-id { :item_id item-id }
                          { :connection *db* })))
 
+
+
 (defn update-item-by-id! [ user-id item-id values ]
-  (jdbc/update! *db*
-                :todo_item
-                (merge
-                 values
-                 {:updated_by user-id
-                  :updated_on (current-time)})
-                ["item_id=?" item-id]))
+
+  (jdbc/with-db-transaction [ trans *db* ]
+    (jdbc/insert! trans :todo_item_history
+                  (query-first *db* [(str "SELECT *"
+                                          "  FROM todo_item"
+                                          " WHERE item_id=?")
+                                     item-id]))
+    (jdbc/update! trans
+                  :todo_item
+                  (merge
+                   values
+                   {:updated_by user-id
+                    :updated_on (current-time)})
+                  ["item_id=?" item-id])))
 
 (defn complete-item-by-id [ user-id item-id ]
   (update-item-by-id! user-id item-id {:is_complete true}))
