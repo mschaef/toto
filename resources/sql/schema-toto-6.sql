@@ -2,6 +2,9 @@ ALTER TABLE todo_item
    ADD updated_by BIGINT NULL;
 
 ALTER TABLE todo_item
+   ADD created_by BIGINT NULL;
+
+ALTER TABLE todo_item
    ADD updated_on TIMESTAMP NULL;
 
 UPDATE TODO_ITEM LI
@@ -10,14 +13,24 @@ UPDATE TODO_ITEM LI
                       WHERE li.todo_list_id = lo.todo_list_id),
        updated_on = li.created_on;
 
+UPDATE TODO_ITEM LI
+   SET created_by = updated_by;
+
 ALTER TABLE todo_item
   ALTER COLUMN updated_by SET NOT NULL;
+
+ALTER TABLE todo_item
+  ALTER COLUMN created_by SET NOT NULL;
 
 ALTER TABLE todo_item
   ALTER COLUMN updated_on SET NOT NULL;
 
 ALTER TABLE todo_item
   ADD FOREIGN KEY (updated_by)
+  REFERENCES user(user_id);
+
+ALTER TABLE todo_item
+  ADD FOREIGN KEY (created_by)
   REFERENCES user(user_id);
 
 ALTER TABLE todo_item
@@ -43,6 +56,7 @@ CREATE CACHED TABLE todo_item_history (
   todo_list_id BIGINT NOT NULL REFERENCES todo_list(todo_list_id),
   desc VARCHAR(1024) NOT NULL,
   created_on TIMESTAMP NOT NULL,
+  created_by BIGINT NOT NULL REFERENCES user(user_id),
   priority TINYINT NOT NULL,
   snoozed_until TIMESTAMP NULL,
   updated_by BIGINT NOT NULL REFERENCES user(user_id),
