@@ -83,6 +83,7 @@ SELECT item.item_id,
        item.todo_list_id,
        item.desc,
        item.created_on,
+       user.email_addr as created_by,
        item.priority,
        item.updated_on,
        item.is_deleted,
@@ -90,8 +91,9 @@ SELECT item.item_id,
        DATEDIFF('day', item.created_on, CURRENT_TIMESTAMP) as age_in_days,
        item.snoozed_until,
        CURRENT_TIMESTAMP < NVL(item.snoozed_until, CURRENT_TIMESTAMP) AS currently_snoozed
-   FROM todo_item item
+   FROM todo_item item, user
    WHERE item.todo_list_id = :list_id
+   AND user.user_id = item.created_by
    AND (NOT(item.is_deleted OR item.is_complete)
         OR item.updated_on >
                DATEADD('day', :completed_within_days, CURRENT_TIMESTAMP))

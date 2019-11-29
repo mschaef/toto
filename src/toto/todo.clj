@@ -147,7 +147,8 @@
          is-deleted? :is_deleted
          priority :priority
          snoozed-until :snoozed_until
-         currently-snoozed :currently_snoozed}
+         currently-snoozed :currently_snoozed
+         created-by :created_by}
         item-info]
     [:div.item-row {:itemid item-id
                     :class (class-set {"first-row" (= item-number 0)
@@ -171,7 +172,8 @@
           (render-item-text desc)
           (snooze-item-button item-info [:span.pill (render-age (:age_in_days item-info))])
           (when currently-snoozed
-            (unsnooze-item-button item-info [:span.pill "snoozed"]))]))]
+            (unsnooze-item-button item-info [:span.pill "snoozed"]))
+          [:span.pill created-by]]))]
      [:div.item-control.priority.right
       (render-item-priority-control item-id priority writable?)]]))
 
