@@ -124,7 +124,7 @@ function beginItemEdit(itemId)
   formMarkup += "<button type=\"submit\" class=\"item-button\"><i class=\"fa fa-trash-o icon-black\"></i></button>";
   formMarkup += "</form>";
 
-  elemById('item_control_' + itemId).outerHTML = formMarkup;
+  elemById('item_control_' + itemId).innerHTML = formMarkup;
 
   formMarkup = "";
 

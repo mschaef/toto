@@ -215,13 +215,13 @@
                           :listid list-id}
            [:a.item-control {:href (str "/list/" list-id "/details")} img-edit-list]
            [:a.item {:href (str "/list/" list-id)}
-            (hiccup.util/escape-html list-desc)] 
-           [:span.pill list-item-count]
+            (hiccup.util/escape-html list-desc)
+                       (when (> list-owner-count 1)
+             [:span.group-list-flag img-group])
            (when is-public
              [:span.pill.public-flag
-              [:a { :href (str "/list/" list-id "/public") } "public"]])
-           (when (> list-owner-count 1)
-             [:span.group-list-flag img-group])])
+              "public"])]
+           [:span.pill list-item-count]])
         (remove #(and (< (:priority %) 0)
                       (not (= (Integer. selected-list-id) (:todo_list_id %))))
                 (data/get-todo-lists-by-user (user/current-user-id))))
@@ -294,7 +294,9 @@
        [:div.config-panel
         [:h1  "List Permissions:"]
         (form/check-box "is_public" (:is_public list-details))
-        [:label {:for "is_public"} "List publically visible?"]]
+        [:label {:for "is_public"} "List publically visible?"]
+        (when (:is_public list-details)
+            [:a { :href (str "/list/" list-id "/public") } "Public List Link"])]
 
        [:div.config-panel
         [:h1  "List Owners:"]

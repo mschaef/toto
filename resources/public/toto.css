@@ -54,8 +54,6 @@ body {
 
     border-bottom: 1px solid #c0c0c0;
 
-    box-shadow: 1px 1px 1px #e0e0e0;
-
     padding: 0.5em;
 }
 
@@ -95,7 +93,6 @@ body {
     z-index: 2;
     display: block;
 	position: absolute;
-    margin-right: 12px;
 
 	top: 0;
     bottom: 0;
@@ -107,10 +104,12 @@ body {
     overflow-y: scroll;
     -webkit-overflow-scrolling: touch;
 
-    box-shadow: 2px 2px 2px #e0e0e0;
+    box-shadow: 1px 1px 1px #e0e0e0;
 
     transform: translate3d( 0, 0, 0 );
     transition: transform 0.25s ease-in-out;
+
+    border-right: 1px solid #e0e0e0;
 }
 
 @media only screen and (min-device-width : 480px) {
@@ -148,7 +147,6 @@ body {
 
 .scroll-column .fixed {
     display: flex;
-    flex: 0;
 }
 
 .scroll-column .scrollable {
@@ -218,7 +216,7 @@ form {
 
 .sidebar-control {
     border: 0px;
-    border-left: 5px solid #f0f0f0;
+    border-right: 5px solid #f0f0f0;
     margin-right: 2px;
 
     padding: 2px 8px;
@@ -254,7 +252,6 @@ form {
     display: inline;
     padding: 0px;
     margin: 0px;
-    width: 100%;
 }
 
 .hidden {
@@ -381,7 +378,8 @@ A {
 /* List list styling */
 
 .sidebar .list-list .list-row {
-    border-left: 5px solid white;
+    border-right: 5px solid white;
+    padding-right: 10px;
 }
 
 .item-control {
@@ -415,8 +413,8 @@ A {
 }
 
 .sidebar .list-list .selected {
-    background: white;
-    border-left: 5px solid red;
+    background: #fff7f7;
+    border-right: 5px solid red;
 }
 
 .sidebar .list-list .control-row {
@@ -440,6 +438,18 @@ A {
     border: 1px solid #ffffd7;
     background: #ffffd7;
     text-transform: uppercase;
+}
+
+.group-list-flag {
+    padding-left: 6px;
+}
+
+.item-description {
+    display: flex;
+}
+
+.item-description .embedded {
+    flex: 1;
 }
 
 .public-flag A {
@@ -466,8 +476,9 @@ A {
 .item-row {
     display: flex;
     flex-direction: row;
-    border-top: 1px solid #e0e0e0;
-    padding: 0.25em;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+
     white-space: nowrap;
 }
 
@@ -546,6 +557,10 @@ p.new-user {
     display: inline-block;
 
     width: 32px;
+}
+
+.config-panel A {
+    padding-left: 6px;
 }
 
 .config-panel A, .item-list A {
