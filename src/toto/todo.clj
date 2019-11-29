@@ -1,7 +1,8 @@
 (ns toto.todo
   (:use toto.util
         compojure.core
-        [slingshot.slingshot :only (throw+ try+)])
+        [slingshot.slingshot :only (throw+ try+)]
+        toto.view-utils)
   (:require [clojure.tools.logging :as log]
             [ring.util.response :as ring]
             [hiccup.form :as form]
@@ -12,9 +13,6 @@
             [toto.data :as data]
             [toto.view :as view]
             [toto.user :as user]))
-
-(defn- report-unauthorized []
-  (friend/throw-unauthorized (friend/current-authentication) {}))
 
 (defn current-todo-list-id []
   (friend/authorize #{:toto.role/verified}
@@ -42,24 +40,6 @@
 
 (defn redirect-to-lists []
   (ring/redirect "/lists"))
-
-(def img-group [:i {:class "fa fa-group icon-gray"}])
-
-(def img-star-gray [:i {:class "fa fa-lg fa-star-o icon-gray"}])
-(def img-star-yellow [:i {:class "fa fa-lg fa-star icon-yellow"}])
-
-(def img-arrow-gray [:i {:class "fa fa-lg fa-arrow-down icon-gray"}])
-(def img-arrow-blue [:i {:class "fa fa-lg fa-arrow-down icon-blue"}])
-
-(def img-edit-list [:i {:class "fa fa-pencil icon-edit"}])
-
-(def img-check [:i {:class "fa fa-check icon-black"}])
-(def img-trash [:i {:class "fa fa-trash-o icon-black"}])
-(def img-restore [:i {:class "fa fa-repeat icon-black"}])
-
-(defn js-link [ js-fn-name args & contents ]
-  [:a {:href (str "javascript:" js-fn-name "(" (clojure.string/join "," args) ")")}
-   contents])
 
 (defn post-button [ target desc body ]
   (form/form-to { :class "embedded" } [:post target]
@@ -344,15 +324,6 @@
 (defn delete-list [ list-id ]
   (data/delete-list list-id)
   (redirect-to-home))
-
-(defmacro catch-validation-errors [ & body ]
-  `(try+
-    ~@body
-    (catch [ :type :form-error ] details#
-      ( :markup details#))))
-
-(defn fail-validation [ markup ]
-  (throw+ { :type :form-error :markup markup }))
 
 (defn get-user-id-by-email [ email ]
   (if-let [ user-info (data/get-user-by-email email) ]

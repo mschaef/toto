@@ -3,7 +3,7 @@
         clojure.set
         hiccup.core)
   (:require [clojure.data.json :as json]
-            [cemerick.friend :as friend]            
+            [cemerick.friend :as friend]
             [hiccup.form :as form]
             [hiccup.page :as page]))
 
