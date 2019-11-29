@@ -110,6 +110,8 @@ body {
     transition: transform 0.25s ease-in-out;
 
     border-right: 1px solid #e0e0e0;
+
+    padding-bottom: 100px;
 }
 
 @media only screen and (min-device-width : 480px) {
@@ -152,6 +154,7 @@ body {
 .scroll-column .scrollable {
     flex: 1;
     overflow-y: scroll;
+    padding-bottom: 100px;
 }
 
 .new-item-form {
