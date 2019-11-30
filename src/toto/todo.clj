@@ -1,17 +1,16 @@
 (ns toto.todo
   (:use toto.util
         compojure.core
-        [slingshot.slingshot :only (throw+ try+)]
         toto.view-utils)
   (:require [clojure.tools.logging :as log]
             [ring.util.response :as ring]
-            [hiccup.form :as form]
-            [hiccup.page :as page]
             [compojure.handler :as handler]
             [ring.util.response :as ring-response]
             [cemerick.friend :as friend]
             [toto.data :as data]
-            [toto.view :as view]
+            [toto.list-view :as list-view]
+            [toto.list-manager-view :as list-manager-view]
+            [toto.sidebar-view :as sidebar-view]
             [toto.user :as user]))
 
 (defn current-todo-list-id []
@@ -40,281 +39,6 @@
 
 (defn redirect-to-lists []
   (ring/redirect "/lists"))
-
-(defn post-button [ target desc body ]
-  (form/form-to { :class "embedded" } [:post target]
-                [:button.item-button {:type "submit" :value desc :title desc} body]))
-
-(defn complete-item-button [ item-info ]
-  (post-button (str "/item/" (item-info :item_id) "/complete") "Complete Item" img-check))
-
-(defn restore-item-button [ item-info ]
-  (post-button (str "/item/" (item-info :item_id) "/restore") "Restore Item" img-restore))
-
-(defn snooze-item-button [ item-info body ]
-  (post-button (str "/item/" (item-info :item_id) "/snooze?snooze-days=1") "Snooze Item 1 Day" body))
-
-(defn unsnooze-item-button [ item-info body ]
-  (post-button (str "/item/" (item-info :item_id) "/snooze?snooze-days=0") "Un-snooze Item" body))
-
-(defn item-priority-button [ item-id new-priority image-spec writable? ]
-  (if writable?
-    (post-button (str "/item/" item-id "/priority?new-priority=" new-priority) "Set Priority" image-spec)
-    image-spec))
-
-(defn list-priority-button [ list-id new-priority image-spec ]
-  (post-button (str "/list/" list-id "/priority?new-priority=" new-priority)
-               "Set Priority" image-spec))
-
-(defn render-new-list-form [ ]
-  (form/form-to
-   {:class "new-item-form"}
-   [:post (str "/list" )]
-   (form/text-field {:class "full-width simple-border"
-                     :maxlength "1024"
-                     :placeholder "New List Name"
-                     :autofocus "autofocus"}
-                    "list-description")))
-
-(defn render-new-item-form [ list-id ]
-  (form/form-to
-   {:class "new-item-form"}
-   [:post (str "/list/" list-id)]
-   (form/text-field {:class "simple-border"
-                     :maxlength "1024"
-                     :placeholder "New Item Description"
-                     :autofocus "autofocus"}
-                    "item-description")
-   (form/hidden-field "item-priority" "0")
-   img-star-gray))
-
-(def url-regex #"(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
-
-(defn render-url [ [ url ] ]
-  [:a { :href url :target "_blank" } (shorten-url-text url 60)])
-
-(defn render-item-text-segment [ item-text-segment ]
-  (clojure.string/join " " (map #(ensure-string-breakpoints % 15)
-                                (clojure.string/split item-text-segment #"\s"))))
-
-(defn render-item-text [ item-text ]
-  (interleave (conj (vec (map #(str " " (render-item-text-segment (.trim %)) " ") (clojure.string/split item-text url-regex))) "")
-              (conj (vec (map render-url (re-seq url-regex item-text))) "")))
-
-(defn render-age [ days ]
-  (cond (> days 720) (str (quot days 360) "y")
-        (> days 60) (str (quot days 30) "m")
-        :else (str days "d")))
-
-(defn render-item-priority-control [ item-id priority writable? ]
-  (if (<= priority 0)
-    (item-priority-button item-id 1 img-star-gray writable?)
-    (item-priority-button item-id 0 img-star-yellow writable?)))
-
-(defn render-list-star-control [ list-id priority ]
-  (if (<= priority 0)
-    (list-priority-button list-id 1 img-star-gray)
-    (list-priority-button list-id 0 img-star-yellow)))
-
-(defn render-list-arrow-control [ list-id priority ]
-  (if (>= priority 0)
-    (list-priority-button list-id -1 img-arrow-gray)
-    (list-priority-button list-id 0 img-arrow-blue)))
-
-(defn render-todo-item [ item-info item-number writable? ]
-  (let [{item-id :item_id
-         is-complete? :is_complete
-         is-deleted? :is_deleted
-         priority :priority
-         snoozed-until :snoozed_until
-         currently-snoozed :currently_snoozed
-         created-by :created_by}
-        item-info]
-    [:div.item-row {:itemid item-id
-                    :class (class-set {"first-row" (= item-number 0)
-                                       "high-priority" (> priority 0)
-                                       "snoozed" currently-snoozed})}
-     (when writable?
-       [:div.item-control.complete { :id (str "item_control_" item-id)}
-        (if (or is-complete? is-deleted?)
-          (restore-item-button item-info)
-          (complete-item-button item-info))])
-     [:div.item-control.priority.left
-      (render-item-priority-control item-id priority writable?)]
-     [:div.item-description {:itemid item-id}
-      (let [desc (item-info :desc)]
-        (list
-         [:div { :id (str "item_desc_" item-id) :class "hidden"}
-          (hiccup.util/escape-html desc)]
-         [:div {:id (str "item_" item-id)
-                :class (class-set {"deleted_item" is-deleted?
-                                   "completed_item" is-complete?})}
-          (render-item-text desc)
-          (snooze-item-button item-info [:span.pill (render-age (:age_in_days item-info))])
-          (when currently-snoozed
-            (unsnooze-item-button item-info [:span.pill "snoozed"]))
-          [:span.pill created-by]]))]
-     [:div.item-control.priority.right
-      (render-item-priority-control item-id priority writable?)]]))
-
-(defn render-scroll-column [ title & contents ]
-  [:div.scroll-column
-   [:div.fixed title]
-   [:div.scrollable contents]])
-
-(defn render-todo-list [ list-id writable? completed-within-days include-snoozed? ]
-  (let [pending-items (data/get-pending-items list-id completed-within-days)
-        n-snoozed-items (count (filter :currently_snoozed pending-items))]
-    (render-scroll-column
-     (when writable?
-       (render-new-item-form list-id))
-     [:div.toplevel-list.item-list
-      (map (fn [ item-info item-number ]
-             (render-todo-item item-info item-number writable?))
-           (if include-snoozed?
-             pending-items
-             (remove :currently_snoozed pending-items))
-           (range))
-      (when (> n-snoozed-items 0)
-        [:div.snooze-control
-         [:a {:href (str list-id "?snoozed=" (if include-snoozed? "0" "1")) }
-          (if include-snoozed? "Hide" "Show") " " n-snoozed-items " snoozed item" (if (= 1 n-snoozed-items) "" "s") "."]])]
-     [:div.query-settings
-      (form/form-to { :class "embedded "} [ :get (str "/list/" list-id)]
-                    "Include items completed within "
-                    [:select { :id "cwithin" :name "cwithin" :onchange "this.form.submit()"}
-                     (form/select-options [ [ "-" "-"] [ "1d" "1"] [ "7d" "7"] [ "30d" "30"] [ "90d" "90"] ]
-                                          (if (nil? completed-within-days)
-                                            "-"
-                                            (str completed-within-days)))]
-
-                    ".")])))
-
-(defn render-sidebar-list-list [ selected-list-id ]
-  [:div.list-list
-   (map (fn [ { list-id :todo_list_id list-desc :desc list-item-count :item_count is-public :is_public list-owner-count :list_owner_count} ]
-          [:div.list-row {:class (class-set {"selected" (= list-id (Integer. selected-list-id))})
-                          :listid list-id}
-           [:a.item-control {:href (str "/list/" list-id "/details")} img-edit-list]
-           [:a.item {:href (str "/list/" list-id)}
-            (hiccup.util/escape-html list-desc)
-                       (when (> list-owner-count 1)
-             [:span.group-list-flag img-group])
-           (when is-public
-             [:span.pill.public-flag
-              "public"])]
-           [:span.pill list-item-count]])
-        (remove #(and (< (:priority %) 0)
-                      (not (= (Integer. selected-list-id) (:todo_list_id %))))
-                (data/get-todo-lists-by-user (user/current-user-id))))
-   [:div.control-row
-    [:a {:href "/lists"} "Manage Todo Lists"]]])
-
-(defn render-item-set-list-form []
-    (form/form-to { :class "embedded" :id (str "item_set_list_form") } [:post "/item-list"]
-                  (form/hidden-field "target-item")
-                  (form/hidden-field "target-list")))
-
-(defn render-todo-list-csv [  list-id ]
-  (clojure.string/join "\n" (map :desc (data/get-pending-items list-id 0))))
-
-(defn render-todo-list-page [ selected-list-id completed-within-days snoozed-for-days ]
-  (view/render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)
-                     :init-map { :page "todo-list" }
-                     :sidebar (render-sidebar-list-list selected-list-id)}
-                    (render-item-set-list-form)
-                    (render-todo-list selected-list-id true completed-within-days snoozed-for-days)))
-
-(defn render-todo-list-public-page [ selected-list-id ]
-  (view/render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)
-                     :init-map { :page "todo-list" }}
-                    (render-todo-list selected-list-id false 0 0)))
-
-(defn render-list-list-page []
-  (view/render-page
-   {:page-title "Manage Todo Lists"}
-   (render-scroll-column
-    (render-new-list-form)
-    [:div.toplevel-list
-     (map (fn [ list ]
-            (let [list-id (:todo_list_id list)
-                  priority (:priority list)]
-              [:div.item-row {:class (class-set {"high-priority" (> priority 0)
-                                       "low-priority" (< priority 0)})}
-               [:div.item-control
-                (render-list-star-control list-id priority)]
-               [:div.item-control
-                (render-list-arrow-control list-id priority)]
-               [:div.item-control
-                [:a {:href (str "/list/" list-id "/details")} img-edit-list]]
-               [:div.item
-                [:a {:href (str "/list/" list-id)}
-                 (hiccup.util/escape-html (:desc list))]
-                [:span.pill (:item_count list)]
-                (when (:is_public list)
-                  [:span.pill.public-flag
-                   [:a { :href (str "/list/" list-id "/public") } "public"]])
-                (when (> (:list_owner_count list) 1)
-                  [:span.group-list-flag img-group])]]))
-          (data/get-todo-lists-by-user (user/current-user-id)))])))
-
-(defn render-todo-list-details-page [ list-id & { :keys [ error-message ]}]
-  (let [list-details (data/get-todo-list-by-id list-id)
-        list-name (:desc list-details)
-        list-owners (data/get-todo-list-owners-by-list-id list-id) ]
-    (view/render-page
-     {:page-title (str "List Details: " list-name)
-      :sidebar (render-sidebar-list-list list-id) }
-     (form/form-to
-      {:class "details"}
-      [:post (str "/list/" list-id "/details")]
-       [:div.config-panel
-        [:h1 "List Name:"]
-        (form/text-field { :class "full-width simple-border" :maxlength "32" }
-                                          "list-name" list-name)]
-
-       [:div.config-panel
-        [:h1  "List Permissions:"]
-        (form/check-box "is_public" (:is_public list-details))
-        [:label {:for "is_public"} "List publically visible?"]
-        (when (:is_public list-details)
-            [:a { :href (str "/list/" list-id "/public") } "Public List Link"])]
-
-       [:div.config-panel
-        [:h1  "List Owners:"]
-        [:div.list-owners
-         (map (fn [ { user-id :user_id user-email-addr :email_addr } ]
-                (let [ user-parameter-name (str "user_" user-id)]
-                  [:div.list-owner
-                   (if (= (user/current-user-id) user-id)
-                     [:div.self-owner
-                      "&nbsp;"
-                      (form/hidden-field user-parameter-name "on")]
-                     (form/check-box user-parameter-name (in? list-owners user-id)))
-                   [:label {:for user-parameter-name}
-                    user-email-addr
-                    (when (= (user/current-user-id) user-id)
-                      [:span.pill "you"])]]))
-              (data/get-friendly-users-by-id (user/current-user-id)))]]
-
-       [:div.config-panel
-        [:input {:type "submit" :value "Update List Details"}]]
-
-       [:div.config-panel
-        [:h1  "View List"]
-        [:a { :href (str "/list/" list-id) } "View List"]]
-
-       [:div.config-panel
-        [:h1  "Download List"]
-        [:a { :href (str "/list/" list-id "/list.csv" ) } "Download List as CSV"]]
-
-       [:div.config-panel
-        [:h1  "Delete List"]
-        (if (data/empty-list? list-id)
-          (list
-           [:input.dangerous {:type "submit" :value "Delete List" :formaction (str "/list/" list-id "/delete")}]
-           [:span.warning "Warning, this cannot be undone."])
-          [:span.warning "To delete this list, remove all items first."])]))))
 
 (defn update-list-description [ list-id list-description ]
   (when (not (string-empty? list-description))
@@ -396,23 +120,23 @@
    (GET "/list/:list-id/public" { { list-id :list-id } :params }
      (log/debug "public render: " list-id)
      (ensure-list-public-access list-id)
-     (render-todo-list-public-page list-id))))
+     (list-view/render-todo-list-public-page list-id))))
 
 (defn- list-routes [ list-id ]
   (ensure-list-owner-access list-id)
   (routes
    (GET "/" { params :params }
-     (render-todo-list-page list-id
-                            (or (parsable-integer? (:cwithin params)) 0)
-                            (not= 0 (or (parsable-integer? (:snoozed params)) 0))))
+     (list-view/render-todo-list-page list-id
+                                      (or (parsable-integer? (:cwithin params)) 0)
+                                      (not= 0 (or (parsable-integer? (:snoozed params)) 0))))
 
    (GET "/list.csv" []
-     (-> (render-todo-list-csv list-id)
+     (-> (list-view/render-todo-list-csv list-id)
          (ring-response/response)
          (ring-response/header "Content-Type" "text/csv")))
 
    (GET "/details"  []
-     (render-todo-list-details-page list-id))
+     (list-manager-view/render-todo-list-details-page list-id))
 
    (POST "/details" { params :params }
      (catch-validation-errors
@@ -423,8 +147,8 @@
                                      (or
                                       (get-user-id-by-email share-with-email)
                                       (fail-validation
-                                       (render-todo-list-details-page list-id
-                                                                      :error-message "Invalid e-mail address"))))
+                                       (list-manager-view/render-todo-list-details-page list-id
+                                                                                        :error-message "Invalid e-mail address"))))
             selected-ids (selected-user-ids-from-params params)]
         (data/set-list-ownership list-id
                                  (if share-with-email-id
@@ -472,7 +196,7 @@
      (add-list (string-leftmost list-description 32)))
 
    (GET "/lists" []
-     (render-list-list-page))
+     (list-manager-view/render-list-list-page))
 
    (context "/list/:list-id" [ list-id ]
      (list-routes list-id))
