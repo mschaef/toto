@@ -11,7 +11,7 @@
 (defn render-new-list-form [ ]
   (form/form-to
    {:class "new-item-form"}
-   [:post (str "/list" )]
+   [:post (shref "/list")]
    (form/text-field {:class "full-width simple-border"
                      :maxlength "1024"
                      :placeholder "New List Name"
@@ -34,14 +34,14 @@
                [:div.item-control
                 (render-list-arrow-control list-id priority)]
                [:div.item-control
-                [:a {:href (str "/list/" list-id "/details")} img-edit-list]]
+                [:a {:href (shref "/list/" list-id "/details")} img-edit-list]]
                [:div.item
-                [:a {:href (str "/list/" list-id)}
+                [:a {:href (shref "/list/" list-id)}
                  (hiccup.util/escape-html (:desc list))]
                 [:span.pill (:item_count list)]
                 (when (:is_public list)
                   [:span.pill.public-flag
-                   [:a { :href (str "/list/" list-id "/public") } "public"]])
+                   [:a { :href (shref "/list/" list-id "/public") } "public"]])
                 (when (> (:list_owner_count list) 1)
                   [:span.group-list-flag img-group])]]))
           (data/get-todo-lists-by-user (user/current-user-id)))])))
@@ -55,7 +55,7 @@
       :sidebar (sidebar-view/render-sidebar-list-list list-id) }
      (form/form-to
       {:class "details"}
-      [:post (str "/list/" list-id "/details")]
+      [:post (shref "/list/" list-id "/details")]
        [:div.config-panel
         [:h1 "List Name:"]
         (form/text-field { :class "full-width simple-border" :maxlength "32" }
@@ -66,7 +66,7 @@
         (form/check-box "is_public" (:is_public list-details))
         [:label {:for "is_public"} "List publically visible?"]
         (when (:is_public list-details)
-            [:a { :href (str "/list/" list-id "/public") } "Public List Link"])]
+            [:a { :href (shref "/list/" list-id "/public") } "Public List Link"])]
 
        [:div.config-panel
         [:h1  "List Owners:"]
@@ -90,16 +90,16 @@
 
        [:div.config-panel
         [:h1  "View List"]
-        [:a { :href (str "/list/" list-id) } "View List"]]
+        [:a { :href (shref "/list/" list-id) } "View List"]]
 
        [:div.config-panel
         [:h1  "Download List"]
-        [:a { :href (str "/list/" list-id "/list.csv" ) } "Download List as CSV"]]
+        [:a { :href (shref "/list/" list-id "/list.csv" ) } "Download List as CSV"]]
 
        [:div.config-panel
         [:h1  "Delete List"]
         (if (data/empty-list? list-id)
           (list
-           [:input.dangerous {:type "submit" :value "Delete List" :formaction (str "/list/" list-id "/delete")}]
+           [:input.dangerous {:type "submit" :value "Delete List" :formaction (shref "/list/" list-id "/delete")}]
            [:span.warning "Warning, this cannot be undone."])
           [:span.warning "To delete this list, remove all items first."])]))))

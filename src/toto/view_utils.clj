@@ -1,7 +1,26 @@
 (ns toto.view-utils
   (:use [slingshot.slingshot :only (throw+ try+)])
-  (:require [cemerick.friend :as friend]
+  (:require [clojure.tools.logging :as log]
+            [cemerick.friend :as friend]
             [hiccup.form :as form]))
+
+(def ^:dynamic *params* nil)
+
+(defn wrap-remember-params [ app ]
+  (fn [ req ]
+    (binding [ *params* (:params req) ]
+      (app req))))
+
+(defn shref* [ & args ]
+  (let [url (apply str (remove map? args))]
+    (let [query-string (clojure.string/join "&" (map (fn [[ param val ]] (str (name param) "=" val)) (apply merge (filter map? args))))]
+      (if (> (.length query-string) 0)
+        (str url "?" query-string)
+        url))))
+
+(defn shref [ & args ]
+  (apply shref* (or *params* {}) args))
+
 
 (def img-group [:i {:class "fa fa-group icon-gray"}])
 
@@ -40,7 +59,9 @@
 
 (defn item-priority-button [ item-id new-priority image-spec writable? ]
   (if writable?
-    (post-button (str "/item/" item-id "/priority?new-priority=" new-priority) "Set Priority" image-spec)
+    (post-button (shref "/item/" item-id "/priority"
+                        {:new-priority new-priority})
+                 "Set Priority" image-spec)
     image-spec))
 
 (defn render-item-priority-control [ item-id priority writable? ]
@@ -49,7 +70,8 @@
     (item-priority-button item-id 0 img-star-yellow writable?)))
 
 (defn list-priority-button [ list-id new-priority image-spec ]
-  (post-button (str "/list/" list-id "/priority?new-priority=" new-priority)
+  (post-button (shref "/list/" list-id "/priority"
+                      {:new-priority new-priority})
                "Set Priority" image-spec))
 
 (defn render-list-star-control [ list-id priority ]

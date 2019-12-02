@@ -19,7 +19,8 @@
             [compojure.route :as route]
             [toto.data :as data]
             [toto.todo :as todo]
-            [toto.view :as view]            
+            [toto.view :as view]
+            [toto.view-utils :as view-utils]
             [toto.user :as user]))
 
 (defn wrap-request-logging [ app development-mode? ]
@@ -61,6 +62,7 @@
                (extend-session-duration 168)
                (data/wrap-db-connection)
                (wrap-request-logging (:development-mode config))
+               (view-utils/wrap-remember-params)
                (handler/site)))
     (:development-mode config) (ring-reload/wrap-reload)))
 

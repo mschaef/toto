@@ -8,21 +8,21 @@
             [toto.sidebar-view :as sidebar-view]))
 
 (defn- complete-item-button [ item-info ]
-  (post-button (str "/item/" (item-info :item_id) "/complete") "Complete Item" img-check))
+  (post-button (shref "/item/" (item-info :item_id) "/complete") "Complete Item" img-check))
 
 (defn- restore-item-button [ item-info ]
-  (post-button (str "/item/" (item-info :item_id) "/restore") "Restore Item" img-restore))
+  (post-button (shref "/item/" (item-info :item_id) "/restore") "Restore Item" img-restore))
 
 (defn- snooze-item-button [ item-info body ]
-  (post-button (str "/item/" (item-info :item_id) "/snooze?snooze-days=1") "Snooze Item 1 Day" body))
+  (post-button (shref "/item/" (item-info :item_id) "/snooze" {:snooze-days 1}) "Snooze Item 1 Day" body))
 
 (defn- unsnooze-item-button [ item-info body ]
-  (post-button (str "/item/" (item-info :item_id) "/snooze?snooze-days=0") "Un-snooze Item" body))
+  (post-button (shref "/item/" (item-info :item_id) "/snooze" {:snooze-days 0}) "Un-snooze Item" body))
 
 (defn- render-new-item-form [ list-id ]
   (form/form-to
    {:class "new-item-form"}
-   [:post (str "/list/" list-id)]
+   [:post (shref "/list/" list-id)]
    (form/text-field {:class "simple-border"
                      :maxlength "1024"
                      :placeholder "New Item Description"
@@ -100,10 +100,10 @@
            (range))
       (when (> n-snoozed-items 0)
         [:div.snooze-control
-         [:a {:href (str list-id "?snoozed=" (if include-snoozed? "0" "1")) }
+         [:a {:href (shref list-id {:snoozed (if include-snoozed? 0 1)}) }
           (if include-snoozed? "Hide" "Show") " " n-snoozed-items " snoozed item" (if (= 1 n-snoozed-items) "" "s") "."]])]
      [:div.query-settings
-      (form/form-to { :class "embedded "} [ :get (str "/list/" list-id)]
+      (form/form-to { :class "embedded "} [:get (shref "/list/" list-id)]
                     "Include items completed within "
                     [:select { :id "cwithin" :name "cwithin" :onchange "this.form.submit()"}
                      (form/select-options [ [ "-" "-"] [ "1d" "1"] [ "7d" "7"] [ "30d" "30"] [ "90d" "90"] ]

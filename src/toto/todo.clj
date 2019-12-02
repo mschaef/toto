@@ -32,7 +32,7 @@
                             (report-unauthorized))))
 
 (defn redirect-to-list [ list-id ]
-  (ring/redirect (str "/list/" list-id)))
+  (ring/redirect (shref "/list/" list-id)))
 
 (defn redirect-to-home []
   (redirect-to-list (current-todo-list-id)))
@@ -43,7 +43,7 @@
 (defn update-list-description [ list-id list-description ]
   (when (not (string-empty? list-description))
     (data/update-list-description list-id list-description ))
-  (ring/redirect (str "/list/" list-id)))
+  (ring/redirect (shref "/list/" list-id)))
 
 (defn delete-list [ list-id ]
   (data/delete-list list-id)
@@ -156,7 +156,7 @@
                                    selected-ids))
         (update-list-description list-id (string-leftmost list-name 32))
         (data/set-list-public list-id (boolean is-public))
-        (ring/redirect  (str "/list/" list-id "/details")))))
+        (ring/redirect  (shref "/list/" list-id "/details")))))
 
    (POST "/priority" { { new-priority :new-priority } :params }
      (update-list-priority list-id (user/current-user-id) new-priority))
@@ -170,14 +170,14 @@
 (defn- item-routes [ item-id ]
   (ensure-item-access item-id)
   (routes
-   (POST "/"  { { description :description } :params }
-     (update-item-desc item-id (string-leftmost description 1024)))
+   (POST "/"  { params :params }
+     (update-item-desc item-id (string-leftmost (:description params) 1024)))
 
-   (POST "/snooze" { { snooze-days :snooze-days } :params }
-     (update-item-snooze-days item-id snooze-days))
+   (POST "/snooze" { params :params }
+     (update-item-snooze-days item-id (:snooze-days params)))
 
-   (POST "/priority" { { new-priority :new-priority } :params }
-     (update-item-priority item-id new-priority))
+   (POST "/priority" { params :params }
+     (update-item-priority item-id (:new-priority params)))
 
    (POST "/complete" [ ]
      (complete-item item-id))
@@ -192,8 +192,8 @@
   (routes
    (GET "/" [] (redirect-to-home))
 
-   (POST "/list" { { list-description :list-description } :params }
-     (add-list (string-leftmost list-description 32)))
+   (POST "/list" { params :params }
+     (add-list (string-leftmost (:list-description params) 32)))
 
    (GET "/lists" []
      (list-manager-view/render-list-list-page))
