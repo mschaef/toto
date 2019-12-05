@@ -53,7 +53,8 @@ SELECT DISTINCT todo_list.todo_list_id,
                    FROM todo_item item
                   WHERE item.todo_list_id=todo_list.todo_list_id
                     AND NOT item.is_deleted
-                    AND NOT item.is_complete)
+                    AND NOT item.is_complete
+                    AND CURRENT_TIMESTAMP >= NVL(item.snoozed_until, CURRENT_TIMESTAMP))
                    AS item_count,
                 (SELECT count(list_owners.user_id)
                    FROM todo_list_owners list_owners
