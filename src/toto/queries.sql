@@ -99,7 +99,7 @@ SELECT item.item_id,
                DATEADD('day', :completed_within_days, CURRENT_TIMESTAMP))
    ORDER BY CASEWHEN(item.is_deleted or item.is_complete, 1, 0),
             item.priority DESC,
-            age_in_days DESC
+            item.created_on
 
 -- name: get-pending-item-count
 SELECT count(item.item_id)

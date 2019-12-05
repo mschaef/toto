@@ -1,7 +1,8 @@
 (ns toto.list-view
   (:use toto.util
         toto.view-utils)
-  (:require [hiccup.form :as form]
+  (:require [clojure.tools.logging :as log]
+            [hiccup.form :as form]
             [toto.data :as data]
             [toto.view :as view]
             [toto.user :as user]
