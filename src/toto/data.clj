@@ -210,6 +210,7 @@
               {:todo_list_id todo-list-id
                :desc desc
                :created_on (current-time)
+               :created_by user-id
                :priority priority
                :updated_by user-id
                :updated_on (current-time)
