@@ -71,7 +71,7 @@ body {
     flex-direction: column;
 }
 
-@media only screen and (min-device-width : 480px) {
+@media only screen and (min-device-width : 640px) {
     .contents.with-sidebar {
         padding-left: 280px;
     }
@@ -114,9 +114,9 @@ body {
     padding-bottom: 100px;
 }
 
-@media only screen and (min-device-width : 480px) {
+@media only screen and (min-device-width : 640px) {
     form {
-        width: 480px;
+        width: 640px;
     }
 
     .sidebar {
@@ -281,7 +281,7 @@ A {
   color: black;
 }
 
-@media only screen and (min-device-width : 480px) {
+@media only screen and (min-device-width : 640px) {
     .sidebar-control {
         display: none;
     }
@@ -291,13 +291,13 @@ A {
     }
 }
 
-@media only screen and (min-device-width : 480px) {
+@media only screen and (min-device-width : 640px) {
     .footer .logout {
         display: none;
     }
 }
 
-@media only screen and (max-device-width : 480px) {
+@media only screen and (max-device-width : 640px) {
     .header .logout {
         display: none;
     }
@@ -323,7 +323,7 @@ A {
     text-align: center;
 }
 
-@media only screen and (max-device-width : 480px) {
+@media only screen and (max-device-width : 640px) {
     .app-name {
         display: none;
     }
@@ -361,7 +361,7 @@ A {
     padding-bottom: 10px;
 }
 
-@media only screen and (min-device-width : 480px) {
+@media only screen and (min-device-width : 640px) {
     .toplevel-list .item-row {
         padding-top: 5px;
         padding-bottom: 5px;
@@ -459,13 +459,13 @@ A {
     color: #707070;
 }
 
-@media only screen and (max-device-width : 480px) {
+@media only screen and (max-device-width : 640px) {
     .priority.left {
         display: none;
     }
 }
 
-@media only screen and (min-device-width : 480px) {
+@media only screen and (min-device-width : 640px) {
     .priority.right {
         display: none;
     }
