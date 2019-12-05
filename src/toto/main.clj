@@ -62,7 +62,7 @@
                (extend-session-duration 168)
                (data/wrap-db-connection)
                (wrap-request-logging (:development-mode config))
-               (view-utils/wrap-remember-params)
+               (view-utils/wrap-remember-query)
                (handler/site)))
     (:development-mode config) (ring-reload/wrap-reload)))
 

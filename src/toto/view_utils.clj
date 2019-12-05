@@ -4,11 +4,11 @@
             [cemerick.friend :as friend]
             [hiccup.form :as form]))
 
-(def ^:dynamic *params* nil)
+(def ^:dynamic *query* nil)
 
-(defn wrap-remember-params [ app ]
+(defn wrap-remember-query[ app ]
   (fn [ req ]
-    (binding [ *params* (:params req) ]
+    (binding [ *query* (:query-params req) ]
       (app req))))
 
 (defn shref* [ & args ]
@@ -19,7 +19,7 @@
         url))))
 
 (defn shref [ & args ]
-  (apply shref* (or *params* {}) args))
+  (apply shref* (or *query* {}) args))
 
 
 (def img-group [:i {:class "fa fa-group icon-gray"}])
