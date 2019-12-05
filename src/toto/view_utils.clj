@@ -53,14 +53,16 @@
    [:div.fixed title]
    [:div.scrollable contents]])
 
-(defn post-button [ target desc body ]
+(defn post-button [ target args desc body ]
   (form/form-to { :class "embedded" } [:post target]
+                (map (fn [[key val]]
+                       [:input {:type "hidden" :name key :value val}])
+                     args)
                 [:button.item-button {:type "submit" :value desc :title desc} body]))
 
 (defn item-priority-button [ item-id new-priority image-spec writable? ]
   (if writable?
-    (post-button (shref "/item/" item-id "/priority"
-                        {:new-priority new-priority})
+    (post-button (shref "/item/" item-id "/priority") {:new-priority new-priority}
                  "Set Priority" image-spec)
     image-spec))
 
@@ -70,8 +72,7 @@
     (item-priority-button item-id 0 img-star-yellow writable?)))
 
 (defn list-priority-button [ list-id new-priority image-spec ]
-  (post-button (shref "/list/" list-id "/priority"
-                      {:new-priority new-priority})
+  (post-button (shref "/list/" list-id "/priority") {:new-priority new-priority}
                "Set Priority" image-spec))
 
 (defn render-list-star-control [ list-id priority ]
