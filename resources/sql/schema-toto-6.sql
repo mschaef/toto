@@ -65,3 +65,31 @@ CREATE CACHED TABLE todo_item_history (
   is_complete BOOLEAN NOT NULL
 );
 
+ALTER TABLE user
+   ADD last_login TIMESTAMP NULL;
+
+ALTER TABLE user
+   ADD account_created_on TIMESTAMP NULL;
+
+ALTER TABLE user
+   ADD password_created_on TIMESTAMP NULL;
+
+ALTER TABLE user
+   ADD password_expires_on TIMESTAMP NULL;
+
+ALTER TABLE user
+   ADD friendly_name VARCHAR(255) NULL;
+
+UPDATE user
+  SET account_created_on = CURRENT_TIMESTAMP,
+      password_created_on = CURRENT_TIMESTAMP,
+      friendly_name = email_addr;
+
+ALTER TABLE user
+  ALTER COLUMN account_created_on SET NOT NULL;
+
+ALTER TABLE user
+  ALTER COLUMN password_created_on SET NOT NULL;
+
+ALTER TABLE user
+  ALTER COLUMN friendly_name SET NOT NULL;
