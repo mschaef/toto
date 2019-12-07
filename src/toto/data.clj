@@ -110,11 +110,20 @@
              (jdbc/insert! *db*
               :user
               {:email_addr email-addr
-               :password password}))))
+               :password password
+               :account_created_on (current-time)
+               :password_created_on (current-time)
+               :friendly_name email-addr}))))
 
 (defn set-user-password [ email-addr password ]
   (jdbc/update! *db* :user
-                { :password password }
+                {:password password
+                 :password_created_on (current-time)}
+                ["email_addr=?" email-addr]))
+
+(defn set-user-login-time [ email-addr ]
+  (jdbc/update! *db* :user
+                {:last_login_on (current-time)}
                 ["email_addr=?" email-addr]))
 
 (defn create-verification-link [ user-id ]

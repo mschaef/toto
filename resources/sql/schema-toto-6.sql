@@ -66,7 +66,7 @@ CREATE CACHED TABLE todo_item_history (
 );
 
 ALTER TABLE user
-   ADD last_login TIMESTAMP NULL;
+   ADD last_login_on TIMESTAMP NULL;
 
 ALTER TABLE user
    ADD account_created_on TIMESTAMP NULL;

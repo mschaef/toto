@@ -14,7 +14,6 @@
             [ring.middleware.file-info :as ring-file-info]
             [ring.middleware.resource :as ring-resource]
             [ring.util.response :as ring-response]
-            [cemerick.friend :as friend]
             [compojure.handler :as handler]
             [compojure.route :as route]
             [toto.data :as data]

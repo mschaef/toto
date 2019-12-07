@@ -5,7 +5,7 @@
             [cemerick.friend.credentials :as credentials]
             [ring.util.response :as ring]
             [cemerick.friend :as friend]
-            [cemerick.friend.workflows :as workflows]            
+            [cemerick.friend.workflows :as workflows]
             [hiccup.form :as form]
             [postal.core :as postal]
             [toto.data :as data]
@@ -14,10 +14,13 @@
 (defn get-user-by-credentials [ creds ]
   (if-let [user-record (data/get-user-by-email (creds :username))]
     (and (credentials/bcrypt-verify (creds :password) (user-record :password))
-         {:identity (creds :username)
-          :user-id (user-record :user_id)
-          :roles (clojure.set/union #{:toto.role/user}
-                                    (data/get-user-roles (:user_id user-record)))})
+         (do
+           (data/set-user-login-time (creds :username))
+           {:identity (creds :username)
+            :user-record (dissoc user-record :password)
+            :user-id (user-record :user_id)
+            :roles (clojure.set/union #{:toto.role/user}
+                                      (data/get-user-roles (:user_id user-record)))}))
     nil))
 
 (defn user-unauthorized [ request ]
@@ -96,7 +99,7 @@
 (defn create-user  [ email-addr password ]
   (let [user-id (data/add-user email-addr password)
         list-id (data/add-list "Todo")]
-    (data/set-list-ownership list-id #{ user-id })    
+    (data/set-list-ownership list-id #{ user-id })
     user-id))
 
 (defn send-verification-link [ config user-id ]
@@ -121,31 +124,37 @@
             (log/info "SMTP Result: " result)))
         (log/warn "SMTP disabled, no verification mail sent. Link: " link-url)))))
 
-(defn add-user [ email-addr password password2 ] 
+(defn add-user [ email-addr password password2 ]
   (cond
    (data/user-email-exists? email-addr)
    (render-new-user-form :error-message "User with this e-mail address already exists.")
 
    (not (= password password2))
    (render-new-user-form :error-message "Passwords do not match.")
- 
+
    :else
    (do
      (let [user-id (create-user email-addr (credentials/hash-bcrypt password))]
        (ring/redirect (str "/user/begin-verify/" user-id))))))
 
+(def date-format (java.text.SimpleDateFormat. "yyyy-MM-dd hh:mm aa"))
+
 (defn render-change-password-form  [ & { :keys [ error-message ]}]
-  (view/render-page { :page-title "Change Password" }
-   (form/form-to
-    [:post "/user/password-change"]
-    [:table.form
-     [:tr [:td "E-Mail Address:"] [:td (get (friend/current-authentication) :identity)]]
-     [:tr [:td "Old Password:"] [:td (form/password-field "password")]]
-     [:tr [:td "New Password:"] [:td (form/password-field "new_password1")]]
-     [:tr [:td "Verify Password:"] [:td (form/password-field "new_password2")]]
-     (when error-message
-       [:tr [:td.error-message { :colspan 2 } error-message]])
-     [:tr [:td] [:td (form/submit-button {} "Change Password")]]]))  )
+  (let [auth (friend/current-authentication)
+        user (:user-record auth)]
+    (log/info [:current-authentication (:last_login_on user)])
+    (view/render-page { :page-title "Change Password" }
+                      (form/form-to
+                       [:post "/user/password-change"]
+                       [:table.form
+                        [:tr [:td "E-Mail Address:"] [:td (:identity auth)]]
+                        [:tr [:td "Last login"] [:td (.format date-format (:last_login_on user))]]
+                        [:tr [:td "Old Password:"] [:td (form/password-field "password")]]
+                        [:tr [:td "New Password:"] [:td (form/password-field "new_password1")]]
+                        [:tr [:td "Verify Password:"] [:td (form/password-field "new_password2")]]
+                        (when error-message
+                          [:tr [:td.error-message { :colspan 2 } error-message]])
+                        [:tr [:td] [:td (form/submit-button {} "Change Password")]]])))  )
 
 (defn change-password [ password new-password-1 new-password-2 ]
   (let [ username (get (friend/current-authentication) :identity) ]
@@ -202,7 +211,7 @@
   (routes
    (GET "/user/password-change" []
      (render-change-password-form))
-   
+
    (POST "/user/password-change" {params :params}
      (change-password (:password params) (:new_password1 params) (:new_password2 params)))))
 
@@ -221,16 +230,14 @@
 
    (GET "/user/begin-verify/:user-id" { { user-id :user-id } :params }
      (enter-verify-workflow config user-id))
-   
+
    (friend/logout
     (GET "/user/verify/:user-id/:link-uuid" { { user-id :user-id link-uuid :link-uuid } :params }
       (verify-user user-id link-uuid)))
-   
+
    (friend/logout
     (ANY "/logout" [] (ring/redirect "/")))
 
    (wrap-routes (private-routes config)
                 friend/wrap-authorize
                 #{:toto.role/verified})))
-
-
