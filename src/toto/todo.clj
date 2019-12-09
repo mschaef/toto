@@ -136,9 +136,14 @@
 (defn- public-routes [ config ]
   (routes
    (GET "/list/:list-id/public" { { list-id :list-id } :params }
+     ;; Retain backward compatibility with older public list URL scheme
+     (redirect-to-list list-id))
+
+   (GET "/list/:list-id" { { list-id :list-id } :params }
      (log/debug "public render: " list-id)
-     (ensure-list-public-access list-id)
-     (list-view/render-todo-list-public-page list-id))))
+     (when (and (data/list-public? list-id)
+                (not (data/list-owned-by-user-id? list-id (user/current-user-id))))
+       (list-view/render-todo-list-public-page list-id)))))
 
 (defn- list-routes [ list-id ]
   (ensure-list-owner-access list-id)

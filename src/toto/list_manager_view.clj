@@ -64,9 +64,7 @@
        [:div.config-panel
         [:h1  "List Permissions:"]
         (form/check-box "is_public" (:is_public list-details))
-        [:label {:for "is_public"} "List publically visible?"]
-        (when (:is_public list-details)
-            [:a { :href (shref "/list/" list-id "/public") } "Public List Link"])]
+        [:label {:for "is_public"} "List publically visible?"]]
 
        [:div.config-panel
         [:h1  "List Owners:"]
