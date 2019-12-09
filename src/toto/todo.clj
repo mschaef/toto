@@ -61,6 +61,29 @@
       (data/set-list-ownership list-id #{ (user/current-user-id) })
       (redirect-to-lists))))
 
+(defn selected-user-ids-from-params [ params ]
+  (set
+   (map #(Integer/parseInt (.substring % 5))
+        (filter #(.startsWith % "user_") (map name (keys params))))))
+
+(defn update-list-details [ list-id params list-name share-with-email is-public ]
+  (catch-validation-errors
+   (let [share-with-email-id
+         (and share-with-email
+              (or
+               (get-user-id-by-email share-with-email)
+               (fail-validation
+                (list-manager-view/render-todo-list-details-page list-id
+                                                                 :error-message "Invalid e-mail address"))))
+         selected-ids (selected-user-ids-from-params params)]
+     (data/set-list-ownership list-id
+                              (if share-with-email-id
+                                (conj selected-ids share-with-email-id)
+                                selected-ids))
+     (update-list-description list-id (string-leftmost list-name 32))
+     (data/set-list-public list-id (boolean is-public))
+     (ring/redirect  (shref "/list/" list-id "/details")))))
+
 (defn update-list-priority [ list-id user-id new-priority ]
   (data/set-list-priority list-id user-id new-priority)
   (redirect-to-lists))
@@ -110,11 +133,6 @@
     (data/restore-item (user/current-user-id) item-id)
     (redirect-to-list list-id)))
 
-(defn selected-user-ids-from-params [ params ]
-  (set
-   (map #(Integer/parseInt (.substring % 5))
-        (filter #(.startsWith % "user_") (map name (keys params))))))
-
 (defn- public-routes [ config ]
   (routes
    (GET "/list/:list-id/public" { { list-id :list-id } :params }
@@ -139,24 +157,8 @@
      (list-manager-view/render-todo-list-details-page list-id))
 
    (POST "/details" { params :params }
-     (catch-validation-errors
-      (let [{list-name :list-name
-             share-with-email :share-with-email
-             is-public :is_public} params
-            share-with-email-id (and share-with-email
-                                     (or
-                                      (get-user-id-by-email share-with-email)
-                                      (fail-validation
-                                       (list-manager-view/render-todo-list-details-page list-id
-                                                                                        :error-message "Invalid e-mail address"))))
-            selected-ids (selected-user-ids-from-params params)]
-        (data/set-list-ownership list-id
-                                 (if share-with-email-id
-                                   (conj selected-ids share-with-email-id)
-                                   selected-ids))
-        (update-list-description list-id (string-leftmost list-name 32))
-        (data/set-list-public list-id (boolean is-public))
-        (ring/redirect  (shref "/list/" list-id "/details")))))
+     (update-list-details list-id params
+                          (:list-name params) (:share-with-email params) (:is_public params)))
 
    (POST "/priority" { { new-priority :new-priority } :params }
      (update-list-priority list-id (user/current-user-id) new-priority))
