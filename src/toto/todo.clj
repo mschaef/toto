@@ -14,11 +14,11 @@
             [toto.user :as user]))
 
 (defn current-todo-list-id []
-  (friend/authorize #{:toto.role/verified}
+  (friend/authorize user/expected-roles
                     (first (data/get-todo-list-ids-by-user (user/current-user-id)))))
 
 (defn ensure-list-owner-access [ list-id ]
-  (friend/authorize #{:toto.role/verified}
+  (friend/authorize user/expected-roles
                     (unless (data/list-owned-by-user-id? list-id (user/current-user-id))
                             (report-unauthorized))))
 
@@ -27,7 +27,7 @@
           (report-unauthorized)))
 
 (defn ensure-item-access [ item-id ]
-  (friend/authorize #{:toto.role/verified}
+  (friend/authorize user/expected-roles
                     (unless (data/item-owned-by-user-id? item-id (user/current-user-id))
                             (report-unauthorized))))
 
@@ -221,4 +221,4 @@
    (public-routes config)
    (wrap-routes (private-routes config)
                 friend/wrap-authorize
-                #{:toto.role/verified})))
+                user/expected-roles)))

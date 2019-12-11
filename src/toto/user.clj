@@ -11,6 +11,16 @@
             [toto.data :as data]
             [toto.view :as view]))
 
+(def expected-roles #{:toto.role/verified})
+
+(defn password-current? [ user-record ]
+  (not (some-> (:password_expires_on user-record)
+               (.before (java.util.Date.)))))
+
+(defn- get-user-roles [ user-record ]
+  (cond-> (data/get-user-roles (:user_id user-record))
+    (password-current? user-record) (clojure.set/union #{:toto.role/current-password})))
+
 (defn get-user-by-credentials [ creds ]
   (if-let [user-record (data/get-user-by-email (creds :username))]
     (and (credentials/bcrypt-verify (creds :password) (user-record :password))
@@ -19,8 +29,7 @@
            {:identity (creds :username)
             :user-record (dissoc user-record :password)
             :user-id (user-record :user_id)
-            :roles (clojure.set/union #{:toto.role/user}
-                                      (data/get-user-roles (:user_id user-record)))}))
+            :roles (log/spy :info (get-user-roles user-record))}))
     nil))
 
 (defn user-unauthorized [ request ]
@@ -51,8 +60,11 @@
 
 (defn unauthorized-handler [request]
   {:status 403
-   :body ((if (missing-verification? request)
+   :body ((cond
+            (missing-verification? request)
             user-unverified
+
+            :else
             user-unauthorized)
           request)})
 
@@ -142,7 +154,6 @@
 (defn render-change-password-form  [ & { :keys [ error-message ]}]
   (let [auth (friend/current-authentication)
         user (:user-record auth)]
-    (log/info [:current-authentication (:last_login_on user)])
     (view/render-page { :page-title "Change Password" }
                       (form/form-to
                        [:post "/user/password-change"]
