@@ -11,25 +11,33 @@
             [toto.data :as data]
             [toto.view :as view]))
 
-(def expected-roles #{:toto.role/verified})
+(def expected-roles #{:toto.role/verified :toto.role/current-password})
 
 (defn password-current? [ user-record ]
-  (not (some-> (:password_expires_on user-record)
-               (.before (java.util.Date.)))))
+  (if-let [expiry (:password_expires_on user-record)]
+    (or (.after expiry (java.util.Date.))
+        (.after (:password_created_on user-record) expiry))
+    true))
 
 (defn- get-user-roles [ user-record ]
-  (cond-> (data/get-user-roles (:user_id user-record))
-    (password-current? user-record) (clojure.set/union #{:toto.role/current-password})))
+  (clojure.set/union
+   #{:toto.role/user}
+   (cond-> (data/get-user-roles (:user_id user-record))
+     (password-current? user-record) (clojure.set/union #{:toto.role/current-password}))))
+
+(defn get-auth-map-by-email [ email ]
+  (if-let [user-record (data/get-user-by-email email)]
+    {:identity email
+     :user-record user-record
+     :user-id (user-record :user_id)
+     :roles (get-user-roles user-record)}))
 
 (defn get-user-by-credentials [ creds ]
-  (if-let [user-record (data/get-user-by-email (creds :username))]
-    (and (credentials/bcrypt-verify (creds :password) (user-record :password))
+  (if-let [auth-map (get-auth-map-by-email (creds :username))]
+    (and (credentials/bcrypt-verify (creds :password) (get-in auth-map [:user-record :password]))
          (do
            (data/set-user-login-time (creds :username))
-           {:identity (creds :username)
-            :user-record (dissoc user-record :password)
-            :user-id (user-record :user_id)
-            :roles (log/spy :info (get-user-roles user-record))}))
+           (update-in auth-map [:user-record] dissoc :password)))
     nil))
 
 (defn user-unauthorized [ request ]
@@ -52,11 +60,27 @@
                       [:a {:href (str "/user/begin-verify/" (current-user-id))} "this link"]
                       "."]]))
 
+(defn user-password-expired [ request ]
+  (view/render-page { :page-title "Password Expired"}
+                    [:div.page-message
+                     [:h1 "Password Expired"]
+                     [:p
+                      "Your password has expired and needs to be reset. "
+                      "This can be done at "
+                      [:a {:href (str "/user/password-change")} "this link"]
+                      "."]]))
+
 (defn missing-verification? [ request ]
   (= (clojure.set/difference (get-in request [:cemerick.friend/authorization-failure
                                               :cemerick.friend/required-roles])
                              (:roles (friend/current-authentication)))
      #{:toto.role/verified}))
+
+(defn missing-current-password? [ request ]
+  (= (clojure.set/difference (get-in request [:cemerick.friend/authorization-failure
+                                              :cemerick.friend/required-roles])
+                             (:roles (friend/current-authentication)))
+     #{:toto.role/current-password}))
 
 (defn unauthorized-handler [request]
   {:status 403
@@ -64,14 +88,29 @@
             (missing-verification? request)
             user-unverified
 
+            (missing-current-password? request)
+            user-password-expired
+
             :else
             user-unauthorized)
           request)})
 
+(defn password-change-workflow []
+  (fn [{:keys [uri request-method params]}]
+    (when (and (= uri "/user/password-change")
+               (= request-method :post)
+               (get-user-by-credentials params)
+               (not (= (:password params) (:new_password1 params)))
+               (= (:new_password1 params) (:new_password2 params)))
+      (data/set-user-password (:username params)
+                              (credentials/hash-bcrypt (:new_password1 params)))
+      (workflows/make-auth (get-auth-map-by-email (:username params))))))
+
 (defn wrap-authenticate [ request ]
   (friend/authenticate request
                        {:credential-fn get-user-by-credentials
-                        :workflows [(workflows/interactive-form)]
+                        :workflows [(password-change-workflow)
+                                    (workflows/interactive-form)]
                         :unauthorized-handler unauthorized-handler}))
 
 (defn render-login-page [ & { :keys [ email-addr login-failure?]}]
@@ -157,9 +196,13 @@
     (view/render-page { :page-title "Change Password" }
                       (form/form-to
                        [:post "/user/password-change"]
+                       [:input {:type "hidden"
+                                :name "username"
+                                :value (:identity auth)}]
                        [:table.form
                         [:tr [:td "E-Mail Address:"] [:td (:identity auth)]]
-                        [:tr [:td "Last login"] [:td (.format date-format (:last_login_on user))]]
+                        [:tr [:td "Last login"]
+                         [:td (.format date-format (or (:last_login_on user) (java.util.Date.)))]]
                         [:tr [:td "Old Password:"] [:td (form/password-field "password")]]
                         [:tr [:td "New Password:"] [:td (form/password-field "new_password1")]]
                         [:tr [:td "Verify Password:"] [:td (form/password-field "new_password2")]]
@@ -171,15 +214,26 @@
   (let [ username (get (friend/current-authentication) :identity) ]
     (cond
       (not (get-user-by-credentials {:username username :password password}))
-      (render-change-password-form :error-message "Old Password Incorrect")
+      (render-change-password-form
+       :error-message "Old password incorrect.")
+
+      (= password new-password-2)
+      (render-change-password-form
+       :error-message "New password cannot be the same as the old.")
 
       (not (= new-password-1 new-password-2))
-      (render-change-password-form :error-message "Passwords do not match.")
+      (render-change-password-form
+       :error-message "Passwords do not match.")
 
       :else
       (do
-        (log/info "Changing Password for user:" username)
-        (data/set-user-password username (credentials/hash-bcrypt new-password-1))
+        ;; The password change handling is done in a Friend workflow
+        ;; handler, so that it can reauthenticate the user against the
+        ;; new password and assign the user the current-password role
+        ;; if it was previously missing. (This is needed so that we
+        ;; allow the user use the website, if their password had
+        ;; expired..)
+        (log/warn "Password change unexpectedly fell through workflow!")
         (ring/redirect "/")))))
 
 (defn ensure-verification-link [ user-id ]

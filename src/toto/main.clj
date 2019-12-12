@@ -52,17 +52,16 @@
    (route/not-found "Resource Not Found")))
 
 (defn handler [ config ]
-  (cond-> (ring-reload/wrap-reload
-           (-> (all-routes config)
-               (wrap-content-type)
-               (wrap-browser-caching {"text/javascript" 360000
-                                      "text/css" 360000})
-               (user/wrap-authenticate)
-               (extend-session-duration 168)
-               (data/wrap-db-connection)
-               (wrap-request-logging (:development-mode config))
-               (view-utils/wrap-remember-query)
-               (handler/site)))
+  (cond-> (-> (all-routes config)
+              (wrap-content-type)
+              (wrap-browser-caching {"text/javascript" 360000
+                                     "text/css" 360000})
+              (user/wrap-authenticate)
+              (extend-session-duration 168)
+              (data/wrap-db-connection)
+              (wrap-request-logging (:development-mode config))
+              (view-utils/wrap-remember-query)
+              (handler/site))
     (:development-mode config) (ring-reload/wrap-reload)))
 
 (defn start-webserver [ config ]

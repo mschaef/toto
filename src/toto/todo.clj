@@ -219,6 +219,6 @@
 (defn all-routes [ config ]
   (routes
    (public-routes config)
-   (wrap-routes (private-routes config)
-                friend/wrap-authorize
-                user/expected-roles)))
+   (-> (private-routes config)
+       (wrap-routes friend/wrap-authorize #{:toto.role/verified})
+       (wrap-routes friend/wrap-authorize #{:toto.role/current-password}))))
