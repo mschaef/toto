@@ -85,3 +85,10 @@
     (list-priority-button list-id -1 img-arrow-gray)
     (list-priority-button list-id 0 img-arrow-blue)))
 
+(defn current-identity []
+  (if-let [auth (friend/current-authentication)]
+    (:identity auth)))
+
+(defn current-user-id []
+  (if-let [ cauth (friend/current-authentication) ]
+    (:user-id cauth)))

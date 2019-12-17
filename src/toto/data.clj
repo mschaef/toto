@@ -121,6 +121,11 @@
                  :password_created_on (current-time)}
                 ["email_addr=?" email-addr]))
 
+(defn set-user-name [ email-addr name ]
+  (jdbc/update! *db* :user
+                {:friendly_name name}
+                ["email_addr=?" email-addr]))
+
 (defn set-user-login-time [ email-addr ]
   (jdbc/update! *db* :user
                 {:last_login_on (current-time)}

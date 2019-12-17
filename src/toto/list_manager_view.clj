@@ -44,7 +44,7 @@
                    [:a { :href (shref "/list/" list-id "/public") } "public"]])
                 (when (> (:list_owner_count list) 1)
                   [:span.group-list-flag img-group])]]))
-          (data/get-todo-lists-by-user (user/current-user-id)))])))
+          (data/get-todo-lists-by-user (current-user-id)))])))
 
 (defn render-todo-list-details-page [ list-id & { :keys [ error-message ]}]
   (let [list-details (data/get-todo-list-by-id list-id)
@@ -72,16 +72,16 @@
          (map (fn [ { user-id :user_id user-email-addr :email_addr } ]
                 (let [ user-parameter-name (str "user_" user-id)]
                   [:div.list-owner
-                   (if (= (user/current-user-id) user-id)
+                   (if (= (current-user-id) user-id)
                      [:div.self-owner
                       "&nbsp;"
                       (form/hidden-field user-parameter-name "on")]
                      (form/check-box user-parameter-name (in? list-owners user-id)))
                    [:label {:for user-parameter-name}
                     user-email-addr
-                    (when (= (user/current-user-id) user-id)
+                    (when (= (current-user-id) user-id)
                       [:span.pill "you"])]]))
-              (data/get-friendly-users-by-id (user/current-user-id)))]]
+              (data/get-friendly-users-by-id (current-user-id)))]]
 
        [:div.config-panel
         [:input {:type "submit" :value "Update List Details"}]]

@@ -1,6 +1,7 @@
 (ns toto.user
   (:use toto.util
-        compojure.core)
+        compojure.core
+        toto.view-utils)
   (:require [clojure.tools.logging :as log]
             [cemerick.friend.credentials :as credentials]
             [ring.util.response :as ring]
@@ -13,7 +14,7 @@
 
 (def expected-roles #{:toto.role/verified :toto.role/current-password})
 
-(defn password-current? [ user-record ]
+(defn- password-current? [ user-record ]
   (if-let [expiry (:password_expires_on user-record)]
     (or (.after expiry (java.util.Date.))
         (.after (:password_created_on user-record) expiry))
@@ -25,7 +26,7 @@
    (cond-> (data/get-user-roles (:user_id user-record))
      (password-current? user-record) (clojure.set/union #{:toto.role/current-password}))))
 
-(defn get-auth-map-by-email [ email ]
+(defn- get-auth-map-by-email [ email ]
   (if-let [user-record (data/get-user-by-email email)]
     {:identity email
      :user-record user-record
@@ -44,11 +45,6 @@
   (view/render-page { :page-title "Access Denied"}
                     [:div.page-message
                      [:h1 "Access Denied"]]))
-
-(defn current-user-id []
-  (if-let [ cauth (friend/current-authentication) ]
-    (:user-id cauth)
-    nil))
 
 (defn user-unverified [ request ]
   (view/render-page { :page-title "E-Mail Unverified"}
@@ -190,17 +186,50 @@
 
 (def date-format (java.text.SimpleDateFormat. "yyyy-MM-dd hh:mm aa"))
 
+(defn render-user-info-form [ & { :keys [ error-message ]}]
+  (let [user (data/get-user-by-email (current-identity))]
+    (view/render-page { :page-title "User Information" }
+                      (form/form-to
+                       [:post "/user/info"]
+                       [:input {:type "hidden"
+                                :name "username"
+                                :value (current-identity)}]
+                       [:table.form
+                        [:tr [:td "E-Mail Address:"] [:td (current-identity)]]
+                        [:tr [:td "Name"] [:td [:input {:name "name"
+                                                        :value (:friendly_name user)}]]]
+                        [:tr [:td "Last login"]
+                         [:td (.format date-format (or (:last_login_on user) (java.util.Date.)))]]
+                        (when error-message
+                          [:tr [:td.error-message { :colspan 2 } error-message]])
+                        [:tr [:td] [:td [:a {:href "/user/password-change"} "Change Password"]]]
+                        [:tr [:td] [:td (form/submit-button {} "Update User")]]]))))
+
+(defn validate-name [ name ]
+  (if name
+    (let [ name (.trim name )]
+      (and (> (.length name) 0)
+           (< (.length name) 32)
+           name))))
+
+(defn update-user-info [ name ]
+  (if-let [name (validate-name name)]
+    (do
+      (data/set-user-name (current-identity) name)
+      (ring/redirect "/user/info"))
+    (render-user-info-form :error-message "Invalid Name")))
+
 (defn render-change-password-form  [ & { :keys [ error-message ]}]
-  (let [auth (friend/current-authentication)
-        user (:user-record auth)]
+  (let [user (data/get-user-by-email (current-identity))]
     (view/render-page { :page-title "Change Password" }
                       (form/form-to
                        [:post "/user/password-change"]
                        [:input {:type "hidden"
                                 :name "username"
-                                :value (:identity auth)}]
+                                :value (current-identity)}]
                        [:table.form
-                        [:tr [:td "E-Mail Address:"] [:td (:identity auth)]]
+                        [:tr [:td "E-Mail Address:"] [:td (current-identity)]]
+                        [:tr [:td "Name"] [:td (:friendly_name user)]]
                         [:tr [:td "Last login"]
                          [:td (.format date-format (or (:last_login_on user) (java.util.Date.)))]]
                         [:tr [:td "Old Password:"] [:td (form/password-field "password")]]
@@ -211,7 +240,7 @@
                         [:tr [:td] [:td (form/submit-button {} "Change Password")]]])))  )
 
 (defn change-password [ password new-password-1 new-password-2 ]
-  (let [ username (get (friend/current-authentication) :identity) ]
+  (let [ username (current-identity) ]
     (cond
       (not (get-user-by-credentials {:username username :password password}))
       (render-change-password-form
@@ -278,7 +307,13 @@
      (render-change-password-form))
 
    (POST "/user/password-change" {params :params}
-     (change-password (:password params) (:new_password1 params) (:new_password2 params)))))
+     (change-password (:password params) (:new_password1 params) (:new_password2 params)))
+
+   (GET "/user/info" []
+     (render-user-info-form))
+
+   (POST "/user/info" { { name :name } :params }
+     (update-user-info name))))
 
 (defn all-routes [ config ]
   (routes

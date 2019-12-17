@@ -15,11 +15,11 @@
 
 (defn current-todo-list-id []
   (friend/authorize user/expected-roles
-                    (first (data/get-todo-list-ids-by-user (user/current-user-id)))))
+                    (first (data/get-todo-list-ids-by-user (current-user-id)))))
 
 (defn ensure-list-owner-access [ list-id ]
   (friend/authorize user/expected-roles
-                    (unless (data/list-owned-by-user-id? list-id (user/current-user-id))
+                    (unless (data/list-owned-by-user-id? list-id (current-user-id))
                             (report-unauthorized))))
 
 (defn ensure-list-public-access [ list-id ]
@@ -28,7 +28,7 @@
 
 (defn ensure-item-access [ item-id ]
   (friend/authorize user/expected-roles
-                    (unless (data/item-owned-by-user-id? item-id (user/current-user-id))
+                    (unless (data/item-owned-by-user-id? item-id (current-user-id))
                             (report-unauthorized))))
 
 (defn redirect-to-list [ list-id ]
@@ -58,7 +58,7 @@
   (if (string-empty? list-description)
     (redirect-to-home)
     (let [ list-id (data/add-list list-description) ]
-      (data/set-list-ownership list-id #{ (user/current-user-id) })
+      (data/set-list-ownership list-id #{ (current-user-id) })
       (redirect-to-lists))))
 
 (defn selected-user-ids-from-params [ params ]
@@ -90,19 +90,19 @@
 
 (defn add-item [ list-id item-description item-priority ]
   (when (not (string-empty? item-description))
-    (data/add-todo-item (user/current-user-id) list-id item-description item-priority))
+    (data/add-todo-item (current-user-id) list-id item-description item-priority))
   (redirect-to-list list-id))
 
 (defn update-item-desc [ item-id item-description ]
   (let [ list-id (data/get-list-id-by-item-id item-id)]
     (when (not (string-empty? item-description))
-      (data/update-item-desc-by-id (user/current-user-id) item-id item-description))
+      (data/update-item-desc-by-id (current-user-id) item-id item-description))
     (redirect-to-list list-id)))
 
 (defn update-item-snooze-days [ item-id snooze-days ]
   (let [list-id (data/get-list-id-by-item-id item-id)
         snooze-days (or (parsable-integer? snooze-days) 0)]
-    (data/update-item-snooze-by-id  (user/current-user-id) item-id
+    (data/update-item-snooze-by-id  (current-user-id) item-id
                                     (if (= snooze-days 0)
                                       nil
                                       (add-days (java.util.Date.) snooze-days)))
@@ -110,27 +110,27 @@
 
 (defn update-item-list [ item-id target-list-id ]
   (let [ original-list-id (data/get-list-id-by-item-id item-id)]
-    (data/update-item-list (user/current-user-id) item-id target-list-id)
+    (data/update-item-list (current-user-id) item-id target-list-id)
     (redirect-to-list original-list-id)))
 
 (defn update-item-priority [ item-id new-priority ]
   (let [ original-list-id (data/get-list-id-by-item-id item-id)]
-    (data/update-item-priority-by-id (user/current-user-id) item-id new-priority)
+    (data/update-item-priority-by-id (current-user-id) item-id new-priority)
     (redirect-to-list original-list-id)))
 
 (defn complete-item [ item-id ]
   (let [ list-id (data/get-list-id-by-item-id item-id)]
-    (data/complete-item-by-id (user/current-user-id) item-id)
+    (data/complete-item-by-id (current-user-id) item-id)
     (redirect-to-list list-id)))
 
 (defn delete-item [ item-id ]
   (let [ list-id (data/get-list-id-by-item-id item-id)]
-    (data/delete-item-by-id (user/current-user-id) item-id)
+    (data/delete-item-by-id (current-user-id) item-id)
     (redirect-to-list list-id)))
 
 (defn restore-item [ item-id ]
   (let [ list-id (data/get-list-id-by-item-id item-id)]
-    (data/restore-item (user/current-user-id) item-id)
+    (data/restore-item (current-user-id) item-id)
     (redirect-to-list list-id)))
 
 (defn- public-routes [ config ]
@@ -142,7 +142,7 @@
    (GET "/list/:list-id" { { list-id :list-id } :params }
      (log/debug "public render: " list-id)
      (when (and (data/list-public? list-id)
-                (not (data/list-owned-by-user-id? list-id (user/current-user-id))))
+                (not (data/list-owned-by-user-id? list-id (current-user-id))))
        (list-view/render-todo-list-public-page list-id)))))
 
 (defn- list-routes [ list-id ]
@@ -166,7 +166,7 @@
                           (:list-name params) (:share-with-email params) (:is_public params)))
 
    (POST "/priority" { { new-priority :new-priority } :params }
-     (update-list-priority list-id (user/current-user-id) new-priority))
+     (update-list-priority list-id (current-user-id) new-priority))
 
    (POST "/delete" []
      (delete-list list-id))

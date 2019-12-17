@@ -57,7 +57,8 @@
          priority :priority
          snoozed-until :snoozed_until
          currently-snoozed :currently_snoozed
-         created-by :created_by}
+         created-by-id :created_by_id
+         created-by-name :created_by_name} 
         item-info]
     [:div.item-row {:itemid item-id
                     :class (class-set {"first-row" (= item-number 0)
@@ -82,7 +83,9 @@
           (snooze-item-button item-info [:span.pill (render-age (:age_in_days item-info))])
           (when currently-snoozed
             (unsnooze-item-button item-info [:span.pill "snoozed"]))
-          [:span.pill created-by]]))]
+          (when (not (= (log/spy :info created-by-id)
+                        (log/spy :info (current-user-id))))
+            [:span.pill created-by-name])]))]
      [:div.item-control.priority.right
       (render-item-priority-control item-id priority writable?)]]))
 

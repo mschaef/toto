@@ -20,6 +20,6 @@
            [:span.pill list-item-count]])
         (remove #(and (< (:priority %) 0)
                       (not (= (Integer. selected-list-id) (:todo_list_id %))))
-                (data/get-todo-lists-by-user (user/current-user-id))))
+                (data/get-todo-lists-by-user (current-user-id))))
    [:div.control-row
     [:a {:href "/lists"} "Manage Todo Lists"]]])

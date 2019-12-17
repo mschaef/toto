@@ -1,7 +1,8 @@
 (ns toto.view
   (:use toto.util
         clojure.set
-        hiccup.core)
+        hiccup.core
+        toto.view-utils)
   (:require [clojure.data.json :as json]
             [cemerick.friend :as friend]
             [hiccup.form :as form]
@@ -84,7 +85,7 @@
     contents]])
 
 (defn render-page [{ :keys [ page-title init-map sidebar ] }  & contents]
-  (let [username (get (friend/current-authentication) :identity)]
+  (let [username (current-identity)]
     (html [:html
            (render-standard-header page-title (merge {} init-map))
            (render-page-body page-title username sidebar contents)])))
