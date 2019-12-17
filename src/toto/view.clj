@@ -19,6 +19,10 @@
   [:span.logout
    [:a { :href "/logout"} "[logout]"]])
 
+(defn- login-button []
+  [:span.login
+   [:a { :href "/"} "[login]"]])
+
 (defn- resource [ path ]
   (str "/" (get-version) "/" path))
 
@@ -52,11 +56,13 @@
    [:span.app-name
     [:a { :href "/" } app-name] " - "]
    page-title
-   (when username
+   (if username
      [:div.right
       [:span.logout
-       [:a {:href "/user/password-change"} username]
-       [:span.logout-control " - " (logout-button)]]])] )
+       [:a {:href "/user/info"} username]
+       [:span.logout-control " - " (logout-button)]]]
+     [:div.right
+      (login-button)])])
 
 (defn- render-sidebar [ username sidebar ]
   [:div.sidebar
