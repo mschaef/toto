@@ -112,8 +112,7 @@
 
                     ". "
                     [:a {:href (shref list-id {:snoozed (if include-snoozed? 0 1)}) }
-                     (if include-snoozed? "Hide" "Show") " " n-snoozed-items " snoozed item" (if (= 1 n-snoozed-items) "" "s") "."]
-                    )])))
+                     " (" (if include-snoozed? "Hide" "Show") " snoozed items.)"])])))
 
 (defn- render-item-set-list-form []
     (form/form-to { :class "embedded" :id (str "item_set_list_form") } [:post "/item-list"]
