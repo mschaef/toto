@@ -175,10 +175,23 @@ body {
     width: auto;
 }
 
-.new-item-form i {
+.new-item-form button.high-priority-submit {
+    background: transparent;
+    padding: 6px;
+    margin-left: 3px;
+    cursor: pointer;
+}
+
+.new-item-form button.high-priority-submit i.icon-gray:hover {
+    color: #b0b0b0;
+}
+
+.new-item-form button:hover {
+    background: #eeeeee;
+}
+
+.new-item-form button.high-priority-submit {
     flex: 0;
-    padding-left: 6px;
-    padding-right: 3px;
 }
 
 form {

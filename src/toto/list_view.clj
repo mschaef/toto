@@ -30,7 +30,9 @@
                      :autofocus "autofocus"}
                     "item-description")
    (form/hidden-field "item-priority" "0")
-   img-star-gray))
+   [:button.high-priority-submit {:type "button"
+                                  :onclick "submitHighPriority()"}
+    img-star-yellow]))
 
 (def url-regex #"(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
 

@@ -233,25 +233,19 @@ function setupItemDragging() {
     });
 }
 
-function setupNewItemForm() {
-    var starToggle = elemBySelector('.new-item-form i');
+function submitHighPriority() {
+    console.log('onclick');
+
+    var form = elemBySelector('.new-item-form');
     var priorityField = elemBySelector('.new-item-form #item-priority');
 
-    starToggle.onclick = function() {
-        if (starToggle.className === "fa fa-lg fa-star-o icon-gray") {
-            starToggle.className = "fa fa-lg fa-star icon-yellow";
-            priorityField.value = "1";
-        } else {
-            starToggle.className = "fa fa-lg fa-star-o icon-gray";
-            priorityField.value = "0";
-        }
-    };
+    priorityField.value = "1";
+    form.submit();
 }
 
 pageInit["todo-list"] = function () {
     setupEditableItems();
     setupItemDragging();
-    setupNewItemForm();
 };
 
 pageInit["new-user"] = function () {
