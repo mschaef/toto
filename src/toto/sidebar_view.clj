@@ -9,7 +9,7 @@
    (map (fn [ { list-id :todo_list_id list-desc :desc list-item-count :item_count is-public :is_public list-owner-count :list_owner_count} ]
           [:div.list-row {:class (class-set {"selected" (= list-id (Integer. selected-list-id))})
                           :listid list-id}
-           [:a.item-control {:href (shref "/list/" list-id "/details")} img-edit-list]
+
            [:a.item {:href (shref "/list/" list-id)}
             (hiccup.util/escape-html list-desc)
                        (when (> list-owner-count 1)
