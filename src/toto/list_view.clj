@@ -83,8 +83,7 @@
           (snooze-item-button item-info [:span.pill (render-age (:age_in_days item-info))])
           (when currently-snoozed
             (unsnooze-item-button item-info [:span.pill "snoozed"]))
-          (when (not (= (log/spy :info created-by-id)
-                        (log/spy :info (current-user-id))))
+          (when (not (= created-by-id (current-user-id)))
             [:span.pill created-by-name])]))]
      [:div.item-control.priority.right
       (render-item-priority-control item-id priority writable?)]]))
@@ -101,11 +100,7 @@
            (if include-snoozed?
              pending-items
              (remove :currently_snoozed pending-items))
-           (range))
-      (when (> n-snoozed-items 0)
-        [:div.snooze-control
-         [:a {:href (shref list-id {:snoozed (if include-snoozed? 0 1)}) }
-          (if include-snoozed? "Hide" "Show") " " n-snoozed-items " snoozed item" (if (= 1 n-snoozed-items) "" "s") "."]])]
+           (range))]
      [:div.query-settings
       (form/form-to { :class "embedded "} [:get (shref "/list/" list-id)]
                     "Include items completed within "
@@ -115,7 +110,10 @@
                                             "-"
                                             (str completed-within-days)))]
 
-                    ".")])))
+                    ". "
+                    [:a {:href (shref list-id {:snoozed (if include-snoozed? 0 1)}) }
+                     (if include-snoozed? "Hide" "Show") " " n-snoozed-items " snoozed item" (if (= 1 n-snoozed-items) "" "s") "."]
+                    )])))
 
 (defn- render-item-set-list-form []
     (form/form-to { :class "embedded" :id (str "item_set_list_form") } [:post "/item-list"]

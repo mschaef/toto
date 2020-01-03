@@ -378,11 +378,6 @@ A {
     white-space: normal;
 }
 
-.snooze-control {
-    text-align: center;
-    font-style: italic;
-}
-
 /* List list styling */
 
 .sidebar .list-list .list-row {
@@ -571,7 +566,7 @@ p.new-user {
     padding-left: 6px;
 }
 
-.config-panel A, .item-list A {
+.config-panel A, .item-list A, .query-settings A {
     color: blue;
 }
 
