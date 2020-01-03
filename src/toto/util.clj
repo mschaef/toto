@@ -28,9 +28,9 @@
 (defn ensure-string-breaks [ string at ]
   (clojure.string/replace string at (str at html-breakpoint)))
 
-(defn in? 
+(defn in?
   "true if seq contains elm"
-  [seq elm]  
+  [seq elm]
   (some #(= elm %) seq))
 
 (defn assoc-if [ map assoc? k v ]
@@ -69,7 +69,7 @@
    (catch Exception ex
      false)))
 
-(defn config-property 
+(defn config-property
   ( [ name ] (config-property name nil))
   ( [ name default ]
       (let [prop-binding (System/getProperty name)]

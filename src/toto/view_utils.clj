@@ -11,9 +11,14 @@
     (binding [ *query* (:query-params req) ]
       (app req))))
 
+(defn- normalize-param-map [ params ]
+  (into {} (map (fn [[ param val]] [ (keyword param) val ])
+                params)))
+
 (defn shref* [ & args ]
-  (let [url (apply str (remove map? args))]
-    (let [query-string (clojure.string/join "&" (map (fn [[ param val ]] (str (name param) "=" val)) (apply merge (filter map? args))))]
+  (let [url (apply str (remove map? args))
+        query-params (apply merge (map normalize-param-map (filter map? args)))]
+    (let [query-string (clojure.string/join "&" (map (fn [[ param val ]] (str (name param) "=" val)) query-params))]
       (if (> (.length query-string) 0)
         (str url "?" query-string)
         url))))
