@@ -29,6 +29,8 @@
 
 (def img-group [:i {:class "fa fa-group icon-gray"}])
 
+(def img-globe [:i {:class "fa fa-globe fa-lg icon-gray"}])
+
 (def img-star-gray [:i {:class "fa fa-lg fa-star-o icon-gray"}])
 (def img-star-yellow [:i {:class "fa fa-lg fa-star icon-yellow"}])
 

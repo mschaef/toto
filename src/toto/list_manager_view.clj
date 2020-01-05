@@ -28,22 +28,18 @@
             (let [list-id (:todo_list_id list)
                   priority (:priority list)]
               [:div.item-row {:class (class-set {"high-priority" (> priority 0)
-                                       "low-priority" (< priority 0)})}
+                                                 "low-priority" (< priority 0)})}
+               [:div.item-control
+                [:a {:href (shref "/list/" list-id "/details")} img-edit-list]]
                [:div.item-control
                 (render-list-star-control list-id priority)]
                [:div.item-control
                 (render-list-arrow-control list-id priority)]
-               [:div.item-control
-                [:a {:href (shref "/list/" list-id "/details")} img-edit-list]]
                [:div.item
                 [:a {:href (shref "/list/" list-id)}
                  (hiccup.util/escape-html (:desc list))]
                 [:span.pill (:item_count list)]
-                (when (:is_public list)
-                  [:span.pill.public-flag
-                   [:a { :href (shref "/list/" list-id "/public") } "public"]])
-                (when (> (:list_owner_count list) 1)
-                  [:span.group-list-flag img-group])]]))
+                (sidebar-view/render-list-visibility-flag list)]]))
           (data/get-todo-lists-by-user (current-user-id)))])))
 
 (defn render-todo-list-details-page [ list-id & { :keys [ error-message ]}]

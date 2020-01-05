@@ -450,13 +450,7 @@ A {
     background: #f0f0f0;
 }
 
-.public-flag {
-    border: 1px solid #ffffd7;
-    background: #ffffd7;
-    text-transform: uppercase;
-}
-
-.group-list-flag {
+.list-visibility-flag {
     padding-left: 6px;
 }
 
@@ -466,10 +460,6 @@ A {
 
 .item-description .embedded {
     flex: 1;
-}
-
-.public-flag A {
-    color: #707070;
 }
 
 @media only screen and (max-device-width : 640px) {
@@ -594,11 +584,6 @@ i.icon-black {
 
 i.icon-gray {
     color: #b0b0b0;
-}
-
-i.icon-gray:hover {
-    color: black;
-    font-weight: bold;
 }
 
 i.icon-yellow {
