@@ -182,9 +182,16 @@ function setupEditableItems() {
 }
 
 function doMoveItem(itemId, newListId) {
-    elemById("target-item").value = itemId;
-    elemById("target-list").value = newListId;
-    elemById("item_set_list_form").submit();
+    var formData = new FormData();
+
+    formData.append("target-item", itemId);
+    formData.append("target-list", newListId);
+
+    fetch("/item-list", {
+        body: formData,
+        method: "post",
+        credentials: "same-origin"
+    }).then(res => location.reload(false));
 }
 
 function setupItemDragging() {

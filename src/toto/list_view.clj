@@ -116,11 +116,6 @@
                     [:a {:href (shref list-id {:snoozed (if include-snoozed? 0 1)}) }
                      " (" (if include-snoozed? "Hide" "Show") " snoozed items.)"])])))
 
-(defn- render-item-set-list-form []
-    (form/form-to { :class "embedded" :id (str "item_set_list_form") } [:post "/item-list"]
-                  (form/hidden-field "target-item")
-                  (form/hidden-field "target-list")))
-
 (defn render-todo-list-csv [  list-id ]
   (clojure.string/join "\n" (map :desc (data/get-pending-items list-id 0))))
 
@@ -128,7 +123,6 @@
   (view/render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)
                      :init-map { :page "todo-list" }
                      :sidebar (sidebar-view/render-sidebar-list-list selected-list-id)}
-                    (render-item-set-list-form)
                     (render-todo-list selected-list-id true completed-within-days snoozed-for-days)))
 
 (defn render-todo-list-public-page [ selected-list-id ]
