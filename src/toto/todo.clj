@@ -93,40 +93,40 @@
     (data/add-todo-item (current-user-id) list-id item-description item-priority))
   (redirect-to-list list-id))
 
-(defn update-item-desc [ item-id item-description ]
+(defn update-item-desc [ item-id item-description referrer ]
   (let [ list-id (data/get-list-id-by-item-id item-id)]
     (when (not (string-empty? item-description))
       (data/update-item-desc-by-id (current-user-id) item-id item-description))
-    (redirect-to-list list-id)))
+    (ring/redirect referrer)))
 
-(defn update-item-snooze-days [ item-id snooze-days ]
+(defn update-item-snooze-days [ item-id snooze-days referrer ]
   (let [list-id (data/get-list-id-by-item-id item-id)
         snooze-days (or (parsable-integer? snooze-days) 0)]
     (data/update-item-snooze-by-id  (current-user-id) item-id
                                     (if (= snooze-days 0)
                                       nil
                                       (add-days (java.util.Date.) snooze-days)))
-    (redirect-to-list list-id)))
+    (ring/redirect referrer)))
 
 (defn update-item-list [ item-id target-list-id ]
   (let [ original-list-id (data/get-list-id-by-item-id item-id)]
     (data/update-item-list (current-user-id) item-id target-list-id)
     (redirect-to-list original-list-id)))
 
-(defn update-item-priority [ item-id new-priority ]
+(defn update-item-priority [ item-id new-priority referrer ]
   (let [ original-list-id (data/get-list-id-by-item-id item-id)]
     (data/update-item-priority-by-id (current-user-id) item-id new-priority)
-    (redirect-to-list original-list-id)))
+    (ring/redirect referrer)))
 
-(defn complete-item [ item-id ]
+(defn complete-item [ item-id referrer ]
   (let [ list-id (data/get-list-id-by-item-id item-id)]
     (data/complete-item-by-id (current-user-id) item-id)
-    (redirect-to-list list-id)))
+    (ring/redirect referrer)))
 
-(defn delete-item [ item-id ]
+(defn delete-item [ item-id referrer ]
   (let [ list-id (data/get-list-id-by-item-id item-id)]
     (data/delete-item-by-id (current-user-id) item-id)
-    (redirect-to-list list-id)))
+    (ring/redirect referrer)))
 
 (defn restore-item [ item-id ]
   (let [ list-id (data/get-list-id-by-item-id item-id)]
@@ -177,20 +177,23 @@
 (defn- item-routes [ item-id ]
   (ensure-item-access item-id)
   (routes
-   (POST "/"  { params :params }
-     (update-item-desc item-id (string-leftmost (:description params) 1024)))
+   (POST "/"  { params :params headers :headers }
+     (update-item-desc item-id (string-leftmost (:description params) 1024)
+                       (get headers "referer")))
 
-   (POST "/snooze" { params :params }
-     (update-item-snooze-days item-id (:snooze-days params)))
+   (POST "/snooze" { params :params headers :headers }
+     (update-item-snooze-days item-id (:snooze-days params)
+                              (get headers "referer")))
 
-   (POST "/priority" { params :params }
-     (update-item-priority item-id (:new-priority params)))
+   (POST "/priority" { params :params headers :headers }
+     (update-item-priority item-id (:new-priority params)
+                           (get headers "referer")))
 
-   (POST "/complete" [ ]
-     (complete-item item-id))
+   (POST "/complete" { headers :headers }
+     (complete-item item-id (get headers "referer")))
 
-   (POST "/delete" [ ]
-     (delete-item item-id))
+   (POST "/delete" { headers :headers }
+     (delete-item item-id (get headers "referer")))
 
    (POST "/restore" [ ]
      (restore-item item-id))))
