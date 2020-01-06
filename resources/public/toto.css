@@ -398,17 +398,24 @@ A {
     padding-right: 10px;
 }
 
+.sidebar .list-list .list-row:hover {
+    background: #fffafa;
+}
+
 .item-control {
     flex: 0;
     text-align: center;
 }
 
 .sidebar .list-list .list-row, .sidebar .list-list .control-row {
-    padding-top: 0.75em;
-    padding-bottom: 0.75em;
     display: flex;
     flex-direction: row;
     align-items: center;
+}
+
+.sidebar .list-list .list-row A {
+    padding-top: 0.75em;
+    padding-bottom: 0.75em;
 }
 
 .sidebar .list-list .list-row .item {
