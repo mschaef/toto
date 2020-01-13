@@ -457,6 +457,13 @@ A {
     background: #f0f0f0;
 }
 
+.dev {
+    background: red;
+    color: white;
+    margin-left: 3px;
+    padding: 3px;
+}
+
 .list-visibility-flag {
     padding-left: 6px;
 }

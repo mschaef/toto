@@ -4,6 +4,13 @@
             [cemerick.friend :as friend]
             [hiccup.form :as form]))
 
+(def ^:dynamic *dev-mode* false)
+
+(defn wrap-dev-mode [ app dev-mode ]
+  (fn [ req ]
+    (binding [ *dev-mode* dev-mode ]
+      (app req))))
+
 (def ^:dynamic *query* nil)
 
 (defn wrap-remember-query[ app ]

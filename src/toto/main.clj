@@ -61,6 +61,7 @@
               (data/wrap-db-connection)
               (wrap-request-logging (:development-mode config))
               (view-utils/wrap-remember-query)
+              (view-utils/wrap-dev-mode (:development-mode config))
               (handler/site))
     (:development-mode config) (ring-reload/wrap-reload)))
 

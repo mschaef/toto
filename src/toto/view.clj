@@ -46,7 +46,7 @@
 
 (defn- render-footer [ username ]
   [:div.footer
-   "&#9400; 2019 East Coast Toolworks "
+   "&#9400; 2020 East Coast Toolworks "
    (when username
      [:div.logout username " - " (logout-button)])])
 
@@ -57,6 +57,8 @@
    [:span.app-name
     [:a { :href "/" } app-name] " - "]
    page-title
+   (when *dev-mode*
+     [:span.pill.dev "DEV"])
    (if username
      [:div.right
       [:span.logout
