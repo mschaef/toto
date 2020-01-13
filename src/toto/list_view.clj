@@ -104,6 +104,8 @@
              (remove :currently_snoozed pending-items))
            (range))]
      [:div.query-settings
+      [:a {:href (shref "/list/" list-id "/details")}
+       "[list details]"]
       (form/form-to { :class "embedded "} [:get (shref "/list/" list-id)]
                     "Include items completed within "
                     [:select { :id "cwithin" :name "cwithin" :onchange "this.form.submit()"}
@@ -112,12 +114,16 @@
                                             "-"
                                             (str completed-within-days)))]
 
-                    ". "
-                    [:a {:href (shref list-id {:snoozed (if include-snoozed? 0 1)}) }
-                     " (" (if include-snoozed? "Hide" "Show") " snoozed items.)"]
+                    ". Include Snoozed"
+
+                    [:input {:type "checkbox"
+                             :name "include-snoozed"
+                             :id "include-snoozed"
+                             :value "Y"
+                             :onchange "this.form.submit()"
+                             :checked include-snoozed?}]
                     [:a {:href (str list-id)}
-                     " (Default list view)"]
-                    [:a {:href (shref "/list/" list-id "/details")} "List Details"])])))
+                     " [reset]"])])))
 
 (defn render-todo-list-csv [  list-id ]
   (clojure.string/join "\n" (map :desc (data/get-pending-items list-id 0))))

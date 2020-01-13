@@ -151,7 +151,8 @@
    (GET "/" { params :params }
      (list-view/render-todo-list-page list-id
                                       (or (parsable-integer? (:cwithin params)) 0)
-                                      (not= 0 (or (parsable-integer? (:snoozed params)) 0))))
+                                      (and (:include-snoozed params)
+                                           (= (:include-snoozed params) "Y"))))
 
    (GET "/list.csv" []
      (-> (list-view/render-todo-list-csv list-id)

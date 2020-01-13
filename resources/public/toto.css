@@ -254,15 +254,23 @@ form {
 }
 
 .query-settings {
-    margin-top: 1em;
-    margin-bottom: 1em;
+    margin: 6px;
 
     right: 0px;
 
-    border-top: 1px solid .c0c0c0;
-
     text-align: center;
-    font-style: italic;
+}
+
+.query-settings form {
+    border: 1px solid #f0f0f0;
+    background: #f7f7f7;
+
+    margin-left: 10px;
+    padding: 12px;
+}
+
+.query-settings form input {
+    margin-left: 3px;
 }
 
 .embedded {
