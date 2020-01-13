@@ -116,7 +116,8 @@
                     [:a {:href (shref list-id {:snoozed (if include-snoozed? 0 1)}) }
                      " (" (if include-snoozed? "Hide" "Show") " snoozed items.)"]
                     [:a {:href (str list-id)}
-                     " (Default list view)"])])))
+                     " (Default list view)"]
+                    [:a {:href (shref "/list/" list-id "/details")} "List Details"])])))
 
 (defn render-todo-list-csv [  list-id ]
   (clojure.string/join "\n" (map :desc (data/get-pending-items list-id 0))))
