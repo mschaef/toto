@@ -73,7 +73,7 @@ body {
 
 @media only screen and (min-device-width : 640px) {
     .contents.with-sidebar {
-        padding-left: 280px;
+        padding-left: 290px;
     }
 }
 
@@ -380,6 +380,23 @@ A {
 
 .toplevel-list {
     width: 100%;
+}
+
+.toplevel-list .empty-list {
+    text-align: center;
+    margin: 20px;
+}
+
+.toplevel-list .empty-list h1 {
+    font-size: 16px;
+
+    margin-bottom: 2px;
+}
+
+.toplevel-list .empty-list p {
+    font-size: 14px;
+    font-style: italic;
+    margin: 8px;
 }
 
 .toplevel-list .item-row {

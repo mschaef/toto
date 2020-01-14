@@ -52,7 +52,7 @@
         (> days 60) (str (quot days 30) "m")
         :else (str days "d")))
 
-(defn- render-todo-item [ item-info item-number writable? ]
+(defn- render-todo-item [ item-info writable? ]
   (let [{item-id :item_id
          is-complete? :is_complete
          is-deleted? :is_deleted
@@ -63,8 +63,7 @@
          created-by-name :created_by_name} 
         item-info]
     [:div.item-row {:itemid item-id
-                    :class (class-set {"first-row" (= item-number 0)
-                                       "high-priority" (> priority 0)
+                    :class (class-set {"high-priority" (> priority 0)
                                        "snoozed" currently-snoozed})}
      (when writable?
        [:div.item-control.complete { :id (str "item_control_" item-id)}
@@ -111,6 +110,13 @@
                  [:a {:href (str list-id)}
                   " [reset]"])])
 
+(defn- render-empty-list []
+  [:div.empty-list
+   [:h1
+    "Nothing to do here!"]
+   [:p
+    "Add new items in the box above, if you like."]])
+
 (defn- render-todo-list [ list-id writable? completed-within-days include-snoozed? ]
   (let [pending-items (data/get-pending-items list-id completed-within-days)
         n-snoozed-items (count (filter :currently_snoozed pending-items))]
@@ -118,12 +124,13 @@
      (when writable?
        (render-new-item-form list-id))
      [:div.toplevel-list.item-list
-      (map (fn [ item-info item-number ]
-             (render-todo-item item-info item-number writable?))
-           (if include-snoozed?
-             pending-items
-             (remove :currently_snoozed pending-items))
-           (range))]
+      (let [display-items (if include-snoozed?
+                            pending-items
+                            (remove :currently_snoozed pending-items))]
+        (if (= (count display-items) 0)
+          (render-empty-list)
+          (map #(render-todo-item % writable?) display-items)
+          ))]
      (render-todo-list-query-settings list-id completed-within-days include-snoozed?))))
 
 (defn render-todo-list-csv [  list-id ]
