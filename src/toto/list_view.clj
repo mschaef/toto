@@ -27,7 +27,8 @@
    (form/text-field {:class "simple-border"
                      :maxlength "1024"
                      :placeholder "New Item Description"
-                     :autofocus "autofocus"}
+                     :autofocus "autofocus"
+                     :onkeydown "onNewItemInputKeydown(event)"}
                     "item-description")
    (form/hidden-field "item-priority" "0")
    [:button.high-priority-submit {:type "button"

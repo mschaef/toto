@@ -240,6 +240,7 @@ function setupItemDragging() {
     });
 }
 
+
 function submitHighPriority() {
     console.log('onclick');
 
@@ -248,6 +249,15 @@ function submitHighPriority() {
 
     priorityField.value = "1";
     form.submit();
+}
+
+function onNewItemInputKeydown(event) {
+    if (event.ctrlKey && event.keyCode == 13) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        submitHighPriority();
+    }
 }
 
 pageInit["todo-list"] = function () {

@@ -180,6 +180,8 @@ body {
     padding: 6px;
     margin-left: 3px;
     cursor: pointer;
+
+    border: 1px solid #f0f0f0;
 }
 
 .new-item-form button.high-priority-submit i.icon-gray:hover {
