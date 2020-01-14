@@ -90,6 +90,27 @@
      [:div.item-control.priority.right
       (render-item-priority-control item-id priority writable?)]]))
 
+(defn- render-todo-list-query-settings [ list-id completed-within-days include-snoozed? ]
+  [:div.query-settings
+   [:a {:href (shref "/list/" list-id "/details")}
+    "[list details]"]
+   (form/form-to { :class "embedded "} [:get (shref "/list/" list-id)]
+                 "Include items completed within "
+                 [:select { :id "cwithin" :name "cwithin" :onchange "this.form.submit()"}
+                  (form/select-options [ [ "-" "-"] [ "1d" "1"] [ "7d" "7"] [ "30d" "30"] [ "90d" "90"] ]
+                                       (if (nil? completed-within-days)
+                                         "-"
+                                         (str completed-within-days)))]
+                 ". Include Snoozed"
+                 [:input {:type "checkbox"
+                          :name "include-snoozed"
+                          :id "include-snoozed"
+                          :value "Y"
+                          :onchange "this.form.submit()"
+                          :checked include-snoozed?}]
+                 [:a {:href (str list-id)}
+                  " [reset]"])])
+
 (defn- render-todo-list [ list-id writable? completed-within-days include-snoozed? ]
   (let [pending-items (data/get-pending-items list-id completed-within-days)
         n-snoozed-items (count (filter :currently_snoozed pending-items))]
@@ -103,27 +124,7 @@
              pending-items
              (remove :currently_snoozed pending-items))
            (range))]
-     [:div.query-settings
-      [:a {:href (shref "/list/" list-id "/details")}
-       "[list details]"]
-      (form/form-to { :class "embedded "} [:get (shref "/list/" list-id)]
-                    "Include items completed within "
-                    [:select { :id "cwithin" :name "cwithin" :onchange "this.form.submit()"}
-                     (form/select-options [ [ "-" "-"] [ "1d" "1"] [ "7d" "7"] [ "30d" "30"] [ "90d" "90"] ]
-                                          (if (nil? completed-within-days)
-                                            "-"
-                                            (str completed-within-days)))]
-
-                    ". Include Snoozed"
-
-                    [:input {:type "checkbox"
-                             :name "include-snoozed"
-                             :id "include-snoozed"
-                             :value "Y"
-                             :onchange "this.form.submit()"
-                             :checked include-snoozed?}]
-                    [:a {:href (str list-id)}
-                     " [reset]"])])))
+     (render-todo-list-query-settings list-id completed-within-days include-snoozed?))))
 
 (defn render-todo-list-csv [  list-id ]
   (clojure.string/join "\n" (map :desc (data/get-pending-items list-id 0))))
