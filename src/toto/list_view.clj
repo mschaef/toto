@@ -92,24 +92,29 @@
 
 (defn- render-todo-list-query-settings [ list-id completed-within-days include-snoozed? ]
   [:div.query-settings
-   [:a {:href (shref "/list/" list-id "/details")}
-    "[list details]"]
    (form/form-to { :class "embedded "} [:get (shref "/list/" list-id)]
-                 "Include items completed within "
-                 [:select { :id "cwithin" :name "cwithin" :onchange "this.form.submit()"}
-                  (form/select-options [ [ "-" "-"] [ "1d" "1"] [ "7d" "7"] [ "30d" "30"] [ "90d" "90"] ]
-                                       (if (nil? completed-within-days)
-                                         "-"
-                                         (str completed-within-days)))]
-                 ". Include Snoozed"
-                 [:input {:type "checkbox"
-                          :name "include-snoozed"
-                          :id "include-snoozed"
-                          :value "Y"
-                          :onchange "this.form.submit()"
-                          :checked include-snoozed?}]
-                 [:a {:href (str list-id)}
-                  " [reset]"])])
+                 [:div.control-segment
+                  [:a {:href (shref "/list/" list-id "/details")}
+                   "[list details]"]]
+                 [:div.control-segment
+                  [:a {:href (str list-id)}
+                   " [default view]"]]
+                 [:div.control-segment
+                  [:label {:for "cwithin"}
+                   "Include items completed within: "]
+                  [:select { :id "cwithin" :name "cwithin" :onchange "this.form.submit()"}
+                   (form/select-options [ [ "-" "-"] [ "1d" "1"] [ "7d" "7"] [ "30d" "30"] [ "90d" "90"] ]
+                                        (if (nil? completed-within-days)
+                                          "-"
+                                          (str completed-within-days)))]]
+                 [:div.control-segment
+                  [:label {:for "include-snoozed"}  "Include snoozed :"]
+                  [:input {:type "checkbox"
+                           :name "include-snoozed"
+                           :id "include-snoozed"
+                           :value "Y"
+                           :onchange "this.form.submit()"
+                           :checked include-snoozed?}]])])
 
 (defn- render-empty-list []
   [:div.empty-list

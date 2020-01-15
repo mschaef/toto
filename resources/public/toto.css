@@ -73,7 +73,7 @@ body {
 
 @media only screen and (min-device-width : 640px) {
     .contents.with-sidebar {
-        padding-left: 290px;
+        padding-left: 280px;
     }
 }
 
@@ -112,7 +112,6 @@ body {
     border-right: 1px solid #e0e0e0;
 
     padding-bottom: 100px;
-    padding-left: 12px;
 }
 
 @media only screen and (min-device-width : 640px) {
@@ -257,18 +256,27 @@ form {
 
 .query-settings {
     margin: 6px;
+    padding: 6px;
 
     right: 0px;
 
     text-align: center;
-}
-
-.query-settings form {
     border: 1px solid #f0f0f0;
     background: #f7f7f7;
 
+    display: flex;
+    flex-direction: row;
+}
+
+.query-settings .control-segment {
+    display: inline-block;
+    padding-right: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.query-settings form {
     margin-left: 10px;
-    padding: 12px;
 }
 
 .query-settings form input {
@@ -402,14 +410,14 @@ A {
 }
 
 .toplevel-list .item-row {
-    padding-top: 10px;
-    padding-bottom: 10px;
+    padding-top: 14px;
+    padding-bottom: 14px;
 }
 
 @media only screen and (min-device-width : 640px) {
     .toplevel-list .item-row {
-        padding-top: 5px;
-        padding-bottom: 5px;
+        padding-top: 7px;
+        padding-bottom: 7px;
     }
 }
 
@@ -423,6 +431,17 @@ A {
 .sidebar .list-list .list-row {
     border-right: 5px solid white;
     padding-right: 10px;
+    padding-left: 10px;
+
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
+
+@media only screen and (min-device-width : 640px) {
+    .sidebar .list-list .list-row {
+        padding-top: 0px;
+        padding-bottom: 0px;
+    }
 }
 
 .sidebar .list-list .list-row:hover {
@@ -523,8 +542,6 @@ A {
 .item-row {
     display: flex;
     flex-direction: row;
-    padding-top: 10px !important;
-    padding-bottom: 10px !important;
 
     white-space: nowrap;
 }
