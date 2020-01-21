@@ -13,10 +13,11 @@
             [ring.middleware.reload :as ring-reload]
             [ring.middleware.file-info :as ring-file-info]
             [ring.middleware.resource :as ring-resource]
-            [ring.util.response :as ring-response]
+            [ring.util.response :as ring-responsed]
             [compojure.handler :as handler]
             [compojure.route :as route]
             [toto.data :as data]
+            [toto.dumper :as dumper]
             [toto.todo :as todo]
             [toto.view :as view]
             [toto.view-utils :as view-utils]
@@ -88,11 +89,19 @@
         {}))
     {}))
 
+(defn- accept-mode [ args ]
+  (if (= 0 (count args))
+    :site
+    (keyword (first args))))
+
 (defn -main [& args]
   (log/info "Starting Toto" (get-version))
   (let [config (cprop/load-config :merge [(cprop-source/from-resource "config.edn")
                                           (maybe-config-file "conf")
-                                          (maybe-config-file "creds")])]
-    (log/debug "config" config)    
-    (start-webserver config)
+                                          (maybe-config-file "creds")])
+        mode (accept-mode args)]
+    (log/debug "mode" mode "config" config)
+    (case mode
+      :dump-simple-event-stream (dumper/dump-simple-event-stream config)
+      :site (start-webserver config))
     (log/info "end run.")))
