@@ -1,6 +1,7 @@
 (ns toto.user
   (:use toto.util
         compojure.core
+        hiccup.core
         toto.view-utils)
   (:require [clojure.tools.logging :as log]
             [cemerick.friend.credentials :as credentials]
@@ -149,6 +150,38 @@
     (data/set-list-ownership list-id #{ user-id })
     user-id))
 
+(defn verification-email-message [ config verify-link-url ]
+  [:body
+   [:h1
+    "Verification E-mail"]
+   [:p
+    "Thank you for registering with " [:a {:href (:base-url config)} "Toto"]
+    " to manage your todo lists. You can verify your e-mail address by clicking"
+    " this link:"]
+   [:p
+    "Verify: " [:a {:href verify-link-url} {:href verify-link-url}]]
+
+   [:p
+    "If this isn't something you've requested, you can safely ignore this"
+    " e-mail, and we won't send anything else."]])
+
+(defn send-email [config {to :to
+                          subject :subject
+                          content :content}]
+  (log/info "Seing mail to " to " with subject: " subject)
+    (let [smtp (:smtp config)]
+      (if (:enabled smtp)
+        (postal/send-message {:host (:host smtp)
+                              :user (:user smtp)
+                              :pass (:password smtp)
+                              :ssl true}
+                             {:from (:from smtp)
+                              :to to
+                              :subject subject
+                              :body [{:type "text/html"
+                                      :content (html [:html content])}]})
+        (log/warn "E-mail disabled. Message not sent."))))
+
 (defn send-verification-link [ config user-id ]
   (let [user (data/get-user-by-id user-id)
         verification-link (data/get-verification-link-by-user-id user-id)
@@ -156,20 +189,10 @@
     (log/debug "SMTP Config: " smtp)
     (let [link-url (str (:base-url config) "user/verify/" user-id "/"
                         (:link_uuid verification-link))]
-      (if (:enabled smtp)
-        (do
-          (log/info "Sending verification link: " {:link link-url
-                                                   :email_addr (:email_addr user)})
-          (let [result (postal/send-message {:host (:host smtp)
-                                             :user (:user smtp)
-                                             :pass (:password smtp)
-                                             :ssl true}
-                                            {:from (:from smtp)
-                                             :to [ (:email_addr user) ]
-                                             :subject "Todo Account Update"
-                                             :body (str "Confirmation link: " link-url)})]
-            (log/info "SMTP Result: " result)))
-        (log/warn "SMTP disabled, no verification mail sent. Link: " link-url)))))
+      (send-email config
+                  {:to [ (:email_addr user) ]
+                   :subject "Todo - Confirm E-Mail Address"
+                   :content (verification-email-message config link-url)}))))
 
 (defn add-user [ email-addr password password2 ]
   (cond
