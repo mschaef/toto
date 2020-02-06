@@ -469,6 +469,7 @@ A {
 }
 
 .sidebar .list-list .control-row {
+    padding-top: 0.75em;
     justify-content: center;
 }
 
