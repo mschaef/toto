@@ -119,9 +119,9 @@
 (defn- render-empty-list []
   [:div.empty-list
    [:h1
-    "Nothing to do here!"]
+    "Empty List"]
    [:p
-    "Add new items in the box above, if you like."]])
+    "To get started, you can add new items in the box above."]])
 
 (defn- render-todo-list [ list-id writable? completed-within-days include-snoozed? ]
   (let [pending-items (data/get-pending-items list-id completed-within-days)
