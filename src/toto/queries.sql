@@ -92,16 +92,23 @@ SELECT item.item_id,
        item.is_complete,
        DATEDIFF('day', item.created_on, CURRENT_TIMESTAMP) as age_in_days,
        item.snoozed_until,
-       CURRENT_TIMESTAMP < NVL(item.snoozed_until, CURRENT_TIMESTAMP) AS currently_snoozed
+       CURRENT_TIMESTAMP < NVL(item.snoozed_until, CURRENT_TIMESTAMP) AS currently_snoozed,
+       item_ordinal
    FROM todo_item item, user
    WHERE item.todo_list_id = :list_id
    AND user.user_id = item.created_by
    AND (NOT(item.is_deleted OR item.is_complete)
         OR item.updated_on >
                DATEADD('day', :completed_within_days, CURRENT_TIMESTAMP))
-   ORDER BY CASEWHEN(item.is_deleted or item.is_complete, 1, 0),
-            item.priority DESC,
+   ORDER BY item.item_ordinal,
             item.created_on
+
+-- name: list-items-tail
+SELECT item_id, item_ordinal
+  FROM todo_item
+ WHERE todo_list_id = :todo_list_id
+   AND item_ordinal >= :begin_ordinal
+ ORDER BY item_ordinal
 
 -- name: get-pending-item-count
 SELECT count(item.item_id)
@@ -113,6 +120,11 @@ SELECT count(item.item_id)
 SELECT item.item_id, item.todo_list_id, item.desc, item.created_on
   FROM todo_item item
  WHERE item_id = :item_id
+
+-- name: get-max-ordinal-by-list
+SELECT MAX(item_ordinal)
+  FROM todo_item item
+ WHERE todo_list_id = :list_id
 
 -- name: set-item-completion!
 MERGE INTO todo_item_completion

@@ -478,6 +478,15 @@ A {
     background: #e0e0e0;
 }
 
+.order-drop-target {
+    background: white;
+    height: 7px;
+}
+
+.order-drop-target.drop-hover {
+    background: #d0d0d0;
+}
+
 .sidebar .list-list .selected A {
     color: red;
 }

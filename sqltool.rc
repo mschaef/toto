@@ -1,4 +1,4 @@
 urlid local
-url jdbc:hsqldb:~/ectworks/toto/toto.h2db
+url jdbc:hsqldb:~/personal/toto/toto
 username sa
 password

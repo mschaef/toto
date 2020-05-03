@@ -1,3 +1,4 @@
+
 /* toto.js */
 
 function elemOptional(klass) {
@@ -194,6 +195,56 @@ function doMoveItem(itemId, newListId) {
     }).then(res => location.reload(false));
 }
 
+function doSetItemOrdinal(itemId, newItemOrdinal) {
+    console.log('>>> setItemOrdinal: ', itemId, newItemOrdinal);
+
+    var formData = new FormData();
+
+    formData.append("target-item", itemId);
+    formData.append("new-ordinal", newItemOrdinal);
+
+    fetch("/item-ordinal", {
+        body: formData,
+        method: "post",
+        credentials: "same-origin"
+    }).then(res => location.reload(false));
+}
+
+function makeDropTarget(el, onDrop) {
+    var dragCount = 0;
+
+    el.ondragenter = function(ev) {
+        ev.preventDefault();
+
+        if (!dragCount)
+            el.classList.add('drop-hover');
+
+        dragCount++;
+    };
+
+    el.ondragleave = function(ev) {
+        ev.preventDefault();
+
+        dragCount--;
+
+        if (!dragCount)
+            el.classList.remove('drop-hover');
+    };
+
+    el.ondragover = function(ev) {
+        ev.preventDefault();
+    };
+
+    el.ondrop = function(ev) {
+        ev.preventDefault();
+
+        dragCount = 0;
+        el.classList.remove('drop-hover');
+
+        onDrop(ev);
+    };
+}
+
 function setupItemDragging() {
     foreach_elem(".item-list .item-row", function(el) {
         el.setAttribute('draggable', true);
@@ -204,39 +255,26 @@ function setupItemDragging() {
         };
     });
 
+    foreach_elem('.item-list .order-drop-target', function(el) {
+        makeDropTarget(el, function(ev) {
+            ev.preventDefault();
+
+            var itemId = ev.dataTransfer.getData("text/plain");
+            var newItemOrdinal = ev.currentTarget.getAttribute('ordinal');
+
+            doSetItemOrdinal(itemId, newItemOrdinal);
+        });
+    });
+
     foreach_elem('.list-list .list-row', function(el) {
-        var dragCount = 0;
-
-        el.ondragenter = function(ev) {
-            ev.preventDefault();
-
-            if (!dragCount)
-                el.classList.add('drop-hover');
-
-            dragCount++;
-        };
-
-        el.ondragleave = function(ev) {
-            ev.preventDefault();
-
-            dragCount--;
-
-            if (!dragCount)
-                el.classList.remove('drop-hover');
-        };
-
-        el.ondragover = function(ev) {
-            ev.preventDefault();
-        };
-
-        el.ondrop = function(ev) {
+        makeDropTarget(el, function(ev) {
             ev.preventDefault();
 
             var itemId = ev.dataTransfer.getData("text/plain");
             var newListId = ev.currentTarget.getAttribute('listid');
 
             doMoveItem(itemId, newListId);
-        };
+        });
     });
 }
 

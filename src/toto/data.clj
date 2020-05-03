@@ -1,14 +1,15 @@
 (ns toto.data
   (:use toto.util
         sql-file.sql-util)
-  (:require [clojure.java.jdbc :as jdbc]
+  (:require [clojure.tools.logging :as log]
+            [clojure.java.jdbc :as jdbc]
             [sql-file.core :as sql-file]
             [toto.queries :as query]))
 
 (def db-connection
   (delay (-> (sql-file/open-pool {:name (config-property "db.subname" "toto")
                                   :schema-path [ "sql/" ]})
-             (sql-file/ensure-schema [ "toto" 6 ]))))
+             (sql-file/ensure-schema [ "toto" 7 ]))))
 
 (def ^:dynamic *db* nil)
 
@@ -25,9 +26,15 @@
     (with-db-connection
       (app req))))
 
-(defn- scalar [ query-result ]
-  (let [first-row (first query-result)]
-    (get first-row (first (keys first-row)))))
+(defn- scalar
+  ([ query-result default ]
+   (or
+    (let [first-row (first query-result)]
+      (get first-row (first (keys first-row))))
+    default))
+
+  ([ query-result ]
+   (scalar query-result nil)))
 
 (defn current-time []
   (java.util.Date.))
@@ -224,6 +231,11 @@
                                     { :connection *db* }))
      0))
 
+(defn get-next-list-ordinal [ todo-list-id ]
+  (+ 1 (scalar (query/get-max-ordinal-by-list {:list_id todo-list-id}
+                                              { :connection *db*})
+               0)))
+
 (defn add-todo-item [ user-id todo-list-id desc priority ]
   (:item_id (first
              (jdbc/insert! *db*
@@ -236,7 +248,8 @@
                :updated_by user-id
                :updated_on (current-time)
                :is_deleted false
-               :is_complete false}))))
+               :is_complete false
+               :item_ordinal (get-next-list-ordinal todo-list-id)}))))
 
 (defn get-pending-items [ list-id completed-within-days]
   (query/get-pending-items {:list_id list-id
@@ -257,9 +270,20 @@
                          { :connection *db* })))
 
 
+(defn update-item-ordinal! [ item-id new-ordinal ]
+  ;; Ordinal changes not audited on the theory they happen so often
+  (jdbc/update! *db*
+                :todo_item
+                {:item_ordinal new-ordinal}
+                ["item_id=?" item-id]))
+
+(defn shift-list-items! [ todo-list-id begin-ordinal ]
+  (doseq [item (query/list-items-tail {:todo_list_id todo-list-id
+                                       :begin_ordinal begin-ordinal}
+                                      { :connection *db* })]
+    (update-item-ordinal! (:item_id item) (+ 1 (:item_ordinal item)))))
 
 (defn update-item-by-id! [ user-id item-id values ]
-
   (jdbc/with-db-transaction [ trans *db* ]
     (jdbc/insert! trans :todo_item_history
                   (query-first *db* [(str "SELECT *"

@@ -123,6 +123,14 @@
    [:p
     "To get started, you can add new items in the box above."]])
 
+(defn drop-target [ item-ordinal ]
+  [:div.order-drop-target {:ordinal item-ordinal} "&nbsp;"])
+
+(defn render-droppable-todo-item [ item-info writable? ]
+  (list
+   (render-todo-item item-info writable?)
+   (drop-target (+ 1 (:item_ordinal item-info)))))
+
 (defn- render-todo-list [ list-id writable? completed-within-days include-snoozed? ]
   (let [pending-items (data/get-pending-items list-id completed-within-days)
         n-snoozed-items (count (filter :currently_snoozed pending-items))]
@@ -135,8 +143,9 @@
                             (remove :currently_snoozed pending-items))]
         (if (= (count display-items) 0)
           (render-empty-list)
-          (map #(render-todo-item % writable?) display-items)
-          ))]
+          (cons
+           (drop-target 0)
+           (map #(render-droppable-todo-item % writable?) display-items))))]
      (render-todo-list-query-settings list-id completed-within-days include-snoozed?))))
 
 (defn render-todo-list-csv [  list-id ]
