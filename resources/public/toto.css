@@ -557,7 +557,6 @@ A {
 }
 
 .high-priority {
-    background: #fffff0;
     font-weight: bold;
 }
 
@@ -765,5 +764,9 @@ select:hover {
 
     .new-item-form {
         display: none;
+    }
+
+    body {
+        height: auto;
     }
 }
