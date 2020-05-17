@@ -119,7 +119,7 @@
 (defn- render-empty-list []
   [:div.empty-list
    [:h1
-    "Empty List"]
+    "Nothing to do right now!"]
    [:p
     "To get started, you can add new items in the box above."]])
 
@@ -137,6 +137,11 @@
     (render-scroll-column
      (when writable?
        (render-new-item-form list-id))
+     (when (and (> n-snoozed-items 0)
+                (not include-snoozed?))
+       [:div.snoozed-item-warning
+        n-snoozed-items " item" (if (= n-snoozed-items 1) "" "s" ) " snoozed for later. "
+        "Click " [:a {:href (shref "" {:include-snoozed "Y"})} "here"] " to show."])
      [:div.toplevel-list.item-list
       (let [display-items (if include-snoozed?
                             pending-items

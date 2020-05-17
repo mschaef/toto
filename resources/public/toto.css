@@ -426,6 +426,22 @@ A {
     white-space: normal;
 }
 
+.snoozed-item-warning {
+    text-align: center;
+
+    padding-left: 10px;
+    padding-right: 10px;
+    
+    padding-top: 10px;
+    padding-bottom: 10px;
+
+    background: #e0e0e0;
+}
+
+.snoozed-item-warning A {
+    color: blue;
+}
+
 /* List list styling */
 
 .sidebar .list-list .list-row {
@@ -768,5 +784,9 @@ select:hover {
 
     body {
         height: auto;
+    }
+
+    .snoozed-item-warning {
+        display: none;
     }
 }
