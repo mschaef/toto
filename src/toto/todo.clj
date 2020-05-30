@@ -10,7 +10,6 @@
             [toto.data :as data]
             [toto.list-view :as list-view]
             [toto.list-manager-view :as list-manager-view]
-            [toto.sidebar-view :as sidebar-view]
             [toto.user :as user]))
 
 (defn current-todo-list-id []

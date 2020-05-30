@@ -48,7 +48,7 @@
         list-owners (data/get-todo-list-owners-by-list-id list-id) ]
     (view/render-page
      {:page-title (str "List Details: " list-name)
-      :sidebar (sidebar-view/render-sidebar-list-list list-id) }
+      :sidebar (sidebar-view/render-sidebar-list-list list-id 0)}
      (form/form-to
       {:class "details"}
       [:post (shref "/list/" list-id "/details")]

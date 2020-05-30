@@ -529,6 +529,15 @@ A {
     background: #f0f0f0;
 }
 
+.pill.emphasize {
+    border-color: #c0c0c0;
+}
+
+.pill.highlight {
+    border-color: #c0c0c0;
+    background: #c0c0c0;
+}
+
 .dev {
     background: red;
     color: white;
