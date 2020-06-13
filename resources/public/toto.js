@@ -246,12 +246,18 @@ function makeDropTarget(el, onDrop) {
 }
 
 function setupItemDragging() {
-    foreach_elem(".item-list .item-row", function(el) {
+    foreach_elem(".item-list .item-row .drag-handle", function(el) {
         el.setAttribute('draggable', true);
 
         el.ondragstart = function(ev) {
+            var itemId = el.getAttribute('itemid');
+
             ev.dataTransfer.dropEffect = 'move';
-            ev.dataTransfer.setData('text/plain', el.getAttribute('itemid'));
+            ev.dataTransfer.setData('text/plain', itemId);
+
+            var rowElem = elemById("item_row_" + itemId);
+            
+            ev.dataTransfer.setDragImage(rowElem, 0, 0);
         };
     });
 

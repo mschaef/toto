@@ -50,6 +50,8 @@
 (def img-trash [:i {:class "fa fa-trash-o icon-black"}])
 (def img-restore [:i {:class "fa fa-repeat icon-black"}])
 
+(def img-bars [:i {:class "fa fa-bars icon-gray"}])
+
 (defmacro catch-validation-errors [ & body ]
   `(try+
     ~@body

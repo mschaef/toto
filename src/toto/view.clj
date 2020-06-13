@@ -32,6 +32,7 @@
    (page/include-css (resource "toto.css")
                      (resource "font-awesome.min.css"))
    (page/include-js (resource "toto.js"))
+   (page/include-js (resource "DragDropTouch.js"))
    [:script
     "totoInitialize(" (json/write-str init-map) ");"]))
 

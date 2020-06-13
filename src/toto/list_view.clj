@@ -53,6 +53,11 @@
         (> days 60) (str (quot days 30) "m")
         :else (str days "d")))
 
+(defn item-drag-handle [ class item-info ]
+  [:div.item-control.drag-handle {:itemid (:item_id item-info)
+                     :class class}
+   img-bars])
+
 (defn- render-todo-item [ item-info writable? ]
   (let [{item-id :item_id
          is-complete? :is_complete
@@ -63,11 +68,13 @@
          created-by-id :created_by_id
          created-by-name :created_by_name} 
         item-info]
-    [:div.item-row {:itemid item-id
+    [:div.item-row {:id (str "item_row_" item-id)
+                    :itemid item-id
                     :class (class-set {"high-priority" (> priority 0)
                                        "snoozed" currently-snoozed})}
+     (item-drag-handle "left" item-info)
      (when writable?
-       [:div.item-control.complete { :id (str "item_control_" item-id)}
+       [:div.item-control.complete {:id (str "item_control_" item-id)}
         (if (or is-complete? is-deleted?)
           (restore-item-button item-info)
           (complete-item-button item-info))])
@@ -88,7 +95,9 @@
           (when (not (= created-by-id (current-user-id)))
             [:span.pill created-by-name])]))]
      [:div.item-control.priority.right
-      (render-item-priority-control item-id priority writable?)]]))
+      (render-item-priority-control item-id priority writable?)]
+     (item-drag-handle "right" item-info)]))
+
 
 (defn- render-todo-list-query-settings [ list-id completed-within-days include-snoozed? ]
   [:div.query-settings
