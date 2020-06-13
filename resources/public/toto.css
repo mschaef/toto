@@ -442,6 +442,10 @@ A {
 
 /* List list styling */
 
+.toplevel-list.list-list .item-row {
+    padding-bottom: 10px;
+}
+
 .sidebar .list-list .list-row {
     border-right: 5px solid white;
     padding-right: 10px;

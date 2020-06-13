@@ -23,7 +23,7 @@
    {:page-title "Manage Todo Lists"}
    (render-scroll-column
     (render-new-list-form)
-    [:div.toplevel-list
+    [:div.toplevel-list.list-list
      (map (fn [ list ]
             (let [list-id (:todo_list_id list)
                   priority (:priority list)]
