@@ -1,6 +1,9 @@
 ALTER TABLE todo_item
    ADD item_ordinal BIGINT NULL;
 
+ALTER TABLE todo_item_history
+   ADD item_ordinal BIGINT NULL;
+
 UPDATE todo_item target
   SET item_ordinal = (SELECT NEW_ORDINAL from
                        (SELECT item_id, ROWNUM() AS NEW_ORDINAL
