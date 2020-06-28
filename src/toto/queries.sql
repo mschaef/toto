@@ -106,7 +106,8 @@ SELECT item.item_id,
    AND (NOT(item.is_deleted OR item.is_complete)
         OR item.updated_on >
                DATEADD('day', :completed_within_days, CURRENT_TIMESTAMP))
-   ORDER BY item.item_ordinal,
+   ORDER BY item.priority DESC,
+            item.item_ordinal,
             item.created_on
 
 -- name: list-items-tail
@@ -131,6 +132,7 @@ SELECT item.item_id, item.todo_list_id, item.desc, item.created_on
 SELECT MAX(item_ordinal)
   FROM todo_item item
  WHERE todo_list_id = :list_id
+   AND NOT (item.is_deleted OR item.is_complete)
 
 -- name: set-item-completion!
 MERGE INTO todo_item_completion

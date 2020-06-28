@@ -89,6 +89,7 @@
                 :class (class-set {"deleted_item" is-deleted?
                                    "completed_item" is-complete?})}
           (render-item-text desc)
+          ;; (:item_ordinal item-info)
           (snooze-item-button item-info [:span.pill (render-age (:age_in_days item-info))])
           (when currently-snoozed
             (unsnooze-item-button item-info [:span.pill "snoozed"]))
@@ -137,8 +138,8 @@
 
 (defn render-droppable-todo-item [ item-info writable? ]
   (list
-   (render-todo-item item-info writable?)
-   (drop-target (+ 1 (:item_ordinal item-info)))))
+   (drop-target (:item_ordinal item-info))
+   (render-todo-item item-info writable?)))
 
 (defn- render-todo-list [ list-id writable? completed-within-days include-snoozed? ]
   (let [pending-items (data/get-pending-items list-id completed-within-days)
@@ -157,9 +158,9 @@
                             (remove :currently_snoozed pending-items))]
         (if (= (count display-items) 0)
           (render-empty-list)
-          (cons
-           (drop-target 0)
-           (map #(render-droppable-todo-item % writable?) display-items))))]
+          (list
+           (map #(render-droppable-todo-item % writable?) display-items)
+           (drop-target (+ 1 (apply max (map :item_ordinal display-items)))))))]
      (render-todo-list-query-settings list-id completed-within-days include-snoozed?))))
 
 (defn render-todo-list-csv [  list-id ]
