@@ -141,17 +141,17 @@
    (drop-target (:item_ordinal item-info))
    (render-todo-item item-info writable?)))
 
+(defn- render-snoozed-item-warning [ n-snoozed-items ]
+  [:div.snoozed-item-warning
+   n-snoozed-items " item" (if (= n-snoozed-items 1) "" "s" ) " snoozed for later. "
+   "Click " [:a {:href (shref "" {:include-snoozed "Y"})} "here"] " to show."])
+
 (defn- render-todo-list [ list-id writable? completed-within-days include-snoozed? ]
   (let [pending-items (data/get-pending-items list-id completed-within-days)
         n-snoozed-items (count (filter :currently_snoozed pending-items))]
     (render-scroll-column
      (when writable?
        (render-new-item-form list-id))
-     (when (and (> n-snoozed-items 0)
-                (not include-snoozed?))
-       [:div.snoozed-item-warning
-        n-snoozed-items " item" (if (= n-snoozed-items 1) "" "s" ) " snoozed for later. "
-        "Click " [:a {:href (shref "" {:include-snoozed "Y"})} "here"] " to show."])
      [:div.toplevel-list.item-list
       (let [display-items (if include-snoozed?
                             pending-items
@@ -161,6 +161,9 @@
           (list
            (map #(render-droppable-todo-item % writable?) display-items)
            (drop-target (+ 1 (apply max (map :item_ordinal display-items)))))))]
+     (when (and (> n-snoozed-items 0)
+                (not include-snoozed?))
+       (render-snoozed-item-warning n-snoozed-items))
      (render-todo-list-query-settings list-id completed-within-days include-snoozed?))))
 
 (defn render-todo-list-csv [  list-id ]
