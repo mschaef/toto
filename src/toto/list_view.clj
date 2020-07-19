@@ -59,7 +59,7 @@
    img-bars])
 
 (defn drop-target [ item-ordinal ]
-  [:div.order-drop-target {:ordinal item-ordinal} "&nbsp;"])
+  [:div.order-drop-target {:ordinal item-ordinal :priority "0"} "&nbsp;"])
 
 (defn- render-todo-item [ item-info writable? ]
   (let [{item-id :item_id
