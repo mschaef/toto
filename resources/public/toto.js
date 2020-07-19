@@ -212,22 +212,26 @@ function doSetItemOrder(itemId, newItemOrdinal, newItemPriority) {
 function makeDropTarget(el, onDrop) {
     var dragCount = 0;
 
+    function updateTarget() {
+        if (dragCount > 0) {
+            el.classList.add('drop-hover');
+        } else {
+            el.classList.remove('drop-hover');
+        }
+    }
+
     el.ondragenter = function(ev) {
         ev.preventDefault();
 
-        if (!dragCount)
-            el.classList.add('drop-hover');
-
         dragCount++;
+        updateTarget();
     };
 
     el.ondragleave = function(ev) {
         ev.preventDefault();
 
         dragCount--;
-
-        if (!dragCount)
-            el.classList.remove('drop-hover');
+        updateTarget();
     };
 
     el.ondragover = function(ev) {
@@ -238,9 +242,16 @@ function makeDropTarget(el, onDrop) {
         ev.preventDefault();
 
         dragCount = 0;
-        el.classList.remove('drop-hover');
+        updateTarget();
 
         onDrop(ev);
+    };
+
+    el.ondragend = function(ev) {
+        ev.preventDefault();
+
+        dragCount = 0;
+        updateTarget();
     };
 }
 
