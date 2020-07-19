@@ -58,6 +58,9 @@
                      :class class}
    img-bars])
 
+(defn drop-target [ item-ordinal ]
+  [:div.order-drop-target {:ordinal item-ordinal} "&nbsp;"])
+
 (defn- render-todo-item [ item-info writable? ]
   (let [{item-id :item_id
          is-complete? :is_complete
@@ -72,6 +75,7 @@
      {:id (str "item_row_" item-id)
       :itemid item-id
       :ordinal (:item_ordinal item-info)
+      :priority priority
       :class (class-set {"high-priority" (> priority 0)
                          "snoozed" currently-snoozed})}
      (item-drag-handle "left" item-info)

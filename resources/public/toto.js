@@ -195,15 +195,14 @@ function doMoveItem(itemId, newListId) {
     }).then(res => location.reload(false));
 }
 
-function doSetItemOrdinal(itemId, newItemOrdinal) {
-    console.log('>>> setItemOrdinal: ', itemId, newItemOrdinal);
-
+function doSetItemOrder(itemId, newItemOrdinal, newItemPriority) {
     var formData = new FormData();
 
     formData.append("target-item", itemId);
     formData.append("new-ordinal", newItemOrdinal);
+    formData.append("new-priority", newItemPriority);
 
-    fetch("/item-ordinal", {
+    fetch("/item-order", {
         body: formData,
         method: "post",
         credentials: "same-origin"
@@ -256,7 +255,7 @@ function setupItemDragging() {
             ev.dataTransfer.setData('text/plain', itemId);
 
             var rowElem = elemById("item_row_" + itemId);
-            
+
             ev.dataTransfer.setDragImage(rowElem, 0, 0);
         };
     });
@@ -267,8 +266,9 @@ function setupItemDragging() {
 
             var itemId = ev.dataTransfer.getData("text/plain");
             var newItemOrdinal = ev.currentTarget.getAttribute('ordinal');
+            var newItemPriority = ev.currentTarget.getAttribute('priority');
 
-            doSetItemOrdinal(itemId, newItemOrdinal);
+            doSetItemOrder(itemId, newItemOrdinal, newItemPriority);
         });
     });
 

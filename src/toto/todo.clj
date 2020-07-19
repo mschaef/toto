@@ -92,10 +92,11 @@
     (data/add-todo-item (current-user-id) list-id item-description item-priority))
   (redirect-to-list list-id))
 
-(defn update-item-ordinal [ item-id new-ordinal referrer ]
+(defn update-item-order [ item-id new-ordinal new-priority referrer ]
   (let [list-id (data/get-list-id-by-item-id item-id)]
     (data/shift-list-items! list-id new-ordinal)
-    (data/update-item-ordinal! item-id new-ordinal))
+    (data/update-item-ordinal! item-id new-ordinal)
+    (data/update-item-priority-by-id (current-user-id) item-id new-priority))
   (ring/redirect referrer))
 
 (defn update-item-desc [ item-id item-description referrer ]
@@ -222,10 +223,12 @@
      (ensure-list-owner-access target-list)
      (update-item-list target-item target-list))
 
-   (POST "/item-ordinal" {{ target-item :target-item new-ordinal :new-ordinal} :params
-                          headers :headers }
+   (POST "/item-order" {{target-item :target-item
+                         new-ordinal :new-ordinal
+                         new-priority :new-priority} :params
+                        headers :headers }
      (ensure-item-access target-item)
-     (update-item-ordinal target-item new-ordinal (get headers "referer")))
+     (update-item-order target-item new-ordinal new-priority (get headers "referer")))
 
    (context "/item/:item-id" [ item-id ]
      (item-routes item-id))))
