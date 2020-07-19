@@ -68,10 +68,12 @@
          created-by-id :created_by_id
          created-by-name :created_by_name} 
         item-info]
-    [:div.item-row {:id (str "item_row_" item-id)
-                    :itemid item-id
-                    :class (class-set {"high-priority" (> priority 0)
-                                       "snoozed" currently-snoozed})}
+    [:div.item-row.order-drop-target
+     {:id (str "item_row_" item-id)
+      :itemid item-id
+      :ordinal (:item_ordinal item-info)
+      :class (class-set {"high-priority" (> priority 0)
+                         "snoozed" currently-snoozed})}
      (item-drag-handle "left" item-info)
      (when writable?
        [:div.item-control.complete {:id (str "item_control_" item-id)}
@@ -133,13 +135,6 @@
    [:p
     "To get started, you can add new items in the box above."]])
 
-(defn drop-target [ item-ordinal ]
-  [:div.order-drop-target {:ordinal item-ordinal} "&nbsp;"])
-
-(defn render-droppable-todo-item [ item-info writable? ]
-  (list
-   (drop-target (:item_ordinal item-info))
-   (render-todo-item item-info writable?)))
 
 (defn- render-snoozed-item-warning [ n-snoozed-items ]
   [:div.snoozed-item-warning
@@ -159,7 +154,7 @@
         (if (= (count display-items) 0)
           (render-empty-list)
           (list
-           (map #(render-droppable-todo-item % writable?) display-items)
+           (map #(render-todo-item % writable?) display-items)
            (drop-target (+ 1 (apply max (map :item_ordinal display-items)))))))]
      (when (and (> n-snoozed-items 0)
                 (not include-snoozed?))
