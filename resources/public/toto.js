@@ -78,18 +78,24 @@ function doubleTapFilter(onSingleTap, onDoubleTap) {
 
 sidebarVisible = false;
 
-function toggleSidebar() {
+function onToggleSidebar(evt) {
+    evt.preventDefault();
+
     var menu = elem('sidebar');
+
+    if (menu.contains(evt.target)) {
+        return;
+    }
 
     sidebarVisible = !sidebarVisible;
 
     menu.classList.toggle('menu-visible', sidebarVisible);
-}
 
-function onToggleSidebar(e) {
-    e.preventDefault();
-
-    toggleSidebar();
+    if(sidebarVisible) {
+        document.addEventListener("mousedown", onToggleSidebar);
+    } else {
+        document.removeEventListener("mousedown", onToggleSidebar);
+    }
 }
 
 function refreshPage()
