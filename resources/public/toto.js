@@ -57,7 +57,7 @@ function doubleTapFilter(onSingleTap, onDoubleTap) {
     var doubletapTimer_ = null;
 
     function doubletapTimeout() {
-        if(onSingleTap) {
+        if(onSingleTap) { 
             onSingleTap();
         }
         doubletapTimer_ = null;
@@ -123,10 +123,9 @@ function beginUserAdd(listId)
 
 function beginItemEdit(itemId)
 {
-  var formMarkup = "";
-
   var itemDesc = elemById('item_desc_' + itemId).textContent;
 
+  var formMarkup = "";
   formMarkup += "<form class=\"embedded\" action=\"/item/" + itemId + "/delete\" method=\"POST\">";
   formMarkup += "<button type=\"submit\" class=\"item-button\"><i class=\"fa fa-trash-o icon-black\"></i></button>";
   formMarkup += "</form>";
@@ -134,7 +133,6 @@ function beginItemEdit(itemId)
   elemById('item_control_' + itemId).innerHTML = formMarkup;
 
   formMarkup = "";
-
   formMarkup += "<form id=\"iedit_" + itemId + "\"  class=\"embedded\" action=\"/item/" + itemId + "\" method=\"POST\">";
   formMarkup += "<input class=\"full-width simple-border\" id=\"iedit_" + itemId + "_description\" name=\"description\" type=\"text\"/>";
   formMarkup += "</form>";
@@ -179,9 +177,6 @@ var pageInit = {};
 
 function setupEditableItems() {
     foreach_elem('.item-list .item-row .item-description', function(el) {
-        el.ontouchstart = doubleTapFilter(null, function(obj) {
-            beginItemEdit(el.getAttribute('itemid'));
-        });
         el.onclick = doubleTapFilter(null, function(obj) {
             beginItemEdit(el.getAttribute('itemid'));
         });
@@ -303,8 +298,6 @@ function setupItemDragging() {
 
 
 function submitHighPriority() {
-    console.log('onclick');
-
     var form = elemBySelector('.new-item-form');
     var priorityField = elemBySelector('.new-item-form #item-priority');
 
