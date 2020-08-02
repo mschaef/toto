@@ -35,7 +35,7 @@
                 (render-list-star-control list-id priority)]
                [:div.item-control
                 (render-list-arrow-control list-id priority)]
-               [:div.item
+               [:div.item-description
                 [:a {:href (shref "/list/" list-id)}
                  (hiccup.util/escape-html (:desc list))]
                 [:span.pill (:item_count list)]

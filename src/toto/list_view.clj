@@ -69,9 +69,9 @@
          snoozed-until :snoozed_until
          currently-snoozed :currently_snoozed
          created-by-id :created_by_id
-         created-by-name :created_by_name} 
+         created-by-name :created_by_name}
         item-info]
-    [:div.item-row.order-drop-target
+    [:div.item-row.order-drop-target.todo-item
      {:id (str "item_row_" item-id)
       :itemid item-id
       :ordinal (:item_ordinal item-info)
@@ -92,10 +92,10 @@
          [:div { :id (str "item_desc_" item-id) :class "hidden"}
           (hiccup.util/escape-html desc)]
          [:div {:id (str "item_" item-id)
-                :class (class-set {"deleted_item" is-deleted?
-                                   "completed_item" is-complete?})}
+                :class (class-set {"deleted-item" is-deleted?
+                                   "completed-item" is-complete?})}
           (render-item-text desc)
-          ;; (:item_ordinal item-info)
+          ;;(:item_ordinal item-info)
           (snooze-item-button item-info [:span.pill (render-age (:age_in_days item-info))])
           (when currently-snoozed
             (unsnooze-item-button item-info [:span.pill "snoozed"]))
@@ -151,7 +151,7 @@
     (render-scroll-column
      (when writable?
        (render-new-item-form list-id))
-     [:div.toplevel-list.item-list
+     [:div.toplevel-list
       (let [display-items (if include-snoozed?
                             pending-items
                             (remove :currently_snoozed pending-items))]

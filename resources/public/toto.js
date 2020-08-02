@@ -57,9 +57,10 @@ function doubleTapFilter(onSingleTap, onDoubleTap) {
     var doubletapTimer_ = null;
 
     function doubletapTimeout() {
-        if(onSingleTap) { 
+        if (onSingleTap) {
             onSingleTap();
         }
+
         doubletapTimer_ = null;
     }
 
@@ -86,6 +87,14 @@ function onToggleSidebar(evt) {
     if (menu.contains(evt.target)) {
         return;
     }
+
+    doToggleSidebar(evt);
+}
+
+function doToggleSidebar(evt) {
+    evt.preventDefault();
+
+    var menu = elem('sidebar');
 
     sidebarVisible = !sidebarVisible;
 
@@ -152,9 +161,11 @@ function setupSidebar() {
 
     var closeMenu = elemOptional('close-menu');
 
+    console.log('cm >>>', closeMenu);
+
     if (closeMenu) {
-        closeMenu.ontouchstart = onToggleSidebar;
-        closeMenu.onclick = onToggleSidebar;
+        closeMenu.ontouchstart = doToggleSidebar;
+        closeMenu.onclick = doToggleSidebar;
     }
 };
 
@@ -257,7 +268,7 @@ function makeDropTarget(el, onDrop) {
 }
 
 function setupItemDragging() {
-    foreach_elem(".item-list .item-row .drag-handle", function(el) {
+    foreach_elem(".todo-item .drag-handle", function(el) {
         el.setAttribute('draggable', true);
 
         el.ondragstart = function(ev) {
@@ -272,7 +283,7 @@ function setupItemDragging() {
         };
     });
 
-    foreach_elem('.item-list .order-drop-target', function(el) {
+    foreach_elem('.todo-item.order-drop-target', function(el) {
         makeDropTarget(el, function(ev) {
             ev.preventDefault();
 

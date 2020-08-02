@@ -75,16 +75,17 @@
     [:span.logout
      [:a {:href "/user/password-change"} username]
      [:span.logout-control " - " (logout-button)]]]
-   sidebar
-   [:div.copyright
-    "&#9400; 2015-2020 East Coast Toolworks "]])
+   [:div.sidebar-content
+    sidebar
+    [:div.copyright
+     "&#9400; 2015-2020 East Coast Toolworks "]]])
 
 (defn- render-page-body [ page-title username sidebar contents ]
   [:body
    (render-header page-title username (not (nil? sidebar)))
+   (if sidebar
+     (render-sidebar username sidebar))
    [:div.contents {:class (class-set { "with-sidebar" sidebar })}
-    (if sidebar
-      (render-sidebar username sidebar))
     contents]])
 
 (defn render-page [{ :keys [ page-title init-map sidebar ] }  & contents]
