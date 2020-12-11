@@ -232,9 +232,10 @@
      0))
 
 (defn get-next-list-ordinal [ todo-list-id ]
-  (+ 1 (scalar (query/get-max-ordinal-by-list {:list_id todo-list-id}
-                                              { :connection *db*})
-               0)))
+  (- (scalar (query/get-min-ordinal-by-list { :list_id todo-list-id }
+                                            { :connection *db*})
+             0)
+     1))
 
 (defn add-todo-item [ user-id todo-list-id desc priority ]
   (:item_id (first

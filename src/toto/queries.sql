@@ -134,6 +134,12 @@ SELECT MAX(item_ordinal)
  WHERE todo_list_id = :list_id
    AND NOT (item.is_deleted OR item.is_complete)
 
+-- name: get-min-ordinal-by-list
+SELECT MIN(item_ordinal)
+  FROM todo_item item
+ WHERE todo_list_id = :list_id
+   AND NOT (item.is_deleted OR item.is_complete)
+
 -- name: set-item-completion!
 MERGE INTO todo_item_completion
    USING (VALUES(:item_id, :user_id, :completed_on, :is_delete))
