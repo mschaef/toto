@@ -91,6 +91,11 @@
         [:a { :href (shref "/list/" list-id "/list.csv" ) } "Download List as CSV"]]
 
        [:div.config-panel
+        [:h1  "Sort List"]
+        [:input {:type "submit" :value "Sort List" :formaction (shref "/list/" list-id "/sort")}]
+        [:p "Sort list by item description."]]
+
+       [:div.config-panel
         [:h1  "Delete List"]
         (if (data/empty-list? list-id)
           (list

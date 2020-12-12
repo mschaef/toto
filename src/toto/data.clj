@@ -257,6 +257,11 @@
                             :completed_within_days (- completed-within-days)}
                            { :connection *db* }))
 
+(defn get-pending-item-order-by-description [ list-id ]
+  (query/get-pending-item-order-by-description {:list_id list-id}
+                                               { :connection *db* }))
+
+
 (defn get-pending-item-count [ list-id ]
   (scalar
    (query/get-pending-item-count { :list_id list-id }
@@ -283,6 +288,14 @@
                                        :begin_ordinal begin-ordinal}
                                       { :connection *db* })]
     (update-item-ordinal! (:item_id item) (+ 1 (:item_ordinal item)))))
+
+(defn set-items-order! [ item-ids ]
+  (doseq [ [ item-id item-ordinal ] (sequence (map vector) item-ids (range)) ]
+    (update-item-ordinal! item-id item-ordinal)))
+
+(defn order-list-items-by-description! [ list-id ]
+  (set-items-order!
+   (map :item_id (get-pending-item-order-by-description list-id))))
 
 (defn update-item-by-id! [ user-id item-id values ]
   (jdbc/with-db-transaction [ trans *db* ]

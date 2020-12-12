@@ -48,6 +48,10 @@
   (data/delete-list list-id)
   (redirect-to-home))
 
+(defn sort-list [ list-id ]
+  (data/order-list-items-by-description! list-id)
+  (redirect-to-list list-id))
+
 (defn get-user-id-by-email [ email ]
   (if-let [ user-info (data/get-user-by-email email) ]
     (user-info :user_id)
@@ -177,6 +181,9 @@
 
    (POST "/delete" []
      (delete-list list-id))
+
+   (POST "/sort" []
+     (sort-list list-id))
 
    (POST "/" { { item-description :item-description item-priority :item-priority } :params }
      (add-item list-id (string-leftmost item-description 1024) item-priority))))
