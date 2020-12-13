@@ -1,6 +1,7 @@
 (ns toto.view-utils
   (:use [slingshot.slingshot :only (throw+ try+)])
   (:require [clojure.tools.logging :as log]
+            [clojure.data.json :as json]
             [cemerick.friend :as friend]
             [hiccup.form :as form]))
 
@@ -67,14 +68,12 @@
 (defn render-scroll-column [ title & contents ]
   [:div.scroll-column
    [:div.fixed title]
-   [:div.scrollable contents]])
+   [:div#scroll-list.scrollable  { :data-preserve-scroll "true" }
+    contents]])
 
 (defn post-button [ target args desc body ]
-  (form/form-to { :class "embedded" } [:post target]
-                (map (fn [[key val]]
-                       [:input {:type "hidden" :name key :value val}])
-                     args)
-                [:button.item-button {:type "submit" :value desc :title desc} body]))
+  [:span.clickable {:onclick (str "doPost('" target "'," (json/write-str args) ")")}
+   body])
 
 (defn item-priority-button [ item-id new-priority image-spec writable? ]
   (if writable?

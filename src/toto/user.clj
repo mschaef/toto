@@ -129,7 +129,7 @@
 
 (defn render-new-user-form [ & { :keys [ error-message ]}]
   (view/render-page {:page-title "New User Registration"
-                     :init-map { :page "new-user" }}
+                     :page-data-class "init-new-user"}
    (form/form-to
     {:class "auth-form"}
     [:post "/user"]

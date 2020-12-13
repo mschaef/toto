@@ -3,8 +3,7 @@
         clojure.set
         hiccup.core
         toto.view-utils)
-  (:require [clojure.data.json :as json]
-            [cemerick.friend :as friend]
+  (:require [cemerick.friend :as friend]
             [hiccup.form :as form]
             [hiccup.page :as page]))
 
@@ -27,23 +26,18 @@
 (defn- resource [ path ]
   (str "/" (get-version) "/" path))
 
-(defn- standard-includes [ init-map ]
-  (list
-   (page/include-css (resource "toto.css")
-                     (resource "font-awesome.min.css"))
-   (page/include-js (resource "toto.js"))
-   (page/include-js (resource "DragDropTouch.js"))
-   [:script
-    "totoInitialize(" (json/write-str init-map) ");"]))
-
-(defn- render-standard-header [ page-title init-map ]
+(defn- render-standard-header [ page-title ]
   [:head
    [:meta {:name "viewport"
            ;; user-scalable=no fails to work on iOS n where n > 10
            :content "width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0"}]
    [:title app-name (when page-title (str " - " page-title))]
    [:link { :rel "shortcut icon" :href (resource "favicon.ico")}]
-   (standard-includes init-map)])
+   (page/include-css (resource "toto.css")
+                     (resource "font-awesome.min.css"))
+   (page/include-js "https://cdnjs.cloudflare.com/ajax/libs/turbolinks/5.2.0/turbolinks.js")
+   (page/include-js (resource "toto.js"))
+   (page/include-js (resource "DragDropTouch.js"))])
 
 (defn- render-footer [ username ]
   [:div.footer
@@ -51,7 +45,7 @@
    (when username
      [:div.logout username " - " (logout-button)])])
 
-(defn- render-header [ page-title username show-menu?]
+(defn- render-header [ page-title username show-menu? ]
   [:div.header
    (when show-menu?
      [:span.toggle-menu img-show-list "&nbsp;"])
@@ -75,23 +69,24 @@
     [:span.logout
      [:a {:href "/user/password-change"} username]
      [:span.logout-control " - " (logout-button)]]]
-   [:div.sidebar-content
+   [:div#sidebar.sidebar-content { :data-preserve-scroll "true" }
     sidebar
     [:div.copyright
      "&#9400; 2015-2020 East Coast Toolworks "]]])
 
-(defn- render-page-body [ page-title username sidebar contents ]
-  [:body
+(defn- render-page-body [ page-data-class page-title username sidebar contents ]
+  [:body (if page-data-class
+           {:data-class page-data-class})
    (render-header page-title username (not (nil? sidebar)))
    (if sidebar
      (render-sidebar username sidebar))
    [:div.contents {:class (class-set { "with-sidebar" sidebar })}
     contents]])
 
-(defn render-page [{ :keys [ page-title init-map sidebar ] }  & contents]
+(defn render-page [{ :keys [ page-title page-data-class sidebar ] }  & contents]
   (let [username (current-identity)]
     (html [:html
-           (render-standard-header page-title (merge {} init-map))
-           (render-page-body page-title username sidebar contents)])))
+           (render-standard-header page-title)
+           (render-page-body page-data-class page-title username sidebar contents)])))
 
 

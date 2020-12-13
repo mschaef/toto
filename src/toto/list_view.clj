@@ -170,12 +170,12 @@
 
 (defn render-todo-list-page [ selected-list-id completed-within-days snoozed-for-days ]
   (view/render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)
-                     :init-map { :page "todo-list" }
+                     :page-data-class "todo-list"
                      :sidebar (sidebar-view/render-sidebar-list-list selected-list-id snoozed-for-days)}
                     (render-todo-list selected-list-id true completed-within-days snoozed-for-days)))
 
 (defn render-todo-list-public-page [ selected-list-id ]
   (view/render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)
-                     :init-map { :page "todo-list" }}
+                     :page-data-class "todo-list"}
                     (render-todo-list selected-list-id false 0 0)))
 

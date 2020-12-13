@@ -1,6 +1,8 @@
 
 /* toto.js */
 
+Turbolinks.start();
+
 function elemOptional(klass) {
     var elements = document.getElementsByClassName(klass);
 
@@ -21,8 +23,12 @@ function elem(klass) {
     return element;
 }
 
+function elemOptionalById(id) {
+    return document.getElementById(id);
+}
+
 function elemById(id) {
-    var element = document.getElementById(id);
+    var element = elemOptionalById(id);
 
     if(!element) {
         console.error('Expected missing element with id: ' + id);
@@ -109,15 +115,8 @@ function doToggleSidebar(evt) {
 
 function refreshPage()
 {
-    location.reload();
-}
-
-function deleteItem(itemId) {
-    fetch("/item/" + itemId + "/delete", {
-        method: 'POST'
-    }).then(function(data) {
-        refreshPage();
-    });
+    saveScrolls();
+    Turbolinks.visit(location);
 }
 
 function beginUserAdd(listId)
@@ -161,8 +160,6 @@ function setupSidebar() {
 
     var closeMenu = elemOptional('close-menu');
 
-    console.log('cm >>>', closeMenu);
-
     if (closeMenu) {
         closeMenu.ontouchstart = doToggleSidebar;
         closeMenu.onclick = doToggleSidebar;
@@ -182,16 +179,39 @@ function checkPasswords()
         errDiv.innerHTML = "";
 }
 
-var pageInit = {};
-
 //////// todo list
 
 function setupEditableItems() {
-    foreach_elem('.item-list .item-row .item-description', function(el) {
+    foreach_elem('.toplevel-list .item-row .item-description', function(el) {
         el.onclick = doubleTapFilter(null, function(obj) {
             beginItemEdit(el.getAttribute('itemid'));
         });
     });
+}
+
+function doPost(baseUrl, args) {
+    var queryArgs = [];
+
+    for(const argName in args) {
+        queryArgs.push((argName + '=' + args[argName]));
+    }
+
+    var url = baseUrl;
+
+    if (queryArgs.length) {
+        url += ('?' + queryArgs.join('&'));
+    }
+
+    fetch(url, {
+        method: 'POST'
+    }).then(res => {
+        Turbolinks.clearCache();
+        refreshPage();
+    });
+}
+
+function deleteItem(itemId) {
+    updateItem(itemId, 'delete');
 }
 
 function doMoveItem(itemId, newListId) {
@@ -202,9 +222,8 @@ function doMoveItem(itemId, newListId) {
 
     fetch("/item-list", {
         body: formData,
-        method: "post",
-        credentials: "same-origin"
-    }).then(res => location.reload(false));
+        method: "post"
+    }).then(res => refreshPage());
 }
 
 function doSetItemOrder(itemId, newItemOrdinal, newItemPriority) {
@@ -216,9 +235,8 @@ function doSetItemOrder(itemId, newItemOrdinal, newItemPriority) {
 
     fetch("/item-order", {
         body: formData,
-        method: "post",
-        credentials: "same-origin"
-    }).then(res => location.reload(false));
+        method: "post"
+    }).then(res => refreshPage());
 }
 
 function makeDropTarget(el, onDrop) {
@@ -325,30 +343,53 @@ function onNewItemInputKeydown(event) {
     }
 }
 
-pageInit["todo-list"] = function () {
+function initTodoList() {
     setupEditableItems();
     setupItemDragging();
 };
 
-pageInit["new-user"] = function () {
+function initNewUser() {
     elemById("password1").onkeyup = checkPasswords;
     elemById("password1").onchange = checkPasswords;
     elemById("password2").onkeyup = checkPasswords;
     elemById("password2").onchange = checkPasswords;
 };
 
-function pageInitializer(initMap) {
-    return function() {
-        var pageInitFn = pageInit[initMap.page];
+const initFns = {
+    'todo-list': initTodoList,
+    'init-new-user': initNewUser
+};
 
-        if (pageInitFn != null) {
-            pageInitFn();
+document.addEventListener("turbolinks:load", function() {
+    let body = document.getElementsByTagName('body')[0];
+
+    let initFn = initFns[body.getAttribute('data-class')];
+
+    if (initFn) {
+        initFn();
+    }
+});
+
+Turbolinks.savedScrolls = {};
+
+function saveScrolls() {
+    let nodes = document.querySelectorAll("[data-preserve-scroll=true]");
+
+    foreach_elem("[data-preserve-scroll=true]", function(elem) {
+        Turbolinks.savedScrolls[elem.id] = elem.scrollTop;
+    });
+}
+
+document.addEventListener("turbolinks:before-visit", function(event) {
+    saveScrolls();
+});
+
+document.addEventListener("turbolinks:render", function(event) {
+    for(const id in Turbolinks.savedScrolls) {
+        const elem = elemOptionalById(id);
+
+        if (elem) {
+            elem.scrollTop = Turbolinks.savedScrolls[elem.id];
         }
-
-        setupSidebar();
-    };
-}
-
-function totoInitialize(initMap) {
-    document.addEventListener('DOMContentLoaded', pageInitializer(initMap));
-}
+    }
+});

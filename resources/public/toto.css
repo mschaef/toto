@@ -94,10 +94,6 @@ body {
 }
 
 @media only screen and (min-device-width : 640px) {
-    form {
-        width: 640px;
-    }
-
     .sidebar {
         padding-top: 40px;
         z-index: 1;
@@ -466,6 +462,7 @@ input {
 .toplevel-list .item-description {
     width: 100%;
     white-space: normal;
+    box-sizing: border-box;
 }
 
 .order-drop-target.drop-hover {
@@ -665,6 +662,10 @@ input {
     border: 0px none;
     background: transparent;
     padding: 0.2em;
+    cursor: pointer;
+}
+
+.clickable {
     cursor: pointer;
 }
 
