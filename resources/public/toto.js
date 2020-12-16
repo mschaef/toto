@@ -1,8 +1,6 @@
 
 /* toto.js */
 
-Turbolinks.start();
-
 function elemOptional(klass) {
     var elements = document.getElementsByClassName(klass);
 
@@ -385,6 +383,8 @@ document.addEventListener("turbolinks:before-visit", function(event) {
 });
 
 document.addEventListener("turbolinks:render", function(event) {
+    setupSidebar();
+
     for(const id in Turbolinks.savedScrolls) {
         const elem = elemOptionalById(id);
 
@@ -393,3 +393,12 @@ document.addEventListener("turbolinks:render", function(event) {
         }
     }
 });
+
+// startup
+
+document.addEventListener('DOMContentLoaded', function() {
+    Turbolinks.start();
+    setupSidebar();
+}, false);
+
+

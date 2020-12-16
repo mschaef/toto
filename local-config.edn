@@ -2,5 +2,5 @@
  :development-mode true
 
  :base-url "http://localhost:8080/"
- :smtp {:enabled true
+ :smtp {:enabled false
         :from "mike@mschaef.com"}}
