@@ -594,8 +594,6 @@ input {
 
 .item-description {
     padding-left: 6px;
-
-    display: flex;
 }
 
 .item-description .embedded {
@@ -629,16 +627,25 @@ input {
 
     padding-top: 4px;
     padding-bottom: 8px;
+
+    min-height: 35px;
+}
+
+@media only screen and (min-device-width : 640px) {
+    .item-row {
+        min-height: 28px;
+    }
 }
 
 .item-row .drag-handle {
-    display: auto;
-        padding: 0px 15px 15px 9px;
+    padding: 0px 25px 0px 15px;
+    font-size: 1.25em;
 }
 
 @media only screen and (min-device-width : 640px) {
     .item-row .drag-handle {
         padding: 3px 6px 3px 3px;
+        font-size: inherit;
     }
 }
 

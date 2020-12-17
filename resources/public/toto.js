@@ -385,6 +385,12 @@ document.addEventListener("turbolinks:before-visit", function(event) {
 document.addEventListener("turbolinks:render", function(event) {
     setupSidebar();
 
+    const autofocusedElements = document.querySelectorAll('input[autofocus]');
+
+    if (autofocusedElements.length) {
+        autofocusedElements[0].focus();
+    }
+
     for(const id in Turbolinks.savedScrolls) {
         const elem = elemOptionalById(id);
 
