@@ -304,8 +304,17 @@ input {
     flex: 0;
 }
 
+.auth-form {
+    width: auto;
+}
 
-.auth-form input {
+@media only screen and (min-device-width : 640px) {
+    .auth-form {
+        width: 480px;
+    }
+}
+
+.auth-form input[type=text], .auth-form input[type=password] {
     display: block;
     width: 100%;
     margin-bottom: 5px;
@@ -319,6 +328,9 @@ input {
     width: 32px;
 }
 
+input[type=text], input[type=password] {
+    padding: 8px;
+}
 
 .header a.click {
     padding-left: 0.5em;
@@ -360,7 +372,7 @@ input {
 
 .simple-border {
     border-bottom: 1px solid #b0b0b0;
-    border-top: 0px none;
+    border-top: 1px solid #f0f0f0;
     border-right: 0px none;
     border-left: 0px none;
     background: #f0f0f0;

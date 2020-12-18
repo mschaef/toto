@@ -245,7 +245,7 @@
 (defn render-change-password-form  [ & { :keys [ error-message ]}]
   (let [user (data/get-user-by-email (current-identity))]
     (view/render-page { :page-title "Change Password" }
-                      (form/form-to
+                      (form/form-to {:class "auth-form"}
                        [:post "/user/password-change"]
                        [:input {:type "hidden"
                                 :name "username"
