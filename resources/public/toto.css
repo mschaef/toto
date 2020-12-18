@@ -645,7 +645,7 @@ input[type=text], input[type=password] {
 
 @media only screen and (min-device-width : 640px) {
     .item-row {
-        min-height: 28px;
+        min-height: 20px;
     }
 }
 
