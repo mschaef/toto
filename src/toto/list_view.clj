@@ -9,16 +9,16 @@
             [toto.sidebar-view :as sidebar-view]))
 
 (defn- complete-item-button [ item-info ]
-  (post-button (shref "/item/" (item-info :item_id) "/complete") {} "Complete Item" img-check))
+  (post-button (str "/item/" (item-info :item_id) "/complete") {} "Complete Item" img-check))
 
 (defn- restore-item-button [ item-info ]
-  (post-button (shref "/item/" (item-info :item_id) "/restore") {}  "Restore Item" img-restore))
+  (post-button (str "/item/" (item-info :item_id) "/restore") {}  "Restore Item" img-restore))
 
 (defn- snooze-item-button [ item-info body ]
-  (post-button (shref "/item/" (item-info :item_id) "/snooze") {:snooze-days 1} "Snooze Item 1 Day" body))
+  (post-button (str "/item/" (item-info :item_id) "/snooze") {:snooze-days 1} "Snooze Item 1 Day" body))
 
 (defn- unsnooze-item-button [ item-info body ]
-  (post-button (shref "/item/" (item-info :item_id) "/snooze") {:snooze-days 0} "Un-snooze Item" body))
+  (post-button (str "/item/" (item-info :item_id) "/snooze") {:snooze-days 0} "Un-snooze Item" body))
 
 (defn- render-new-item-form [ list-id ]
   (form/form-to

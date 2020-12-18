@@ -77,7 +77,7 @@
 
 (defn item-priority-button [ item-id new-priority image-spec writable? ]
   (if writable?
-    (post-button (shref "/item/" item-id "/priority") {:new-priority new-priority}
+    (post-button (str "/item/" item-id "/priority") {:new-priority new-priority}
                  "Set Priority" image-spec)
     image-spec))
 

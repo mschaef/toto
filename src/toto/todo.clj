@@ -96,12 +96,15 @@
     (data/add-todo-item (current-user-id) list-id item-description item-priority))
   (redirect-to-list list-id))
 
+(defn success []
+  (ring/response "ok"))
+
 (defn update-item-order [ item-id new-ordinal new-priority referrer ]
   (let [list-id (data/get-list-id-by-item-id item-id)]
     (data/shift-list-items! list-id new-ordinal)
     (data/update-item-ordinal! item-id new-ordinal)
     (data/update-item-priority-by-id (current-user-id) item-id new-priority))
-  (ring/redirect referrer))
+  (success))
 
 (defn update-item-desc [ item-id item-description referrer ]
   (let [ list-id (data/get-list-id-by-item-id item-id)]
@@ -116,32 +119,33 @@
                                     (if (= snooze-days 0)
                                       nil
                                       (add-days (java.util.Date.) snooze-days)))
-    (ring/redirect referrer)))
+    (success)))
 
 (defn update-item-list [ item-id target-list-id ]
   (let [ original-list-id (data/get-list-id-by-item-id item-id)]
     (data/update-item-list (current-user-id) item-id target-list-id)
-    (redirect-to-list original-list-id)))
+    (success)))
 
 (defn update-item-priority [ item-id new-priority referrer ]
+  (log/info [ item-id new-priority referrer ])
   (let [ original-list-id (data/get-list-id-by-item-id item-id)]
     (data/update-item-priority-by-id (current-user-id) item-id new-priority)
-    (ring/redirect referrer)))
+    (success)))
 
 (defn complete-item [ item-id referrer ]
   (let [ list-id (data/get-list-id-by-item-id item-id)]
     (data/complete-item-by-id (current-user-id) item-id)
-    (ring/redirect referrer)))
+    (success)))
 
 (defn delete-item [ item-id referrer ]
   (let [ list-id (data/get-list-id-by-item-id item-id)]
     (data/delete-item-by-id (current-user-id) item-id)
-    (ring/redirect referrer)))
+    (success)))
 
 (defn restore-item [ item-id ]
   (let [ list-id (data/get-list-id-by-item-id item-id)]
     (data/restore-item (current-user-id) item-id)
-    (redirect-to-list list-id)))
+    (success)))
 
 (defn- public-routes [ config ]
   (routes
