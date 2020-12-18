@@ -99,20 +99,20 @@
 (defn success []
   (ring/response "ok"))
 
-(defn update-item-order [ item-id new-ordinal new-priority referrer ]
+(defn update-item-order [ item-id new-ordinal new-priority ]
   (let [list-id (data/get-list-id-by-item-id item-id)]
     (data/shift-list-items! list-id new-ordinal)
     (data/update-item-ordinal! item-id new-ordinal)
     (data/update-item-priority-by-id (current-user-id) item-id new-priority))
   (success))
 
-(defn update-item-desc [ item-id item-description referrer ]
+(defn update-item-desc [ item-id item-description ]
   (let [ list-id (data/get-list-id-by-item-id item-id)]
     (when (not (string-empty? item-description))
       (data/update-item-desc-by-id (current-user-id) item-id item-description))
-    (ring/redirect referrer)))
+    (success)))
 
-(defn update-item-snooze-days [ item-id snooze-days referrer ]
+(defn update-item-snooze-days [ item-id snooze-days ]
   (let [list-id (data/get-list-id-by-item-id item-id)
         snooze-days (or (parsable-integer? snooze-days) 0)]
     (data/update-item-snooze-by-id  (current-user-id) item-id
@@ -126,18 +126,17 @@
     (data/update-item-list (current-user-id) item-id target-list-id)
     (success)))
 
-(defn update-item-priority [ item-id new-priority referrer ]
-  (log/info [ item-id new-priority referrer ])
+(defn update-item-priority [ item-id new-priority ]
   (let [ original-list-id (data/get-list-id-by-item-id item-id)]
     (data/update-item-priority-by-id (current-user-id) item-id new-priority)
     (success)))
 
-(defn complete-item [ item-id referrer ]
+(defn complete-item [ item-id ]
   (let [ list-id (data/get-list-id-by-item-id item-id)]
     (data/complete-item-by-id (current-user-id) item-id)
     (success)))
 
-(defn delete-item [ item-id referrer ]
+(defn delete-item [ item-id ]
   (let [ list-id (data/get-list-id-by-item-id item-id)]
     (data/delete-item-by-id (current-user-id) item-id)
     (success)))
@@ -164,6 +163,7 @@
   (routes
    (GET "/" { params :params }
      (list-view/render-todo-list-page list-id
+                                      (parsable-integer? (:edit-item-id params))
                                       (or (parsable-integer? (:cwithin params)) 0)
                                       (and (:include-snoozed params)
                                            (= (:include-snoozed params) "Y"))))
@@ -196,22 +196,19 @@
   (ensure-item-access item-id)
   (routes
    (POST "/"  { params :params headers :headers }
-     (update-item-desc item-id (string-leftmost (:description params) 1024)
-                       (get headers "referer")))
+     (update-item-desc item-id (string-leftmost (:description params) 1024)))
 
    (POST "/snooze" { params :params headers :headers }
-     (update-item-snooze-days item-id (:snooze-days params)
-                              (get headers "referer")))
+     (update-item-snooze-days item-id (:snooze-days params)))
 
    (POST "/priority" { params :params headers :headers }
-     (update-item-priority item-id (:new-priority params)
-                           (get headers "referer")))
+     (update-item-priority item-id (:new-priority params)))
 
    (POST "/complete" { headers :headers }
-     (complete-item item-id (get headers "referer")))
+     (complete-item item-id))
 
    (POST "/delete" { headers :headers }
-     (delete-item item-id (get headers "referer")))
+     (delete-item item-id))
 
    (POST "/restore" [ ]
      (restore-item item-id))))
@@ -239,7 +236,7 @@
                          new-priority :new-priority} :params
                         headers :headers }
      (ensure-item-access target-item)
-     (update-item-order target-item new-ordinal new-priority (get headers "referer")))
+     (update-item-order target-item new-ordinal new-priority))
 
    (context "/item/:item-id" [ item-id ]
      (item-routes item-id))))

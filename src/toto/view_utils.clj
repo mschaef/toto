@@ -19,6 +19,13 @@
     (binding [ *query* (:query-params req) ]
       (app req))))
 
+(defn call-with-modified-query [ mfn f ]
+  (binding [ *query* (mfn *query*) ]
+    (f)))
+
+(defmacro with-modified-query [ mfn & body ]
+  `(call-with-modified-query ~mfn (fn [] ~@body)))
+
 (defn- normalize-param-map [ params ]
   (into {} (map (fn [[ param val]] [ (keyword param) val ])
                 params)))
