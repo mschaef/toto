@@ -140,7 +140,7 @@
 (defn delete-item [ item-id referrer ]
   (let [ list-id (data/get-list-id-by-item-id item-id)]
     (data/delete-item-by-id (current-user-id) item-id)
-    (success)))
+    (redirect-to-list list-id)))
 
 (defn restore-item [ item-id ]
   (let [ list-id (data/get-list-id-by-item-id item-id)]
