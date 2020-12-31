@@ -114,6 +114,7 @@ function doToggleSidebar(evt) {
 function refreshPage()
 {
     saveScrolls();
+    Turbolinks.clearCache();
     Turbolinks.visit(location);
 }
 
@@ -202,10 +203,7 @@ function doPost(baseUrl, args) {
 
     fetch(url, {
         method: 'POST'
-    }).then(res => {
-        Turbolinks.clearCache();
-        refreshPage();
-    });
+    }).then(refreshPage);
 }
 
 function deleteItem(itemId) {
@@ -221,7 +219,7 @@ function doMoveItem(itemId, newListId) {
     fetch("/item-list", {
         body: formData,
         method: "post"
-    }).then(res => refreshPage());
+    }).then(refreshPage);
 }
 
 function doSetItemOrder(itemId, newItemOrdinal, newItemPriority) {
@@ -234,7 +232,7 @@ function doSetItemOrder(itemId, newItemOrdinal, newItemPriority) {
     fetch("/item-order", {
         body: formData,
         method: "post"
-    }).then(res => refreshPage());
+    }).then(refreshPage);
 }
 
 function makeDropTarget(el, onDrop) {
