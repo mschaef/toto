@@ -28,6 +28,7 @@
                      :maxlength "1024"
                      :placeholder "New Item Description"
                      :autofocus "autofocus"
+                     :autocomplete "off"
                      :onkeydown "onNewItemInputKeydown(event)"}
                     "item-description")
    (form/hidden-field "item-priority" "0")

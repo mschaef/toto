@@ -255,6 +255,10 @@ input {
     display: flex;
 }
 
+input:focus {
+    outline: none;
+}
+
 .scroll-column .scrollable {
     flex: 1;
     overflow-y: auto;
