@@ -35,7 +35,7 @@
    [:link { :rel "shortcut icon" :href (resource "favicon.ico")}]
    (page/include-css (resource "toto.css")
                      (resource "font-awesome.min.css"))
-   (page/include-js "https://cdnjs.cloudflare.com/ajax/libs/turbolinks/5.2.0/turbolinks.js")
+   (page/include-js (resource "turbolinks.js"))
    (page/include-js (resource "toto.js"))
    (page/include-js (resource "DragDropTouch.js"))])
 
