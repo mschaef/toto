@@ -255,10 +255,15 @@ input {
     display: flex;
 }
 
+input:focus {
+    outline: none;
+}
+
 .scroll-column .scrollable {
     flex: 1;
-    overflow-y: scroll;
+    overflow-y: auto;
     padding-bottom: 100px;
+    padding-right: 12px;
 }
 
 /*** New Item Form ***/
@@ -289,7 +294,7 @@ input {
     margin-left: 3px;
     cursor: pointer;
 
-    border: 1px solid #f0f0f0;
+    border: none;
 }
 
 .new-item-form button.high-priority-submit i.icon-gray:hover {
@@ -350,7 +355,7 @@ input[type=text], input[type=password] {
 }
 
 .query-settings {
-    margin: 6px;
+    margin: 6px 0px 6px 0px;
     padding: 6px;
 
     right: 0px;

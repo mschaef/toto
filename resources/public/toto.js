@@ -187,10 +187,7 @@ function doPost(baseUrl, args) {
 
     fetch(url, {
         method: 'POST'
-    }).then(res => {
-        Turbolinks.clearCache();
-        refreshPage();
-    });
+    }).then(refreshPage);
 }
 
 function deleteItem(itemId) {
@@ -206,7 +203,7 @@ function doMoveItem(itemId, newListId) {
     fetch("/item-list", {
         body: formData,
         method: "post"
-    }).then(res => refreshPage());
+    }).then(refreshPage);
 }
 
 function doUpdateItem(itemId, newDescription, thenUrl) {
@@ -230,7 +227,7 @@ function doSetItemOrder(itemId, newItemOrdinal, newItemPriority) {
     fetch("/item-order", {
         body: formData,
         method: "post"
-    }).then(res => refreshPage());
+    }).then(refreshPage);
 }
 
 function makeDropTarget(el, onDrop) {
