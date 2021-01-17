@@ -8,6 +8,10 @@
             [toto.user :as user]
             [toto.sidebar-view :as sidebar-view]))
 
+(defmacro without-edit-id [ & body ]
+  `(with-modified-query #(dissoc % "edit-item-id")
+     ~@body))
+
 (defn- complete-item-button [ item-info ]
   (post-button (str "/item/" (item-info :item_id) "/complete") {} "Complete Item" img-check))
 
@@ -65,10 +69,6 @@
 
 (defn drop-target [ item-ordinal ]
   [:div.order-drop-target {:ordinal item-ordinal :priority "0"} "&nbsp;"])
-
-(defmacro without-edit-id [ & body ]
-  `(with-modified-query #(dissoc % "edit-item-id")
-     ~@body))
 
 (defn- render-todo-item [ list-id item-info writable? editing? ]
   (let [{item-id :item_id

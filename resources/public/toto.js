@@ -194,7 +194,8 @@ function doPost(baseUrl, args, nextUrl) {
     }
 
     fetch(url, {
-        method: 'POST'
+        method: 'POST',
+        credentials: 'include'
     }).then(doRefresh);
 }
 
@@ -206,7 +207,8 @@ function doMoveItem(itemId, newListId) {
 
     fetch("/item-list", {
         body: formData,
-        method: "post"
+        method: "POST",
+        credentials: 'include'
     }).then(refreshPage);
 }
 
@@ -217,7 +219,8 @@ function doUpdateItem(itemId, newDescription, thenUrl) {
 
     fetch("/item/" + itemId, {
         body: formData,
-        method: "post"
+        method: "POST",
+        credentials: 'include'
     }).then(() => visitPage(thenUrl));
 }
 
@@ -230,7 +233,8 @@ function doSetItemOrder(itemId, newItemOrdinal, newItemPriority) {
 
     fetch("/item-order", {
         body: formData,
-        method: "post"
+        method: "POST",
+        credentials: 'include'
     }).then(refreshPage);
 }
 
