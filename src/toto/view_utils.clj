@@ -19,6 +19,13 @@
     (binding [ *query* (:query-params req) ]
       (app req))))
 
+(defn call-with-modified-query [ mfn f ]
+  (binding [ *query* (mfn *query*) ]
+    (f)))
+
+(defmacro with-modified-query [ mfn & body ]
+  `(call-with-modified-query ~mfn (fn [] ~@body)))
+
 (defn- normalize-param-map [ params ]
   (into {} (map (fn [[ param val]] [ (keyword param) val ])
                 params)))
@@ -72,7 +79,13 @@
     contents]])
 
 (defn post-button [ target args desc body ]
-  [:span.clickable {:onclick (str "doPost('" target "'," (json/write-str args) ")")}
+  [:span.clickable
+   {:onclick (str "doPost('" target "'," (json/write-str args) ")")}
+   body])
+
+(defn post-button* [ target args desc body next-url ]
+  [:span.clickable
+   {:onclick (str "doPost('" target "'," (json/write-str args) ", '" next-url "')")}
    body])
 
 (defn item-priority-button [ item-id new-priority image-spec writable? ]

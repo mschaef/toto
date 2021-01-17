@@ -111,11 +111,16 @@ function doToggleSidebar(evt) {
     }
 }
 
-function refreshPage()
+function visitPage(target)
 {
     saveScrolls();
     Turbolinks.clearCache();
-    Turbolinks.visit(location);
+    Turbolinks.visit(target);
+}
+
+function refreshPage()
+{
+    visitPage(location);
 }
 
 function beginUserAdd(listId)
@@ -126,27 +131,6 @@ function beginUserAdd(listId)
 
   elem('new-user').outerHTML = formMarkup;
   elem('share-with-email').focus();
-}
-
-function beginItemEdit(itemId)
-{
-  var itemDesc = elemById('item_desc_' + itemId).textContent;
-
-  var formMarkup = "";
-  formMarkup += "<form class=\"embedded\" action=\"/item/" + itemId + "/delete\" method=\"POST\">";
-  formMarkup += "<button type=\"submit\" class=\"item-button\"><i class=\"fa fa-trash-o icon-black\"></i></button>";
-  formMarkup += "</form>";
-
-  elemById('item_control_' + itemId).innerHTML = formMarkup;
-
-  formMarkup = "";
-  formMarkup += "<form id=\"iedit_" + itemId + "\"  class=\"embedded\" action=\"/item/" + itemId + "\" method=\"POST\">";
-  formMarkup += "<input class=\"full-width simple-border\" id=\"iedit_" + itemId + "_description\" name=\"description\" type=\"text\"/>";
-  formMarkup += "</form>";
-
-  elemById('item_' + itemId).outerHTML = formMarkup;
-  elemById("iedit_" + itemId + "_description").value = itemDesc;
-  elemById("iedit_" + itemId + "_description").focus();
 }
 
 function setupSidebar() {
@@ -181,14 +165,14 @@ function checkPasswords()
 //////// todo list
 
 function setupEditableItems() {
-    foreach_elem('.toplevel-list .item-row .item-description', function(el) {
+    foreach_elem('.toplevel-list .item-row', function(el) {
         el.onclick = doubleTapFilter(null, function(obj) {
-            beginItemEdit(el.getAttribute('itemid'));
+            visitPage(el.getAttribute('edit-href'));
         });
     });
 }
 
-function doPost(baseUrl, args) {
+function doPost(baseUrl, args, nextUrl) {
     var queryArgs = [];
 
     for(const argName in args) {
@@ -201,13 +185,17 @@ function doPost(baseUrl, args) {
         url += ('?' + queryArgs.join('&'));
     }
 
+    function doRefresh() {
+        if (nextUrl) {
+            visitPage(nextUrl);
+        } else {
+            refreshPage();
+        }
+    }
+
     fetch(url, {
         method: 'POST'
-    }).then(refreshPage);
-}
-
-function deleteItem(itemId) {
-    updateItem(itemId, 'delete');
+    }).then(doRefresh);
 }
 
 function doMoveItem(itemId, newListId) {
@@ -220,6 +208,17 @@ function doMoveItem(itemId, newListId) {
         body: formData,
         method: "post"
     }).then(refreshPage);
+}
+
+function doUpdateItem(itemId, newDescription, thenUrl) {
+    var formData = new FormData();
+
+    formData.append("description", newDescription);
+
+    fetch("/item/" + itemId, {
+        body: formData,
+        method: "post"
+    }).then(() => visitPage(thenUrl));
 }
 
 function doSetItemOrder(itemId, newItemOrdinal, newItemPriority) {
@@ -336,6 +335,16 @@ function onNewItemInputKeydown(event) {
         event.stopPropagation();
 
         submitHighPriority();
+    }
+}
+
+function onItemEditKeydown(event) {
+    if (event.keyCode == 13) {
+        input = event.target;
+
+        doUpdateItem(input.getAttribute('item-id'),
+                     input.value,
+                     input.getAttribute('view-href'));
     }
 }
 
