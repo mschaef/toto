@@ -172,7 +172,7 @@ function setupEditableItems() {
     });
 }
 
-function doPost(baseUrl, args) {
+function doPost(baseUrl, args, nextUrl) {
     var queryArgs = [];
 
     for(const argName in args) {
@@ -185,13 +185,17 @@ function doPost(baseUrl, args) {
         url += ('?' + queryArgs.join('&'));
     }
 
+    function doRefresh() {
+        if (nextUrl) {
+            visitPage(nextUrl);
+        } else {
+            refreshPage();
+        }
+    }
+
     fetch(url, {
         method: 'POST'
-    }).then(refreshPage);
-}
-
-function deleteItem(itemId) {
-    updateItem(itemId, 'delete');
+    }).then(doRefresh);
 }
 
 function doMoveItem(itemId, newListId) {

@@ -14,8 +14,9 @@
 (defn- restore-item-button [ item-info ]
   (post-button (str "/item/" (item-info :item_id) "/restore") {}  "Restore Item" img-restore))
 
-(defn- delete-item-button [ item-info ]
-  (post-button (str "/item/" (item-info :item_id) "/delete") {}  "Delete Item" img-trash))
+(defn- delete-item-button [ item-info list-id ]
+  (post-button* (str "/item/" (item-info :item_id) "/delete") {}  "Delete Item" img-trash
+                (without-edit-id (shref "/list/" list-id))))
 
 (defn- snooze-item-button [ item-info body ]
   (post-button (str "/item/" (item-info :item_id) "/snooze") {:snooze-days 1} "Snooze Item 1 Day" body))
@@ -91,7 +92,7 @@
      (if editing?
        (list
         [:div.item-control.complete
-         (delete-item-button item-info)]
+         (delete-item-button item-info list-id)]
          [:div.item-description
           [:input.full-width.simple-border (cond-> {:value (item-info :desc)
                                                     :type "text"

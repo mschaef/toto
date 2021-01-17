@@ -79,7 +79,13 @@
     contents]])
 
 (defn post-button [ target args desc body ]
-  [:span.clickable {:onclick (str "doPost('" target "'," (json/write-str args) ")")}
+  [:span.clickable
+   {:onclick (str "doPost('" target "'," (json/write-str args) ")")}
+   body])
+
+(defn post-button* [ target args desc body next-url ]
+  [:span.clickable
+   {:onclick (str "doPost('" target "'," (json/write-str args) ", '" next-url "')")}
    body])
 
 (defn item-priority-button [ item-id new-priority image-spec writable? ]
