@@ -165,7 +165,7 @@ function checkPasswords()
 //////// todo list
 
 function setupEditableItems() {
-    foreach_elem('.toplevel-list .item-row', function(el) {
+    foreach_elem('.toplevel-list .item-row.display', function(el) {
         el.onclick = doubleTapFilter(null, function(obj) {
             visitPage(el.getAttribute('edit-href'));
         });
@@ -343,12 +343,14 @@ function onNewItemInputKeydown(event) {
 }
 
 function onItemEditKeydown(event) {
-    if (event.keyCode == 13) {
-        input = event.target;
+    input = event.target;
 
+    if (event.keyCode == 13) {
         doUpdateItem(input.getAttribute('item-id'),
                      input.value,
                      input.getAttribute('view-href'));
+    } else if (event.keyCode == 27) {
+        visitPage(input.getAttribute('view-href'));
     }
 }
 
