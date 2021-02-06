@@ -85,7 +85,8 @@
               :itemid item-id
               :ordinal (:item_ordinal item-info)
               :priority priority
-              :class (class-set {"display" (not editing?) 
+              :class (class-set {"editing" editing?
+                                 "display" (not editing?) 
                                  "high-priority" (> priority 0)
                                  "snoozed" currently-snoozed})}
        writable? (assoc :edit-href (shref "/list/" list-id { :edit-item-id item-id })))

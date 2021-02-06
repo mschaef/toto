@@ -335,13 +335,13 @@ input:focus {
 
 
 input[type=text], input[type=password] {
-    padding: 8px;
-    font-size: 18px;
+    padding: 4px;
+    font-size: 16px;
 }
 
 @media only screen and (min-device-width : 640px) {
     input[type=text], input[type=password] {
-        padding: 4px;
+        padding: 2px;
     }
 }
 
@@ -641,6 +641,11 @@ input[type=text], input[type=password] {
     }
 }
 
+
+.editing .right {
+    display: none;
+}
+
 .item-priority A {
     padding-left: 0.25em;
     padding-right: 0.25em;
@@ -652,15 +657,14 @@ input[type=text], input[type=password] {
 
     white-space: nowrap;
 
-    padding-top: 4px;
+    padding-top: 8px;
     padding-bottom: 8px;
-
-    min-height: 35px;
 }
 
 @media only screen and (min-device-width : 640px) {
     .item-row {
-        min-height: 20px;
+        padding-bottom: 4px;
+        padding-bottom: 4px;
     }
 }
 
@@ -824,6 +828,11 @@ select:hover {
 
     .logout-control {
         display: none;
+    }
+
+    .item-row {
+        padding-top: 6px;
+        padding-bottom: 6px;
     }
 
     .item-control.complete {
