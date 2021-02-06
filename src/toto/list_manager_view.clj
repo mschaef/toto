@@ -55,7 +55,7 @@
        [:div.config-panel
         [:h1 "List Name:"]
         (form/text-field { :class "full-width simple-border" :maxlength "32" }
-                                          "list-name" list-name)]
+                         "list-name" list-name)]
 
        [:div.config-panel
         [:h1  "List Permissions:"]
@@ -92,8 +92,12 @@
 
        [:div.config-panel
         [:h1  "Sort List"]
-        [:input {:type "submit" :value "Sort List" :formaction (shref "/list/" list-id "/sort")}]
-        [:p "Sort list by item description."]]
+        [:input {:type "submit" :value "Sort By"
+                 :formaction (shref "/list/" list-id "/sort")}]
+        [:select {:id "sort-by" :name "sort-by"}
+         (form/select-options [["Description" "desc"]
+                               ["Created Date" "created-on"]
+                               ["Updated Date" "updated-on"]])]]
 
        [:div.config-panel
         [:h1  "Delete List"]

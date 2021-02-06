@@ -48,8 +48,11 @@
   (data/delete-list list-id)
   (redirect-to-home))
 
-(defn sort-list [ list-id ]
-  (data/order-list-items-by-description! list-id)
+(defn sort-list [ list-id sort-by ]
+  (case sort-by
+    "desc" (data/order-list-items-by-description! list-id)
+    "created-on" (data/order-list-items-by-updated-on! list-id)
+    "updated-on" (data/order-list-items-by-created-on! list-id))
   (redirect-to-list list-id))
 
 (defn get-user-id-by-email [ email ]
@@ -186,8 +189,8 @@
    (POST "/delete" []
      (delete-list list-id))
 
-   (POST "/sort" []
-     (sort-list list-id))
+   (POST "/sort" { { sort-by :sort-by } :params }
+     (sort-list list-id sort-by))
 
    (POST "/" { { item-description :item-description item-priority :item-priority } :params }
      (add-item list-id (string-leftmost item-description 1024) item-priority))))

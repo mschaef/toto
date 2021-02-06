@@ -118,6 +118,22 @@ SELECT item.item_id,
      AND NOT(item.is_deleted OR item.is_complete)
    ORDER BY UPPER(item.desc)
 
+-- name: get-pending-item-order-by-created-on
+SELECT item.item_id,
+       item.todo_list_id
+   FROM todo_item item
+   WHERE item.todo_list_id = :list_id
+     AND NOT(item.is_deleted OR item.is_complete)
+   ORDER BY created_on
+
+-- name: get-pending-item-order-by-updated-on
+SELECT item.item_id,
+       item.todo_list_id
+   FROM todo_item item
+   WHERE item.todo_list_id = :list_id
+     AND NOT(item.is_deleted OR item.is_complete)
+   ORDER BY updated_on
+
 -- name: list-items-tail
 SELECT item_id, item_ordinal
   FROM todo_item
