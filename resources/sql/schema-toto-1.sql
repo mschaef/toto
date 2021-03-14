@@ -1,2 +1,0 @@
-ALTER TABLE todo_list
-  ADD is_public BOOLEAN DEFAULT FALSE NOT NULL;

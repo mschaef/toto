@@ -1,5 +1,0 @@
-ALTER TABLE todo_list
-  ADD is_deleted BOOLEAN DEFAULT FALSE NOT NULL;
-
-ALTER TABLE todo_list_owners
-  ADD priority TINYINT DEFAULT 0 NOT NULL;

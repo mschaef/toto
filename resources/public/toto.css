@@ -191,31 +191,6 @@ A {
 
 /*** Icons ***/
 
-i.icon-edit {
-    color: #000000;
-}
-
-i.icon-black {
-    color: black;
-    font-weight: bold;
-}
-
-i.icon-gray {
-    color: #b0b0b0;
-}
-
-i.icon-yellow {
-    color: #ffd000;
-}
-
-i.icon-blue {
-    color: #0000ff;
-}
-
-i.icon-yellow:hover {
-    color: #ffe700;
-}
-
 i.icon-bars {
     color: black;
     padding: 0.5em;
@@ -266,48 +241,6 @@ input:focus {
     padding-right: 12px;
 }
 
-/*** New Item Form ***/
-
-.new-item-form {
-    flex: 1;
-
-    display: flex;
-    flex-direction: row;
-    margin: 0px;
-    padding: 0px 6px 6px 6px;
-
-    align-items: center;
-}
-
-.new-item-form input {
-    flex: 1;
-    min-width: auto;
-    width: auto;
-
-    padding: 6px 4px 6px 4px;
-
-}
-
-.new-item-form button.high-priority-submit {
-    background: transparent;
-    padding: 6px;
-    margin-left: 3px;
-    cursor: pointer;
-
-    border: none;
-}
-
-.new-item-form button.high-priority-submit i.icon-gray:hover {
-    color: #b0b0b0;
-}
-
-.new-item-form button:hover {
-    background: #eeeeee;
-}
-
-.new-item-form button.high-priority-submit {
-    flex: 0;
-}
 
 .auth-form {
     width: auto;
@@ -324,15 +257,6 @@ input:focus {
     width: 100%;
     margin-bottom: 5px;
 }
-
-.config-panel input[type=checkbox] {
-    width: 32px;
-}
-
-.config-panel input[type=hidden] {
-    width: 32px;
-}
-
 
 input[type=text], input[type=password] {
     padding: 4px;
@@ -355,35 +279,6 @@ input[type=text], input[type=password] {
     float: right;
 }
 
-.query-settings {
-    margin: 6px 0px 6px 0px;
-    padding: 6px;
-
-    right: 0px;
-
-    text-align: center;
-    border: 1px solid #f0f0f0;
-    background: #f7f7f7;
-
-    display: flex;
-    flex-direction: row;
-}
-
-.query-settings .control-segment {
-    display: inline-block;
-    padding-right: 10px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-}
-
-.query-settings form {
-    margin-left: 10px;
-}
-
-.query-settings form input {
-    margin-left: 3px;
-}
-
 .simple-border {
     border-bottom: 1px solid #b0b0b0;
     border-top: 1px solid #f0f0f0;
@@ -395,7 +290,6 @@ input[type=text], input[type=password] {
 ::placeholder {
     color: #c0c0c0;
 }
-
 
 .page-message {
     margin: 1em;
@@ -433,82 +327,6 @@ input[type=text], input[type=password] {
 
 .login A {
     color: red;
-}
-
-.completed-item {
-    text-decoration: line-through;
-}
-
-.deleted-item {
-    text-decoration: line-through;
-    color: #c0c0c0;
-}
-
-.item-control {
-    width: 25px;
-    min-width: 25px;
-    flex: 0;
-    text-align: center;
-}
-
-/*** Toplevel list styling ***/
-
-.toplevel-list {
-    width: 100%;
-    box-sizing: border-box;
-
-    padding-left: 10px;
-    padding-right: 10px;
-}
-
-@media only screen and (min-device-width : 640px) {
-    .toplevel-list {
-        padding-left: 0px;
-        padding-right: 0px;
-    }
-}
-
-.toplevel-list .empty-list {
-    text-align: center;
-    margin: 20px;
-}
-
-.toplevel-list .empty-list h1 {
-    font-size: 16px;
-
-    margin-bottom: 2px;
-}
-
-.toplevel-list .empty-list p {
-    font-size: 14px;
-    font-style: italic;
-    margin: 8px;
-}
-
-.toplevel-list .item-description {
-    width: 100%;
-    white-space: normal;
-    box-sizing: border-box;
-}
-
-.order-drop-target.drop-hover {
-    background: #d0d0d0;
-}
-
-.snoozed-item-warning {
-    text-align: center;
-
-    padding-left: 10px;
-    padding-right: 10px;
-
-    padding-top: 10px;
-    padding-bottom: 10px;
-
-    background: #e0e0e0;
-}
-
-.snoozed-item-warning A {
-    color: blue;
 }
 
 /* Sidebar Styling */
@@ -614,10 +432,6 @@ input[type=text], input[type=password] {
     background: #c0c0c0;
 }
 
-.list-visibility-flag {
-    padding-left: 6px;
-}
-
 .item-description {
     padding-left: 6px;
     padding-right: 6px;
@@ -627,150 +441,19 @@ input[type=text], input[type=password] {
     flex: 1;
 }
 
-.priority.left, .drag-handle.left {
-    display: none;
-}
-
-@media only screen and (min-device-width : 640px) {
-    .priority.left, .drag-handle.left {
-        display: block;
-    }
-
-    .priority.right, .drag-handle.right {
-        display: none;
-    }
-}
-
-
-.editing .right {
-    display: none;
-}
-
 .item-priority A {
     padding-left: 0.25em;
     padding-right: 0.25em;
-}
-
-.item-row {
-    display: flex;
-    flex-direction: row;
-
-    white-space: nowrap;
-
-    padding-top: 8px;
-    padding-bottom: 8px;
-}
-
-@media only screen and (min-device-width : 640px) {
-    .item-row {
-        padding-bottom: 4px;
-        padding-bottom: 4px;
-    }
-}
-
-.item-row .drag-handle {
-    padding: 0px 25px 0px 15px;
-    font-size: 1.25em;
-}
-
-@media only screen and (min-device-width : 640px) {
-    .item-row .drag-handle {
-        padding: 3px 6px 3px 3px;
-        font-size: inherit;
-    }
-}
-
-.high-priority {
-    font-weight: bold;
-
-    background: #fffff0;
-}
-
-.low-priority {
-    background: #e7e7ff;
-    font-style: italic;
-}
-
-.snoozed {
-    background: #e0e0e0;
-    font-style: italic;
-}
-
-.item-button {
-    border: 0px none;
-    background: transparent;
-    padding: 0.2em;
-    cursor: pointer;
-}
-
-.clickable {
-    cursor: pointer;
-}
-
-.drag-item {
-    padding: 0.2em;
-    border: 2px solid black;
-    background: white;
-}
-
-.list-control-footer {
-    text-align: center;
-    font-style: italic;
 }
 
 .full-width {
     width: 100%;
 }
 
-p.new-list {
-    text-align: center;
-    font-style: italic;
-
-    padding-top: 1em;
-    padding-bottom: 1em;
-}
-
 p.new-user {
     font-style: italic;
 }
 
-/*** List Configuration Controls ***/
-
-.config-panel  {
-    width: 100%;
-    padding-bottom: 0px;
-
-    margin-left: 20px;
-
-    margin-bottom: 15px;
-}
-
-.config-panel h1 {
-    font-size: 14px;
-    margin: 0px;
-    padding-top: 0px;
-    padding-bottom: 6px;
-    margin-left: -20px;
-}
-
-.config-panel .list-owner {
-    padding-top: 4px;
-    padding-bottom: 4px;
-}
-
-.config-panel .list-owner .self-owner {
-    display: inline-block;
-
-    width: 32px;
-}
-
-.config-panel A {
-    padding-left: 6px;
-}
-
-.config-panel A, .todo-item A, .query-settings A {
-    color: blue;
-}
 
 input[type=submit] {
     padding: 0.5em 1em;
@@ -801,7 +484,6 @@ select:hover {
     background:#ddd;
 }
 
-
 @media print {
     .header {
         display: block;
@@ -818,32 +500,7 @@ select:hover {
         display: none;
     }
 
-    .query-settings {
-        display: none;
-    }
-
-    .new-item {
-        display: none;
-    }
-
     .logout-control {
-        display: none;
-    }
-
-    .item-row {
-        padding-top: 6px;
-        padding-bottom: 6px;
-    }
-
-    .item-control.complete {
-        display: none;
-    }
-
-    .priority.left {
-        display: block;
-    }
-
-    .priority.right {
         display: none;
     }
 
@@ -851,19 +508,7 @@ select:hover {
         display: none;
     }
 
-    .new-item-form {
-        display: none;
-    }
-
     body {
         height: auto;
-    }
-
-    .snoozed-item-warning {
-        display: none;
-    }
-
-    .item-row .drag-handle {
-        display: none;
     }
 }

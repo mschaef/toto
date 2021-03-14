@@ -145,10 +145,7 @@
      (form/submit-button {} "Register")])))
 
 (defn create-user  [ email-addr password ]
-  (let [user-id (data/add-user email-addr password)
-        list-id (data/add-list "Todo")]
-    (data/set-list-ownership list-id #{ user-id })
-    user-id))
+  (data/add-user email-addr password))
 
 (defn verification-email-message [ config verify-link-url ]
   [:body

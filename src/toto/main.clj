@@ -17,11 +17,9 @@
             [compojure.handler :as handler]
             [compojure.route :as route]
             [toto.data :as data]
-            [toto.dumper :as dumper]
-            [toto.todo :as todo]
-            [toto.view :as view]
             [toto.view-utils :as view-utils]
-            [toto.user :as user]))
+            [toto.user :as user]
+            [toto.app :as app]))
 
 (defn wrap-request-logging [ app development-mode? ]
   (fn [req]
@@ -43,35 +41,12 @@
   (fn [req]
     (assoc (app req) :session-cookie-attrs {:max-age (* duration-in-hours 3600)})))
 
-
-(defn all-routes [ config ]
-  (log/info "Resources on path: " (str "/" (get-version)))
-  (routes
-   (route/resources (str "/" (get-version)))
-   (user/all-routes config)
-   (todo/all-routes config)
-   (route/not-found "Resource Not Found")))
-
-(defn handler [ config ]
-  (cond-> (-> (all-routes config)
-              (wrap-content-type)
-              (wrap-browser-caching {"text/javascript" 360000
-                                     "text/css" 360000})
-              (user/wrap-authenticate)
-              (extend-session-duration 168)
-              (data/wrap-db-connection)
-              (wrap-request-logging (:development-mode config))
-              (view-utils/wrap-remember-query)
-              (view-utils/wrap-dev-mode (:development-mode config))
-              (handler/site))
-    (:development-mode config) (ring-reload/wrap-reload)))
-
-(defn start-webserver [ config ]
+(defn start-webserver [ config handler ]
   (let [ { http-port :http-port } config ]
     (when (:development-mode config)
       (log/warn "=== DEVELOPMENT MODE ==="))
     (log/info "Starting Webserver on port" http-port)
-    (let [server (jetty/run-jetty (handler config) { :port http-port :join? false })]
+    (let [server (jetty/run-jetty handler { :port http-port :join? false })]
       (add-shutdown-hook
        (fn []
          (log/info "Shutting down webserver")
@@ -89,19 +64,34 @@
         {}))
     {}))
 
-(defn- accept-mode [ args ]
-  (if (= 0 (count args))
-    :site
-    (keyword (first args))))
+
+(defn all-routes [ config ]
+  (log/info "Resources on path: " (str "/" (get-version)))
+  (routes
+   (route/resources (str "/" (get-version)))
+   (user/all-routes config)
+   (app/all-routes config)
+   (route/not-found "Resource Not Found")))
+
+(defn handler [ config ]
+  (cond-> (-> (all-routes config)
+              (wrap-content-type)
+              (wrap-browser-caching {"text/javascript" 360000
+                                     "text/css" 360000})
+              (user/wrap-authenticate)
+              (extend-session-duration 168)
+              (data/wrap-db-connection)
+              (view-utils/wrap-remember-query)
+              (wrap-request-logging (:development-mode config))
+              (view-utils/wrap-dev-mode (:development-mode config))
+              (handler/site))
+    (:development-mode config) (ring-reload/wrap-reload)))
 
 (defn -main [& args]
   (log/info "Starting Toto" (get-version))
   (let [config (cprop/load-config :merge [(cprop-source/from-resource "config.edn")
                                           (maybe-config-file "conf")
-                                          (maybe-config-file "creds")])
-        mode (accept-mode args)]
-    (log/debug "mode" mode "config" config)
-    (case mode
-      :dump-simple-event-stream (dumper/dump-simple-event-stream config)
-      :site (start-webserver config))
+                                          (maybe-config-file "creds")])]
+    (start-webserver config (handler config))
+
     (log/info "end run.")))
