@@ -1,30 +1,24 @@
-(ns toto.data
-  (:use toto.util
+(ns toto.data.data
+  (:use toto.core.util
         sql-file.sql-util)
   (:require [clojure.tools.logging :as log]
             [clojure.java.jdbc :as jdbc]
             [sql-file.core :as sql-file]
-            [toto.queries :as query]))
-
-(def db-connection
-  (delay (-> (sql-file/open-pool {:name (config-property "db.subname" "toto")
-                                  :schema-path [ "sql/" ]})
-             (sql-file/ensure-schema [ "toto" 7 ]))))
+            [toto.data.queries :as query]))
 
 (def ^:dynamic *db* nil)
 
-(defn call-with-db-connection [ fn ]
-  (jdbc/with-db-connection [ conn @db-connection ]
-    (binding [ *db* conn]
+(defn call-with-db-connection [ fn db-connection ]
+  (jdbc/with-db-connection [ conn db-connection ]
+    (binding [ *db* conn ]
       (fn))))
 
-(defmacro with-db-connection [ & body ]
-  `(call-with-db-connection (fn [] ~@body)))
+(defmacro with-db-connection [ db-connection & body ]
+  `(call-with-db-connection (fn [] ~@body) ~db-connection))
 
-(defn wrap-db-connection [ app ]
+(defn wrap-db-connection [ app db-connection ]
   (fn [ req ]
-    (with-db-connection
-      (app req))))
+    (call-with-db-connection (fn [] (app req)) db-connection)))
 
 (defn- scalar
   ([ query-result default ]
@@ -38,6 +32,11 @@
 
 (defn current-time []
   (java.util.Date.))
+
+(defn db-conn-spec [ config ]
+  {:name (get-in config [:db :subname] "toto")
+   :schema-path [ "sql/" ]
+   :schemas [[ "toto" 7 ]]})
 
 ;;; user
 

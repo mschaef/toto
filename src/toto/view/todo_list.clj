@@ -1,12 +1,11 @@
-(ns toto.list-view
-  (:use toto.util
-        toto.view-utils)
+(ns toto.view.todo-list
+  (:use toto.core.util
+        toto.view.common)
   (:require [clojure.tools.logging :as log]
             [hiccup.form :as form]
-            [toto.data :as data]
-            [toto.view :as view]
-            [toto.user :as user]
-            [toto.sidebar-view :as sidebar-view]))
+            [toto.data.data :as data]
+            [toto.view.user :as user]
+            [toto.view.sidebar-view :as sidebar-view]))
 
 (defmacro without-edit-id [ & body ]
   `(with-modified-query #(dissoc % "edit-item-id")
@@ -192,13 +191,13 @@
   (clojure.string/join "\n" (map :desc (data/get-pending-items list-id 0))))
 
 (defn render-todo-list-page [ selected-list-id edit-item-id completed-within-days snoozed-for-days ]
-  (view/render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)
-                     :page-data-class "todo-list"
-                     :sidebar (sidebar-view/render-sidebar-list-list selected-list-id snoozed-for-days)}
-                    (render-todo-list selected-list-id edit-item-id true completed-within-days snoozed-for-days)))
+  (render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)
+                :page-data-class "todo-list"
+                :sidebar (sidebar-view/render-sidebar-list-list selected-list-id snoozed-for-days)}
+               (render-todo-list selected-list-id edit-item-id true completed-within-days snoozed-for-days)))
 
 (defn render-todo-list-public-page [ selected-list-id ]
-  (view/render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)
-                     :page-data-class "todo-list"}
-                    (render-todo-list selected-list-id nil false 0 0)))
+  (render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)
+                :page-data-class "todo-list"}
+               (render-todo-list selected-list-id nil false 0 0)))
 

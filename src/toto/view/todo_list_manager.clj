@@ -1,12 +1,11 @@
-(ns toto.list-manager-view
-  (:use toto.util
+(ns toto.view.todo-list-manager
+  (:use toto.core.util
         compojure.core
-        toto.view-utils)
+        toto.view.common)
   (:require [hiccup.form :as form]
-            [toto.data :as data]
-            [toto.view :as view]
-            [toto.sidebar-view :as sidebar-view]
-            [toto.user :as user]))
+            [toto.data.data :as data]
+            [toto.view.sidebar-view :as sidebar-view]
+            [toto.view.user :as user]))
 
 (defn render-new-list-form [ ]
   (form/form-to
@@ -19,7 +18,7 @@
                     "list-description")))
 
 (defn render-list-list-page []
-  (view/render-page
+  (render-page
    {:page-title "Manage Todo Lists"}
    (render-scroll-column
     (render-new-list-form)
@@ -46,7 +45,7 @@
   (let [list-details (data/get-todo-list-by-id list-id)
         list-name (:desc list-details)
         list-owners (data/get-todo-list-owners-by-list-id list-id) ]
-    (view/render-page
+    (render-page
      {:page-title (str "List Details: " list-name)
       :sidebar (sidebar-view/render-sidebar-list-list list-id 0)}
      (form/form-to

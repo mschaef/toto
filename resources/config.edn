@@ -1,3 +1,4 @@
 {:http-port 8080
  :development-mode false
+ :db {:subname "toto"}
  :smtp {:enabled false}}

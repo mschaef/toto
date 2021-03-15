@@ -1,82 +1,47 @@
-(ns toto.user
-  (:use toto.util
+(ns toto.view.user
+  (:use toto.core.util
         compojure.core
         hiccup.core
-        toto.view-utils)
+        toto.view.common)
   (:require [clojure.tools.logging :as log]
-            [cemerick.friend.credentials :as credentials]
             [ring.util.response :as ring]
             [cemerick.friend :as friend]
-            [cemerick.friend.workflows :as workflows]
             [hiccup.form :as form]
-            [postal.core :as postal]
-            [toto.data :as data]
-            [toto.view :as view]))
-
-(def expected-roles #{:toto.role/verified :toto.role/current-password})
-
-(defn- password-current? [ user-record ]
-  (if-let [expiry (:password_expires_on user-record)]
-    (or (.after expiry (java.util.Date.))
-        (.after (:password_created_on user-record) expiry))
-    true))
-
-(defn- get-user-roles [ user-record ]
-  (clojure.set/union
-   #{:toto.role/user}
-   (cond-> (data/get-user-roles (:user_id user-record))
-     (password-current? user-record) (clojure.set/union #{:toto.role/current-password}))))
-
-(defn- get-auth-map-by-email [ email ]
-  (if-let [user-record (data/get-user-by-email email)]
-    {:identity email
-     :user-record user-record
-     :user-id (user-record :user_id)
-     :roles (get-user-roles user-record)}))
-
-(defn get-user-by-credentials [ creds ]
-  (if-let [auth-map (get-auth-map-by-email (creds :username))]
-    (and (credentials/bcrypt-verify (creds :password) (get-in auth-map [:user-record :password]))
-         (do
-           (data/set-user-login-time (creds :username))
-           (update-in auth-map [:user-record] dissoc :password)))
-    nil))
+            [toto.core.mail :as mail]
+            [toto.data.data :as data]
+            [toto.view.auth :as auth]))
 
 (defn user-unauthorized [ request ]
-  (view/render-page { :page-title "Access Denied"}
-                    [:div.page-message
-                     [:h1 "Access Denied"]]))
+  (render-page { :page-title "Access Denied"}
+               [:div.page-message
+                [:h1 "Access Denied"]]))
 
 (defn user-unverified [ request ]
-  (view/render-page { :page-title "E-Mail Unverified"}
-                    [:div.page-message
-                     [:h1 "E-Mail Unverified"]
-                     [:p
-                      "Your e-mail address is unverified and your acccount is "
-                      "inactive. An verification e-mail can be sent by following "
-                      [:a {:href (str "/user/begin-verify/" (current-user-id))} "this link"]
-                      "."]]))
+  (render-page { :page-title "E-Mail Unverified"}
+               [:div.page-message
+                [:h1 "E-Mail Unverified"]
+                [:p
+                 "Your e-mail address is unverified and your acccount is "
+                 "inactive. An verification e-mail can be sent by following "
+                 [:a {:href (str "/user/begin-verify/" (current-user-id))} "this link"]
+                 "."]]))
 
 (defn user-password-expired [ request ]
-  (view/render-page { :page-title "Password Expired"}
-                    [:div.page-message
-                     [:h1 "Password Expired"]
-                     [:p
-                      "Your password has expired and needs to be reset. "
-                      "This can be done at "
-                      [:a {:href (str "/user/password-change")} "this link"]
-                      "."]]))
+  (render-page { :page-title "Password Expired"}
+               [:div.page-message
+                [:h1 "Password Expired"]
+                [:p
+                 "Your password has expired and needs to be reset. "
+                 "This can be done at "
+                 [:a {:href (str "/user/password-change")} "this link"]
+                 "."]]))
 
 (defn missing-verification? [ request ]
-  (= (clojure.set/difference (get-in request [:cemerick.friend/authorization-failure
-                                              :cemerick.friend/required-roles])
-                             (:roles (friend/current-authentication)))
+  (= (auth/request-missing-roles request)
      #{:toto.role/verified}))
 
 (defn missing-current-password? [ request ]
-  (= (clojure.set/difference (get-in request [:cemerick.friend/authorization-failure
-                                              :cemerick.friend/required-roles])
-                             (:roles (friend/current-authentication)))
+  (= (auth/request-missing-roles request)
      #{:toto.role/current-password}))
 
 (defn unauthorized-handler [request]
@@ -92,28 +57,19 @@
             user-unauthorized)
           request)})
 
-(defn password-change-workflow []
-  (fn [{:keys [uri request-method params]}]
-    (when (and (= uri "/user/password-change")
-               (= request-method :post)
-               (get-user-by-credentials params)
-               (not (= (:password params) (:new_password1 params)))
-               (= (:new_password1 params) (:new_password2 params)))
-      (data/set-user-password (:username params)
-                              (credentials/hash-bcrypt (:new_password1 params)))
-      (workflows/make-auth (get-auth-map-by-email (:username params))))))
+(defn create-user [ email-addr password ]
+  (let [user-id (auth/create-user email-addr password)
+        list-id (data/add-list "Todo")]
+    (data/set-list-ownership list-id #{ user-id })
+    user-id))
 
 (defn wrap-authenticate [ request ]
-  (friend/authenticate request
-                       {:credential-fn get-user-by-credentials
-                        :workflows [(password-change-workflow)
-                                    (workflows/interactive-form)]
-                        :unauthorized-handler unauthorized-handler}))
+  (auth/wrap-authenticate request unauthorized-handler))
 
 (defn render-login-page [ & { :keys [ email-addr login-failure?]}]
-  (view/render-page { :page-title "Log In" }
-  (form/form-to
-   {:class "auth-form"}
+  (render-page { :page-title "Log In" }
+   (form/form-to
+    {:class "auth-form"}
     [:post "/login"]
     (form/text-field {:class "simple-border"
                       :placeholder "E-Mail Address"} "username" email-addr)
@@ -121,14 +77,14 @@
                           :placeholder "Password"} "password")
     [:div.error-message
      (when login-failure?
-           "Invalid username or password.")]
+       "Invalid username or password.")]
     [:div.submit-panel
      [:a { :href "/user"} "Register New User"]
      " - "
      (form/submit-button {} "Login")])))
 
 (defn render-new-user-form [ & { :keys [ error-message ]}]
-  (view/render-page {:page-title "New User Registration"
+  (render-page {:page-title "New User Registration"
                      :page-data-class "init-new-user"}
    (form/form-to
     {:class "auth-form"}
@@ -143,12 +99,6 @@
      error-message]
     [:div.submit-panel
      (form/submit-button {} "Register")])))
-
-(defn create-user  [ email-addr password ]
-  (let [user-id (data/add-user email-addr password)
-        list-id (data/add-list "Todo")]
-    (data/set-list-ownership list-id #{ user-id })
-    user-id))
 
 (defn verification-email-message [ config verify-link-url ]
   [:body
@@ -165,34 +115,16 @@
     "If this isn't something you've requested, you can safely ignore this"
     " e-mail, and we won't send anything else."]])
 
-(defn send-email [config {to :to
-                          subject :subject
-                          content :content}]
-  (log/info "Seing mail to " to " with subject: " subject)
-    (let [smtp (:smtp config)]
-      (if (:enabled smtp)
-        (postal/send-message {:host (:host smtp)
-                              :user (:user smtp)
-                              :pass (:password smtp)
-                              :ssl true}
-                             {:from (:from smtp)
-                              :to to
-                              :subject subject
-                              :body [{:type "text/html"
-                                      :content (html [:html content])}]})
-        (log/warn "E-mail disabled. Message not sent."))))
 
 (defn send-verification-link [ config user-id ]
   (let [user (data/get-user-by-id user-id)
-        verification-link (data/get-verification-link-by-user-id user-id)
-        smtp (:smtp config)]
-    (log/debug "SMTP Config: " smtp)
+        verification-link (data/get-verification-link-by-user-id user-id)]
     (let [link-url (str (:base-url config) "user/verify/" user-id "/"
                         (:link_uuid verification-link))]
-      (send-email config
-                  {:to [ (:email_addr user) ]
-                   :subject "Todo - Confirm E-Mail Address"
-                   :content (verification-email-message config link-url)}))))
+      (mail/send-email config
+                       {:to [ (:email_addr user) ]
+                        :subject "Todo - Confirm E-Mail Address"
+                        :content (verification-email-message config link-url)}))))
 
 (defn add-user [ email-addr password password2 ]
   (cond
@@ -204,14 +136,14 @@
 
    :else
    (do
-     (let [user-id (create-user email-addr (credentials/hash-bcrypt password))]
+     (let [user-id (create-user email-addr password)]
        (ring/redirect (str "/user/begin-verify/" user-id))))))
 
 (def date-format (java.text.SimpleDateFormat. "yyyy-MM-dd hh:mm aa"))
 
 (defn render-user-info-form [ & { :keys [ error-message ]}]
   (let [user (data/get-user-by-email (current-identity))]
-    (view/render-page { :page-title "User Information" }
+    (render-page { :page-title "User Information" }
                       (form/form-to
                        [:post "/user/info"]
                        [:input {:type "hidden"
@@ -244,7 +176,7 @@
 
 (defn render-change-password-form  [ & { :keys [ error-message ]}]
   (let [user (data/get-user-by-email (current-identity))]
-    (view/render-page { :page-title "Change Password" }
+    (render-page { :page-title "Change Password" }
                       (form/form-to {:class "auth-form"}
                        [:post "/user/password-change"]
                        [:input {:type "hidden"
@@ -265,7 +197,7 @@
 (defn change-password [ password new-password-1 new-password-2 ]
   (let [ username (current-identity) ]
     (cond
-      (not (get-user-by-credentials {:username username :password password}))
+      (not (auth/get-user-by-credentials {:username username :password password}))
       (render-change-password-form
        :error-message "Old password incorrect.")
 
@@ -284,7 +216,7 @@
         ;; new password and assign the user the current-password role
         ;; if it was previously missing. (This is needed so that we
         ;; allow the user use the website, if their password had
-        ;; expired..)
+        ;; expired.)
         (log/warn "Password change unexpectedly fell through workflow!")
         (ring/redirect "/")))))
 
@@ -301,7 +233,7 @@
   (let [ user (data/get-user-by-id user-id) ]
     (ensure-verification-link user-id)
     (send-verification-link config user-id)
-    (view/render-page { :page-title "e-Mail Address Verification" }
+    (render-page { :page-title "e-Mail Address Verification" }
                       [:div.page-message
                        [:h1 "e-Mail Address Verification"]
                        [:p "An e-mail has been sent to "  [:span.addr (:email_addr user)]
@@ -316,7 +248,7 @@
   (when-let [ user-id (:verifies_user_id (data/get-verification-link-by-uuid link-uuid)) ]
     (let [ email-addr (:email_addr (data/get-user-by-id user-id)) ]
       (data/add-user-roles user-id #{:toto.role/verified})
-      (view/render-page { :page-title "e-Mail Address Verified" }
+      (render-page { :page-title "e-Mail Address Verified" }
                         [:div.page-message
                          [:h1 "e-Mail Address Verified"]
                          [:p "Thank you for verifying your e-mail address at: "

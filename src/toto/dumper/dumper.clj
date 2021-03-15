@@ -1,15 +1,12 @@
-(ns toto.dumper
-  (:use toto.util
+(ns toto.dumper.dumper
+  (:use toto.core.util
         sql-file.sql-util)
   (:require [clojure.tools.logging :as log]
             [clojure.java.jdbc :as jdbc]
-            [toto.data :as data]))
+            [toto.data.data :as data]))
 
 (defn query [ sql ]
   (query-all data/*db* sql))
-
-(defn sanitize-string [ string ]
-  (apply str (repeat (count string) ".")))
 
 (defn item-events []
   (let [items (query "SELECT item_id, todo_list_id, desc, is_deleted, is_complete, created_on, updated_on from TODO_ITEM")
@@ -24,7 +21,7 @@
                                        :event-type :add-item
                                        :item_id (:item_id %)
                                        :list_id (:todo_list_id %)
-                                       :desc (sanitize-string (:desc %))})
+                                       :desc (:desc %)})
                            items)
                       (map #(merge {} {:event-time (:updated_on %)
                                        :event-type :delete-item
@@ -46,20 +43,20 @@
 (defn add-list-events []
   (map #(merge {} {:event-type :add-list
                    :list_id (:todo_list_id %)
-                   :desc (sanitize-string (:desc %))}) (query "SELECT todo_list_id, desc from TODO_LIST")))
+                   :desc (:desc %)})
+       (query "SELECT todo_list_id, desc from TODO_LIST")))
 
 (defn delete-list-events []
     (map #(merge {} {:event-type :delete-list
-                     :list_id (:todo_list_id %)
-                     }) (query "SELECT todo_list_id, desc from TODO_LIST")))
+                     :list_id (:todo_list_id %)})
+         (query "SELECT todo_list_id, desc from TODO_LIST")))
 
-(defn dump-simple-event-stream [ config ]
-  (log/info "dumping to " dump-file)
-  (data/with-db-connection
-
+(defn dump-simple-event-stream [ config db-conn ]
+  (log/info "Dumping to" dump-file)
+  (data/with-db-connection db-conn
     (doseq [ event (concat (add-list-events)
                            (item-events)
                            (delete-list-events)) ]
       (append-to-dump event))
 
-    (log/info "finished dumping to " dump-file)))
+    (log/info "Finished dumping to" dump-file)))

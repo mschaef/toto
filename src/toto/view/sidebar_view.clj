@@ -1,8 +1,8 @@
-(ns toto.sidebar-view
-  (:use toto.util
-        toto.view-utils)
-  (:require [toto.data :as data]
-            [toto.user :as user]))
+(ns toto.view.sidebar-view
+  (:use toto.core.util
+        toto.view.common)
+  (:require [toto.data.data :as data]
+            [toto.view.user :as user]))
 
 (defn render-list-visibility-flag [ list ]
   (let [{is-public :is_public

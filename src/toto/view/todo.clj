@@ -1,34 +1,31 @@
-(ns toto.todo
-  (:use toto.util
+(ns toto.view.todo
+  (:use toto.core.util
         compojure.core
-        toto.view-utils)
+        toto.view.common)
   (:require [clojure.tools.logging :as log]
             [ring.util.response :as ring]
             [compojure.handler :as handler]
             [ring.util.response :as ring-response]
             [cemerick.friend :as friend]
-            [toto.data :as data]
-            [toto.list-view :as list-view]
-            [toto.list-manager-view :as list-manager-view]
-            [toto.user :as user]))
+            [toto.data.data :as data]
+            [toto.view.auth :as auth]
+            [toto.view.todo-list :as todo-list]
+            [toto.view.todo-list-manager :as todo-list-manager]
+            [toto.view.user :as user]))
 
 (defn current-todo-list-id []
-  (friend/authorize user/expected-roles
-                    (first (data/get-todo-list-ids-by-user (current-user-id)))))
+  (auth/authorize-expected-roles
+   (first (data/get-todo-list-ids-by-user (current-user-id)))))
 
 (defn ensure-list-owner-access [ list-id ]
-  (friend/authorize user/expected-roles
-                    (unless (data/list-owned-by-user-id? list-id (current-user-id))
-                            (report-unauthorized))))
-
-(defn ensure-list-public-access [ list-id ]
-  (unless (data/list-public? list-id)
-          (report-unauthorized)))
+  (auth/authorize-expected-roles
+   (unless (data/list-owned-by-user-id? list-id (current-user-id))
+           (report-unauthorized))))
 
 (defn ensure-item-access [ item-id ]
-  (friend/authorize user/expected-roles
-                    (unless (data/item-owned-by-user-id? item-id (current-user-id))
-                            (report-unauthorized))))
+  (auth/authorize-expected-roles
+   (unless (data/item-owned-by-user-id? item-id (current-user-id))
+           (report-unauthorized))))
 
 (defn redirect-to-list [ list-id ]
   (ring/redirect (shref "/list/" list-id)))
@@ -55,11 +52,6 @@
     "updated-on" (data/order-list-items-by-created-on! list-id))
   (redirect-to-list list-id))
 
-(defn get-user-id-by-email [ email ]
-  (if-let [ user-info (data/get-user-by-email email) ]
-    (user-info :user_id)
-    nil))
-
 (defn add-list [ list-description ]
   (if (string-empty? list-description)
     (redirect-to-home)
@@ -77,9 +69,9 @@
    (let [share-with-email-id
          (and share-with-email
               (or
-               (get-user-id-by-email share-with-email)
+               (auth/get-user-id-by-email share-with-email)
                (fail-validation
-                (list-manager-view/render-todo-list-details-page list-id
+                (todo-list-manager/render-todo-list-details-page list-id
                                                                  :error-message "Invalid e-mail address"))))
          selected-ids (selected-user-ids-from-params params)]
      (data/set-list-ownership list-id
@@ -159,25 +151,25 @@
      (log/debug "public render: " list-id)
      (when (and (data/list-public? list-id)
                 (not (data/list-owned-by-user-id? list-id (current-user-id))))
-       (list-view/render-todo-list-public-page list-id)))))
+       (todo-list/render-todo-list-public-page list-id)))))
 
 (defn- list-routes [ list-id ]
   (ensure-list-owner-access list-id)
   (routes
    (GET "/" { params :params }
-     (list-view/render-todo-list-page list-id
+     (todo-list/render-todo-list-page list-id
                                       (parsable-integer? (:edit-item-id params))
                                       (or (parsable-integer? (:cwithin params)) 0)
                                       (and (:include-snoozed params)
                                            (= (:include-snoozed params) "Y"))))
 
    (GET "/list.csv" []
-     (-> (list-view/render-todo-list-csv list-id)
+     (-> (todo-list/render-todo-list-csv list-id)
          (ring-response/response)
          (ring-response/header "Content-Type" "text/csv")))
 
    (GET "/details"  []
-     (list-manager-view/render-todo-list-details-page list-id))
+     (todo-list-manager/render-todo-list-details-page list-id))
 
    (POST "/details" { params :params }
      (update-list-details list-id params
@@ -224,7 +216,7 @@
      (add-list (string-leftmost (:list-description params) 32)))
 
    (GET "/lists" []
-     (list-manager-view/render-list-list-page))
+     (todo-list-manager/render-list-list-page))
 
    (context "/list/:list-id" [ list-id ]
      (list-routes list-id))
@@ -247,6 +239,4 @@
 (defn all-routes [ config ]
   (routes
    (public-routes config)
-   (-> (private-routes config)
-       (wrap-routes friend/wrap-authorize #{:toto.role/verified})
-       (wrap-routes friend/wrap-authorize #{:toto.role/current-password}))))
+   (auth/authorize-toto-valid-user (private-routes config))))
