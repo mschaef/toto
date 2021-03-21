@@ -5,7 +5,7 @@
   :dependencies [[org.clojure/clojure "1.10.0"]
                  [org.clojure/tools.logging "0.4.1"]
                  [ch.qos.logback/logback-classic "1.2.3"]
-                 [com.mschaef/sql-file "0.4.0"]
+                 [com.mschaef/sql-file "0.4.1"]
                  [cprop "0.1.13"]
                  [yesql "0.5.3"]
                  [org.clojure/data.json "0.2.6"]
