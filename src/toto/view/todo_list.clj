@@ -190,10 +190,10 @@
 (defn render-todo-list-csv [  list-id ]
   (clojure.string/join "\n" (map :desc (data/get-pending-items list-id 0))))
 
-(defn render-todo-list-page [ selected-list-id edit-item-id completed-within-days snoozed-for-days ]
+(defn render-todo-list-page [ selected-list-id edit-item-id min-list-priority completed-within-days snoozed-for-days ]
   (render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)
                 :page-data-class "todo-list"
-                :sidebar (sidebar-view/render-sidebar-list-list selected-list-id snoozed-for-days)}
+                :sidebar (sidebar-view/render-sidebar-list-list selected-list-id min-list-priority snoozed-for-days)}
                (render-todo-list selected-list-id edit-item-id true completed-within-days snoozed-for-days)))
 
 (defn render-todo-list-public-page [ selected-list-id ]

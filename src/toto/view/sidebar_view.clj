@@ -15,7 +15,7 @@
       (> list-owner-count 1)
       [:span.list-visibility-flag img-group])))
 
-(defn render-sidebar-list-list [ selected-list-id snoozed-for-days]
+(defn render-sidebar-list-list [ selected-list-id min-list-priority snoozed-for-days ]
   [:div.list-list
    (map (fn [ list ]
           (let [{list-id :todo_list_id
@@ -36,8 +36,14 @@
               (if snoozed-for-days
                 list-total-item-count
                 list-item-count)]]))
-        (remove #(and (< (:priority %) 0)
+        (remove #(and (< (:priority %) min-list-priority)
                       (not (= (Integer. selected-list-id) (:todo_list_id %))))
                 (data/get-todo-lists-by-user (current-user-id))))
+
+   [:div.control-row
+    (if (< min-list-priority 0)
+      [:a {:href (shref "" {:min-list-priority 0})} "Hide Hidden Lists"]
+      [:a {:href (shref "" {:min-list-priority -1})} "Show All Lists"])]
+   
    [:div.control-row
     [:a {:href "/lists"} "Manage Todo Lists"]]])

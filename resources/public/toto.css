@@ -549,7 +549,7 @@ input[type=text], input[type=password] {
 }
 
 .sidebar .list-list .control-row {
-    padding-top: 0.75em;
+    padding-top: 1.25em;
     justify-content: center;
 }
 
@@ -576,7 +576,7 @@ input[type=text], input[type=password] {
 }
 
 .sidebar .copyright {
-    margin-top: 20px;
+    margin-top: 1em;
     text-align: center;
     font-style: italic;
 

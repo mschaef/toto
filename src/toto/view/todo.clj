@@ -72,6 +72,7 @@
                (auth/get-user-id-by-email share-with-email)
                (fail-validation
                 (todo-list-manager/render-todo-list-details-page list-id
+                                                                 (or (parsable-integer? (:min-list-priority params)) 0)
                                                                  :error-message "Invalid e-mail address"))))
          selected-ids (selected-user-ids-from-params params)]
      (data/set-list-ownership list-id
@@ -159,6 +160,7 @@
    (GET "/" { params :params }
      (todo-list/render-todo-list-page list-id
                                       (parsable-integer? (:edit-item-id params))
+                                      (or (parsable-integer? (:min-list-priority params)) 0)
                                       (or (parsable-integer? (:cwithin params)) 0)
                                       (and (:include-snoozed params)
                                            (= (:include-snoozed params) "Y"))))
@@ -168,11 +170,12 @@
          (ring-response/response)
          (ring-response/header "Content-Type" "text/csv")))
 
-   (GET "/details"  []
-     (todo-list-manager/render-todo-list-details-page list-id))
+   (GET "/details" { params :params }
+     (todo-list-manager/render-todo-list-details-page list-id (or (parsable-integer? (:min-list-priority params)) 0)))
 
    (POST "/details" { params :params }
-     (update-list-details list-id params
+     (update-list-details list-id
+                          params
                           (:list-name params) (:share-with-email params) (:is_public params)))
 
    (POST "/priority" { { new-priority :new-priority } :params }

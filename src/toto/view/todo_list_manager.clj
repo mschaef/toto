@@ -41,13 +41,13 @@
                 (sidebar-view/render-list-visibility-flag list)]]))
           (data/get-todo-lists-by-user (current-user-id)))])))
 
-(defn render-todo-list-details-page [ list-id & { :keys [ error-message ]}]
+(defn render-todo-list-details-page [ list-id min-list-priority & { :keys [ error-message ]}]
   (let [list-details (data/get-todo-list-by-id list-id)
         list-name (:desc list-details)
         list-owners (data/get-todo-list-owners-by-list-id list-id) ]
     (render-page
      {:page-title (str "List Details: " list-name)
-      :sidebar (sidebar-view/render-sidebar-list-list list-id 0)}
+      :sidebar (sidebar-view/render-sidebar-list-list list-id min-list-priority 0)}
      (form/form-to
       {:class "details"}
       [:post (shref "/list/" list-id "/details")]
