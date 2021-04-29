@@ -108,14 +108,14 @@
       (data/update-item-desc-by-id (current-user-id) item-id item-description))
     (success)))
 
-(defn update-item-snooze-days [ item-id snooze-days ]
+(defn update-item-snooze-days [ item-id snooze-days next-href ]
   (let [list-id (data/get-list-id-by-item-id item-id)
         snooze-days (or (parsable-integer? snooze-days) 0)]
     (data/update-item-snooze-by-id  (current-user-id) item-id
                                     (if (= snooze-days 0)
                                       nil
                                       (add-days (java.util.Date.) snooze-days)))
-    (success)))
+    (ring/redirect next-href)))
 
 (defn update-item-list [ item-id target-list-id ]
   (let [ original-list-id (data/get-list-id-by-item-id item-id)]
@@ -163,7 +163,8 @@
                                       (or (parsable-integer? (:min-list-priority params)) 0)
                                       (or (parsable-integer? (:cwithin params)) 0)
                                       (and (:include-snoozed params)
-                                           (= (:include-snoozed params) "Y"))))
+                                           (= (:include-snoozed params) "Y"))
+                                      (parsable-integer? (:snoozing params))))
 
    (GET "/list.csv" []
      (-> (todo-list/render-todo-list-csv list-id)
@@ -197,7 +198,7 @@
      (update-item-desc item-id (string-leftmost (:description params) 1024)))
 
    (POST "/snooze" { params :params headers :headers }
-     (update-item-snooze-days item-id (:snooze-days params)))
+     (update-item-snooze-days item-id (:snooze-days params) (:next-href params)))
 
    (POST "/priority" { params :params headers :headers }
      (update-item-priority item-id (:new-priority params)))

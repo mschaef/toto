@@ -11,6 +11,10 @@
   `(with-modified-query #(dissoc % "edit-item-id")
      ~@body))
 
+(defmacro without-snoozing [ & body ]
+  `(with-modified-query #(dissoc % "snoozing")
+     ~@body))
+
 (defn- complete-item-button [ item-info ]
   (post-button (str "/item/" (item-info :item_id) "/complete") {} "Complete Item" img-check))
 
@@ -22,7 +26,7 @@
                 (without-edit-id (shref "/list/" list-id))))
 
 (defn- snooze-item-button [ item-info body ]
-  (post-button (str "/item/" (item-info :item_id) "/snooze") {:snooze-days 1} "Snooze Item 1 Day" body))
+  [:a {:href (shref "" {:snoozing (item-info :item_id)})} body])
 
 (defn- unsnooze-item-button [ item-info body ]
   (post-button (str "/item/" (item-info :item_id) "/snooze") {:snooze-days 0} "Un-snooze Item" body))
@@ -68,6 +72,8 @@
 
 (defn drop-target [ item-ordinal ]
   [:div.order-drop-target {:ordinal item-ordinal :priority "0"} "&nbsp;"])
+
+(def snooze-date-format (java.text.SimpleDateFormat. "yyyy-MM-dd"))
 
 (defn- render-todo-item [ list-id item-info writable? editing? ]
   (let [{item-id :item_id
@@ -119,7 +125,8 @@
              (render-item-text desc)
              (snooze-item-button item-info [:span.pill (render-age (:age_in_days item-info))])
              (when currently-snoozed
-               (unsnooze-item-button item-info [:span.pill "snoozed"]))
+               (unsnooze-item-button item-info [:span.pill "snoozed: "
+                                                (.format snooze-date-format snoozed-until)]))
              (when (not (= created-by-id (current-user-id)))
                [:span.pill created-by-name])]))]))
      [:div.item-control.priority.right
@@ -190,10 +197,28 @@
 (defn render-todo-list-csv [  list-id ]
   (clojure.string/join "\n" (map :desc (data/get-pending-items list-id 0))))
 
-(defn render-todo-list-page [ selected-list-id edit-item-id min-list-priority completed-within-days snoozed-for-days ]
+(defn render-snooze-modal [list-id snoozing-item-id]
+  [:div.snooze
+   [:div.cancel
+    [:a {:href (without-snoozing  (shref "/list/" list-id)  )} img-window-close]]
+   [:h3 "Snooze"]
+   
+   (form/form-to [:post (shref "/item/" snoozing-item-id "/snooze")]
+                 [:p "Defer this item until later."
+                  [:select { :id "snooze-days" :name "snooze-days"}
+                   (form/select-options [ [ "1 day" "1"] [ "7 days" "7"] [ "30 days" "30"] [ "90 days" "90"] [ "365 days" "365"] ]  "1 day")]]
+                 
+                 (form/hidden-field "next-href"
+                                    (without-snoozing  (shref "/list/" list-id)  ))
+                 [:div.controls
+                  [:input {:type "submit" :value "Snooze" }]])] )
+
+(defn render-todo-list-page [ selected-list-id edit-item-id min-list-priority completed-within-days snoozed-for-days snoozing-item-id ]
   (render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)
                 :page-data-class "todo-list"
-                :sidebar (sidebar-view/render-sidebar-list-list selected-list-id min-list-priority snoozed-for-days)}
+                :sidebar (sidebar-view/render-sidebar-list-list selected-list-id min-list-priority snoozed-for-days)
+                :modal (and snoozing-item-id
+                            (render-snooze-modal selected-list-id snoozing-item-id))}
                (render-todo-list selected-list-id edit-item-id true completed-within-days snoozed-for-days)))
 
 (defn render-todo-list-public-page [ selected-list-id ]
