@@ -95,9 +95,9 @@
                                  "high-priority" (> priority 0)
                                  "snoozed" currently-snoozed})}
        writable? (assoc :edit-href (shref "/list/" list-id { :edit-item-id item-id })))
-     (item-drag-handle "left" item-info)
      (if editing?
        (list
+        (item-drag-handle "left" item-info)
         [:div.item-control.complete
          (delete-item-button item-info list-id)]
          [:div.item-description
