@@ -134,6 +134,15 @@ SELECT item.item_id,
      AND NOT(item.is_deleted OR item.is_complete)
    ORDER BY updated_on
 
+-- name: get-pending-item-order-by-snoozed-until
+SELECT item.item_id,
+       item.todo_list_id
+   FROM todo_item item
+   WHERE item.todo_list_id = :list_id
+     AND NOT(item.is_deleted OR item.is_complete)
+   ORDER BY NVL(item.snoozed_until, CURRENT_TIMESTAMP),
+            item_ordinal
+
 -- name: list-items-tail
 SELECT item_id, item_ordinal
   FROM todo_item

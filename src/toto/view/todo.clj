@@ -49,7 +49,8 @@
   (case sort-by
     "desc" (data/order-list-items-by-description! list-id)
     "created-on" (data/order-list-items-by-updated-on! list-id)
-    "updated-on" (data/order-list-items-by-created-on! list-id))
+    "updated-on" (data/order-list-items-by-created-on! list-id)
+    "snoozed-until" (data/order-list-items-by-snoozed-until! list-id))
   (redirect-to-list list-id))
 
 (defn add-list [ list-description ]

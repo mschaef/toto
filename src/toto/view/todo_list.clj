@@ -97,7 +97,6 @@
        writable? (assoc :edit-href (shref "/list/" list-id { :edit-item-id item-id })))
      (if editing?
        (list
-        (item-drag-handle "left" item-info)
         [:div.item-control.complete
          (delete-item-button item-info list-id)]
          [:div.item-description
@@ -110,10 +109,12 @@
                                              editing? (assoc "autofocus" "on"))]])
        (list
         (when writable?
-          [:div.item-control.complete {:id (str "item_control_" item-id)}
-           (if (or is-complete? is-deleted?)
-             (restore-item-button item-info)
-             (complete-item-button item-info))])
+          (list
+           (item-drag-handle "left" item-info)
+           [:div.item-control.complete {:id (str "item_control_" item-id)}
+            (if (or is-complete? is-deleted?)
+              (restore-item-button item-info)
+              (complete-item-button item-info))]))
         [:div.item-control.priority.left
          (render-item-priority-control item-id priority writable?)]
         [:div.item-description {:itemid item-id}

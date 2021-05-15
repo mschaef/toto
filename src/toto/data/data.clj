@@ -269,6 +269,10 @@
   (query/get-pending-item-order-by-updated-on {:list_id list-id}
                                                { :connection *db* }))
 
+(defn get-pending-item-order-by-snoozed-until [ list-id ]
+  (query/get-pending-item-order-by-snoozed-until {:list_id list-id}
+                                               { :connection *db* }))
+
 
 (defn get-pending-item-count [ list-id ]
   (scalar
@@ -313,6 +317,9 @@
   (set-items-order!
    (map :item_id (get-pending-item-order-by-updated-on list-id))))
 
+(defn order-list-items-by-snoozed-until! [ list-id ]
+  (set-items-order!
+   (map :item_id (get-pending-item-order-by-snoozed-until list-id))))
 
 (defn update-item-by-id! [ user-id item-id values ]
   (jdbc/with-db-transaction [ trans *db* ]

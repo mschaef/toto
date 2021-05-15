@@ -96,7 +96,8 @@
         [:select {:id "sort-by" :name "sort-by"}
          (form/select-options [["Description" "desc"]
                                ["Created Date" "created-on"]
-                               ["Updated Date" "updated-on"]])]]
+                               ["Updated Date" "updated-on"]
+                               ["Snoozed Until" "snoozed-until"]])]]
 
        [:div.config-panel
         [:h1  "Delete List"]
