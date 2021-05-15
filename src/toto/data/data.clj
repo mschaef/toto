@@ -34,7 +34,8 @@
   (java.util.Date.))
                                 
 (defn db-conn-spec [ config ]
-  {:name (get-in config [:db :subname] (config-property "db.subname" "toto"))
+  {:name (or (config-property "db.subname" "toto")
+              (get-in config [:db :subname] "toto"))
    :schema-path [ "sql/" ]
    :schemas [[ "toto" 7 ]]})
 
