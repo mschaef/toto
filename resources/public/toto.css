@@ -40,6 +40,8 @@ body {
 @media only screen and (min-device-width : 640px) {
     .modal {
         width: auto;
+        min-width: 20%;
+        max-width: 40%;
     }
 }
 
@@ -62,6 +64,17 @@ body {
     text-align: end;
 }
 
+.modal p {
+    padding-bottom: 12px;
+}
+
+.modal .snooze form {
+    display: inline-block;
+}
+
+.modal .snooze input {
+    width: 80px;
+}
 
 .header {
     flex: 0;

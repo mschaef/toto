@@ -202,16 +202,14 @@
    [:div.cancel
     [:a {:href (without-snoozing  (shref "/list/" list-id)  )} img-window-close]]
    [:h3 "Snooze"]
-   
-   (form/form-to [:post (shref "/item/" snoozing-item-id "/snooze")]
-                 [:p "Defer this item until later."
-                  [:select { :id "snooze-days" :name "snooze-days"}
-                   (form/select-options [ [ "1 day" "1"] [ "7 days" "7"] [ "30 days" "30"] [ "90 days" "90"] [ "365 days" "365"] ]  "1 day")]]
-                 
-                 (form/hidden-field "next-href"
-                                    (without-snoozing  (shref "/list/" list-id)  ))
-                 [:div.controls
-                  [:input {:type "submit" :value "Snooze" }]])] )
+   [:p "Defer this item until later."]
+   (map (fn [ snooze-days ]
+          (form/form-to [:post (shref "/item/" snoozing-item-id "/snooze")]
+                        (form/hidden-field "next-href" (without-snoozing (shref "/list/" list-id)))
+                        (form/hidden-field "snooze-days" snooze-days)
+                        [:div.controls
+                         [:input {:type "submit" :value (str snooze-days "d")}]]))
+        [1 3 7 30 90 365])])
 
 (defn render-todo-list-page [ selected-list-id edit-item-id min-list-priority completed-within-days snoozed-for-days snoozing-item-id ]
   (render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)
