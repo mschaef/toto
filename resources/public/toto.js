@@ -354,23 +354,30 @@ function onItemEditKeydown(event) {
     }
 }
 
-function checkForModalDismiss(event) {
-    if (event.keyCode == 27) {
+function dismissModalIfPresent() {
+    var modal = elemOptional('modal');
 
-        var modal = elemOptional('modal');
-
-        var nextUrl;
+    var nextUrl;
         
-        if (modal) {
-            nextUrl = modal.getAttribute('data-escape-url');
-        }
-
-        visitPage(nextUrl);
+    if (modal) {
+        nextUrl = modal.getAttribute('data-escape-url');
     }
+
+    visitPage(nextUrl);
 }
 
 function onDocumentKeydown(event) {
-    checkForModalDismiss(event);
+    if (event.keyCode == 27) {
+        dismissModalIfPresent();
+    }
+}
+
+function onDocumentClick(event) {
+    var modalBackground = elemOptional('modal-background');
+    
+    if (modalBackground && (event.target == modalBackground)) {
+        dismissModalIfPresent();
+    }
 }
 
 function initTodoList() {
@@ -440,4 +447,5 @@ document.addEventListener('DOMContentLoaded', function() {
 }, false);
 
 document.addEventListener("keydown", onDocumentKeydown);
+document.addEventListener("click", onDocumentClick);
     
