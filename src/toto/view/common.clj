@@ -221,22 +221,23 @@
    [:div#sidebar.sidebar-content { :data-preserve-scroll "true" }
     sidebar
     [:div.copyright
-     "&#9400; 2015-2020 East Coast Toolworks "]]])
+     "&#9400; 2015-2021 East Coast Toolworks "]]])
 
-(defn- render-page-body [ page-data-class page-title username sidebar modal contents ]
+(defn render-modal [ escape-url & contents ]
+  [:div.modal {:data-escape-url escape-url} contents])
+
+(defn- render-page-body [ page-data-class page-title username sidebar contents ]
   [:body (if page-data-class
            {:data-class page-data-class})
-   (when modal
-     [:div.modal modal])
    (render-header page-title username (not (nil? sidebar)))
    (if sidebar
      (render-sidebar username sidebar))
    [:div.contents {:class (class-set { "with-sidebar" sidebar })}
     contents]])
 
-(defn render-page [{ :keys [ page-title page-data-class sidebar modal ] }  & contents]
+(defn render-page [{ :keys [ page-title page-data-class sidebar ] }  & contents]
   (let [username (current-identity)]
     (html [:html
            (render-standard-header page-title)
-           (render-page-body page-data-class page-title username sidebar modal contents)])))
+           (render-page-body page-data-class page-title username sidebar contents)])))
 

@@ -341,9 +341,9 @@ function onNewItemInputKeydown(event) {
         submitHighPriority();
     }
 }
-
+    
 function onItemEditKeydown(event) {
-    input = event.target;
+    var input = event.target;
 
     if (event.keyCode == 13) {
         doUpdateItem(input.getAttribute('item-id'),
@@ -352,6 +352,25 @@ function onItemEditKeydown(event) {
     } else if (event.keyCode == 27) {
         visitPage(input.getAttribute('view-href'));
     }
+}
+
+function checkForModalDismiss(event) {
+    if (event.keyCode == 27) {
+
+        var modal = elemOptional('modal');
+
+        var nextUrl;
+        
+        if (modal) {
+            nextUrl = modal.getAttribute('data-escape-url');
+        }
+
+        visitPage(nextUrl);
+    }
+}
+
+function onDocumentKeydown(event) {
+    checkForModalDismiss(event);
 }
 
 function initTodoList() {
@@ -420,4 +439,5 @@ document.addEventListener('DOMContentLoaded', function() {
     setupSidebar();
 }, false);
 
-
+document.addEventListener("keydown", onDocumentKeydown);
+    

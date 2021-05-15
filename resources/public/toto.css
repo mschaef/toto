@@ -142,11 +142,6 @@ body {
     transition: transform 0.25s ease-in-out;
 }
 
-.contents, .sidebar {
-  -webkit-backface-visibility: hidden;
-  -webkit-perspective: 1000;
-}
-
 .sidebar::-webkit-scrollbar {
     display: none;
 }

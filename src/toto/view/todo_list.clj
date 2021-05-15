@@ -198,25 +198,28 @@
   (clojure.string/join "\n" (map :desc (data/get-pending-items list-id 0))))
 
 (defn render-snooze-modal [list-id snoozing-item-id]
-  [:div.snooze
-   [:div.cancel
-    [:a {:href (without-snoozing  (shref "/list/" list-id)  )} img-window-close]]
-   [:h3 "Snooze"]
-   [:p "Defer this item until later."]
-   (map (fn [ snooze-days ]
-          (form/form-to [:post (shref "/item/" snoozing-item-id "/snooze")]
-                        (form/hidden-field "next-href" (without-snoozing (shref "/list/" list-id)))
-                        (form/hidden-field "snooze-days" snooze-days)
-                        [:div.controls
-                         [:input {:type "submit" :value (str snooze-days "d")}]]))
-        [1 3 7 30 90 365])])
+  (let [list-url (without-snoozing (shref "/list/" list-id))]
+    (render-modal
+     list-url
+     [:div.snooze
+      [:div.cancel
+       [:a {:href list-url} img-window-close]]
+      [:h3 "Snooze"]
+      [:p "Defer this item until later."]
+      (map (fn [ snooze-days ]
+             (form/form-to [:post (shref "/item/" snoozing-item-id "/snooze")]
+                           (form/hidden-field "next-href" list-url)
+                           (form/hidden-field "snooze-days" snooze-days)
+                           [:div.controls
+                            [:input {:type "submit" :value (str snooze-days "d")}]]))
+           [1 3 7 30 90 365])])))
 
 (defn render-todo-list-page [ selected-list-id edit-item-id min-list-priority completed-within-days snoozed-for-days snoozing-item-id ]
   (render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)
                 :page-data-class "todo-list"
-                :sidebar (sidebar-view/render-sidebar-list-list selected-list-id min-list-priority snoozed-for-days)
-                :modal (and snoozing-item-id
-                            (render-snooze-modal selected-list-id snoozing-item-id))}
+                :sidebar (sidebar-view/render-sidebar-list-list selected-list-id min-list-priority snoozed-for-days)}
+               (when snoozing-item-id
+                 (render-snooze-modal selected-list-id snoozing-item-id))               
                (render-todo-list selected-list-id edit-item-id true completed-within-days snoozed-for-days)))
 
 (defn render-todo-list-public-page [ selected-list-id ]
