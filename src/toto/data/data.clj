@@ -32,9 +32,9 @@
 
 (defn current-time []
   (java.util.Date.))
-
+                                
 (defn db-conn-spec [ config ]
-  {:name (get-in config [:db :subname] "toto")
+  {:name (get-in config [:db :subname] (config-property "db.subname" "toto"))
    :schema-path [ "sql/" ]
    :schemas [[ "toto" 7 ]]})
 

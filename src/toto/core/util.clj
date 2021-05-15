@@ -54,3 +54,15 @@
     (.setTime c date)
     (.add c java.util.Calendar/DATE days)
     (.getTime c)))
+
+;;; Configuration properties
+
+(defn config-property
+  ( [ name ] (config-property name nil))
+  ( [ name default ]
+      (let [prop-binding (System/getProperty name)]
+        (if (nil? prop-binding)
+          default
+          (if-let [ int (parsable-integer? prop-binding) ]
+            int
+            prop-binding)))))
