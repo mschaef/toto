@@ -224,7 +224,8 @@
      "&#9400; 2015-2021 East Coast Toolworks "]]])
 
 (defn render-modal [ escape-url & contents ]
-  [:div.modal {:data-escape-url escape-url} contents])
+  [:div.modal-background
+   [:div.modal {:data-escape-url escape-url} contents]])
 
 (defn- render-page-body [ page-data-class page-title username sidebar contents ]
   [:body (if page-data-class
