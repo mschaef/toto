@@ -70,14 +70,15 @@
 (defn update-list-details [ list-id params list-name share-with-email is-public ]
   (catch-validation-errors
    (let [share-with-email-id
-         (and share-with-email
-              (or
-               (auth/get-user-id-by-email share-with-email)
-               (fail-validation
-                (todo-list-manager/render-todo-list-details-page list-id
-                                                                 (or (parsable-integer? (:min-list-priority params)) 0)
-                                                                 :error-message "Invalid e-mail address"))))
+         (when-let [ share-with-email (parsable-string? share-with-email) ]
+           (or
+            (auth/get-user-id-by-email share-with-email)
+            (fail-validation
+             (todo-list-manager/render-todo-list-details-page list-id
+                                                              (or (parsable-integer? (:min-list-priority params)) 0)
+                                                              :error-message "Invalid e-mail address"))))
          selected-ids (selected-user-ids-from-params params)]
+     
      (data/set-list-ownership list-id
                               (if share-with-email-id
                                 (conj selected-ids share-with-email-id)

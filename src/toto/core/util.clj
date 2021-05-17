@@ -41,11 +41,23 @@
   ( [ string count ]
       (string-leftmost string count "")))
 
-(defn parsable-integer? [ str ]
-  (try
-   (Integer/parseInt str)
-   (catch Exception ex
-     false)))
+(defn parsable-string? [ maybe-string ]
+  "Returns the parsable text content of the input paramater and false
+  if there is no such content."
+  (and
+   (string? maybe-string)
+   (let [ string (.trim maybe-string) ]
+     (and (> (count string) 0)
+          string))))
+
+(defn parsable-integer? [ maybe-string ]
+  "Returns the parsable integer value of the input parameter and false
+  if there is no such integer value."
+  (if-let [ string (parsable-string? maybe-string) ]
+    (try
+      (Integer/parseInt string)
+      (catch Exception ex
+        false))))
 
 ;;; Date utilities
 

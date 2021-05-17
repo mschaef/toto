@@ -60,7 +60,7 @@
         [:h1  "List Permissions:"]
         (form/check-box "is_public" (:is_public list-details))
         [:label {:for "is_public"} "List publically visible?"]]
-
+       
        [:div.config-panel
         [:h1  "List Owners:"]
         [:div.list-owners
@@ -76,7 +76,12 @@
                     user-email-addr
                     (when (= (current-user-id) user-id)
                       [:span.pill "you"])]]))
-              (data/get-friendly-users-by-id (current-user-id)))]]
+              (data/get-friendly-users-by-id (current-user-id)))
+         [:input {:id "share-with-email"
+                  :name "share-with-email"}]
+         (when error-message
+           [:div.error-message
+            error-message])]]
 
        [:div.config-panel
         [:input {:type "submit" :value "Update List Details"}]]
@@ -86,7 +91,7 @@
         [:a { :href (shref "/list/" list-id) } "View List"]]
 
        [:div.config-panel
-        [:h1  "Download List"]
+        [:h1 "Download List"]
         [:a { :href (shref "/list/" list-id "/list.csv" ) } "Download List as CSV"]]
 
        [:div.config-panel
