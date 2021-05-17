@@ -100,9 +100,17 @@
                                ["Snoozed Until" "snoozed-until"]])]]
 
        [:div.config-panel
-        [:h1  "Delete List"]
-        (if (data/empty-list? list-id)
+        [:h1 "Delete List"]
+        (cond
+          (<= (data/get-user-list-count (current-user-id)) 1)
+          [:span.warning "Your last list cannot be deleted."]
+
+          (not (data/empty-list? list-id))
+          [:span.warning "To delete this list, remove all items first."]
+
+          :else
           (list
            [:input.dangerous {:type "submit" :value "Delete List" :formaction (shref "/list/" list-id "/delete")}]
-           [:span.warning "Warning, this cannot be undone."])
-          [:span.warning "To delete this list, remove all items first."])]))))
+           [:span.warning "Warning, this cannot be undone."]))]))))
+
+

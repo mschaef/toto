@@ -42,7 +42,9 @@
   (ring/redirect (shref "/list/" list-id)))
 
 (defn delete-list [ list-id ]
-  (data/delete-list list-id)
+  (if (<= (data/get-user-list-count (current-user-id)) 1)
+    (log/warn "Attempt to delete user's last visible list" list-id)
+    (data/delete-list list-id))
   (redirect-to-home))
 
 (defn sort-list [ list-id sort-by ]

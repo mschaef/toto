@@ -119,6 +119,9 @@
   (query/get-todo-lists-by-user { :user_id user-id }
                                 { :connection *db* }))
 
+(defn get-user-list-count [ user-id ]
+  (count (get-todo-lists-by-user user-id)))
+
 (defn add-user [ email-addr password ]
   (:user_id (first
              (jdbc/insert! *db*
