@@ -107,9 +107,7 @@
    [:p
     "Thank you for registering with " [:a {:href (:base-url config)} "Toto"]
     " to manage your todo lists. You can verify your e-mail address by clicking"
-    " this link:"]
-   [:p
-    "Verify: " [:a {:href verify-link-url} {:href verify-link-url}]]
+    [:a {:href verify-link-url} "here"] "."]
 
    [:p
     "If this isn't something you've requested, you can safely ignore this"

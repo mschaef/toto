@@ -6,8 +6,9 @@
 (defn send-email [config {to :to
                           subject :subject
                           hiccup-content :content}]
-  (log/info "Seing mail to " to " with subject: " subject)
-  (let [smtp (:smtp config)]
+  (log/info "Sending mail to " to " with subject: " subject)
+  (let [smtp (:smtp config)
+        html-content (html [:html hiccup-content])]
     (if (:enabled smtp)
       (postal/send-message {:host (:host smtp)
                             :user (:user smtp)
@@ -17,5 +18,7 @@
                             :to to
                             :subject subject
                             :body [{:type "text/html"
-                                    :content (html [:html hiccup-content])}]})
-      (log/warn "E-mail disabled. Message not sent."))))
+                                    :content html-content}]})
+      (do
+        (log/warn "E-mail disabled. Message not sent. Message text: ")
+        (log/warn html-content)))))
