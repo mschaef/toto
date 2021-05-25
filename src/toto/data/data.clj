@@ -32,12 +32,19 @@
 
 (defn current-time []
   (java.util.Date.))
-                                
+
 (defn db-conn-spec [ config ]
   {:name (or (config-property "db.subname" "toto")
               (get-in config [:db :subname] "toto"))
    :schema-path [ "sql/" ]
    :schemas [[ "toto" 7 ]]})
+
+;;; backup
+
+(defn backup-database [ output-path ]
+  (log/info "Backing database up to" output-path)
+  (sql-file/backup-to-file-online *db* output-path)
+  (log/info "Backup to" output-path "complete."))
 
 ;;; user
 

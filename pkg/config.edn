@@ -2,6 +2,7 @@
  :development-mode false
 
  :base-url "http://todo.mschaef.com/"
+ :db {:backup-path "/var/lib/toto"}
  :smtp {:enabled true
         :from "mike@mschaef.com"
         :host "email-smtp.us-east-1.amazonaws.com"}}

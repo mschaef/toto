@@ -17,7 +17,8 @@
                  [com.cemerick/friend "0.2.3"]
                  [compojure "1.6.1"]
                  [slingshot "0.12.2"]
-                 [com.draines/postal "2.0.3"]]
+                 [com.draines/postal "2.0.3"]
+                 [it.sauronsoftware.cron4j/cron4j "2.2.5"]]
 
   :plugins [[lein-tar "3.3.0"]]
   

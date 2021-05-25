@@ -13,10 +13,10 @@
   (if-let [prop (System/getProperty prop-name)]
     (if (.exists (java.io.File. prop))
       (do
-        (log/info (str "Config file found: " prop "(specified by property: " prop-name ")"))
+        (log/info (str "Config file found: " prop " (specified by property: " prop-name ")"))
         (cprop-source/from-file prop))
       (do
-        (log/warn (str "CONFIG FILE NOT FOUND: " prop "(specified by property: " prop-name ")"))
+        (log/warn (str "CONFIG FILE NOT FOUND: " prop " (specified by property: " prop-name ")"))
         {}))
     {}))
 
