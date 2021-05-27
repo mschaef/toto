@@ -771,8 +771,6 @@ A .pill {
 .item-row .drag-handle {
     width: 25px;
     min-width: 25px;
-
-    border: 1px solid red;
 }
 
 @media only screen and (min-device-width : 640px) {
