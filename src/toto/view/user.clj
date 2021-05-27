@@ -71,11 +71,12 @@
    (form/form-to
     {:class "auth-form"}
     [:post "/login"]
-    (form/text-field {:placeholder "E-Mail Address"} "username" email-addr)
-    (form/password-field {:placeholder "Password"} "password")
-    [:div.error-message
-     (when login-failure?
-       "Invalid username or password.")]
+    [:div.config-panel
+     (form/text-field {:placeholder "E-Mail Address"} "username" email-addr)
+     (form/password-field {:placeholder "Password"} "password")
+     [:div.error-message
+      (when login-failure?
+        "Invalid username or password.")]]
     [:div.submit-panel
      [:a { :href "/user"} "Register New User"]
      " - "
@@ -87,11 +88,15 @@
    (form/form-to
     {:class "auth-form"}
     [:post "/user"]
-    (form/text-field {:placeholder "E-Mail Address"} "email_addr")
-    (form/password-field {:placeholder "Password"} "password1")
-    (form/password-field {:placeholder "Verify Password"} "password2")
-    [:div#error.error-message
-     error-message]
+    [:div.config-panel
+     [:h1 "Identity"]
+     (form/text-field {:placeholder "E-Mail Address"} "email_addr")]
+    [:div.config-panel
+     [:h1 "Password"]
+     (form/password-field {:placeholder "Password"} "password1")
+     (form/password-field {:placeholder "Verify Password"} "password2")
+     [:div#error.error-message
+      error-message]]
     [:div.submit-panel
      (form/submit-button {} "Register")])))
 
