@@ -285,7 +285,7 @@ function makeDropTarget(el, onDrop) {
 }
 
 function setupItemDragging() {
-    foreach_elem(".todo-item .drag-handle", function(el) {
+    foreach_elem(".drag-handle", function(el) {
         el.setAttribute('draggable', true);
 
         el.ondragstart = function(ev) {
@@ -300,7 +300,7 @@ function setupItemDragging() {
         };
     });
 
-    foreach_elem('.todo-item.order-drop-target', function(el) {
+    foreach_elem('.order-drop-target', function(el) {
         makeDropTarget(el, function(ev) {
             ev.preventDefault();
 

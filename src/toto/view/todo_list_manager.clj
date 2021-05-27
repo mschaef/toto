@@ -11,8 +11,7 @@
   (form/form-to
    {:class "new-item-form"}
    [:post (shref "/list")]
-   (form/text-field {:class "full-width simple-border"
-                     :maxlength "1024"
+   (form/text-field {:maxlength "1024"
                      :placeholder "New List Name"
                      :autofocus "autofocus"}
                     "list-description")))
@@ -53,13 +52,13 @@
       [:post (shref "/list/" list-id "/details")]
        [:div.config-panel
         [:h1 "List Name:"]
-        (form/text-field { :class "full-width simple-border" :maxlength "32" }
-                         "list-name" list-name)]
+        (form/text-field { :maxlength "32" } "list-name" list-name)]
 
        [:div.config-panel
         [:h1  "List Permissions:"]
-        (form/check-box "is_public" (:is_public list-details))
-        [:label {:for "is_public"} "List publically visible?"]]
+        [:div
+         (form/check-box "is_public" (:is_public list-details))
+         [:label {:for "is_public"} "List publically visible?"]]]
        
        [:div.config-panel
         [:h1  "List Owners:"]
@@ -77,14 +76,19 @@
                     (when (= (current-user-id) user-id)
                       [:span.pill "you"])]]))
               (data/get-friendly-users-by-id (current-user-id)))
-         [:input {:id "share-with-email"
-                  :name "share-with-email"}]
+         [:div.list-owner
+          [:div.self-owner "&nbsp;"]
+          [:input {:id "share-with-email"
+                   :name "share-with-email"
+                   :type "text"
+                   :placeholder "Share Mail Address"}]]
          (when error-message
            [:div.error-message
             error-message])]]
 
        [:div.config-panel
-        [:input {:type "submit" :value "Update List Details"}]]
+        [:div
+         [:input {:type "submit" :value "Update List Details"}]]]
 
        [:div.config-panel
         [:h1  "View List"]
@@ -95,14 +99,15 @@
         [:a { :href (shref "/list/" list-id "/list.csv" ) } "Download List as CSV"]]
 
        [:div.config-panel
-        [:h1  "Sort List"]
-        [:input {:type "submit" :value "Sort By"
-                 :formaction (shref "/list/" list-id "/sort")}]
-        [:select {:id "sort-by" :name "sort-by"}
-         (form/select-options [["Description" "desc"]
-                               ["Created Date" "created-on"]
-                               ["Updated Date" "updated-on"]
-                               ["Snoozed Until" "snoozed-until"]])]]
+        [:h1 "Sort List"]
+        [:div
+         [:input {:type "submit" :value "Sort By"
+                  :formaction (shref "/list/" list-id "/sort")}]
+         [:select {:id "sort-by" :name "sort-by"}
+          (form/select-options [["Description" "desc"]
+                                ["Created Date" "created-on"]
+                                ["Updated Date" "updated-on"]
+                                ["Snoozed Until" "snoozed-until"]])]]]
 
        [:div.config-panel
         [:h1 "Delete List"]
@@ -115,7 +120,8 @@
 
           :else
           (list
-           [:input.dangerous {:type "submit" :value "Delete List" :formaction (shref "/list/" list-id "/delete")}]
-           [:span.warning "Warning, this cannot be undone."]))]))))
+           [:div
+            [:input.dangerous {:type "submit" :value "Delete List" :formaction (shref "/list/" list-id "/delete")}]
+            [:span.warning "Warning, this cannot be undone."]]))]))))
 
 

@@ -50,7 +50,7 @@
 (def url-regex #"(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
 
 (defn- render-url [ [ url ] ]
-  [:a { :href url :target "_blank" } (shorten-url-text url 60)])
+  [:a.item-link { :href url :target "_blank" } (shorten-url-text url 60)])
 
 (defn- render-item-text-segment [ item-text-segment ]
   (clojure.string/join " " (map #(ensure-string-breakpoints % 15)
@@ -85,7 +85,7 @@
          created-by-id :created_by_id
          created-by-name :created_by_name}
         item-info]
-    [:div.item-row.order-drop-target.todo-item
+    [:div.item-row.order-drop-target
      (cond-> {:id (str "item_row_" item-id)
               :itemid item-id
               :ordinal (:item_ordinal item-info)
@@ -100,13 +100,13 @@
         [:div.item-control.complete
          (delete-item-button item-info list-id)]
          [:div.item-description
-          [:input.full-width.simple-border (cond-> {:value (item-info :desc)
-                                                    :type "text"
-                                                    :name "description"
-                                                    :item-id item-id
-                                                    :view-href (without-edit-id (shref "/list/" list-id))
-                                                    :onkeydown "onItemEditKeydown(event)"}
-                                             editing? (assoc "autofocus" "on"))]])
+          [:input (cond-> {:value (item-info :desc)
+                           :type "text"
+                           :name "description"
+                           :item-id item-id
+                           :view-href (without-edit-id (shref "/list/" list-id))
+                           :onkeydown "onItemEditKeydown(event)"}
+                    editing? (assoc "autofocus" "on"))]])
        (list
         (when writable?
           (list

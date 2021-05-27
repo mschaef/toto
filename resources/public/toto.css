@@ -288,12 +288,9 @@ i.icon-bars {
 /*** Forms ***/
 
 form {
+    padding-top: 10px;
     padding-left: 10px;
     padding-right: 10px;
-}
-
-input {
-    padding: 2px;
 }
 
 .submit-panel {
@@ -305,6 +302,49 @@ input {
     width: auto;
     margin-bottom: 0px;
 }
+
+input[type="text"], input[type="password"]{
+    border-bottom: 1px solid #b0b0b0;
+    border-top: 1px solid #f0f0f0;
+    border-right: 0px none;
+    border-left: 0px none;
+    background: #f0f0f0;
+}
+
+::placeholder {
+    color: #c0c0c0;
+    font-size: 12px;
+}
+
+input[type=submit] {
+    padding: 0.5em 1em;
+    background: #ccc;
+    border: 1px solid #c0c0c0;
+    cursor: pointer;
+    -webkit-border-radius: 0px;
+    border-radius: 0px;
+    margin-right: 10px;
+}
+
+input[type=submit]:hover {
+    background:#ddd;
+}
+
+select {
+    padding: 5px 10px;
+    background:#ccc;
+    cursor:pointer;
+
+    border: 0px;
+    border-radius: 0px;
+
+    -webkit-border-radius: 0px;
+}
+
+select:hover {
+    background:#ddd;
+}
+
 
 /*** Scrollable Column ***/
 
@@ -327,7 +367,6 @@ input:focus {
     flex: 1;
     overflow-y: auto;
     padding-bottom: 100px;
-    padding-right: 12px;
 }
 
 /*** New Item Form ***/
@@ -352,10 +391,9 @@ input:focus {
 
 }
 
-.new-item-form button.high-priority-submit {
+.new-item-form .high-priority-submit {
     background: transparent;
     padding: 6px;
-    margin-left: 3px;
     cursor: pointer;
 
     border: none;
@@ -369,7 +407,7 @@ input:focus {
     background: #eeeeee;
 }
 
-.new-item-form button.high-priority-submit {
+.new-item-form .high-priority-submit {
     flex: 0;
 }
 
@@ -383,10 +421,8 @@ input:focus {
     }
 }
 
-.auth-form input[type=text], .auth-form input[type=password] {
-    display: block;
-    width: 100%;
-    margin-bottom: 5px;
+.config-panel input[type=submit] {
+    margin: 4px;
 }
 
 .config-panel input[type=checkbox] {
@@ -397,6 +433,9 @@ input:focus {
     width: 32px;
 }
 
+.config-panel input[type=text], input[type=password] {
+    margin-bottom: 8px;
+}
 
 input[type=text], input[type=password] {
     padding: 4px;
@@ -448,19 +487,6 @@ input[type=text], input[type=password] {
     margin-left: 3px;
 }
 
-.simple-border {
-    border-bottom: 1px solid #b0b0b0;
-    border-top: 1px solid #f0f0f0;
-    border-right: 0px none;
-    border-left: 0px none;
-    background: #f0f0f0;
-}
-
-::placeholder {
-    color: #c0c0c0;
-}
-
-
 .page-message {
     margin: 1em;
 }
@@ -471,7 +497,11 @@ input[type=text], input[type=password] {
     height: 30px;
 }
 
-.header span.app-name A {
+.app-name {
+    display: none;
+}
+
+.header .app-name A {
     color: black;
     font-weight: bold;
 }
@@ -481,13 +511,11 @@ input[type=text], input[type=password] {
     text-align: center;
 }
 
-.app-name {
-    display: none;
-}
 
 @media only screen and (min-device-width : 640px) {
     .app-name {
         display: inline-block;
+        margin-right: 3px;
     }
 }
 
@@ -520,9 +548,6 @@ input[type=text], input[type=password] {
 .toplevel-list {
     width: 100%;
     box-sizing: border-box;
-
-    padding-left: 10px;
-    padding-right: 10px;
 }
 
 @media only screen and (min-device-width : 640px) {
@@ -724,12 +749,14 @@ A .pill {
 
     white-space: nowrap;
 
+    padding-left: 4px;
     padding-top: 8px;
     padding-bottom: 8px;
 }
 
 @media only screen and (min-device-width : 640px) {
     .item-row {
+        padding-left: 0px;
         padding-bottom: 4px;
         padding-bottom: 4px;
     }
@@ -785,10 +812,6 @@ A .pill {
     font-style: italic;
 }
 
-.full-width {
-    width: 100%;
-}
-
 p.new-list {
     text-align: center;
     font-style: italic;
@@ -804,7 +827,9 @@ p.new-user {
 /*** List Configuration Controls ***/
 
 .config-panel  {
-    width: 100%;
+    display: flex;
+    flex-direction: column;
+
     padding-bottom: 0px;
 
     margin-left: 20px;
@@ -821,8 +846,15 @@ p.new-user {
 }
 
 .config-panel .list-owner {
-    padding-top: 4px;
-    padding-bottom: 4px;
+    display: flex;
+    padding: 0px 0px 12px 0px;
+}
+
+.config-panel .list-owner input {
+    margin: 0px;
+}
+.config-panel .list-owner input[type="text"] {
+    flex: 1;
 }
 
 .config-panel .list-owner .self-owner {
@@ -831,43 +863,9 @@ p.new-user {
     width: 32px;
 }
 
-.config-panel A {
-    padding-left: 6px;
-}
-
-.config-panel A, .todo-item A, .query-settings A {
+.config-panel A, .query-settings A, A.item-link {
     color: blue;
 }
-
-input[type=submit] {
-    padding: 0.5em 1em;
-    background: #ccc;
-    border: 1px solid #c0c0c0;
-    cursor: pointer;
-    -webkit-border-radius: 0px;
-    border-radius: 0px;
-    margin-right: 10px;
-}
-
-input[type=submit]:hover {
-    background:#ddd;
-}
-
-select {
-    padding: 5px 10px;
-    background:#ccc;
-    cursor:pointer;
-
-    border: 0px;
-    border-radius: 0px;
-
-    -webkit-border-radius: 0px;
-}
-
-select:hover {
-    background:#ddd;
-}
-
 
 @media print {
     .header {

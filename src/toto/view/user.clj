@@ -71,10 +71,8 @@
    (form/form-to
     {:class "auth-form"}
     [:post "/login"]
-    (form/text-field {:class "simple-border"
-                      :placeholder "E-Mail Address"} "username" email-addr)
-    (form/password-field {:class "simple-border"
-                          :placeholder "Password"} "password")
+    (form/text-field {:placeholder "E-Mail Address"} "username" email-addr)
+    (form/password-field {:placeholder "Password"} "password")
     [:div.error-message
      (when login-failure?
        "Invalid username or password.")]
@@ -89,12 +87,9 @@
    (form/form-to
     {:class "auth-form"}
     [:post "/user"]
-    (form/text-field {:placeholder "E-Mail Address"
-                      :class "simple-border" } "email_addr")
-    (form/password-field {:placeholder "Password"
-                          :class "simple-border"} "password1")
-    (form/password-field {:placeholder "Verify Password"
-                          :class "simple-border"} "password2")
+    (form/text-field {:placeholder "E-Mail Address"} "email_addr")
+    (form/password-field {:placeholder "Password"} "password1")
+    (form/password-field {:placeholder "Verify Password"} "password2")
     [:div#error.error-message
      error-message]
     [:div.submit-panel
@@ -142,21 +137,34 @@
 (defn render-user-info-form [ & { :keys [ error-message ]}]
   (let [user (data/get-user-by-email (current-identity))]
     (render-page { :page-title "User Information" }
-                      (form/form-to
-                       [:post "/user/info"]
-                       [:input {:type "hidden"
-                                :name "username"
-                                :value (current-identity)}]
-                       [:table.form
-                        [:tr [:td "E-Mail Address:"] [:td (current-identity)]]
-                        [:tr [:td "Name"] [:td [:input {:name "name"
-                                                        :value (:friendly_name user)}]]]
-                        [:tr [:td "Last login"]
-                         [:td (.format date-format (or (:last_login_on user) (java.util.Date.)))]]
-                        (when error-message
-                          [:tr [:td.error-message { :colspan 2 } error-message]])
-                        [:tr [:td] [:td [:a {:href "/user/password-change"} "Change Password"]]]
-                        [:tr [:td] [:td (form/submit-button {} "Update User")]]]))))
+                 (form/form-to
+                  [:post "/user/info"]
+                  [:input {:type "hidden"
+                           :name "username"
+                           :value (current-identity)}]
+                  
+                  
+                  [:div.config-panel
+                   [:h1 "E-Mail Address"]
+                   (current-identity)]
+
+                  [:div.config-panel
+                   [:h1 "Name"]
+                   [:div
+                    
+                    [:input {:name "name"
+                             :type "text"
+                             :value (:friendly_name user)}]
+                    (form/submit-button {} "Update")]
+                   (when error-message
+                     [:div.error-message error-message])]
+
+                  [:div.config-panel
+                   [:h1 "Last Login"]
+                   (.format date-format (or (:last_login_on user) (java.util.Date.)))]
+
+                  [:div.config-panel
+                    [:a {:href "/user/password-change"} "Change Password"]]))))
 
 (defn validate-name [ name ]
   (if name
@@ -175,22 +183,34 @@
 (defn render-change-password-form  [ & { :keys [ error-message ]}]
   (let [user (data/get-user-by-email (current-identity))]
     (render-page { :page-title "Change Password" }
-                      (form/form-to {:class "auth-form"}
-                       [:post "/user/password-change"]
-                       [:input {:type "hidden"
-                                :name "username"
-                                :value (current-identity)}]
-                       [:table.form
-                        [:tr [:td "E-Mail Address:"] [:td (current-identity)]]
-                        [:tr [:td "Name"] [:td (:friendly_name user)]]
-                        [:tr [:td "Last login"]
-                         [:td (.format date-format (or (:last_login_on user) (java.util.Date.)))]]
-                        [:tr [:td "Old Password:"] [:td (form/password-field "password")]]
-                        [:tr [:td "New Password:"] [:td (form/password-field "new_password1")]]
-                        [:tr [:td "Verify Password:"] [:td (form/password-field "new_password2")]]
-                        (when error-message
-                          [:tr [:td.error-message { :colspan 2 } error-message]])
-                        [:tr [:td] [:td (form/submit-button {} "Change Password")]]])))  )
+                 (form/form-to {:class "auth-form"}
+                               [:post "/user/password-change"]
+
+                               [:input {:type "hidden"
+                                        :name "username"
+                                        :value (current-identity)}]
+                               
+                               [:div.config-panel
+                                [:h1 "E-Mail Address"]
+                                (current-identity)]
+
+                               [:div.config-panel
+                                [:h1 "Name"]
+                                (:friendly_name user)]
+
+                               [:div.config-panel
+                                [:h1 "Last Login"]
+                                (.format date-format (or (:last_login_on user) (java.util.Date.)))]
+
+                               [:div.config-panel
+                                [:h1 "Reset Password"]
+                                (form/password-field {:placeholder "Password"} "password")
+                                (form/password-field {:placeholder "New Password"} "new_password1")
+                                (form/password-field {:placeholder "Verify Password"} "new_password2")
+                                (when error-message
+                                  [:div.error-message error-message])
+                                [:div
+                                 (form/submit-button {} "Change Password")]]))))
 
 (defn change-password [ password new-password-1 new-password-2 ]
   (let [ username (current-identity) ]
