@@ -578,6 +578,12 @@ input[type=text], input[type=password] {
     width: 100%;
     white-space: normal;
     box-sizing: border-box;
+    display: flex;
+    min-height: 24px;
+}
+
+.toplevel-list .item-description input {
+    flex: 1;
 }
 
 .order-drop-target.drop-hover {
@@ -763,8 +769,10 @@ A .pill {
 }
 
 .item-row .drag-handle {
-    padding: 0px 25px 0px 15px;
-    font-size: 1.25em;
+    width: 25px;
+    min-width: 25px;
+
+    border: 1px solid red;
 }
 
 @media only screen and (min-device-width : 640px) {
