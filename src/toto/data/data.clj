@@ -37,7 +37,7 @@
   (let [ spec {:name (or (config-property "db.subname")
                          (get-in config [:db :subname] "toto"))
                :schema-path [ "sql/" ]
-               :schemas [[ "toto" 7 ]]}]
+               :schemas [[ "toto" 8 ]]}]
     (log/info "DB Conn Spec: " spec)
     spec))
 
@@ -156,6 +156,16 @@
   (jdbc/update! *db* :user
                 {:last_login_on (current-time)}
                 ["email_addr=?" email-addr]))
+
+(defn record-login-failure [ user-id ]
+  (jdbc/insert! *db* :login_failure
+                {:user_id user-id
+                 :failed_on (current-time)}))
+
+(defn reset-login-failures [ user-id ]
+  (jdbc/delete! *db*
+                :login_failure
+                ["user_id=?" user-id]))
 
 (defn create-verification-link [ user-id ]
   (:verification_link_id

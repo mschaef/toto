@@ -36,26 +36,32 @@
                  [:a {:href (str "/user/password-change")} "this link"]
                  "."]]))
 
-(defn missing-verification? [ request ]
-  (= (auth/request-missing-roles request)
-     #{:toto.role/verified}))
-
-(defn missing-current-password? [ request ]
-  (= (auth/request-missing-roles request)
-     #{:toto.role/current-password}))
+(defn user-account-locked [ request ]
+  (render-page { :page-title "Account Locked"}
+               [:div.page-message
+                [:h1 "Account Locked"]
+                [:p
+                 "Your account is locked and must be re-verified by e-mail."
+                 "An verification e-mail can be sent by following "
+                 [:a {:href (str "/user/begin-unlock/" (current-user-id))} "this link"]
+                 "."]]))
 
 (defn unauthorized-handler [request]
-  {:status 403
-   :body ((cond
-            (missing-verification? request)
-            user-unverified
+  (let [roles (auth/current-roles)]
+    {:status 403
+     :body ((cond
+              (:toto.role/unverified roles)
+              user-unverified
 
-            (missing-current-password? request)
-            user-password-expired
+              (:toto.role/expired-password roles)
+              user-password-expired
 
-            :else
-            user-unauthorized)
-          request)})
+              (:toto.role/locked-account roles)
+              user-account-locked
+
+              :else
+              user-unauthorized)
+            request)}))
 
 (defn create-user [ email-addr password ]
   (let [user-id (auth/create-user email-addr password)
@@ -147,8 +153,6 @@
                   [:input {:type "hidden"
                            :name "username"
                            :value (current-identity)}]
-                  
-                  
                   [:div.config-panel
                    [:h1 "E-Mail Address"]
                    (current-identity)]
@@ -156,7 +160,6 @@
                   [:div.config-panel
                    [:h1 "Name"]
                    [:div
-                    
                     [:input {:name "name"
                              :type "text"
                              :value (:friendly_name user)}]
@@ -194,7 +197,7 @@
                                [:input {:type "hidden"
                                         :name "username"
                                         :value (current-identity)}]
-                               
+
                                [:div.config-panel
                                 [:h1 "E-Mail Address"]
                                 (current-identity)]
@@ -252,6 +255,11 @@
    (let [ link-uuid (:link_uuid (data/get-verification-link-by-user-id user-id))]
      [:a {:href (str "/user/verify/" user-id "/" link-uuid)} "Verify"])])
 
+(defn development-unlock-form [ user-id ]
+  [:div.dev-tool
+   (let [ link-uuid (:link_uuid (data/get-verification-link-by-user-id user-id))]
+     [:a {:href (str "/user/unlock/" user-id "/" link-uuid)} "Unlock"])])
+
 (defn enter-verify-workflow [ config user-id ]
   (let [ user (data/get-user-by-id user-id) ]
     (ensure-verification-link user-id)
@@ -266,8 +274,8 @@
                        (when (:development-mode config)
                          (development-verification-form user-id))])))
 
+
 (defn verify-user [ link-user-id link-uuid ]
-  (log/error "verify user " [ link-user-id link-uuid ])
   (when-let [ user-id (:verifies_user_id (data/get-verification-link-by-uuid link-uuid)) ]
     (let [ email-addr (:email_addr (data/get-user-by-id user-id)) ]
       (data/add-user-roles user-id #{:toto.role/verified})
@@ -275,6 +283,32 @@
                         [:div.page-message
                          [:h1 "e-Mail Address Verified"]
                          [:p "Thank you for verifying your e-mail address at: "
+                          [:span.addr email-addr] ". Using the link below, you "
+                          "can log in and start to use the system."]
+                         [:a {:href "/"} "Login"]]))))
+
+(defn enter-unlock-workflow [ config user-id ]
+  (let [ user (data/get-user-by-id user-id) ]
+    (ensure-verification-link user-id)
+    (send-verification-link config user-id)
+    (render-page { :page-title "Unlock Account" }
+                      [:div.page-message
+                       [:h1 "Unlock Account"]
+                       [:p "An e-mail has been sent to "  [:span.addr (:email_addr user)]
+                        " with a link you may use to unlock your account. Please"
+                        " check your spam filter if it does not appear within a few minutes."]
+                       [:a {:href "/"} "Login"]
+                       (when (:development-mode config)
+                         (development-unlock-form user-id))])))
+
+(defn unlock-user [ link-user-id link-uuid ]
+  (when-let [ user-id (:verifies_user_id (data/get-verification-link-by-uuid link-uuid)) ]
+    (let [ email-addr (:email_addr (data/get-user-by-id user-id)) ]
+      (data/reset-login-failures user-id)
+      (render-page { :page-title "Account Unlocked" }
+                        [:div.page-message
+                         [:h1 "Account Unlocked"]
+                         [:p "Thank you for unlocking your account at: "
                           [:span.addr email-addr] ". Using the link below, you "
                           "can log in and start to use the system."]
                          [:a {:href "/"} "Login"]]))))
@@ -301,7 +335,6 @@
    (POST "/user" {params :params}
      (add-user (:email_addr params) (:password1 params) (:password2 params)))
 
-
    (GET "/login" { { login-failed :login_failed email-addr :username } :params }
      (render-login-page :email-addr email-addr
                         :login-failure? (= login-failed "Y")))
@@ -309,9 +342,16 @@
    (GET "/user/begin-verify/:user-id" { { user-id :user-id } :params }
      (enter-verify-workflow config user-id))
 
+   (GET "/user/begin-unlock/:user-id" { { user-id :user-id } :params }
+     (enter-unlock-workflow config user-id))
+
    (friend/logout
     (GET "/user/verify/:user-id/:link-uuid" { { user-id :user-id link-uuid :link-uuid } :params }
       (verify-user user-id link-uuid)))
+
+   (friend/logout
+    (GET "/user/unlock/:user-id/:link-uuid" { { user-id :user-id link-uuid :link-uuid } :params }
+      (unlock-user user-id link-uuid)))
 
    (friend/logout
     (ANY "/logout" [] (ring/redirect "/")))

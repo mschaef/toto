@@ -7,21 +7,17 @@
             [cemerick.friend.workflows :as workflows]
             [toto.data.data :as data]))
 
-(def expected-roles #{:toto.role/verified :toto.role/current-password})
-
 (defn get-user-id-by-email [ email ]
   (if-let [ user-info (data/get-user-by-email email) ]
     (user-info :user_id)
     nil))
 
 (defmacro authorize-expected-roles [ & body ]
-  `(friend/authorize expected-roles ~@body))
+  `(friend/authorize #{:toto.role/user} ~@body))
 
 (defn authorize-toto-valid-user [ routes ]
   (-> routes
-      (wrap-routes friend/wrap-authorize #{:toto.role/verified})
-      (wrap-routes friend/wrap-authorize #{:toto.role/current-password})))
-
+      (wrap-routes friend/wrap-authorize #{:toto.role/user})))
 
 (defn- password-current? [ user-record ]
   (if-let [expiry (:password_expires_on user-record)]
@@ -29,34 +25,48 @@
         (.after (:password_created_on user-record) expiry))
     true))
 
+(defn- account-locked? [ user-record ]
+  (> (:login_failure_count user-record) 4))
+
 (defn- get-user-roles [ user-record ]
-  (clojure.set/union
-   #{:toto.role/user}
-   (cond-> (data/get-user-roles (:user_id user-record))
-     (password-current? user-record) (clojure.set/union #{:toto.role/current-password}))))
+  (cond (account-locked? user-record)
+        #{:toto.role/locked-account}
+
+        (not (password-current? user-record))
+        #{:toto.role/password-expired}
+
+        :else
+        (clojure.set/union
+         #{:toto.role/user} (data/get-user-roles (:user_id user-record)))))
 
 (defn get-auth-map-by-email [ email ]
   (if-let [user-record (data/get-user-by-email email)]
     {:identity email
      :user-record user-record
      :user-id (user-record :user_id)
-     :roles (get-user-roles user-record)}))
+     :roles (get-user-roles user-record)
+     :account-locked (account-locked? user-record)
+     :login-failure-count (user-record :login_failure_count)}))
 
 (defn get-user-by-credentials [ creds ]
   (if-let [auth-map (get-auth-map-by-email (creds :username))]
-    (and (credentials/bcrypt-verify (creds :password) (get-in auth-map [:user-record :password]))
-         (do
-           (data/set-user-login-time (creds :username))
-           (update-in auth-map [:user-record] dissoc :password)))
+    (cond
+      (:account-locked auth-map)
+      (update-in auth-map [:user-record] dissoc :password)
+
+      (credentials/bcrypt-verify (creds :password) (get-in auth-map [:user-record :password]))
+      (do
+        (data/set-user-login-time (creds :username))
+        (update-in auth-map [:user-record] dissoc :password))
+
+      :else
+      (do
+        (data/record-login-failure (:user-id auth-map))
+        nil))
     nil))
 
-(defn request-required-roles [ request ]
-  (get-in request [:cemerick.friend/authorization-failure
-                   :cemerick.friend/required-roles]))
-
-(defn request-missing-roles [ request ]
-  (clojure.set/difference (request-required-roles request)
-                          (:roles (friend/current-authentication))))
+(defn current-roles []
+  (:roles (friend/current-authentication)))
 
 (defn set-user-password [ username password ]
   (data/set-user-password username (credentials/hash-bcrypt password)))
