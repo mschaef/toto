@@ -2,7 +2,8 @@
  :development-mode true
 
  :base-url "http://localhost:8080/"
- :db {:backup-path "."
-      :backup-cron "14 * * * *"}
+ :db {:subname "./local-db/toto"
+      :backup-path "./local-db"
+      :backup-cron "*/1 * * * *"}
  :smtp {:enabled false
         :from "mike@mschaef.com"}}

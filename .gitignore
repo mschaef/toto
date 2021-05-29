@@ -2,3 +2,7 @@
 *#
 libs/
 target/
+local-db/
+dump-file.edn
+.lein-repl-history
+.DS_Store

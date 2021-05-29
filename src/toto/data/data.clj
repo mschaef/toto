@@ -34,10 +34,12 @@
   (java.util.Date.))
 
 (defn db-conn-spec [ config ]
-  {:name (or (config-property "db.subname" "toto")
-              (get-in config [:db :subname] "toto"))
-   :schema-path [ "sql/" ]
-   :schemas [[ "toto" 7 ]]})
+  (let [ spec {:name (or (config-property "db.subname")
+                         (get-in config [:db :subname] "toto"))
+               :schema-path [ "sql/" ]
+               :schemas [[ "toto" 7 ]]}]
+    (log/info "DB Conn Spec: " spec)
+    spec))
 
 ;;; backup
 
