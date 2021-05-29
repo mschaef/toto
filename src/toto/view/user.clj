@@ -71,7 +71,7 @@
    (form/form-to
     {:class "auth-form"}
     [:post "/login"]
-    [:div.config-panel
+    [:div.config-panel.toplevel
      (form/text-field {:placeholder "E-Mail Address"} "username" email-addr)
      (form/password-field {:placeholder "Password"} "password")
      [:div.error-message
@@ -215,7 +215,7 @@
                                 (when error-message
                                   [:div.error-message error-message])
                                 [:div
-                                 (form/submit-button {} "Change Password")]]))))
+                                 (form/submit-button {} "Reset Password")]]))))
 
 (defn change-password [ password new-password-1 new-password-2 ]
   (let [ username (current-identity) ]
