@@ -470,6 +470,7 @@ input[type=text], input[type=password] {
 
     display: flex;
     flex-direction: row;
+    align-items: center;
 }
 
 .query-settings .control-segment {

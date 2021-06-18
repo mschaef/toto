@@ -91,14 +91,6 @@
          [:input {:type "submit" :value "Update List Details"}]]]
 
        [:div.config-panel
-        [:h1  "View List"]
-        [:a { :href (shref "/list/" list-id) } "View List"]]
-
-       [:div.config-panel
-        [:h1 "Download List"]
-        [:a { :href (shref "/list/" list-id "/list.csv" ) } "Download List as CSV"]]
-
-       [:div.config-panel
         [:h1 "Sort List"]
         [:div
          [:input {:type "submit" :value "Sort By"

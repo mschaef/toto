@@ -145,6 +145,7 @@
 
 (defn- render-todo-list-query-settings [ list-id completed-within-days snoozed-for-days ]
   [:div.query-settings
+   [:a { :href (shref "/list/" list-id "/list.csv" ) } "[csv]"]
    (form/form-to { :class "embedded "} [:get (shref "/list/" list-id)]
                  [:div.control-segment
                   [:a {:href (shref "/list/" list-id "/details")}
@@ -167,7 +168,6 @@
     "Nothing to do right now!"]
    [:p
     "To get started, you can add new items in the box above."]])
-
 
 (defn- render-snoozed-item-warning [ n-snoozed-items ]
   [:div.snoozed-item-warning
