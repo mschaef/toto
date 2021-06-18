@@ -166,8 +166,7 @@
                                       (parsable-integer? (:edit-item-id params))
                                       (or (parsable-integer? (:min-list-priority params)) 0)
                                       (or (parsable-integer? (:cwithin params)) 0)
-                                      (and (:include-snoozed params)
-                                           (= (:include-snoozed params) "Y"))
+                                      (or (parsable-integer? (:sfor params)) 0)
                                       (parsable-integer? (:snoozing params))))
 
    (GET "/list.csv" []

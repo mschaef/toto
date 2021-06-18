@@ -99,6 +99,7 @@ SELECT item.item_id,
        DATEDIFF('day', item.created_on, CURRENT_TIMESTAMP) as age_in_days,
        item.snoozed_until,
        CURRENT_TIMESTAMP < NVL(item.snoozed_until, CURRENT_TIMESTAMP) AS currently_snoozed,
+       DATEADD('day', :snoozed_within_days, CURRENT_TIMESTAMP) < NVL(item.snoozed_until, CURRENT_TIMESTAMP) AS visibly_snoozed,
        item_ordinal
    FROM todo_item item, user
    WHERE item.todo_list_id = :list_id

@@ -135,7 +135,15 @@
      (item-drag-handle "right" item-info)]))
 
 
-(defn- render-todo-list-query-settings [ list-id completed-within-days include-snoozed? ]
+(defn- render-query-select [ id current-value allow-all? ]
+  [:select { :id id :name id :onchange "this.form.submit()"}
+   (form/select-options (cond-> [ [ "-" "-"] ["1d" "1"] ["7d" "7"] ["30d" "30"] ["90d" "90"] ]
+                          allow-all? (conj ["*" "99999"] ))
+                        (if (nil? current-value)
+                          "-"
+                          (str current-value)))])
+
+(defn- render-todo-list-query-settings [ list-id completed-within-days snoozed-for-days ]
   [:div.query-settings
    (form/form-to { :class "embedded "} [:get (shref "/list/" list-id)]
                  [:div.control-segment
@@ -146,20 +154,12 @@
                    " [default view]"]]
                  [:div.control-segment
                   [:label {:for "cwithin"}
-                   "Include items completed within: "]
-                  [:select { :id "cwithin" :name "cwithin" :onchange "this.form.submit()"}
-                   (form/select-options [ [ "-" "-"] [ "1d" "1"] [ "7d" "7"] [ "30d" "30"] [ "90d" "90"] ]
-                                        (if (nil? completed-within-days)
-                                          "-"
-                                          (str completed-within-days)))]]
+                   "Completed within: "]
+                  (render-query-select "cwithin" completed-within-days false)]
                  [:div.control-segment
-                  [:label {:for "include-snoozed"}  "Include snoozed :"]
-                  [:input {:type "checkbox"
-                           :name "include-snoozed"
-                           :id "include-snoozed"
-                           :value "Y"
-                           :onchange "this.form.submit()"
-                           :checked include-snoozed?}]])])
+                  [:label {:for "swithin"}
+                   "Snoozed for: "]
+                  (render-query-select "sfor" snoozed-for-days true)])])
 
 (defn- render-empty-list []
   [:div.empty-list
@@ -171,32 +171,29 @@
 
 (defn- render-snoozed-item-warning [ n-snoozed-items ]
   [:div.snoozed-item-warning
-   n-snoozed-items " item" (if (= n-snoozed-items 1) "" "s" ) " snoozed for later. "
-   "Click " [:a {:href (shref "" {:include-snoozed "Y"})} "here"] " to show."])
+   n-snoozed-items " more item" (if (= n-snoozed-items 1) "" "s" ) " snoozed for later. "
+   "Click " [:a {:href (shref "" {:sfor "99999"})} "here"] " to show."])
 
-(defn- render-todo-list [ list-id edit-item-id writable? completed-within-days include-snoozed? ]
-  (let [pending-items (data/get-pending-items list-id completed-within-days)
-        n-snoozed-items (count (filter :currently_snoozed pending-items))]
+(defn- render-todo-list [ list-id edit-item-id writable? completed-within-days snoozed-for-days ]
+  (let [pending-items (data/get-pending-items list-id completed-within-days snoozed-for-days)
+        n-snoozed-items (count (filter :visibly_snoozed pending-items))]
     (render-scroll-column
      (when writable?
        (render-new-item-form list-id (boolean edit-item-id)))
      [:div.toplevel-list
-      (let [display-items (if include-snoozed?
-                            pending-items
-                            (remove :currently_snoozed pending-items))]
+      (let [display-items (remove :visibly_snoozed pending-items)]
         (if (= (count display-items) 0)
           (render-empty-list)
           (list
            (map #(render-todo-item list-id % writable? (= edit-item-id (:item_id %)))
                 display-items)
            (drop-target (+ 1 (apply max (map :item_ordinal display-items)))))))]
-     (when (and (> n-snoozed-items 0)
-                (not include-snoozed?))
+     (when (> n-snoozed-items 0)
        (render-snoozed-item-warning n-snoozed-items))
-     (render-todo-list-query-settings list-id completed-within-days include-snoozed?))))
+     (render-todo-list-query-settings list-id completed-within-days snoozed-for-days))))
 
 (defn render-todo-list-csv [  list-id ]
-  (clojure.string/join "\n" (map :desc (data/get-pending-items list-id 0))))
+  (clojure.string/join "\n" (map :desc (data/get-pending-items list-id 0 0))))
 
 (defn render-snooze-modal [list-id snoozing-item-id]
   (let [list-url (without-snoozing (shref "/list/" list-id))]

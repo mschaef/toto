@@ -1,6 +1,4 @@
 * Release 1
-** A user can interactively change their password with the web UI.
-** A user can vary the length of time an item is snoozed.
 ** The user interface stores passwords with a salt.
 * Release 2
 ** per-list Bookmarklet for adding selected text, etc. to a todo-list
@@ -10,10 +8,12 @@
 * Release Auth
 ** A user can store multiple e-mail addresses for each account.
 ** A user can authenticate using some sort of external authentiation provider.
-** User e-mail addresses must be validated prior to the account being fully enabled.
 ** Add a means to recover a forgotten password via an e-mail.
-
 * Completed
+** DONE User e-mail addresses must be validated prior to the account being fully enabled.
+
+** DONE A user can interactively change their password with the web UI.
+** DONE A user can vary the length of time an item is snoozed.
 ** DONE A user can display a list of all todo list items, even if they have been completed.
 ** DONE A user can denote that a todo item should be deferred until a given date.
 ** DONE The website displays correctly on Mobile Safari.
