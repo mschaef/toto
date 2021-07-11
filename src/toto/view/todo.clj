@@ -115,10 +115,10 @@
 (defn update-item-snooze-days [ item-id snooze-days next-href ]
   (let [list-id (data/get-list-id-by-item-id item-id)
         snooze-days (or (parsable-integer? snooze-days) 0)]
-    (data/update-item-snooze-by-id  (current-user-id) item-id
-                                    (if (= snooze-days 0)
-                                      nil
-                                      (add-days (java.util.Date.) snooze-days)))
+    (data/update-item-snooze-by-id (current-user-id) item-id
+                                   (if (= snooze-days 0)
+                                     nil
+                                     (add-days (java.util.Date.) snooze-days)))
     (ring/redirect next-href)))
 
 (defn update-item-list [ item-id target-list-id ]
