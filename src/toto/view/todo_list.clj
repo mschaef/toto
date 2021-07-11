@@ -196,21 +196,32 @@
   (clojure.string/join "\n" (map :desc (data/get-pending-items list-id 0 0))))
 
 (defn render-snooze-modal [list-id snoozing-item-id]
-  (let [list-url (without-snoozing (shref "/list/" list-id))]
+  (let [currently-snoozed (:currently_snoozed (data/get-item-by-id snoozing-item-id))
+        list-url (without-snoozing (shref "/list/" list-id))]
+
+    (defn render-snooze-choice [ label snooze-days ]
+      (form/form-to [:post (shref "/item/" snoozing-item-id "/snooze")]
+                    (form/hidden-field "next-href" list-url)
+                    (form/hidden-field "snooze-days" snooze-days)
+                    [:input {:type "submit" :value label}]))
+    
     (render-modal
      list-url
      [:div.snooze
       [:div.cancel
        [:a {:href list-url} img-window-close]]
-      [:h3 "Snooze"]
-      [:p "Defer this item until later."]
-      (map (fn [ snooze-days ]
-             (form/form-to [:post (shref "/item/" snoozing-item-id "/snooze")]
-                           (form/hidden-field "next-href" list-url)
-                           (form/hidden-field "snooze-days" snooze-days)
-                           [:div.controls
-                            [:input {:type "submit" :value (str snooze-days "d")}]]))
-           [1 3 7 30 90 365])])))
+      [:h3 "Snooze item until later"]
+      [:div.choices
+       (map (fn [ [ label snooze-days] ]
+              (render-snooze-choice label snooze-days))
+            [["Tomorrow" 1]
+             ["Next Week"  7]
+             ["Next Month" 30]
+             ["Next Year" 365]])]
+      (when currently-snoozed
+        [:div.choices
+         [:hr]
+         (render-snooze-choice "Unsnooze" 0)])])))
 
 (defn render-todo-list-page [ selected-list-id edit-item-id min-list-priority completed-within-days snoozed-for-days snoozing-item-id ]
   (render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)

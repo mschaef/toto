@@ -158,7 +158,19 @@ SELECT count(item.item_id)
    AND NOT (item.is_deleted OR item.is_complete)
 
 -- name: get-item-by-id
-SELECT item.item_id, item.todo_list_id, item.desc, item.created_on
+SELECT item.item_id,
+       item.todo_list_id,
+       item.desc,
+       item.created_on,
+       item.priority,
+       item.updated_on,
+       item.is_deleted,
+       item.is_complete,
+       DATEDIFF('day', item.created_on, CURRENT_TIMESTAMP) as age_in_days,
+       item.snoozed_until,
+       CURRENT_TIMESTAMP < NVL(item.snoozed_until, CURRENT_TIMESTAMP) AS currently_snoozed,
+       item_ordinal
+       
   FROM todo_item item
  WHERE item_id = :item_id
 

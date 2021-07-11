@@ -37,7 +37,7 @@ body {
     position: absolute;
     float: left;
     left: 50%;
-    top: 30%;
+    top: 40%;
     transform: translate(-50%, -50%);
     
     background-color: white;
@@ -67,24 +67,18 @@ body {
     margin-left: 10px;
 }
 
-.modal .controls input {
-    margin: 0 0 0 10px;
-}
-
-.modal .controls {
-    text-align: end;
-}
 
 .modal p {
     padding-bottom: 12px;
 }
 
 .modal .snooze form {
-    display: inline-block;
+    text-align: right;
+    padding: 0px;
 }
 
 .modal .snooze input {
-    width: 80px;
+    width: 100px;
 }
 
 .header {
