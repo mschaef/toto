@@ -28,9 +28,6 @@
 (defn- snooze-item-button [ item-info body ]
   [:a {:href (shref "" {:snoozing (item-info :item_id)})} body])
 
-(defn- unsnooze-item-button [ item-info body ]
-  (post-button (str "/item/" (item-info :item_id) "/snooze") {:snooze-days 0} "Un-snooze Item" body))
-
 (defn- render-new-item-form [ list-id editing-item? ]
   (form/form-to
    {:class "new-item-form"}
@@ -124,10 +121,11 @@
                    :class (class-set {"deleted-item" is-deleted?
                                       "completed-item" is-complete?})}
              (render-item-text desc)
-             (snooze-item-button item-info [:span.pill (render-age (:age_in_days item-info))])
-             (when currently-snoozed
-               (unsnooze-item-button item-info [:span.pill "snoozed: "
-                                                (.format snooze-date-format snoozed-until)]))
+             (snooze-item-button item-info [:span.pill
+                                            (render-age (:age_in_days item-info))
+                                            (when currently-snoozed
+                                              (list
+                                               ", snoozed: " (.format snooze-date-format snoozed-until)))])
              (when (not (= created-by-id (current-user-id)))
                [:span.pill created-by-name])]))]))
      [:div.item-control.priority.right
