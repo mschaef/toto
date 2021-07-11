@@ -377,6 +377,7 @@ function checkModalShortcutBindings(event) {
 
     for(let shortcut of shortcuts) {
         if (event.key === shortcut.getAttribute('data-shortcut-key')) {
+            event.preventDefault();
             shortcut.submit();
         }
     }

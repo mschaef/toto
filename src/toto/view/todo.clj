@@ -55,6 +55,10 @@
     "snoozed-until" (data/order-list-items-by-snoozed-until! list-id))
   (redirect-to-list list-id))
 
+(defn copy-list [list-id copy-from-list-id]
+  (data/copy-list (current-user-id) list-id copy-from-list-id)
+  (redirect-to-list list-id))
+
 (defn add-list [ list-description ]
   (if (string-empty? list-description)
     (redirect-to-home)
@@ -167,7 +171,8 @@
                                       (or (parsable-integer? (:min-list-priority params)) 0)
                                       (or (parsable-integer? (:cwithin params)) 0)
                                       (or (parsable-integer? (:sfor params)) 0)
-                                      (parsable-integer? (:snoozing params))))
+                                      (parsable-integer? (:snoozing params))
+                                      (= (:updating-from params) "Y")))
 
    (GET "/list.csv" []
      (-> (todo-list/render-todo-list-csv list-id)
@@ -190,6 +195,10 @@
 
    (POST "/sort" { { sort-by :sort-by } :params }
      (sort-list list-id sort-by))
+
+   (POST "/copy-from" { { copy-from-list-id :copy-from-list-id } :params }
+     (ensure-list-owner-access copy-from-list-id)
+     (copy-list list-id copy-from-list-id))
 
    (POST "/" { { item-description :item-description item-priority :item-priority } :params }
      (add-item list-id (string-leftmost item-description 1024) item-priority))))

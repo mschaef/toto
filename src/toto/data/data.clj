@@ -334,6 +334,14 @@
   (set-items-order!
    (map :item_id (get-pending-item-order-by-snoozed-until list-id))))
 
+(defn copy-list [ user-id list-id copy-from-list-id ]
+  (let [current-items (set (map :desc  (get-pending-items list-id 0 0)))
+        from-items (get-pending-items copy-from-list-id 0 0)]
+    (doseq [ new-item (remove
+        #(current-items (:desc %))
+        from-items)]
+      (add-todo-item user-id list-id (:desc new-item) (:priority new-item)))))
+
 (defn update-item-by-id! [ user-id item-id values ]
   (jdbc/with-db-transaction [ trans *db* ]
     (jdbc/insert! trans :todo_item_history

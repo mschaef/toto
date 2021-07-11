@@ -226,6 +226,8 @@
 (defn render-modal [ escape-url & contents ]
   [:div.modal-background
    [:div.modal {:data-escape-url escape-url}
+    [:div.cancel
+     [:a {:href escape-url} img-window-close]]
     contents]])
 
 (defn- render-page-body [ page-data-class page-title username sidebar contents ]

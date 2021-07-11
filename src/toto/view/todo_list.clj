@@ -11,8 +11,10 @@
   `(with-modified-query #(dissoc % "edit-item-id")
      ~@body))
 
-(defmacro without-snoozing [ & body ]
-  `(with-modified-query #(dissoc % "snoozing")
+(defmacro without-modal [ & body ]
+  `(with-modified-query #(-> %
+                             (dissoc "snoozing")
+                             (dissoc "updating-from"))
      ~@body))
 
 (defn- complete-item-button [ item-info ]
@@ -143,8 +145,8 @@
 
 (defn- render-todo-list-query-settings [ list-id completed-within-days snoozed-for-days ]
   [:div.query-settings
-   [:a { :href (shref "/list/" list-id "/list.csv" ) } "[csv]"]
    (form/form-to { :class "embedded "} [:get (shref "/list/" list-id)]
+                 [:a { :href (shref "/list/" list-id "/list.csv" ) } "[csv] "]
                  [:div.control-segment
                   [:a {:href (shref "/list/" list-id "/details")}
                    "[list details]"]]
@@ -158,7 +160,11 @@
                  [:div.control-segment
                   [:label {:for "swithin"}
                    "Snoozed for: "]
-                  (render-query-select "sfor" snoozed-for-days true)])])
+                  (render-query-select "sfor" snoozed-for-days true)]
+
+                 [:a { :href (shref "/list/" list-id {:updating-from "Y"} ) } " [copy from]"]
+                 
+                 )])
 
 (defn- render-empty-list []
   [:div.empty-list
@@ -195,7 +201,7 @@
 
 (defn render-snooze-modal [list-id snoozing-item-id]
   (let [currently-snoozed (:currently_snoozed (data/get-item-by-id snoozing-item-id))
-        list-url (without-snoozing (shref "/list/" list-id))]
+        list-url (without-modal (shref "/list/" list-id))]
 
     (defn render-snooze-choice [ label snooze-days shortcut-key ]
       (form/form-to {:data-shortcut-key shortcut-key}
@@ -207,8 +213,6 @@
     (render-modal
      list-url
      [:div.snooze
-      [:div.cancel
-       [:a {:href list-url} img-window-close]]
       [:h3 "Snooze item until later"]
       [:div.choices
        (map (fn [ [ label snooze-days shortcut-key] ]
@@ -222,12 +226,34 @@
          [:hr]
          (render-snooze-choice "Unsnooze" 0 "0")])])))
 
-(defn render-todo-list-page [ selected-list-id edit-item-id min-list-priority completed-within-days snoozed-for-days snoozing-item-id ]
+(defn- render-list-select [ id excluded-list-id ]
+  [:select { :id id :name id }
+   (form/select-options (map (fn [ list-info ]
+                               [ (:desc list-info) (:todo_list_id list-info)])
+                             (remove
+                              #(= excluded-list-id (:todo_list_id %))
+                              (data/get-todo-lists-by-user (current-user-id)))))])
+
+(defn render-update-from-modal [ list-id ]
+  (let [ list-url (without-modal (shref "/list/" list-id))]
+    (render-modal
+     list-url
+     [:h3 "Update From"]
+     (form/form-to
+      [:post (without-modal (shref "/list/" list-id "/copy-from"))]
+      "Source:"
+      (render-list-select "copy-from-list-id" (parsable-integer? list-id))
+      [:div.modal-controls
+       [:input {:type "submit" :value "Copy List"}]]))))
+
+(defn render-todo-list-page [ selected-list-id edit-item-id min-list-priority completed-within-days snoozed-for-days snoozing-item-id updating ]
   (render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)
                 :page-data-class "todo-list"
                 :sidebar (sidebar-view/render-sidebar-list-list selected-list-id min-list-priority snoozed-for-days)}
                (when snoozing-item-id
-                 (render-snooze-modal selected-list-id snoozing-item-id))               
+                 (render-snooze-modal selected-list-id snoozing-item-id))
+               (when updating
+                 (render-update-from-modal selected-list-id))
                (render-todo-list selected-list-id edit-item-id true completed-within-days snoozed-for-days)))
 
 (defn render-todo-list-public-page [ selected-list-id ]
