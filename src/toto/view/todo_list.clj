@@ -197,11 +197,12 @@
   (let [currently-snoozed (:currently_snoozed (data/get-item-by-id snoozing-item-id))
         list-url (without-snoozing (shref "/list/" list-id))]
 
-    (defn render-snooze-choice [ label snooze-days ]
-      (form/form-to [:post (shref "/item/" snoozing-item-id "/snooze")]
+    (defn render-snooze-choice [ label snooze-days shortcut-key ]
+      (form/form-to {:data-shortcut-key shortcut-key}
+                    [:post (shref "/item/" snoozing-item-id "/snooze")]
                     (form/hidden-field "next-href" list-url)
                     (form/hidden-field "snooze-days" snooze-days)
-                    [:input {:type "submit" :value label}]))
+                    [:input {:type "submit" :value (str label " (" shortcut-key ")")}]))
     
     (render-modal
      list-url
@@ -210,16 +211,16 @@
        [:a {:href list-url} img-window-close]]
       [:h3 "Snooze item until later"]
       [:div.choices
-       (map (fn [ [ label snooze-days] ]
-              (render-snooze-choice label snooze-days))
-            [["Tomorrow" 1]
-             ["Next Week"  7]
-             ["Next Month" 30]
-             ["Next Year" 365]])]
+       (map (fn [ [ label snooze-days shortcut-key] ]
+              (render-snooze-choice label snooze-days shortcut-key))
+            [["Tomorrow" 1 "1"]
+             ["Next Week"  7 "2"]
+             ["Next Month" 30 "3"]
+             ["Next Year" 365 "4"]])]
       (when currently-snoozed
         [:div.choices
          [:hr]
-         (render-snooze-choice "Unsnooze" 0)])])))
+         (render-snooze-choice "Unsnooze" 0 "0")])])))
 
 (defn render-todo-list-page [ selected-list-id edit-item-id min-list-priority completed-within-days snoozed-for-days snoozing-item-id ]
   (render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)

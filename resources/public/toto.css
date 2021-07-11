@@ -51,7 +51,7 @@ body {
 @media only screen and (min-device-width : 640px) {
     .modal {
         width: auto;
-        min-width: 20%;
+        min-width: 40%;
         max-width: 40%;
     }
 }
@@ -78,7 +78,7 @@ body {
 }
 
 .modal .snooze input {
-    width: 100px;
+    width: 120px;
 }
 
 .header {

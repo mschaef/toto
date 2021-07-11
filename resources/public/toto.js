@@ -366,10 +366,32 @@ function dismissModalIfPresent() {
     visitPage(nextUrl);
 }
 
+function checkModalShortcutBindings(event) {
+    var modal = elemOptional('modal');
+
+    if (!modal) {
+        return;
+    }
+
+    var shortcuts = modal.querySelectorAll('form[data-shortcut-key]');
+
+    for(let shortcut of shortcuts) {
+        if (event.key === shortcut.getAttribute('data-shortcut-key')) {
+            shortcut.submit();
+        }
+    }
+}
+
 function onDocumentKeydown(event) {
     if (event.keyCode == 27) {
         dismissModalIfPresent();
+    } else {
+        checkModalShortcutBindings(event);
     }
+}
+
+function onModalKeydown(event) {
+    console.log('modal keydown', event);
 }
 
 function onDocumentClick(event) {
