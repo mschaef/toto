@@ -482,12 +482,25 @@ input[type=text], input[type=password] {
     padding-bottom: 10px;
 }
 
+.query-settings .control-segment label {
+    margin-right: 5px;
+}
+
+.query-settings .control-segment label:not(:first-child) {
+    margin-left: 5px;
+}
+
 .query-settings form {
     margin-left: 10px;
 }
 
 .query-settings form input {
     margin-left: 3px;
+}
+
+.query-settings select {
+    margin-top: 4px;
+    margin-bottom: 4px;
 }
 
 .page-message {

@@ -146,7 +146,6 @@
 (defn- render-todo-list-query-settings [ list-id completed-within-days snoozed-for-days ]
   [:div.query-settings
    (form/form-to { :class "embedded "} [:get (shref "/list/" list-id)]
-                 [:a { :href (shref "/list/" list-id "/list.csv" ) } "[csv] "]
                  [:div.control-segment
                   [:a {:href (shref "/list/" list-id "/details")}
                    "[list details]"]]
@@ -156,15 +155,14 @@
                  [:div.control-segment
                   [:label {:for "cwithin"}
                    "Completed within: "]
-                  (render-query-select "cwithin" completed-within-days false)]
-                 [:div.control-segment
+                  (render-query-select "cwithin" completed-within-days false)
                   [:label {:for "swithin"}
                    "Snoozed for: "]
                   (render-query-select "sfor" snoozed-for-days true)]
-
-                 [:a { :href (shref "/list/" list-id {:updating-from "Y"} ) } " [copy from]"]
-                 
-                 )])
+                 [:div.control-segment
+                  [:a { :href (shref "/list/" list-id {:updating-from "Y"} ) } "[copy from]"]]
+                 [:div.control-segment
+                  [:a { :href (shref "/list/" list-id "/list.csv" ) } "[csv]"]])])
 
 (defn- render-empty-list []
   [:div.empty-list
