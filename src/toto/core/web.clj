@@ -22,25 +22,31 @@
                     (Thread. (fn []
                                (shutdown-fn)))))
 
-(defn wrap-request-logging [ app development-mode? ]
+(defn- wrap-request-logging [ app development-mode? ]
   (fn [req]
     (if development-mode?
-      (log/debug 'REQUEST (:request-method req) (:uri req) (:params req))
+      (log/debug 'REQUEST (:request-method req) (:uri req) (:params req) (:headers req))
       (log/debug 'REQUEST (:request-method req) (:uri req)))
 
     (let [resp (app req)]
-      (log/trace 'RESPONSE (:status resp))
+      (if development-mode?
+        (log/trace 'RESPONSE (dissoc resp :body))
+        (log/trace 'RESPONSE (:status resp)))
       resp)))
 
-(defn wrap-show-response [ app label ]
-  (fn [req]
-    (let [resp (app req)]
-      (log/trace label (dissoc resp :body))
-      resp)))
+(defn get-client-ip [req]
+  (if-let [ips (get-in req [:headers "x-forwarded-for"])]
+    (-> ips (clojure.string/split #",") first)
+    (:remote-addr req)))
 
-(defn extend-session-duration [ app duration-in-hours ]
+(defn- include-requesting-ip [ app ]
   (fn [req]
-    (assoc (app req) :session-cookie-attrs {:max-age (* duration-in-hours 3600)})))
+    (app (assoc req :request-ip (get-client-ip req)))))
+
+(defn- extend-session-duration [ app duration-in-days ]
+  (fn [req]
+    (assoc (app req) :session-cookie-attrs
+           {:max-age (* duration-in-days 24 3600)})))
 
 (defn- wrap-dev-support [ handler dev-mode ]
   (cond-> (-> handler
@@ -55,7 +61,8 @@
                              "text/css" 360000})
       (user/wrap-authenticate)
       (data/wrap-db-connection db-conn)
-      (extend-session-duration 168)
+      (extend-session-duration 30)
+      (include-requesting-ip)
       (view-common/wrap-remember-query)
       (wrap-dev-support (:development-mode config))
       (handler/site)))

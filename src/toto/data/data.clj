@@ -152,15 +152,17 @@
                 {:friendly_name name}
                 ["email_addr=?" email-addr]))
 
-(defn set-user-login-time [ email-addr ]
+(defn record-user-login [ email-addr login-ip ]
   (jdbc/update! *db* :user
-                {:last_login_on (current-time)}
+                {:last_login_on (current-time)
+                 :last_login_ip login-ip}
                 ["email_addr=?" email-addr]))
 
-(defn record-login-failure [ user-id ]
+(defn record-user-login-failure [ user-id request-ip ]
   (jdbc/insert! *db* :login_failure
                 {:user_id user-id
-                 :failed_on (current-time)}))
+                 :failed_on (current-time)
+                 :request_ip request-ip}))
 
 (defn reset-login-failures [ user-id ]
   (jdbc/delete! *db*

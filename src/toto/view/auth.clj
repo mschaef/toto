@@ -48,6 +48,8 @@
      :account-locked (account-locked? user-record)
      :login-failure-count (user-record :login_failure_count)}))
 
+(def ^:dynamic *request-ip* nil)
+
 (defn get-user-by-credentials [ creds ]
   (if-let [auth-map (get-auth-map-by-email (creds :username))]
     (cond
@@ -56,12 +58,12 @@
 
       (credentials/bcrypt-verify (creds :password) (get-in auth-map [:user-record :password]))
       (do
-        (data/set-user-login-time (creds :username))
+        (data/record-user-login (creds :username) *request-ip*)
         (update-in auth-map [:user-record] dissoc :password))
 
       :else
       (do
-        (data/record-login-failure (:user-id auth-map))
+        (data/record-user-login-failure (:user-id auth-map) *request-ip*)
         nil))
     nil))
 
@@ -75,7 +77,8 @@
   (data/add-user email-addr (credentials/hash-bcrypt password)))
 
 (defn password-change-workflow []
-  (fn [{:keys [uri request-method params]}]
+  (fn [{:keys [uri request-method params request-ip]}]
+    (log/spy :info request-ip)
     (when (and (= uri "/user/password-change")
                (= request-method :post)
                (get-user-by-credentials params)
@@ -84,9 +87,15 @@
       (set-user-password (:username params) (:new_password1 params))
       (workflows/make-auth (get-auth-map-by-email (:username params))))))
 
-(defn wrap-authenticate [ request unauthorized-handler ]
-  (friend/authenticate request
+(defn wrap-workflow-request-ip [ workflow ]
+  (fn [ req ]
+    (binding [*request-ip* (:request-ip req)]
+      (workflow req))))
+
+(defn wrap-authenticate [ app unauthorized-handler ]
+  (friend/authenticate app
                        {:credential-fn get-user-by-credentials
                         :workflows [(password-change-workflow)
-                                    (workflows/interactive-form)]
+                                    (wrap-workflow-request-ip
+                                     (workflows/interactive-form))]
                         :unauthorized-handler unauthorized-handler}))

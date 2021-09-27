@@ -69,8 +69,8 @@
     (data/set-list-ownership list-id #{ user-id })
     user-id))
 
-(defn wrap-authenticate [ request ]
-  (auth/wrap-authenticate request unauthorized-handler))
+(defn wrap-authenticate [ app ]
+  (auth/wrap-authenticate app unauthorized-handler))
 
 (defn render-login-page [ & { :keys [ email-addr login-failure?]}]
   (render-page { :page-title "Log In" }
@@ -239,8 +239,8 @@
       (do
         ;; The password change handling is done in a Friend workflow
         ;; handler, so that it can reauthenticate the user against the
-        ;; new password and assign the user the current-password role
-        ;; if it was previously missing. (This is needed so that we
+        ;; new password and assign the user the correct roles for an
+        ;; account with a valid password. (This is needed so that we
         ;; allow the user use the website, if their password had
         ;; expired.)
         (log/warn "Password change unexpectedly fell through workflow!")
