@@ -78,7 +78,6 @@
 
 (defn password-change-workflow []
   (fn [{:keys [uri request-method params request-ip]}]
-    (log/spy :info request-ip)
     (when (and (= uri "/user/password-change")
                (= request-method :post)
                (get-user-by-credentials params)
