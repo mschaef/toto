@@ -13,6 +13,7 @@
             [ring.middleware.resource :as ring-resource]
             [ring.util.response :as ring-responsed]
             [compojure.handler :as handler]
+            [toto.core.session :as store]
             [toto.data.data :as data]
             [toto.view.common :as view-common]
             [toto.view.user :as user]))
@@ -65,7 +66,7 @@
       (include-requesting-ip)
       (view-common/wrap-remember-query)
       (wrap-dev-support (:development-mode config))
-      (handler/site)))
+      (handler/site {:session {:store (store/session-store)}})))
 
 (defn start-site [ routes config db-conn ]
   (let [ { http-port :http-port } config ]
