@@ -116,14 +116,14 @@
       (data/update-item-desc-by-id (current-user-id) item-id item-description))
     (success)))
 
-(defn update-item-snooze-days [ item-id snooze-days next-href ]
+(defn update-item-snooze-days [ item-id snooze-days ]
   (let [list-id (data/get-list-id-by-item-id item-id)
         snooze-days (or (parsable-integer? snooze-days) 0)]
     (data/update-item-snooze-by-id (current-user-id) item-id
                                    (if (= snooze-days 0)
                                      nil
                                      (add-days (java.util.Date.) snooze-days)))
-    (ring/redirect next-href)))
+    (success)))
 
 (defn update-item-list [ item-id target-list-id ]
   (let [ original-list-id (data/get-list-id-by-item-id item-id)]
@@ -206,19 +206,19 @@
 (defn- item-routes [ item-id ]
   (ensure-item-access item-id)
   (routes
-   (POST "/"  { params :params headers :headers }
+   (POST "/"  { params :params }
      (update-item-desc item-id (string-leftmost (:description params) 1024)))
 
-   (POST "/snooze" { params :params headers :headers }
-     (update-item-snooze-days item-id (:snooze-days params) (:next-href params)))
+   (POST "/snooze" { params :params }
+     (update-item-snooze-days item-id (:snooze-days params)))
 
-   (POST "/priority" { params :params headers :headers }
+   (POST "/priority" { params :params }
      (update-item-priority item-id (:new-priority params)))
 
-   (POST "/complete" { headers :headers }
+   (POST "/complete" [ ]
      (complete-item item-id))
 
-   (POST "/delete" { headers :headers }
+   (POST "/delete" [ ]
      (delete-item item-id))
 
    (POST "/restore" [ ]

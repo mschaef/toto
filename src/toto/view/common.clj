@@ -86,12 +86,14 @@
     contents]])
 
 (defn post-button [ target args desc body ]
-  [:span.clickable
+  ;; desc to be used for accessibility purposes
+  [:span.clickable.post-button
    {:onclick (str "doPost('" target "'," (json/write-str args) ")")}
    body])
 
 (defn post-button* [ target args desc body next-url ]
-  [:span.clickable
+  ;; desc to be used for accessibility purposes
+  [:span.clickable.post-button
    {:onclick (str "doPost('" target "'," (json/write-str args) ", '" next-url "')")}
    body])
 

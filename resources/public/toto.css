@@ -89,6 +89,24 @@ body {
     width: 120px;
 }
 
+.modal .snooze .choices {
+    display: flex;
+    flex-direction: column;
+}
+
+.modal .snooze .post-button {
+    display: block;
+
+    width: 120px;
+    padding: 8px;
+    background: #f0f0f0;
+    margin-bottom: 12px;
+}
+
+.modal .snooze .post-button:hover {
+    background: #e0e0e0;
+}
+
 .header {
     flex: 0;
 
