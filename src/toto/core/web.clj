@@ -65,7 +65,7 @@
       (include-requesting-ip)
       (view-common/wrap-remember-query)
       (wrap-dev-support (:development-mode config))
-      (handler/site {:session {:store (store/session-store)}})
+      (handler/site {:session {:store (store/session-store db-conn)}})
       (data/wrap-db-connection db-conn)))
 
 (defn start-site [ routes config db-conn ]

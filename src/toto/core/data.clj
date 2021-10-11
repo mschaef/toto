@@ -39,7 +39,7 @@
   (let [ spec {:name (or (config-property "db.subname")
                          (get-in config [:db :subname] "toto"))
                :schema-path [ "sql/" ]
-               :schemas [[ "toto" 8 ]]}]
+               :schemas [[ "toto" 9 ]]}]
     (log/info "DB Conn Spec: " spec)
     spec))
 
