@@ -61,12 +61,12 @@
       (wrap-browser-caching {"text/javascript" 360000
                              "text/css" 360000})
       (user/wrap-authenticate)
-      (data/wrap-db-connection db-conn)
       (extend-session-duration 30)
       (include-requesting-ip)
       (view-common/wrap-remember-query)
       (wrap-dev-support (:development-mode config))
-      (handler/site {:session {:store (store/session-store)}})))
+      (handler/site {:session {:store (store/session-store)}})
+      (data/wrap-db-connection db-conn)))
 
 (defn start-site [ routes config db-conn ]
   (let [ { http-port :http-port } config ]
