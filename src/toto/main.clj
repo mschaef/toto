@@ -6,7 +6,7 @@
   (:require [clojure.tools.logging :as log]
             [sql-file.core :as sql-file]
             [toto.core.config :as config]
-            [toto.data.data :as data]
+            [toto.core.data :as data]
             [toto.dumper.dumper :as dumper]
             [toto.site :as site]))
 

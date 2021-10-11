@@ -1,12 +1,13 @@
 (ns toto.dumper.dumper
   (:use toto.core.util
+        toto.core.data
         sql-file.sql-util)
   (:require [clojure.tools.logging :as log]
             [clojure.java.jdbc :as jdbc]
             [toto.data.data :as data]))
 
 (defn query [ sql ]
-  (query-all data/*db* sql))
+  (query-all (current-db-connection) sql))
 
 (defn item-events []
   (let [items (query "SELECT item_id, todo_list_id, desc, is_deleted, is_complete, created_on, updated_on from TODO_ITEM")
@@ -53,7 +54,7 @@
 
 (defn dump-simple-event-stream [ config db-conn ]
   (log/info "Dumping to" dump-file)
-  (data/with-db-connection db-conn
+  (with-db-connection db-conn
     (doseq [ event (concat (add-list-events)
                            (item-events)
                            (delete-list-events)) ]

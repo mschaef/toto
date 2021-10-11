@@ -14,7 +14,7 @@
             [ring.util.response :as ring-responsed]
             [compojure.handler :as handler]
             [toto.core.session :as store]
-            [toto.data.data :as data]
+            [toto.core.data :as data]
             [toto.view.common :as view-common]
             [toto.view.user :as user]))
 

@@ -61,6 +61,9 @@
 
 ;;; Date utilities
 
+(defn current-time []
+  (java.util.Date.))
+
 (defn add-days [ date days ]
   "Given a date, advance it forward n days, leaving it at the
   beginning of that day"
