@@ -72,6 +72,19 @@
 (defn wrap-authenticate [ app ]
   (auth/wrap-authenticate app unauthorized-handler))
 
+(defn render-forgot-password-form []
+  (render-page { :page-title "Forgot Password" }
+   (form/form-to
+    {:class "auth-form"}
+    [:post "/user/begin-password-reset"]
+    [:p
+     "Please enter your e-mail address. If an account is associated with that "
+     "address, an e-mail will be sent with a link to reset the password."]
+    [:div.config-panel.toplevel
+     (form/text-field {:placeholder "E-Mail Address"} "email_addr")]
+    [:div.submit-panel
+     (form/submit-button {} "Send Reset E-Mail")]))  )
+
 (defn render-login-page [ & { :keys [ email-addr login-failure?]}]
   (render-page { :page-title "Log In" }
    (form/form-to
@@ -86,7 +99,9 @@
     [:div.submit-panel
      [:a { :href "/user"} "Register New User"]
      " - "
-     (form/submit-button {} "Login")])))
+     [:a { :href "/user/forgot-password"} "Forgot Password"]
+     " - "
+    (form/submit-button {} "Login")])))
 
 (defn render-new-user-form [ & { :keys [ error-message ]}]
   (render-page {:page-title "New User Registration"
@@ -237,6 +252,7 @@
 
       :else
       (do
+
         ;; The password change handling is done in a Friend workflow
         ;; handler, so that it can reauthenticate the user against the
         ;; new password and assign the user the correct roles for an
@@ -246,19 +262,66 @@
         (log/warn "Password change unexpectedly fell through workflow!")
         (ring/redirect "/")))))
 
-(defn ensure-verification-link [ user-id ]
+(defn- get-link-verified-user [ link-user-id link-uuid ]
+  (when-let [ user-id (:verifies_user_id (data/get-verification-link-by-uuid link-uuid)) ]
+    (when (= link-user-id user-id)
+      (data/get-user-by-id user-id))))
+
+(defn render-reset-password-form [ link-user-id link-uuid error-message ]
+  (when-let [ user (get-link-verified-user link-user-id link-uuid)]
+    (render-page { :page-title "Reset Password" }
+                 [:div.page-message
+                  [:h1 "Reset Password"]
+                  [:div.config-panel
+                   (form/form-to {:class "auth-form"}
+                                 [:post (str "/user/password-reset/" (:user_id user))]
+
+                                 [:h1 "Password"]
+                                 [:input {:type "hidden"
+                                          :name "link_uuid"
+                                          :value link-uuid}]
+                                 (form/password-field {:placeholder "New Password"} "new_password1")
+                                 (form/password-field {:placeholder "Verify Password"} "new_password2")
+                                 [:div#error.error-message
+                                  error-message]
+                                 (form/submit-button {} "Reset Password"))]])))
+
+(defn reset-password [ user-id link-uuid new-password-1 new-password-2 ]
+  (let [ user (get-link-verified-user user-id link-uuid)]
+    (cond
+      (not user)
+      nil
+
+      (not (= new-password-1 new-password-2))
+      (render-reset-password-form user-id link-uuid "Passwords do not match.")
+
+      :else
+      (do
+        (auth/set-user-password (:email_addr user) new-password-1)
+        (ring/redirect "/user/password-reset-success")))))
+
+(defn- ensure-verification-link [ user-id ]
   (unless (data/get-verification-link-by-user-id user-id)
     (data/create-verification-link user-id)))
 
-(defn development-verification-form [ user-id ]
+(defn- development-verification-form [ user-id ]
   [:div.dev-tool
    (let [ link-uuid (:link_uuid (data/get-verification-link-by-user-id user-id))]
      [:a {:href (str "/user/verify/" user-id "/" link-uuid)} "Verify"])])
 
-(defn development-unlock-form [ user-id ]
+(defn- development-unlock-form [ user-id ]
   [:div.dev-tool
    (let [ link-uuid (:link_uuid (data/get-verification-link-by-user-id user-id))]
      [:a {:href (str "/user/unlock/" user-id "/" link-uuid)} "Unlock"])])
+
+(defn- development-reset-form [ user-id ]
+  [:div.dev-tool
+   (let [ link-uuid (:link_uuid (data/get-verification-link-by-user-id user-id))]
+     [:a {:href (str "/user/reset/" user-id "/" link-uuid)} "Reset"])])
+
+(defn- development-no-user-form []
+  [:div.dev-tool
+   "No user with this e-mail address exists"])
 
 (defn enter-verify-workflow [ config user-id ]
   (let [ user (data/get-user-by-id user-id) ]
@@ -276,19 +339,18 @@
 
 
 (defn verify-user [ link-user-id link-uuid ]
-  (when-let [ user-id (:verifies_user_id (data/get-verification-link-by-uuid link-uuid)) ]
-    (let [ email-addr (:email_addr (data/get-user-by-id user-id)) ]
-      (data/add-user-roles user-id #{:toto.role/verified})
-      (render-page { :page-title "e-Mail Address Verified" }
-                        [:div.page-message
-                         [:h1 "e-Mail Address Verified"]
-                         [:p "Thank you for verifying your e-mail address at: "
-                          [:span.addr email-addr] ". Using the link below, you "
-                          "can log in and start to use the system."]
-                         [:a {:href "/"} "Login"]]))))
+  (when-let [ user (get-link-verified-user link-user-id link-uuid ) ]
+    (data/add-user-roles (:user_id user) #{:toto.role/verified})
+    (render-page { :page-title "e-Mail Address Verified" }
+                 [:div.page-message
+                  [:h1 "e-Mail Address Verified"]
+                  [:p "Thank you for verifying your e-mail address at: "
+                   [:span.addr (:email_addr user)] ". Using the link below, you "
+                   "can log in and start to use the system."]
+                  [:a {:href "/"} "Login"]])))
 
 (defn enter-unlock-workflow [ config user-id ]
-  (let [ user (data/get-user-by-id user-id) ]
+  (let [user (data/get-user-by-email (current-identity))]
     (ensure-verification-link user-id)
     (send-verification-link config user-id)
     (render-page { :page-title "Unlock Account" }
@@ -302,16 +364,40 @@
                          (development-unlock-form user-id))])))
 
 (defn unlock-user [ link-user-id link-uuid ]
-  (when-let [ user-id (:verifies_user_id (data/get-verification-link-by-uuid link-uuid)) ]
-    (let [ email-addr (:email_addr (data/get-user-by-id user-id)) ]
-      (data/reset-login-failures user-id)
-      (render-page { :page-title "Account Unlocked" }
-                        [:div.page-message
-                         [:h1 "Account Unlocked"]
-                         [:p "Thank you for unlocking your account at: "
-                          [:span.addr email-addr] ". Using the link below, you "
-                          "can log in and start to use the system."]
-                         [:a {:href "/"} "Login"]]))))
+  (when-let [ user (get-link-verified-user link-user-id link-uuid ) ]
+    (data/reset-login-failures (:user_id user))
+    (render-page { :page-title "Account Unlocked" }
+                 [:div.page-message
+                  [:h1 "Account Unlocked"]
+                  [:p "Thank you for unlocking your account at: "
+                   [:span.addr (:email_addr user)] ". Using the link below, you "
+                   "can log in and start to use the system."]
+                  [:a {:href "/"} "Login"]])))
+
+(defn enter-password-reset-workflow [ config email-addr ]
+  (let [user (data/get-user-by-email email-addr)
+        user-id (and user (:user_id user))]
+    (when user-id
+      (ensure-verification-link user-id)
+      (send-verification-link config user-id))
+    (render-page { :page-title "Reset Password" }
+                 [:div.page-message
+                  [:h1 "Reset Password"]
+                  [:p "If there is an account with this e-mail address, an e-mail"
+                   " has been sent with a link you may use to reset your password. Please"
+                   " check your spam filter if it does not appear within a few minutes."]
+                  [:a {:href "/"} "Login"]
+                  (when (:development-mode config)
+                    (if user-id
+                      (development-reset-form user-id)
+                      (development-no-user-form)))])))
+
+(defn render-password-reset-success []
+    (render-page { :page-title "Password Successfully Reset" }
+                 [:div.page-message
+                  [:h1 "Password Successfully Reset"]
+                  [:p "Your password has been reset. You can login "
+                   [:a {:href "/"} "here"] "."]])  )
 
 (defn private-routes [ config ]
   (routes
@@ -339,19 +425,35 @@
      (render-login-page :email-addr email-addr
                         :login-failure? (= login-failed "Y")))
 
+   (GET "/user/forgot-password" []
+     (render-forgot-password-form))
+
    (GET "/user/begin-verify/:user-id" { { user-id :user-id } :params }
      (enter-verify-workflow config user-id))
 
    (GET "/user/begin-unlock/:user-id" { { user-id :user-id } :params }
      (enter-unlock-workflow config user-id))
 
+   (POST "/user/begin-password-reset" { { email-addr :email_addr } :params }
+     (enter-password-reset-workflow config email-addr))
+
+   (GET "/user/password-reset-success" []
+     (render-password-reset-success))
+
+   (POST "/user/password-reset/:user-id" {params :params}
+     (reset-password (parsable-integer? (:user-id params)) (:link_uuid params) (:new_password1 params) (:new_password2 params)))
+
    (friend/logout
     (GET "/user/verify/:user-id/:link-uuid" { { user-id :user-id link-uuid :link-uuid } :params }
-      (verify-user user-id link-uuid)))
+      (verify-user (parsable-integer? user-id) link-uuid)))
 
    (friend/logout
     (GET "/user/unlock/:user-id/:link-uuid" { { user-id :user-id link-uuid :link-uuid } :params }
-      (unlock-user user-id link-uuid)))
+      (unlock-user (parsable-integer? user-id) link-uuid)))
+
+   (friend/logout
+    (GET "/user/reset/:user-id/:link-uuid" { { user-id :user-id link-uuid :link-uuid error-message :error-message } :params }
+      (render-reset-password-form (parsable-integer? user-id) link-uuid error-message)))
 
    (friend/logout
     (ANY "/logout" [] (ring/redirect "/")))
