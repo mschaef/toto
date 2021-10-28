@@ -23,7 +23,7 @@
                 [:p
                  "Your e-mail address is unverified and your acccount is "
                  "inactive. An verification e-mail can be sent by following "
-                 [:a {:href (str "/user/begin-verify/" (current-user-id))} "this link"]
+                 [:a {:href (str "/user/verify/" (current-user-id))} "this link"]
                  "."]]))
 
 (defn user-password-expired [ request ]
@@ -33,7 +33,7 @@
                 [:p
                  "Your password has expired and needs to be reset. "
                  "This can be done at "
-                 [:a {:href (str "/user/password-change")} "this link"]
+                 [:a {:href (str "/user/password")} "this link"]
                  "."]]))
 
 (defn user-account-locked [ request ]
@@ -43,7 +43,7 @@
                 [:p
                  "Your account is locked and must be re-verified by e-mail."
                  "An verification e-mail can be sent by following "
-                 [:a {:href (str "/user/begin-unlock/" (current-user-id))} "this link"]
+                 [:a {:href (str "/user/unlock/" (current-user-id))} "this link"]
                  "."]]))
 
 (defn unauthorized-handler [request]
@@ -76,7 +76,7 @@
   (render-page { :page-title "Forgot Password" }
    (form/form-to
     {:class "auth-form"}
-    [:post "/user/begin-password-reset"]
+    [:post "/user/password-reset"]
     [:p
      "Please enter your e-mail address. If an account is associated with that "
      "address, an e-mail will be sent with a link to reset the password."]
@@ -156,7 +156,7 @@
    :else
    (do
      (let [user-id (create-user email-addr password)]
-       (ring/redirect (str "/user/begin-verify/" user-id))))))
+       (ring/redirect (str "/user/verify/" user-id))))))
 
 (def date-format (java.text.SimpleDateFormat. "yyyy-MM-dd hh:mm aa"))
 
@@ -187,7 +187,7 @@
                    (.format date-format (or (:last_login_on user) (java.util.Date.)))]
 
                   [:div.config-panel
-                    [:a {:href "/user/password-change"} "Change Password"]]))))
+                    [:a {:href "/user/password"} "Change Password"]]))))
 
 (defn validate-name [ name ]
   (if name
@@ -207,7 +207,7 @@
   (let [user (data/get-user-by-email (current-identity))]
     (render-page { :page-title "Change Password" }
                  (form/form-to {:class "auth-form"}
-                               [:post "/user/password-change"]
+                               [:post "/user/password"]
 
                                [:input {:type "hidden"
                                         :name "username"
@@ -226,14 +226,14 @@
                                 (.format date-format (or (:last_login_on user) (java.util.Date.)))]
 
                                [:div.config-panel
-                                [:h1 "Reset Password"]
+                                [:h1 "Change Password"]
                                 (form/password-field {:placeholder "Password"} "password")
                                 (form/password-field {:placeholder "New Password"} "new_password1")
                                 (form/password-field {:placeholder "Verify Password"} "new_password2")
                                 (when error-message
                                   [:div.error-message error-message])
                                 [:div
-                                 (form/submit-button {} "Reset Password")]]))))
+                                 (form/submit-button {} "Change Password")]]))))
 
 (defn change-password [ password new-password-1 new-password-2 ]
   (let [ username (current-identity) ]
@@ -267,7 +267,7 @@
     (when (= link-user-id user-id)
       (data/get-user-by-id user-id))))
 
-(defn render-reset-password-form [ link-user-id link-uuid error-message ]
+(defn render-password-reset-form [ link-user-id link-uuid error-message ]
   (when-let [ user (get-link-verified-user link-user-id link-uuid)]
     (render-page { :page-title "Reset Password" }
                  [:div.page-message
@@ -286,14 +286,14 @@
                                   error-message]
                                  (form/submit-button {} "Reset Password"))]])))
 
-(defn reset-password [ user-id link-uuid new-password-1 new-password-2 ]
+(defn password-reset [ user-id link-uuid new-password-1 new-password-2 ]
   (let [ user (get-link-verified-user user-id link-uuid)]
     (cond
       (not user)
       nil
 
       (not (= new-password-1 new-password-2))
-      (render-reset-password-form user-id link-uuid "Passwords do not match.")
+      (render-password-reset-form user-id link-uuid "Passwords do not match.")
 
       :else
       (do
@@ -401,10 +401,10 @@
 
 (defn private-routes [ config ]
   (routes
-   (GET "/user/password-change" []
+   (GET "/user/password" []
      (render-change-password-form))
 
-   (POST "/user/password-change" {params :params}
+   (POST "/user/password" {params :params}
      (change-password (:password params) (:new_password1 params) (:new_password2 params)))
 
    (GET "/user/info" []
@@ -425,39 +425,44 @@
      (render-login-page :email-addr email-addr
                         :login-failure? (= login-failed "Y")))
 
-   (GET "/user/forgot-password" []
-     (render-forgot-password-form))
-
-   (GET "/user/begin-verify/:user-id" { { user-id :user-id } :params }
+   ;; User Verification Workflow
+   (GET "/user/verify/:user-id" { { user-id :user-id } :params }
      (enter-verify-workflow config user-id))
-
-   (GET "/user/begin-unlock/:user-id" { { user-id :user-id } :params }
-     (enter-unlock-workflow config user-id))
-
-   (POST "/user/begin-password-reset" { { email-addr :email_addr } :params }
-     (enter-password-reset-workflow config email-addr))
-
-   (GET "/user/password-reset-success" []
-     (render-password-reset-success))
-
-   (POST "/user/password-reset/:user-id" {params :params}
-     (reset-password (parsable-integer? (:user-id params)) (:link_uuid params) (:new_password1 params) (:new_password2 params)))
 
    (friend/logout
     (GET "/user/verify/:user-id/:link-uuid" { { user-id :user-id link-uuid :link-uuid } :params }
       (verify-user (parsable-integer? user-id) link-uuid)))
 
+   ;; Account Unlock workflow
+   (GET "/user/unlock/:user-id" { { user-id :user-id } :params }
+     (enter-unlock-workflow config user-id))
+
    (friend/logout
     (GET "/user/unlock/:user-id/:link-uuid" { { user-id :user-id link-uuid :link-uuid } :params }
       (unlock-user (parsable-integer? user-id) link-uuid)))
 
+   ;; Password Reset Workflow
+   (GET "/user/forgot-password" []
+     (render-forgot-password-form))
+
+   (POST "/user/password-reset" { { email-addr :email_addr } :params }
+     (enter-password-reset-workflow config email-addr))
+
+   (POST "/user/password-reset/:user-id" {params :params}
+     (password-reset (parsable-integer? (:user-id params)) (:link_uuid params) (:new_password1 params) (:new_password2 params)))
+
    (friend/logout
     (GET "/user/reset/:user-id/:link-uuid" { { user-id :user-id link-uuid :link-uuid error-message :error-message } :params }
-      (render-reset-password-form (parsable-integer? user-id) link-uuid error-message)))
+      (render-password-reset-form (parsable-integer? user-id) link-uuid error-message)))
 
+   (GET "/user/password-reset-success" []
+     (render-password-reset-success))
+
+   ;; Logout Link
    (friend/logout
     (ANY "/logout" [] (ring/redirect "/")))
 
+   ;; Secure Links
    (wrap-routes (private-routes config)
                 friend/wrap-authorize
                 #{:toto.role/verified})))
