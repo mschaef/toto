@@ -53,9 +53,6 @@
 (defn get-user-by-credentials [ creds ]
   (if-let [auth-map (get-auth-map-by-email (creds :username))]
     (cond
-      (:account-locked auth-map)
-      (update-in auth-map [:user-record] dissoc :password)
-
       (credentials/bcrypt-verify (creds :password) (get-in auth-map [:user-record :password]))
       (do
         (data/record-user-login (creds :username) *request-ip*)

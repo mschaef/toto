@@ -22,7 +22,7 @@
                 [:h1 "E-Mail Unverified"]
                 [:p
                  "Your e-mail address is unverified and your acccount is "
-                 "inactive. An verification e-mail can be sent by following "
+                 "inactive. A verification e-mail can be sent by following "
                  [:a {:href (str "/user/verify/" (current-user-id))} "this link"]
                  "."]]))
 
