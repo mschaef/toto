@@ -298,6 +298,9 @@
       :else
       (do
         (auth/set-user-password (:email_addr user) new-password-1)
+        ;; Resetting the password via a link also serves to
+        ;; unlock the account.
+        (data/reset-login-failures (:user_id user))
         (ring/redirect "/user/password-reset-success")))))
 
 (defn- ensure-verification-link [ user-id ]
