@@ -1,11 +1,38 @@
 (ns toto.view.todo-list
   (:use toto.core.util
-        toto.view.common)
+        toto.view.common
+        toto.view.icons
+        toto.view.components
+        toto.view.query
+        toto.view.page)
   (:require [clojure.tools.logging :as log]
             [hiccup.form :as form]
+            [hiccup.util :as util]
             [toto.data.data :as data]
-            [toto.view.user :as user]
+            [toto.view.auth :as auth]
             [toto.view.sidebar-view :as sidebar-view]))
+
+(def html-breakpoint "&#8203;")
+
+(defn ensure-string-breakpoints [ s n ]
+  (clojure.string/join html-breakpoint (partition-string s n)))
+
+(defn- ensure-string-breaks [ string at ]
+  (clojure.string/replace string at (str at html-breakpoint)))
+
+(defn shorten-url-text [ url-text target-length ]
+  (let [url (java.net.URL. url-text)
+        base (str (.getProtocol url)
+                  ":"
+                  (if-let [authority (.getAuthority url)]
+                    (str "//" authority)))]
+    (-> (util/escape-html
+         (str base
+              (string-leftmost (.getPath url)
+                               (max 0 (- (- target-length 3) (.length base)))
+                               "...")))
+        (ensure-string-breaks "/")
+        (ensure-string-breaks "."))))
 
 (defmacro without-edit-id [ & body ]
   `(with-modified-query #(dissoc % "edit-item-id")
@@ -128,7 +155,7 @@
                                             (when currently-snoozed
                                               (list
                                                ", snoozed: " (.format snooze-date-format snoozed-until)))])
-             (when (not (= created-by-id (current-user-id)))
+             (when (not (= created-by-id (auth/current-user-id)))
                [:span.pill created-by-name])]))]))
      [:div.item-control.priority.right
       (render-item-priority-control item-id priority writable?)]
@@ -230,7 +257,7 @@
                                [ (:desc list-info) (:todo_list_id list-info)])
                              (remove
                               #(= excluded-list-id (:todo_list_id %))
-                              (data/get-todo-lists-by-user (current-user-id)))))])
+                              (data/get-todo-lists-by-user (auth/current-user-id)))))])
 
 (defn render-update-from-modal [ list-id ]
   (let [ list-url (without-modal (shref "/list/" list-id))]

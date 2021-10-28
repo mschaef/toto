@@ -16,6 +16,7 @@
             [toto.core.session :as store]
             [toto.core.data :as data]
             [toto.view.common :as view-common]
+            [toto.view.query :as view-query]
             [toto.view.user :as user]))
 
 (defn add-shutdown-hook [ shutdown-fn ]
@@ -50,9 +51,7 @@
            {:max-age (* duration-in-days 24 3600)})))
 
 (defn- wrap-dev-support [ handler dev-mode ]
-  (cond-> (-> handler
-              (wrap-request-logging dev-mode)
-              (view-common/wrap-dev-mode dev-mode))
+  (cond-> (wrap-request-logging handler dev-mode)
     dev-mode (ring-reload/wrap-reload)))
 
 (defn handler [ routes config db-conn ]
@@ -63,10 +62,11 @@
       (user/wrap-authenticate)
       (extend-session-duration 30)
       (include-requesting-ip)
-      (view-common/wrap-remember-query)
+      (view-query/wrap-remember-query)
       (wrap-dev-support (:development-mode config))
       (handler/site {:session {:store (store/session-store db-conn)}})
-      (data/wrap-db-connection db-conn)))
+      (data/wrap-db-connection db-conn)
+      (view-common/wrap-config config)))
 
 (defn start-site [ routes config db-conn ]
   (let [ { http-port :http-port } config ]
