@@ -63,10 +63,24 @@
               user-unauthorized)
             request)}))
 
-(defn create-user [ email-addr password ]
+(defn user-create-notification-email-message [ user-email-address ]
+  [:body
+   [:h1
+    "New User Created"]
+   [:p
+    "New user e-mail: "  user-email-address "."]])
+
+(defn notify-user-create [ config email-addr ]
+  (mail/send-email config
+                   {:to (:admin-mails config)
+                    :subject "Todo - New User Account Created"
+                    :content (user-create-notification-email-message email-addr)}))
+
+(defn create-user [ config email-addr password ]
   (let [user-id (auth/create-user email-addr password)
         list-id (data/add-list "Todo")]
     (data/set-list-ownership list-id #{ user-id })
+    (notify-user-create config email-addr)
     user-id))
 
 (defn wrap-authenticate [ app ]
@@ -145,7 +159,7 @@
                         :subject "Todo - Confirm E-Mail Address"
                         :content (verification-email-message config link-url)}))))
 
-(defn add-user [ email-addr password password2 ]
+(defn add-user [ config email-addr password password2 ]
   (cond
    (data/user-email-exists? email-addr)
    (render-new-user-form :error-message "User with this e-mail address already exists.")
@@ -155,7 +169,7 @@
 
    :else
    (do
-     (let [user-id (create-user email-addr password)]
+     (let [user-id (create-user config email-addr password)]
        (ring/redirect (str "/user/verify/" user-id))))))
 
 (def date-format (java.text.SimpleDateFormat. "yyyy-MM-dd hh:mm aa"))
@@ -422,7 +436,7 @@
      (render-new-user-form))
 
    (POST "/user" {params :params}
-     (add-user (:email_addr params) (:password1 params) (:password2 params)))
+     (add-user config (:email_addr params) (:password1 params) (:password2 params)))
 
    (GET "/login" { { login-failed :login_failed email-addr :username } :params }
      (render-login-page :email-addr email-addr

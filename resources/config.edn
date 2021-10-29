@@ -3,4 +3,5 @@
  :db {:backup-path false
       :backup-cron "0 2 * * *"
       :subname "toto"}
- :smtp {:enabled false}}
+ :smtp {:enabled false}
+ :admin-mails []}
