@@ -1,11 +1,15 @@
 (ns toto.view.todo-list-manager
   (:use toto.core.util
         compojure.core
-        toto.view.common)
+        toto.view.common
+        toto.view.icons
+        toto.view.components
+        toto.view.query
+        toto.view.page)
   (:require [hiccup.form :as form]
             [toto.data.data :as data]
-            [toto.view.sidebar-view :as sidebar-view]
-            [toto.view.user :as user]))
+            [toto.view.auth :as auth]
+            [toto.view.sidebar-view :as sidebar-view]))
 
 (defn render-new-list-form [ ]
   (form/form-to
@@ -38,7 +42,7 @@
                  (hiccup.util/escape-html (:desc list))]
                 [:span.pill (:item_count list)]
                 (sidebar-view/render-list-visibility-flag list)]]))
-          (data/get-todo-lists-by-user (current-user-id)))])))
+          (data/get-todo-lists-by-user (auth/current-user-id)))])))
 
 (defn render-todo-list-details-page [ list-id min-list-priority & { :keys [ error-message ]}]
   (let [list-details (data/get-todo-list-by-id list-id)
@@ -59,23 +63,23 @@
         [:div
          (form/check-box "is_public" (:is_public list-details))
          [:label {:for "is_public"} "List publically visible?"]]]
-       
+
        [:div.config-panel
         [:h1  "List Owners:"]
         [:div.list-owners
          (map (fn [ { user-id :user_id user-email-addr :email_addr } ]
                 (let [ user-parameter-name (str "user_" user-id)]
                   [:div.list-owner
-                   (if (= (current-user-id) user-id)
+                   (if (= (auth/current-user-id) user-id)
                      [:div.self-owner
                       "&nbsp;"
                       (form/hidden-field user-parameter-name "on")]
                      (form/check-box user-parameter-name (in? list-owners user-id)))
                    [:label {:for user-parameter-name}
                     user-email-addr
-                    (when (= (current-user-id) user-id)
+                    (when (= (auth/current-user-id) user-id)
                       [:span.pill "you"])]]))
-              (data/get-friendly-users-by-id (current-user-id)))
+              (data/get-friendly-users-by-id (auth/current-user-id)))
          [:div.list-owner
           [:div.self-owner "&nbsp;"]
           [:input {:id "share-with-email"
@@ -104,7 +108,7 @@
        [:div.config-panel
         [:h1 "Delete List"]
         (cond
-          (<= (data/get-user-list-count (current-user-id)) 1)
+          (<= (data/get-user-list-count (auth/current-user-id)) 1)
           [:span.warning "Your last list cannot be deleted."]
 
           (not (data/empty-list? list-id))

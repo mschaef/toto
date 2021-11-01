@@ -15,6 +15,18 @@
 (defmacro authorize-expected-roles [ & body ]
   `(friend/authorize #{:toto.role/user} ~@body))
 
+(defn report-unauthorized []
+  (friend/throw-unauthorized (friend/current-authentication) {}))
+
+(defn current-identity []
+  (if-let [auth (friend/current-authentication)]
+    (:identity auth)))
+
+(defn current-user-id []
+  (if-let [ cauth (friend/current-authentication) ]
+    (:user-id cauth)))
+
+
 (defn authorize-toto-valid-user [ routes ]
   (-> routes
       (wrap-routes friend/wrap-authorize #{:toto.role/user})))

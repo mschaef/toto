@@ -1,7 +1,9 @@
 (ns toto.view.todo
   (:use toto.core.util
         compojure.core
-        toto.view.common)
+        toto.view.common
+        toto.view.query
+        toto.view.page)
   (:require [clojure.tools.logging :as log]
             [ring.util.response :as ring]
             [compojure.handler :as handler]
@@ -15,17 +17,17 @@
 
 (defn current-todo-list-id []
   (auth/authorize-expected-roles
-   (first (data/get-todo-list-ids-by-user (current-user-id)))))
+   (first (data/get-todo-list-ids-by-user (auth/current-user-id)))))
 
 (defn ensure-list-owner-access [ list-id ]
   (auth/authorize-expected-roles
-   (unless (data/list-owned-by-user-id? list-id (current-user-id))
-           (report-unauthorized))))
+   (unless (data/list-owned-by-user-id? list-id (auth/current-user-id))
+           (auth/report-unauthorized))))
 
 (defn ensure-item-access [ item-id ]
   (auth/authorize-expected-roles
-   (unless (data/item-owned-by-user-id? item-id (current-user-id))
-           (report-unauthorized))))
+   (unless (data/item-owned-by-user-id? item-id (auth/current-user-id))
+           (auth/report-unauthorized))))
 
 (defn redirect-to-list [ list-id ]
   (ring/redirect (shref "/list/" list-id)))
@@ -42,7 +44,7 @@
   (ring/redirect (shref "/list/" list-id)))
 
 (defn delete-list [ list-id ]
-  (if (<= (data/get-user-list-count (current-user-id)) 1)
+  (if (<= (data/get-user-list-count (auth/current-user-id)) 1)
     (log/warn "Attempt to delete user's last visible list" list-id)
     (data/delete-list list-id))
   (redirect-to-home))
@@ -56,14 +58,14 @@
   (redirect-to-list list-id))
 
 (defn copy-list [list-id copy-from-list-id]
-  (data/copy-list (current-user-id) list-id copy-from-list-id)
+  (data/copy-list (auth/current-user-id) list-id copy-from-list-id)
   (redirect-to-list list-id))
 
 (defn add-list [ list-description ]
   (if (string-empty? list-description)
     (redirect-to-home)
     (let [ list-id (data/add-list list-description) ]
-      (data/set-list-ownership list-id #{ (current-user-id) })
+      (data/set-list-ownership list-id #{ (auth/current-user-id) })
       (redirect-to-lists))))
 
 (defn selected-user-ids-from-params [ params ]
@@ -82,7 +84,6 @@
                                                               (or (parsable-integer? (:min-list-priority params)) 0)
                                                               :error-message "Invalid e-mail address"))))
          selected-ids (selected-user-ids-from-params params)]
-     
      (data/set-list-ownership list-id
                               (if share-with-email-id
                                 (conj selected-ids share-with-email-id)
@@ -97,7 +98,7 @@
 
 (defn add-item [ list-id item-description item-priority ]
   (when (not (string-empty? item-description))
-    (data/add-todo-item (current-user-id) list-id item-description item-priority))
+    (data/add-todo-item (auth/current-user-id) list-id item-description item-priority))
   (redirect-to-list list-id))
 
 (defn success []
@@ -107,19 +108,19 @@
   (let [list-id (data/get-list-id-by-item-id item-id)]
     (data/shift-list-items! list-id new-ordinal)
     (data/update-item-ordinal! item-id new-ordinal)
-    (data/update-item-priority-by-id (current-user-id) item-id new-priority))
+    (data/update-item-priority-by-id (auth/current-user-id) item-id new-priority))
   (success))
 
 (defn update-item-desc [ item-id item-description ]
   (let [ list-id (data/get-list-id-by-item-id item-id)]
     (when (not (string-empty? item-description))
-      (data/update-item-desc-by-id (current-user-id) item-id item-description))
+      (data/update-item-desc-by-id (auth/current-user-id) item-id item-description))
     (success)))
 
 (defn update-item-snooze-days [ item-id snooze-days ]
   (let [list-id (data/get-list-id-by-item-id item-id)
         snooze-days (or (parsable-integer? snooze-days) 0)]
-    (data/update-item-snooze-by-id (current-user-id) item-id
+    (data/update-item-snooze-by-id (auth/current-user-id) item-id
                                    (if (= snooze-days 0)
                                      nil
                                      (add-days (java.util.Date.) snooze-days)))
@@ -127,27 +128,27 @@
 
 (defn update-item-list [ item-id target-list-id ]
   (let [ original-list-id (data/get-list-id-by-item-id item-id)]
-    (data/update-item-list (current-user-id) item-id target-list-id)
+    (data/update-item-list (auth/current-user-id) item-id target-list-id)
     (success)))
 
 (defn update-item-priority [ item-id new-priority ]
   (let [ original-list-id (data/get-list-id-by-item-id item-id)]
-    (data/update-item-priority-by-id (current-user-id) item-id new-priority)
+    (data/update-item-priority-by-id (auth/current-user-id) item-id new-priority)
     (success)))
 
 (defn complete-item [ item-id ]
   (let [ list-id (data/get-list-id-by-item-id item-id)]
-    (data/complete-item-by-id (current-user-id) item-id)
+    (data/complete-item-by-id (auth/current-user-id) item-id)
     (success)))
 
 (defn delete-item [ item-id ]
   (let [ list-id (data/get-list-id-by-item-id item-id)]
-    (data/delete-item-by-id (current-user-id) item-id)
+    (data/delete-item-by-id (auth/current-user-id) item-id)
     (redirect-to-list list-id)))
 
 (defn restore-item [ item-id ]
   (let [ list-id (data/get-list-id-by-item-id item-id)]
-    (data/restore-item (current-user-id) item-id)
+    (data/restore-item (auth/current-user-id) item-id)
     (success)))
 
 (defn- public-routes [ config ]
@@ -159,7 +160,7 @@
    (GET "/list/:list-id" { { list-id :list-id } :params }
      (log/debug "public render: " list-id)
      (when (and (data/list-public? list-id)
-                (not (data/list-owned-by-user-id? list-id (current-user-id))))
+                (not (data/list-owned-by-user-id? list-id (auth/current-user-id))))
        (todo-list/render-todo-list-public-page list-id)))))
 
 (defn- list-routes [ list-id ]
@@ -188,7 +189,7 @@
                           (:list-name params) (:share-with-email params) (:is_public params)))
 
    (POST "/priority" { { new-priority :new-priority } :params }
-     (update-list-priority list-id (current-user-id) new-priority))
+     (update-list-priority list-id (auth/current-user-id) new-priority))
 
    (POST "/delete" []
      (delete-list list-id))

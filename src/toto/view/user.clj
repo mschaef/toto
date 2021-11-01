@@ -2,7 +2,9 @@
   (:use toto.core.util
         compojure.core
         hiccup.core
-        toto.view.common)
+        toto.view.common
+        toto.view.components
+        toto.view.page)
   (:require [clojure.tools.logging :as log]
             [ring.util.response :as ring]
             [cemerick.friend :as friend]
@@ -23,7 +25,7 @@
                 [:p
                  "Your e-mail address is unverified and your acccount is "
                  "inactive. A verification e-mail can be sent by following "
-                 [:a {:href (str "/user/verify/" (current-user-id))} "this link"]
+                 [:a {:href (str "/user/verify/" (auth/current-user-id))} "this link"]
                  "."]]))
 
 (defn user-password-expired [ request ]
@@ -43,7 +45,7 @@
                 [:p
                  "Your account is locked and must be re-verified by e-mail."
                  "An verification e-mail can be sent by following "
-                 [:a {:href (str "/user/unlock/" (current-user-id))} "this link"]
+                 [:a {:href (str "/user/unlock/" (auth/current-user-id))} "this link"]
                  "."]]))
 
 (defn unauthorized-handler [request]
@@ -175,16 +177,16 @@
 (def date-format (java.text.SimpleDateFormat. "yyyy-MM-dd hh:mm aa"))
 
 (defn render-user-info-form [ & { :keys [ error-message ]}]
-  (let [user (data/get-user-by-email (current-identity))]
+  (let [user (data/get-user-by-email (auth/current-identity))]
     (render-page { :page-title "User Information" }
                  (form/form-to
                   [:post "/user/info"]
                   [:input {:type "hidden"
                            :name "username"
-                           :value (current-identity)}]
+                           :value (auth/current-identity)}]
                   [:div.config-panel
                    [:h1 "E-Mail Address"]
-                   (current-identity)]
+                   (auth/current-identity)]
 
                   [:div.config-panel
                    [:h1 "Name"]
@@ -213,23 +215,23 @@
 (defn update-user-info [ name ]
   (if-let [name (validate-name name)]
     (do
-      (data/set-user-name (current-identity) name)
+      (data/set-user-name (auth/current-identity) name)
       (ring/redirect "/user/info"))
     (render-user-info-form :error-message "Invalid Name")))
 
 (defn render-change-password-form  [ & { :keys [ error-message ]}]
-  (let [user (data/get-user-by-email (current-identity))]
+  (let [user (data/get-user-by-email (auth/current-identity))]
     (render-page { :page-title "Change Password" }
                  (form/form-to {:class "auth-form"}
                                [:post "/user/password"]
 
                                [:input {:type "hidden"
                                         :name "username"
-                                        :value (current-identity)}]
+                                        :value (auth/current-identity)}]
 
                                [:div.config-panel
                                 [:h1 "E-Mail Address"]
-                                (current-identity)]
+                                (auth/current-identity)]
 
                                [:div.config-panel
                                 [:h1 "Name"]
@@ -250,7 +252,7 @@
                                  (form/submit-button {} "Change Password")]]))))
 
 (defn change-password [ password new-password-1 new-password-2 ]
-  (let [ username (current-identity) ]
+  (let [ username (auth/current-identity) ]
     (cond
       (not (auth/get-user-by-credentials {:username username :password password}))
       (render-change-password-form

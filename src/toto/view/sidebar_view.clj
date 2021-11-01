@@ -1,8 +1,10 @@
 (ns toto.view.sidebar-view
   (:use toto.core.util
-        toto.view.common)
+        toto.view.common
+        toto.view.icons
+        toto.view.query)
   (:require [toto.data.data :as data]
-            [toto.view.user :as user]))
+            [toto.view.auth :as auth]))
 
 (defn render-list-visibility-flag [ list ]
   (let [{is-public :is_public
@@ -42,12 +44,12 @@
                   list-item-count)]]))
           (remove #(and (< (:priority %) min-list-priority)
                         (not (= (Integer. selected-list-id) (:todo_list_id %))))
-                  (data/get-todo-lists-by-user (current-user-id))))
+                  (data/get-todo-lists-by-user (auth/current-user-id))))
 
      [:div.control-row
       (if (< min-list-priority 0)
         [:a {:href (shref "" {:min-list-priority 0})} "Hide Hidden Lists"]
         [:a {:href (shref "" {:min-list-priority -1})} "Show All Lists"])]
-     
+
      [:div.control-row
       [:a {:href "/lists"} "Manage Todo Lists"]]]))
