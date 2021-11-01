@@ -369,7 +369,7 @@
                   [:a {:href "/"} "Login"]])))
 
 (defn enter-unlock-workflow [ config user-id ]
-  (let [user (data/get-user-by-email (current-identity))]
+  (let [user (data/get-user-by-email (auth/current-identity))]
     (ensure-verification-link user-id)
     (send-verification-link config user-id)
     (render-page { :page-title "Unlock Account" }
