@@ -6,4 +6,5 @@
       :backup-path "./local-db"
       :backup-cron "0 */1 * * *"}
  :smtp {:enabled false
-        :from "mike@mschaef.com"}}
+        :from "mike@mschaef.com"}
+ :admin-mails ["mike@mschaef.com"]}
