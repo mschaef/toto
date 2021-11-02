@@ -9,7 +9,19 @@
   (log/info "Sending mail to " to " with subject: " subject)
   (let [smtp (:smtp config)
         html-content (html [:html hiccup-content])]
-    (if (:enabled smtp)
+    (cond
+      (not (:enabled smtp))
+      (do
+        (log/warn "E-mail disabled. Message not sent. Message text: ")
+        (log/warn html-content))
+
+
+      (or (nil? to) (= (count to) 0))
+      (do
+        (log/warn "No destination e-mail address. Message not send. Message text: ")
+        (log/warn html-content))
+
+      :else
       (postal/send-message {:host (:host smtp)
                             :user (:user smtp)
                             :pass (:password smtp)
@@ -18,7 +30,4 @@
                             :to to
                             :subject subject
                             :body [{:type "text/html"
-                                    :content html-content}]})
-      (do
-        (log/warn "E-mail disabled. Message not sent. Message text: ")
-        (log/warn html-content)))))
+                                    :content html-content}]}))))
