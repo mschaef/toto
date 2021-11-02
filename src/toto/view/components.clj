@@ -1,7 +1,8 @@
 (ns toto.view.components
   (:use toto.view.query
         toto.view.icons)
-  (:require [clojure.data.json :as json]))
+  (:require [clojure.data.json :as json]
+            [clojure.tools.logging :as log]))
 
 (defn render-scroll-column [ title & contents ]
   [:div.scroll-column
@@ -13,6 +14,14 @@
   ;; desc to be used for accessibility purposes
   [:span.clickable.post-button
    {:onclick (str "doPost('" target "'," (json/write-str args) ")")}
+   body])
+
+(defn post-button-shortcut [ target args desc shortcut-key body next-url]
+  ;; desc to be used for accessibility purposes
+  [:span.clickable.post-button
+   {:data-shortcut-key shortcut-key
+    :data-target target
+    :onclick (str "doPost('" target "'," (json/write-str args) ", '" next-url "')")}
    body])
 
 (defn post-button* [ target args desc body next-url ]

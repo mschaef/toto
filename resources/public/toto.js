@@ -341,7 +341,7 @@ function onNewItemInputKeydown(event) {
         submitHighPriority();
     }
 }
-    
+
 function onItemEditKeydown(event) {
     var input = event.target;
 
@@ -358,7 +358,7 @@ function dismissModalIfPresent() {
     var modal = elemOptional('modal');
 
     var nextUrl;
-        
+
     if (modal) {
         nextUrl = modal.getAttribute('data-escape-url');
     }
@@ -373,12 +373,12 @@ function checkModalShortcutBindings(event) {
         return;
     }
 
-    var shortcuts = modal.querySelectorAll('form[data-shortcut-key]');
+    var shortcuts = modal.querySelectorAll('span[data-shortcut-key]');
 
     for(let shortcut of shortcuts) {
         if (event.key === shortcut.getAttribute('data-shortcut-key')) {
             event.preventDefault();
-            shortcut.submit();
+            shortcut.onclick();
         }
     }
 }
@@ -391,13 +391,9 @@ function onDocumentKeydown(event) {
     }
 }
 
-function onModalKeydown(event) {
-    console.log('modal keydown', event);
-}
-
 function onDocumentClick(event) {
     var modalBackground = elemOptional('modal-background');
-    
+
     if (modalBackground && (event.target == modalBackground)) {
         dismissModalIfPresent();
     }
@@ -471,4 +467,3 @@ document.addEventListener('DOMContentLoaded', function() {
 
 document.addEventListener("keydown", onDocumentKeydown);
 document.addEventListener("click", onDocumentClick);
-    

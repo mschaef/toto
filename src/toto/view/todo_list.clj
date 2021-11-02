@@ -229,11 +229,12 @@
         list-url (without-modal (shref "/list/" list-id))]
 
     (defn render-snooze-choice [ label snooze-days shortcut-key ]
-      (post-button* (str "/item/" snoozing-item-id "/snooze")
-                    {:snooze-days snooze-days}
-                    (str label " (" shortcut-key ")")
-                    (str label " (" shortcut-key ")")
-                    list-url))
+      (post-button-shortcut (str "/item/" snoozing-item-id "/snooze")
+                            {:snooze-days snooze-days}
+                            (str label " (" shortcut-key ")")
+                            shortcut-key
+                            (str label " (" shortcut-key ")")
+                            list-url))
 
     (render-modal
      list-url
