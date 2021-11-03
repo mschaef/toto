@@ -65,18 +65,16 @@
               user-unauthorized)
             request)}))
 
-(defn user-create-notification-email-message [ user-email-address ]
-  [:body
-   [:h1
-    "New User Created"]
-   [:p
-    "New user e-mail: "  user-email-address "."]])
-
 (defn notify-user-create [ config email-addr ]
-  (mail/send-email config
-                   {:to (:admin-mails config)
-                    :subject "Todo - New User Account Created"
-                    :content (user-create-notification-email-message email-addr)}))
+  (mail/send-email
+   config
+   {:to (:admin-mails config)
+    :subject "Todo - New User Account Created"
+    :content [:body
+              [:h1
+               "New User Created"]
+              [:p
+               "New user e-mail: "  email-addr "."]]}))
 
 (defn create-user [ config email-addr password ]
   (let [user-id (auth/create-user email-addr password)
@@ -137,6 +135,12 @@
     [:div.submit-panel
      (form/submit-button {} "Register")])))
 
+(defn- get-verification-link-by-user-id [ config link-type user-id ]
+  (let [verification-link (data/get-verification-link-by-user-id user-id)]
+    (str (:base-url config) "user/" link-type "/" user-id "/"
+         (:link_uuid verification-link))))
+
+
 (defn verification-email-message [ config verify-link-url ]
   [:body
    [:h1
@@ -144,22 +148,51 @@
    [:p
     "Thank you for registering with " [:a {:href (:base-url config)} "Toto"]
     " to manage your todo lists. You can verify your e-mail address by clicking"
-    [:a {:href verify-link-url} "here"] "."]
-
-   [:p
-    "If this isn't something you've requested, you can safely ignore this"
-    " e-mail, and we won't send anything else."]])
-
+    [:a {:href verify-link-url} "here"] "."]]
+  [:p
+   "If this isn't something you've requested, you can safely ignore this"
+   " e-mail, and we won't send anything else."])
 
 (defn send-verification-link [ config user-id ]
   (let [user (data/get-user-by-id user-id)
-        verification-link (data/get-verification-link-by-user-id user-id)]
-    (let [link-url (str (:base-url config) "user/verify/" user-id "/"
-                        (:link_uuid verification-link))]
-      (mail/send-email config
-                       {:to [ (:email_addr user) ]
-                        :subject "Todo - Confirm E-Mail Address"
-                        :content (verification-email-message config link-url)}))))
+        link-url (get-verification-link-by-user-id config "verify" user-id)]
+    (mail/send-email config
+                     {:to [ (:email_addr user) ]
+                      :subject "Todo - Unlock Account"
+                      :content (verification-email-message config link-url)})))
+
+(defn unlock-email-message [ config verify-link-url ]
+  [:body
+   [:h1
+    "Unlock Password"]
+   [:p
+    "Click " [:a {:href verify-link-url} "here"] " to unlock your "
+    [:a {:href (:base-url config)} "Toto"] " account."]])
+
+(defn send-unlock-link [ config user-id ]
+  (let [user (data/get-user-by-id user-id)
+        link-url (get-verification-link-by-user-id config "unlock" user-id)]
+    (mail/send-email config
+                     {:to [ (:email_addr user) ]
+                      :subject "Todo - Unlock Account"
+                      :content (unlock-email-message config link-url)})))
+
+(defn reset-email-message [ config verify-link-url ]
+  [:body
+   [:h1
+    "Reset Password"]
+   [:p
+    "Click " [:a {:href verify-link-url} "here"]
+    "to reset your " [:a {:href (:base-url config)} "Toto"] "password."]])
+
+(defn send-reset-link [ config user-id ]
+  (let [user (data/get-user-by-id user-id)
+        link-url (get-verification-link-by-user-id config "reset" user-id)]
+    (mail/send-email config
+                     {:to [ (:email_addr user) ]
+                      :subject "Todo - Reset Account Password"
+                      :content (reset-email-message config link-url)})))
+
 
 (defn add-user [ config email-addr password password2 ]
   (cond
@@ -371,7 +404,7 @@
 (defn enter-unlock-workflow [ config user-id ]
   (let [user (data/get-user-by-email (auth/current-identity))]
     (ensure-verification-link user-id)
-    (send-verification-link config user-id)
+    (send-unlock-link config user-id)
     (render-page { :page-title "Unlock Account" }
                       [:div.page-message
                        [:h1 "Unlock Account"]
@@ -398,7 +431,7 @@
         user-id (and user (:user_id user))]
     (when user-id
       (ensure-verification-link user-id)
-      (send-verification-link config user-id))
+      (send-reset-link config user-id))
     (render-page { :page-title "Reset Password" }
                  [:div.page-message
                   [:h1 "Reset Password"]
