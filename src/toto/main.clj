@@ -7,6 +7,7 @@
             [sql-file.core :as sql-file]
             [toto.core.config :as config]
             [toto.core.data :as data]
+            [toto.data.data :as data2]
             [toto.dumper.dumper :as dumper]
             [toto.site :as site]))
 
@@ -18,7 +19,10 @@
 (defn schedule-job [scheduler desc cron job-fn]
   (do
     (log/info "Background job scheduled (cron:" cron  "):" desc )
-    (.schedule scheduler cron job-fn)))
+    (.schedule scheduler cron
+               #(do
+                  (log/debug "Running scheduled job: " desc)
+                  (job-fn)))))
 
 (defn schedule-backup [scheduler config db-conn]
   (let [backup-cron (get-in config [:db :backup-cron])]
@@ -28,9 +32,15 @@
                        (data/backup-database backup-path)))
       (log/warn "NO BACKUP PATH. AUTOMATIC BACKUP DISABLED!!!"))))
 
+(defn schedule-verification-link-cull [ scheduler db-conn ]
+  (schedule-job scheduler "Verification link cull" "*/15 * * * *"
+                #(data/with-db-connection db-conn
+                   (data2/delete-old-verification-links))))
+
 (defn site-start [ config db-conn ]
   (let [ scheduler (start-scheduler)]
     (schedule-backup scheduler config db-conn)
+    (schedule-verification-link-cull scheduler db-conn)
     (site/site-start config db-conn)))
 
 (defn app-start [ config ]

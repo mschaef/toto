@@ -154,6 +154,11 @@
                           " WHERE link_uuid=?")
                      link-uuid]))
 
+(defn delete-old-verification-links []
+  (jdbc/delete! (current-db-connection)
+                :verification_link
+                ["created_on < DATEADD('hour', -1, CURRENT_TIMESTAMP)"]))
+
 (defn add-list [ desc ]
   (:todo_list_id (first
                   (jdbc/insert! (current-db-connection)
