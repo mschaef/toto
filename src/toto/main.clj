@@ -15,31 +15,22 @@
     (.setDaemon true)
     (.start)))
 
-(def date-format (java.text.SimpleDateFormat. "yyyyMMdd-hhmm"))
+(defn schedule-job [scheduler desc cron job-fn]
+  (do
+    (log/info "Background job scheduled (cron:" cron  "):" desc )
+    (.schedule scheduler cron job-fn)))
 
-(defn get-backup-filename []
-  (str
-   "toto-backup-"
-   (.format date-format (java.util.Date.))
-   ".tgz"))
-
-(defn schedule-backup [config db-conn scheduler]
-  (log/info :config config)
-  (let [backup-path (get-in config [:db :backup-path] false)
-        backup-cron (get-in config [:db :backup-cron])]
-    (if backup-path
-      (do
-        (log/info "Automatic backup enabled and writing to" backup-path
-                  (str "(cron: " backup-cron ")"))
-        (.schedule scheduler backup-cron
-                   (fn []
-                     (data/with-db-connection db-conn
-                       (data/backup-database (str backup-path "/" (get-backup-filename)))))))
+(defn schedule-backup [scheduler config db-conn]
+  (let [backup-cron (get-in config [:db :backup-cron])]
+    (if-let [backup-path (get-in config [:db :backup-path] false)]
+      (schedule-job scheduler (str "Automatic backup to" backup-path) backup-cron
+                    #(data/with-db-connection db-conn
+                       (data/backup-database backup-path)))
       (log/warn "NO BACKUP PATH. AUTOMATIC BACKUP DISABLED!!!"))))
 
 (defn site-start [ config db-conn ]
   (let [ scheduler (start-scheduler)]
-    (schedule-backup config db-conn scheduler)
+    (schedule-backup scheduler config db-conn)
     (site/site-start config db-conn)))
 
 (defn app-start [ config ]
