@@ -148,17 +148,17 @@
    [:p
     "Thank you for registering with " [:a {:href (:base-url config)} "Toto"]
     " to manage your todo lists. You can verify your e-mail address by clicking"
-    [:a {:href verify-link-url} "here"] "."]]
-  [:p
-   "If this isn't something you've requested, you can safely ignore this"
-   " e-mail, and we won't send anything else."])
+    [:a {:href verify-link-url} "here"] "."]
+   [:p
+    "If this isn't something you've requested, you can safely ignore this"
+    " e-mail, and we won't send anything else."]])
 
 (defn send-verification-link [ config user-id ]
   (let [user (data/get-user-by-id user-id)
         link-url (get-verification-link-by-user-id config "verify" user-id)]
     (mail/send-email config
                      {:to [ (:email_addr user) ]
-                      :subject "Todo - Unlock Account"
+                      :subject "Todo - Verify Account"
                       :content (verification-email-message config link-url)})))
 
 (defn unlock-email-message [ config verify-link-url ]
