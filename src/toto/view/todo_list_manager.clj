@@ -55,8 +55,8 @@
                 (render-list-arrow-control list-id priority)]
                [:div.item-description
                 [:a {:href (shref "/list/" list-id)}
-                 (hiccup.util/escape-html (:desc list))]
-                [:span.pill (:item_count list)]
+                 (hiccup.util/escape-html (:desc list))
+                 [:span.pill (:item_count list)]]
                 (sidebar-view/render-list-visibility-flag list)]]))
           (data/get-todo-lists-by-user (auth/current-user-id)))])))
 

@@ -320,12 +320,10 @@
   (when-let [ user (get-link-verified-user link-user-id link-uuid)]
     (render-page { :page-title "Reset Password" }
                  [:div.page-message
-                  [:h1 "Reset Password"]
-                  [:div.config-panel
-                   (form/form-to {:class "auth-form"}
-                                 [:post (str "/user/password-reset/" (:user_id user))]
-
-                                 [:h1 "Password"]
+                  (form/form-to {:class "auth-form"}
+                                [:post (str "/user/password-reset/" (:user_id user))]
+                                [:div.config-panel
+                                 [:h1 "Reset your password"]
                                  [:input {:type "hidden"
                                           :name "link_uuid"
                                           :value link-uuid}]
@@ -333,7 +331,7 @@
                                  (form/password-field {:placeholder "Verify Password"} "new_password2")
                                  [:div#error.error-message
                                   error-message]
-                                 (form/submit-button {} "Reset Password"))]])))
+                                 (form/submit-button {} "Reset Password")])])))
 
 (defn password-reset [ user-id link-uuid new-password-1 new-password-2 ]
   (let [ user (get-link-verified-user user-id link-uuid)]
