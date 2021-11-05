@@ -11,6 +11,22 @@
             [toto.view.auth :as auth]
             [toto.view.sidebar-view :as sidebar-view]))
 
+(defn- list-priority-button [ list-id new-priority image-spec ]
+  (post-button {:target (shref "/list/" list-id "/priority")
+                :args {:new-priority new-priority}
+                :desc "Set List Priority"}
+               image-spec))
+
+(defn render-list-star-control [ list-id priority ]
+  (if (<= priority 0)
+    (list-priority-button list-id 1 img-star-gray)
+    (list-priority-button list-id 0 img-star-yellow)))
+
+(defn render-list-arrow-control [ list-id priority ]
+  (if (>= priority 0)
+    (list-priority-button list-id -1 img-arrow-gray)
+    (list-priority-button list-id 0 img-arrow-blue)))
+
 (defn render-new-list-form [ ]
   (form/form-to
    {:class "new-item-form"}
@@ -23,7 +39,7 @@
 (defn render-list-list-page []
   (render-page
    {:page-title "Manage Todo Lists"}
-   (render-scroll-column
+   (scroll-column
     (render-new-list-form)
     [:div.toplevel-list.list-list
      (map (fn [ list ]

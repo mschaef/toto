@@ -45,17 +45,36 @@
      ~@body))
 
 (defn- complete-item-button [ item-info ]
-  (post-button (str "/item/" (item-info :item_id) "/complete") {} "Complete Item" img-check))
+  (post-button {:desc "Complete Item"
+                :target (str "/item/" (item-info :item_id) "/complete")}
+               img-check))
 
 (defn- restore-item-button [ item-info ]
-  (post-button (str "/item/" (item-info :item_id) "/restore") {}  "Restore Item" img-restore))
+  (post-button {:desc "Restore Item"
+                :target (str "/item/" (item-info :item_id) "/restore")}
+               img-restore))
 
 (defn- delete-item-button [ item-info list-id ]
-  (post-button* (str "/item/" (item-info :item_id) "/delete") {}  "Delete Item" img-trash
-                (without-edit-id (shref "/list/" list-id))))
+  (post-button {:desc "Delete Item"
+                :target (str "/item/" (item-info :item_id) "/delete")
+                :next-url (without-edit-id (shref "/list/" list-id))}
+               img-trash))
 
 (defn- snooze-item-button [ item-info body ]
   [:a {:href (shref "" {:snoozing (item-info :item_id)})} body])
+
+(defn- item-priority-button [ item-id new-priority image-spec writable? ]
+  (if writable?
+    (post-button {:target (str "/item/" item-id "/priority")
+                  :args {:new-priority new-priority}
+                  :desc "Set Item Priority"}
+                 image-spec)
+    image-spec))
+
+(defn- render-item-priority-control [ item-id priority writable? ]
+  (if (<= priority 0)
+    (item-priority-button item-id 1 img-star-gray writable?)
+    (item-priority-button item-id 0 img-star-yellow writable?)))
 
 (defn- render-new-item-form [ list-id editing-item? ]
   (form/form-to
@@ -93,7 +112,7 @@
 
 (defn item-drag-handle [ class item-info ]
   [:div.item-control.drag-handle {:itemid (:item_id item-info)
-                     :class class}
+                                  :class class}
    img-bars])
 
 (defn drop-target [ item-ordinal ]
@@ -206,7 +225,7 @@
 (defn- render-todo-list [ list-id edit-item-id writable? completed-within-days snoozed-for-days ]
   (let [pending-items (data/get-pending-items list-id completed-within-days snoozed-for-days)
         n-snoozed-items (count (filter :visibly_snoozed pending-items))]
-    (render-scroll-column
+    (scroll-column
      (when writable?
        (render-new-item-form list-id (boolean edit-item-id)))
      [:div.toplevel-list
@@ -229,12 +248,12 @@
         list-url (without-modal (shref "/list/" list-id))]
 
     (defn render-snooze-choice [ label snooze-days shortcut-key ]
-      (post-button-shortcut (str "/item/" snoozing-item-id "/snooze")
-                            {:snooze-days snooze-days}
-                            (str label " (" shortcut-key ")")
-                            shortcut-key
-                            (str label " (" shortcut-key ")")
-                            list-url))
+      (post-button {:desc (str label " (" shortcut-key ")")
+                    :target (str "/item/" snoozing-item-id "/snooze")
+                    :args {:snooze-days snooze-days}
+                    :shortcut-key shortcut-key
+                    :next-url list-url}
+                   (str label " (" shortcut-key ")")))
 
     (render-modal
      list-url

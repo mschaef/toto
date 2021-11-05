@@ -30,34 +30,35 @@
    (page/include-js (resource "toto.js"))
    (page/include-js (resource "DragDropTouch.js"))])
 
-(defn- render-header [ page-title username show-menu? ]
-  [:div.header
-   (when show-menu?
-     [:span.toggle-menu img-show-list "&nbsp;"])
-   [:span.app-name
-    [:a { :href "/" } (:app-name *config*)] " - "]
-   page-title
-   (when *dev-mode*
-     [:span.pill.dev "DEV"])
-   (if username
-     [:div.right
-      [:span.logout
-       [:a {:href "/user/info"} username]
-       [:span.logout-control " - " (logout-button)]]]
-     [:div.right
-      (login-button)])])
+(defn- render-header [ page-title show-menu? ]
+  (let [ username (auth/current-identity)]
+    [:div.header
+     (when show-menu?
+       [:span.toggle-menu img-show-list "&nbsp;"])
+     [:span.app-name
+      [:a { :href "/" } (:app-name *config*)] " - "]
+     page-title
+     (when *dev-mode*
+       [:span.pill.dev "DEV"])
+     (if username
+       [:div.right
+        [:span.logout
+         [:a {:href "/user/info"} username]
+         [:span.logout-control " - " (logout-button)]]]
+       [:div.right
+        (login-button)])]))
 
-(defn- render-sidebar [ username sidebar ]
+(defn- render-sidebar [ sidebar ]
   [:div.sidebar
    [:div.sidebar-control
-    [:span.close-menu  img-close-list "&nbsp;"]
+    [:span.close-menu img-close-list "&nbsp;"]
     [:span.logout
-     [:a {:href "/user/password-change"} username]
+     [:a {:href "/user/password-change"} (auth/current-identity)]
      [:span.logout-control " - " (logout-button)]]]
-   [:div#sidebar.sidebar-content { :data-preserve-scroll "true" }
+   [:div.sidebar-content { :data-preserve-scroll "true" }
     sidebar
     [:div.copyright
-     "&#9400; 2015-2021 East Coast Toolworks "]]])
+     "&#9400; 2015-2021 East Coast Toolworks"]]])
 
 (defn render-modal [ escape-url & contents ]
   [:div.modal-background
@@ -66,17 +67,16 @@
      [:a {:href escape-url} img-window-close]]
     contents]])
 
-(defn- render-page-body [ page-data-class page-title username sidebar contents ]
+(defn- render-page-body [ page-data-class page-title sidebar contents ]
   [:body (if page-data-class
            {:data-class page-data-class})
-   (render-header page-title username (not (nil? sidebar)))
+   (render-header page-title (not (nil? sidebar)))
    (if sidebar
-     (render-sidebar username sidebar))
+     (render-sidebar sidebar))
    [:div.contents {:class (class-set { "with-sidebar" sidebar })}
     contents]])
 
 (defn render-page [{ :keys [ page-title page-data-class sidebar ] }  & contents]
-  (let [username (auth/current-identity)]
-    (html [:html
-           (render-standard-header page-title)
-           (render-page-body page-data-class page-title username sidebar contents)])))
+  (html [:html
+         (render-standard-header page-title)
+         (render-page-body page-data-class page-title sidebar contents)]))
