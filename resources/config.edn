@@ -1,4 +1,4 @@
-{:app-name "Toto"
+{:app {:name "Toto"}
  :http-port 8080
  :development-mode false
  :db {:backup-path false

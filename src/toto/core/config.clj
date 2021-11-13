@@ -4,10 +4,6 @@
             [cprop.core :as cprop]
             [cprop.source :as cprop-source]))
 
-(defn- accept-mode [ args ]
-  (if (= 0 (count args))
-    :site
-    (keyword (first args))))
 
 (defn- maybe-config-file [ prop-name ]
   (if-let [prop (System/getProperty prop-name)]
@@ -20,13 +16,11 @@
         {}))
     {}))
 
-(defn load-config [ app-name args ]
+(defn load-config [ app-mode ]
   (cprop/load-config :merge [(cprop-source/from-resource "config.edn")
                              (maybe-config-file "conf")
                              (maybe-config-file "creds")
-                             {:app {:name app-name
-                                    :version (get-version)
-                                    :mode (accept-mode args)}}]))
+                             {:app {:mode app-mode}}]))
 
 (def ^:dynamic *config* nil)
 

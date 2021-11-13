@@ -49,8 +49,13 @@
       :dump-simple-event-stream (dumper/dump-simple-event-stream config db-conn)
       :site (site-start config db-conn))))
 
+(defn- accept-mode [ args ]
+  (if (= 0 (count args))
+    :site
+    (keyword (first args))))
+
 (defn -main [& args]
-  (let [config (config/load-config "Toto" args)]
+  (let [config (config/load-config (accept-mode args))]
     (log/info "Starting App" (:app config))
     (when (:development-mode config)
       (log/warn "=== DEVELOPMENT MODE ==="))
