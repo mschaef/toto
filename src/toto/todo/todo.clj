@@ -11,6 +11,7 @@
             [cemerick.friend :as friend]
             [toto.data.data :as data]
             [toto.view.auth :as auth]
+            [toto.view.user :as user]
             [toto.todo.todo-list :as todo-list]
             [toto.todo.todo-list-manager :as todo-list-manager]))
 
