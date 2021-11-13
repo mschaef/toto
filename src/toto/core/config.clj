@@ -16,11 +16,10 @@
         {}))
     {}))
 
-(defn load-config [ app-mode ]
+(defn load-config [ ]
   (cprop/load-config :merge [(cprop-source/from-resource "config.edn")
                              (maybe-config-file "conf")
-                             (maybe-config-file "creds")
-                             {:app {:mode app-mode}}]))
+                             (maybe-config-file "creds")]))
 
 (def ^:dynamic *config* nil)
 
