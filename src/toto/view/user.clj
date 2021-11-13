@@ -77,9 +77,7 @@
                "New user e-mail: "  email-addr "."]]}))
 
 (defn create-user [ config email-addr password ]
-  (let [user-id (auth/create-user email-addr password)
-        list-id (data/add-list "Todo")]
-    (data/set-list-ownership list-id #{ user-id })
+  (let [user-id (auth/create-user email-addr password)]
     (notify-user-create config email-addr)
     user-id))
 
@@ -448,6 +446,7 @@
                   [:h1 "Password Successfully Reset"]
                   [:p "Your password has been reset. You can login "
                    [:a {:href "/"} "here"] "."]])  )
+
 
 (defn private-routes [ config ]
   (routes

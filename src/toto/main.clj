@@ -8,7 +8,6 @@
             [toto.core.config :as config]
             [toto.core.data :as data]
             [toto.data.data :as data2]
-            [toto.dumper.dumper :as dumper]
             [toto.site :as site]))
 
 (defn start-scheduler [ ]
@@ -46,7 +45,6 @@
 (defn app-start [ config ]
   (sql-file/with-pool [db-conn (data/db-conn-spec config)]
     (case (:mode (:app config))
-      :dump-simple-event-stream (dumper/dump-simple-event-stream config db-conn)
       :site (site-start config db-conn))))
 
 (defn -main [& args]

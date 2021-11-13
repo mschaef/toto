@@ -396,44 +396,6 @@ select:hover {
     overflow-y: auto;
 }
 
-/*** New Item Form ***/
-
-.new-item-form {
-    flex: 1;
-
-    display: flex;
-    flex-direction: row;
-    margin: 0px;
-    padding: 0px 6px 6px 6px;
-
-    align-items: center;
-}
-
-.new-item-form input {
-    flex: 1;
-    min-width: auto;
-    width: auto;
-}
-
-.new-item-form .high-priority-submit {
-    background: transparent;
-    padding: 6px;
-    cursor: pointer;
-
-    border: none;
-}
-
-.new-item-form button.high-priority-submit i.icon-gray:hover {
-    color: #b0b0b0;
-}
-
-.new-item-form button:hover {
-    background: #eeeeee;
-}
-
-.new-item-form .high-priority-submit {
-    flex: 0;
-}
 
 .auth-form {
     width: auto;
@@ -466,49 +428,6 @@ select:hover {
 
 .header .right {
     float: right;
-}
-
-.query-settings {
-    margin: 6px 0px 6px 0px;
-    padding: 6px;
-
-    right: 0px;
-
-    text-align: center;
-    border: 1px solid #f0f0f0;
-    background: #f7f7f7;
-
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-}
-
-.query-settings .control-segment {
-    display: inline-block;
-    padding-right: 10px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-}
-
-.query-settings .control-segment label {
-    margin-right: 5px;
-}
-
-.query-settings .control-segment label:not(:first-child) {
-    margin-left: 5px;
-}
-
-.query-settings form {
-    margin-left: 10px;
-}
-
-.query-settings form input {
-    margin-left: 3px;
-}
-
-.query-settings select {
-    margin-top: 4px;
-    margin-bottom: 4px;
 }
 
 .page-message {
@@ -549,145 +468,6 @@ select:hover {
 
 .login A {
     color: red;
-}
-
-.completed-item {
-    text-decoration: line-through;
-}
-
-.deleted-item {
-    text-decoration: line-through;
-    color: #c0c0c0;
-}
-
-.item-control {
-    width: 25px;
-    min-width: 25px;
-    flex: 0;
-    text-align: center;
-}
-
-/*** Toplevel list styling ***/
-
-.toplevel-list {
-    width: 100%;
-    box-sizing: border-box;
-}
-
-@media only screen and (min-device-width : 640px) {
-    .toplevel-list {
-        padding-left: 0px;
-        padding-right: 0px;
-    }
-}
-
-.toplevel-list .empty-list {
-    text-align: center;
-    margin: 20px;
-}
-
-.toplevel-list .empty-list h1 {
-    font-size: 16px;
-
-    margin-bottom: 2px;
-}
-
-.toplevel-list .empty-list p {
-    font-size: 14px;
-    font-style: italic;
-    margin: 8px;
-}
-
-.toplevel-list .item-description {
-    width: 100%;
-    white-space: normal;
-    box-sizing: border-box;
-    display: flex;
-    min-height: 24px;
-}
-
-.toplevel-list .item-description input {
-    flex: 1;
-}
-
-.order-drop-target.drop-hover {
-    background: #d0d0d0;
-}
-
-.snoozed-item-warning {
-    text-align: center;
-
-    padding-left: 10px;
-    padding-right: 10px;
-
-    padding-top: 10px;
-    padding-bottom: 10px;
-
-    background: #e0e0e0;
-}
-
-.snoozed-item-warning A {
-    color: blue;
-}
-
-/* Sidebar Styling */
-
-.sidebar .list-list .list-row {
-    border-right: 5px solid white;
-    padding-right: 10px;
-    padding-left: 10px;
-
-    padding-top: 6px;
-    padding-bottom: 6px;
-}
-
-@media only screen and (min-device-width : 640px) {
-    .sidebar .list-list .list-row {
-        padding-top: 0px;
-        padding-bottom: 0px;
-    }
-}
-
-.sidebar .list-list .list-row:hover {
-    background: #fffafa;
-}
-
-.sidebar .list-list .list-row, .sidebar .list-list .control-row {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-}
-
-.sidebar .list-list .list-row A {
-    padding-top: 0.75em;
-    padding-bottom: 0.75em;
-}
-
-.sidebar .list-list .list-row .item {
-    flex: 1;
-}
-
-.sidebar .list-list .control-row {
-    padding-top: 1.25em;
-    justify-content: center;
-}
-
-.sidebar .list-list .selected.drop-hover,
-.sidebar .list-list .drop-hover {
-    background: #e0e0e0;
-}
-
-.sidebar .list-list .selected A {
-    color: red;
-}
-
-.sidebar .list-list .selected {
-    background: #fff7f7;
-    border-right: 5px solid red;
-}
-
-.sidebar .list-list .control-row {
-    text-align: center;
 }
 
 .sidebar.menu-visible {
@@ -736,120 +516,8 @@ A .pill {
     background: #c0c0c0;
 }
 
-.list-visibility-flag {
-    padding-left: 6px;
-}
-
-.item-description {
-    padding-left: 6px;
-    padding-right: 6px;
-}
-
-.item-description .embedded {
-    flex: 1;
-}
-
-.priority.left, .drag-handle.left {
-    display: none;
-}
-
-@media only screen and (min-device-width : 640px) {
-    .priority.left, .drag-handle.left {
-        display: block;
-    }
-
-    .priority.right, .drag-handle.right {
-        display: none;
-    }
-}
-
-
-.editing .right {
-    display: none;
-}
-
-.item-priority A {
-    padding-left: 0.25em;
-    padding-right: 0.25em;
-}
-
-.item-row {
-    display: flex;
-    flex-direction: row;
-
-    white-space: nowrap;
-
-    padding-left: 4px;
-    padding-top: 8px;
-    padding-bottom: 8px;
-    padding-right: 16px;
-}
-
-@media only screen and (min-device-width : 640px) {
-    .item-row {
-        padding-left: 0px;
-        padding-bottom: 4px;
-        padding-right: 0px;
-    }
-}
-
-.item-row .drag-handle {
-    width: 25px;
-    min-width: 25px;
-}
-
-@media only screen and (min-device-width : 640px) {
-    .item-row .drag-handle {
-        padding: 3px 6px 3px 3px;
-        font-size: inherit;
-    }
-}
-
-.high-priority {
-    font-weight: bold;
-}
-
-.low-priority {
-    font-style: italic;
-}
-
-.snoozed {
-    background: #f0f0f0;
-    font-style: italic;
-}
-
-.item-button {
-    border: 0px none;
-    background: transparent;
-    padding: 0.2em;
-    cursor: pointer;
-}
-
 .clickable {
     cursor: pointer;
-}
-
-.drag-item {
-    padding: 0.2em;
-    border: 2px solid black;
-    background: white;
-}
-
-.list-control-footer {
-    text-align: center;
-    font-style: italic;
-}
-
-p.new-list {
-    text-align: center;
-    font-style: italic;
-
-    padding-top: 1em;
-    padding-bottom: 1em;
-}
-
-p.new-user {
-    font-style: italic;
 }
 
 /*** List Configuration Controls ***/
@@ -886,25 +554,7 @@ p.new-user {
     margin-left: 0px;
 }
 
-.config-panel .list-owner {
-    display: flex;
-    padding: 0px 0px 12px 0px;
-}
-
-.config-panel .list-owner input {
-    margin: 0px;
-}
-.config-panel .list-owner input[type=text] {
-    flex: 1;
-}
-
-.config-panel .list-owner .self-owner {
-    display: inline-block;
-
-    width: 32px;
-}
-
-.config-panel A, .query-settings A, A.item-link {
+.config-panel A, A.item-link {
     color: blue;
 }
 
@@ -924,32 +574,11 @@ p.new-user {
         display: none;
     }
 
-    .query-settings {
-        display: none;
-    }
-
-    .new-item {
-        display: none;
-    }
-
     .logout-control {
         display: none;
     }
 
-    .item-row {
-        padding-top: 6px;
-        padding-bottom: 6px;
-    }
-
     .item-control.complete {
-        display: none;
-    }
-
-    .priority.left {
-        display: block;
-    }
-
-    .priority.right {
         display: none;
     }
 
@@ -957,19 +586,7 @@ p.new-user {
         display: none;
     }
 
-    .new-item-form {
-        display: none;
-    }
-
     body {
         height: auto;
-    }
-
-    .snoozed-item-warning {
-        display: none;
-    }
-
-    .item-row .drag-handle {
-        display: none;
     }
 }

@@ -45,7 +45,7 @@ function elemBySelector(selector) {
             console.error('Warning: more than one element with selector: ' + selector);
         }
 
-        return elements[0];
+v        return elements[0];
     }
 
     return null;
@@ -123,16 +123,6 @@ function refreshPage()
     visitPage(location);
 }
 
-function beginUserAdd(listId)
-{
-  var formMarkup = "";
-
-  formMarkup += "<input class=\"full-width simple-border\" id=\"share-with-email\" name=\"share-with-email\" type=\"text\" />";
-
-  elem('new-user').outerHTML = formMarkup;
-  elem('share-with-email').focus();
-}
-
 function setupSidebar() {
     var toggleMenu = elemOptional('toggle-menu');
 
@@ -160,16 +150,6 @@ function checkPasswords()
         errDiv.innerHTML = "Passwords do not match";
     else
         errDiv.innerHTML = "";
-}
-
-//////// todo list
-
-function setupEditableItems() {
-    foreach_elem('.toplevel-list .item-row.display', function(el) {
-        el.onclick = doubleTapFilter(null, function(obj) {
-            visitPage(el.getAttribute('edit-href'));
-        });
-    });
 }
 
 function doPost(baseUrl, args, nextUrl) {
@@ -206,32 +186,6 @@ function doMoveItem(itemId, newListId) {
     formData.append("target-list", newListId);
 
     fetch("/item-list", {
-        body: formData,
-        method: "POST",
-        credentials: 'include'
-    }).then(refreshPage);
-}
-
-function doUpdateItem(itemId, newDescription, thenUrl) {
-    var formData = new FormData();
-
-    formData.append("description", newDescription);
-
-    fetch("/item/" + itemId, {
-        body: formData,
-        method: "POST",
-        credentials: 'include'
-    }).then(() => visitPage(thenUrl));
-}
-
-function doSetItemOrder(itemId, newItemOrdinal, newItemPriority) {
-    var formData = new FormData();
-
-    formData.append("target-item", itemId);
-    formData.append("new-ordinal", newItemOrdinal);
-    formData.append("new-priority", newItemPriority);
-
-    fetch("/item-order", {
         body: formData,
         method: "POST",
         credentials: 'include'
@@ -284,76 +238,6 @@ function makeDropTarget(el, onDrop) {
     };
 }
 
-function setupItemDragging() {
-    foreach_elem(".drag-handle", function(el) {
-        el.setAttribute('draggable', true);
-
-        el.ondragstart = function(ev) {
-            var itemId = el.getAttribute('itemid');
-
-            ev.dataTransfer.dropEffect = 'move';
-            ev.dataTransfer.setData('text/plain', itemId);
-
-            var rowElem = elemById("item_row_" + itemId);
-
-            ev.dataTransfer.setDragImage(rowElem, 0, 0);
-        };
-    });
-
-    foreach_elem('.order-drop-target', function(el) {
-        makeDropTarget(el, function(ev) {
-            ev.preventDefault();
-
-            var itemId = ev.dataTransfer.getData("text/plain");
-            var newItemOrdinal = ev.currentTarget.getAttribute('ordinal');
-            var newItemPriority = ev.currentTarget.getAttribute('priority');
-
-            doSetItemOrder(itemId, newItemOrdinal, newItemPriority);
-        });
-    });
-
-    foreach_elem('.list-list .list-row', function(el) {
-        makeDropTarget(el, function(ev) {
-            ev.preventDefault();
-
-            var itemId = ev.dataTransfer.getData("text/plain");
-            var newListId = ev.currentTarget.getAttribute('listid');
-
-            doMoveItem(itemId, newListId);
-        });
-    });
-}
-
-
-function submitHighPriority() {
-    var form = elemBySelector('.new-item-form');
-    var priorityField = elemBySelector('.new-item-form #item-priority');
-
-    priorityField.value = "1";
-    form.submit();
-}
-
-function onNewItemInputKeydown(event) {
-    if (event.ctrlKey && event.keyCode == 13) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        submitHighPriority();
-    }
-}
-
-function onItemEditKeydown(event) {
-    var input = event.target;
-
-    if (event.keyCode == 13) {
-        doUpdateItem(input.getAttribute('item-id'),
-                     input.value,
-                     input.getAttribute('view-href'));
-    } else if (event.keyCode == 27) {
-        visitPage(input.getAttribute('view-href'));
-    }
-}
-
 function dismissModalIfPresent() {
     var modal = elemOptional('modal');
 
@@ -399,10 +283,6 @@ function onDocumentClick(event) {
     }
 }
 
-function initTodoList() {
-    setupEditableItems();
-    setupItemDragging();
-};
 
 function initNewUser() {
     elemById("password1").onkeyup = checkPasswords;
@@ -412,7 +292,6 @@ function initNewUser() {
 };
 
 const initFns = {
-    'todo-list': initTodoList,
     'init-new-user': initNewUser
 };
 
