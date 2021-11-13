@@ -1,4 +1,4 @@
-(ns toto.view.sidebar-view
+(ns toto.todo.sidebar-view
   (:use toto.core.util
         toto.view.common
         toto.view.icons

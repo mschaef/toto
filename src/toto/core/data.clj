@@ -7,7 +7,6 @@
 
 (def ^:dynamic *db* nil)
 
-
 (defn call-with-db-connection [ fn db-connection ]
   (jdbc/with-db-connection [ conn db-connection ]
     (binding [ *db* conn ]
@@ -50,8 +49,7 @@
 (defn- get-backup-filename [ backup-path ]
   (str
    backup-path
-   "/"
-   "toto-backup-"
+   "/toto-backup-"
    (.format date-format (java.util.Date.))
    ".tgz"))
 
@@ -59,4 +57,4 @@
   (let [ output-path (get-backup-filename backup-path)]
     (log/info "Backing database up to" output-path)
     (sql-file/backup-to-file-online (current-db-connection) output-path)
-    (log/info "Backup to" output-path "complete.")))
+    (log/info "Database backup complete.")))

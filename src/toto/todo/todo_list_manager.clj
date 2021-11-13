@@ -1,4 +1,4 @@
-(ns toto.view.todo-list-manager
+(ns toto.todo.todo-list-manager
   (:use toto.core.util
         compojure.core
         toto.view.common
@@ -9,7 +9,7 @@
   (:require [hiccup.form :as form]
             [toto.data.data :as data]
             [toto.view.auth :as auth]
-            [toto.view.sidebar-view :as sidebar-view]))
+            [toto.todo.sidebar-view :as sidebar-view]))
 
 (defn- list-priority-button [ list-id new-priority image-spec ]
   (post-button {:target (shref "/list/" list-id "/priority")

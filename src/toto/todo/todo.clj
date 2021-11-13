@@ -1,4 +1,4 @@
-(ns toto.view.todo
+(ns toto.todo.todo
   (:use toto.core.util
         compojure.core
         toto.view.common
@@ -11,9 +11,8 @@
             [cemerick.friend :as friend]
             [toto.data.data :as data]
             [toto.view.auth :as auth]
-            [toto.view.todo-list :as todo-list]
-            [toto.view.todo-list-manager :as todo-list-manager]
-            [toto.view.user :as user]))
+            [toto.todo.todo-list :as todo-list]
+            [toto.todo.todo-list-manager :as todo-list-manager]))
 
 (defn current-todo-list-id []
   (auth/authorize-expected-roles

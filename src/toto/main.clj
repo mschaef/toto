@@ -7,49 +7,30 @@
             [sql-file.core :as sql-file]
             [toto.core.config :as config]
             [toto.core.data :as data]
-            [toto.data.data :as data2]
-            [toto.site :as site]))
+            [toto.site.main :as site]
+            [toto.core.scheduler :as scheduler]
+            [toto.todo.todo :as todo]))
 
-(defn start-scheduler [ ]
-  (doto (it.sauronsoftware.cron4j.Scheduler.)
-    (.setDaemon true)
-    (.start)))
-
-(defn schedule-job [scheduler desc cron job-fn]
-  (do
-    (log/info "Background job scheduled (cron:" cron  "):" desc )
-    (.schedule scheduler cron
-               #(do
-                  (log/debug "Running scheduled job: " desc)
-                  (job-fn)))))
-
-(defn schedule-backup [scheduler config db-conn]
+(defn schedule-backup [ config ]
   (let [backup-cron (get-in config [:db :backup-cron])]
     (if-let [backup-path (get-in config [:db :backup-path] false)]
-      (schedule-job scheduler (str "Automatic backup to" backup-path) backup-cron
-                    #(data/with-db-connection db-conn
-                       (data/backup-database backup-path)))
-      (log/warn "NO BACKUP PATH. AUTOMATIC BACKUP DISABLED!!!"))))
+      (scheduler/schedule-job config (str "Automatic backup to " backup-path) backup-cron
+                              #(data/backup-database backup-path))
+      (log/warn "NO BACKUP PATH. AUTOMATIC BACKUP DISABLED!!!")))
+  config)
 
-(defn schedule-verification-link-cull [ scheduler db-conn ]
-  (schedule-job scheduler "Verification link cull" "*/15 * * * *"
-                #(data/with-db-connection db-conn
-                   (data2/delete-old-verification-links))))
-
-(defn site-start [ config db-conn ]
-  (let [ scheduler (start-scheduler)]
-    (schedule-backup scheduler config db-conn)
-    (schedule-verification-link-cull scheduler db-conn)
-    (site/site-start config db-conn)))
-
-(defn app-start [ config ]
+(defn app-start [ config app-routes ]
   (sql-file/with-pool [db-conn (data/db-conn-spec config)]
-    (site-start config db-conn)))
+    (-> config
+        (assoc :db-conn-pool db-conn)
+        (scheduler/start)
+        (schedule-backup)
+        (site/site-start db-conn app-routes))))
 
 (defn -main [& args]
   (let [config (config/load-config)]
     (log/info "Starting App" (:app config))
     (when (:development-mode config)
       (log/warn "=== DEVELOPMENT MODE ==="))
-    (app-start config)
+    (app-start config (todo/all-routes config))
     (log/info "end run.")))

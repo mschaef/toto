@@ -1,4 +1,4 @@
-(ns toto.view.todo-list
+(ns toto.todo.todo-list
   (:use toto.core.util
         toto.view.common
         toto.view.icons
@@ -10,7 +10,7 @@
             [hiccup.util :as util]
             [toto.data.data :as data]
             [toto.view.auth :as auth]
-            [toto.view.sidebar-view :as sidebar-view]))
+            [toto.todo.sidebar-view :as sidebar-view]))
 
 (def html-breakpoint "&#8203;")
 

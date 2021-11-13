@@ -1,4 +1,4 @@
-(ns toto.view.user
+(ns toto.site.user
   (:use toto.core.util
         compojure.core
         hiccup.core

@@ -3,6 +3,11 @@
             [clojure.java.jdbc :as jdbc]
             [hiccup.util :as util]))
 
+(defn add-shutdown-hook [ shutdown-fn ]
+  (.addShutdownHook (Runtime/getRuntime)
+                    (Thread. (fn []
+                               (shutdown-fn)))))
+
 (defmacro get-version []
   ;; Capture compile-time property definition from Lein
   (System/getProperty "toto.version"))

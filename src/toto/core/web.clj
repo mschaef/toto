@@ -17,12 +17,7 @@
             [toto.core.data :as data]
             [toto.view.common :as view-common]
             [toto.view.query :as view-query]
-            [toto.view.user :as user]))
-
-(defn add-shutdown-hook [ shutdown-fn ]
-  (.addShutdownHook (Runtime/getRuntime)
-                    (Thread. (fn []
-                               (shutdown-fn)))))
+            [toto.site.user :as user]))
 
 (defn- wrap-request-logging [ app development-mode? ]
   (fn [req]
@@ -54,7 +49,7 @@
   (cond-> (wrap-request-logging handler dev-mode)
     dev-mode (ring-reload/wrap-reload)))
 
-(defn handler [ routes config db-conn ]
+(defn handler [ config routes ]
   (-> routes
       (wrap-content-type)
       (wrap-browser-caching {"text/javascript" 360000
@@ -64,14 +59,14 @@
       (include-requesting-ip)
       (view-query/wrap-remember-query)
       (wrap-dev-support (:development-mode config))
-      (handler/site {:session {:store (store/session-store db-conn)}})
-      (data/wrap-db-connection db-conn)
+      (handler/site {:session {:store (store/session-store (:db-conn-pool config))}})
+      (data/wrap-db-connection (:db-conn-pool config))
       (view-common/wrap-config config)))
 
-(defn start-site [ routes config db-conn ]
+(defn start-site [ config routes ]
   (let [ { http-port :http-port } config ]
     (log/info "Starting Webserver on port" http-port)
-    (let [server (jetty/run-jetty (handler routes config db-conn) { :port http-port :join? false })]
+    (let [server (jetty/run-jetty (handler config routes ) { :port http-port :join? false })]
       (add-shutdown-hook
        (fn []
          (log/info "Shutting down webserver")
