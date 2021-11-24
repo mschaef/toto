@@ -160,7 +160,13 @@
      (log/debug "public render: " list-id)
      (when (and (data/list-public? list-id)
                 (not (data/list-owned-by-user-id? list-id (auth/current-user-id))))
-       (todo-list/render-todo-list-public-page list-id)))))
+       (todo-list/render-todo-list-public-page list-id)))
+
+   (GET "/stocking/:list-id" { { list-id :list-id } :params }
+     (todo-list/render-stocking-page list-id nil))
+
+   (GET "/stocking/:list-id/:item-id" { { list-id :list-id item-id :item-id } :params }
+     (todo-list/render-stocking-page list-id (parsable-integer? item-id)))))
 
 (defn- list-routes [ list-id ]
   (ensure-list-owner-access list-id)

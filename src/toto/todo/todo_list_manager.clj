@@ -67,9 +67,15 @@
     (render-page
      {:page-title (str "List Details: " list-name)
       :sidebar (sidebar-view/render-sidebar-list-list list-id min-list-priority 0)}
+
      (form/form-to
       {:class "details"}
       [:post (shref "/list/" list-id "/details")]
+      [:div.config-panel
+       [:h1 "List Views"]
+       [:a {:href (shref "/stocking/" list-id) } "As Stocking"]
+       [:a {:href (shref "/list/" list-id) } "As List"]]
+
        [:div.config-panel
         [:h1 "List Name:"]
         (form/text-field { :maxlength "32" } "list-name" list-name)]
