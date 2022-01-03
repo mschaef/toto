@@ -11,6 +11,14 @@
             [toto.core.scheduler :as scheduler]
             [toto.todo.todo :as todo]))
 
+(defn db-conn-spec [ config ]
+  (let [ spec {:name (or (config-property "db.subname")
+                         (get-in config [:db :subname] "toto"))
+               :schema-path [ "sql/" ]
+               :schemas [[ "toto" 9 ]]}]
+    (log/info "DB Conn Spec: " spec)
+    spec))
+
 (defn schedule-backup [ config ]
   (let [backup-cron (get-in config [:db :backup-cron])]
     (if-let [backup-path (get-in config [:db :backup-path] false)]
@@ -20,7 +28,7 @@
   config)
 
 (defn app-start [ config app-routes ]
-  (sql-file/with-pool [db-conn (data/db-conn-spec config)]
+  (sql-file/with-pool [db-conn (db-conn-spec config)]
     (-> config
         (assoc :db-conn-pool db-conn)
         (scheduler/start)

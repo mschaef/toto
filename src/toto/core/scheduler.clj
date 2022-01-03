@@ -1,6 +1,6 @@
 (ns toto.core.scheduler
-  (:require [clojure.tools.logging :as log]
-            [toto.core.data :as data]))
+  (:use sql-file.middleware)
+  (:require [clojure.tools.logging :as log]))
 
 (defn start [ config ]
   (assoc config :scheduler
@@ -14,5 +14,5 @@
     (.schedule (:scheduler config) cron
                #(do
                   (log/debug "Running scheduled job: " desc)
-                  (data/with-db-connection (:db-conn-pool config)
+                  (with-db-connection (:db-conn-pool config)
                     (job-fn))))))

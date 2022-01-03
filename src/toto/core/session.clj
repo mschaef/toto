@@ -1,7 +1,8 @@
 (ns toto.core.session
   (:use toto.core.data
         toto.core.util
-        sql-file.sql-util)
+        sql-file.sql-util
+        sql-file.middleware)
   (:require [clojure.tools.logging :as log]
             [ring.middleware.session.store :as store]
             [clojure.java.jdbc :as jdbc]
