@@ -1,4 +1,4 @@
-(ns toto.core.data
+(ns toto.core.backup
   (:use toto.core.util
         sql-file.middleware)
   (:require [clojure.tools.logging :as log]

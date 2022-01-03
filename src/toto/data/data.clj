@@ -1,6 +1,5 @@
 (ns toto.data.data
   (:use toto.core.util
-        toto.core.data
         sql-file.sql-util
         sql-file.middleware)
   (:require [clojure.tools.logging :as log]

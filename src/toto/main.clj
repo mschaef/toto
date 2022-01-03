@@ -6,7 +6,7 @@
   (:require [clojure.tools.logging :as log]
             [sql-file.core :as sql-file]
             [toto.core.config :as config]
-            [toto.core.data :as data]
+            [toto.core.backup :as backup]
             [toto.site.main :as site]
             [toto.core.scheduler :as scheduler]
             [toto.todo.todo :as todo]))
@@ -23,7 +23,7 @@
   (let [backup-cron (get-in config [:db :backup-cron])]
     (if-let [backup-path (get-in config [:db :backup-path] false)]
       (scheduler/schedule-job config (str "Automatic backup to " backup-path) backup-cron
-                              #(data/backup-database backup-path))
+                              #(backup/backup-database backup-path))
       (log/warn "NO BACKUP PATH. AUTOMATIC BACKUP DISABLED!!!")))
   config)
 
