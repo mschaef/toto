@@ -1,8 +1,6 @@
 (ns toto.main
   (:gen-class :main true)
-  (:use toto.core.util
-        compojure.core
-        [ring.middleware resource])
+  (:use toto.core.util)
   (:require [clojure.tools.logging :as log]
             [sql-file.core :as sql-file]
             [toto.core.config :as config]
