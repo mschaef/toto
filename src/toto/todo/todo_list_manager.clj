@@ -40,6 +40,7 @@
   (render-page
    {:page-title "Manage Todo Lists"}
    (scroll-column
+    "todo-list-list-scroller"
     (render-new-list-form)
     [:div.toplevel-list.list-list
      (map (fn [ list ]

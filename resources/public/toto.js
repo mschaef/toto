@@ -432,6 +432,10 @@ function saveScrolls() {
     let nodes = document.querySelectorAll("[data-preserve-scroll=true]");
 
     foreach_elem("[data-preserve-scroll=true]", function(elem) {
+        if (elem.id === '') {
+            console.warn("Cannot preserve scroll on element without an id");
+        }
+
         Turbolinks.savedScrolls[elem.id] = elem.scrollTop;
     });
 }

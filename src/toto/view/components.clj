@@ -4,10 +4,10 @@
   (:require [clojure.data.json :as json]
             [clojure.tools.logging :as log]))
 
-(defelem scroll-column [ title & contents ]
+(defelem scroll-column [ id title & contents ]
   [:div.scroll-column
    [:div.fixed title]
-   [:div.scrollable { :data-preserve-scroll "true" }
+   [:div.scrollable { :id id :data-preserve-scroll "true" }
     contents]])
 
 (defn post-button [ attrs body ]

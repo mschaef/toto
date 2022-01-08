@@ -226,6 +226,7 @@
   (let [pending-items (data/get-pending-items list-id completed-within-days snoozed-for-days)
         n-snoozed-items (count (filter :visibly_snoozed pending-items))]
     (scroll-column
+     "todo-list-scroller"
      (when writable?
        (render-new-item-form list-id (boolean edit-item-id)))
      [:div.toplevel-list

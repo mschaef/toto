@@ -55,7 +55,7 @@
     [:span.logout
      [:a {:href "/user/password-change"} (auth/current-identity)]
      [:span.logout-control " - " (logout-button)]]]
-   [:div.sidebar-content { :data-preserve-scroll "true" }
+   [:div.sidebar-content { :id "sidebar-scroller" :data-preserve-scroll "true" }
     sidebar
     [:div.copyright
      "&#9400; 2015-2021 East Coast Toolworks"]]])
