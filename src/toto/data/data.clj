@@ -1,7 +1,7 @@
 (ns toto.data.data
   (:use toto.core.util
-        toto.core.data
-        sql-file.sql-util)
+        sql-file.sql-util
+        sql-file.middleware)
   (:require [clojure.tools.logging :as log]
             [clojure.java.jdbc :as jdbc]
             [sql-file.core :as sql-file]
@@ -64,7 +64,7 @@
                               { :connection (current-db-connection) })))
 
 (defn list-public? [ list-id ]
-  (scalar
+  (scalar-result
    (query/get-todo-list-is-public-by-id { :todo_list_id list-id }
                                         { :connection (current-db-connection) })))
 
@@ -208,19 +208,19 @@
                 ["todo_list_id=?" list-id]))
 
 (defn list-owned-by-user-id? [ list-id user-id ]
-  (> (scalar
+  (> (scalar-result
       (query/list-owned-by-user-id? { :list_id list-id :user_id user-id }
                                     { :connection (current-db-connection) }))
      0))
 
 (defn item-owned-by-user-id? [ item-id user-id ]
-  (> (scalar
+  (> (scalar-result
       (query/item-owned-by-user-id? { :item_id item-id :user_id user-id }
                                     { :connection (current-db-connection) }))
      0))
 
 (defn get-next-list-ordinal [ todo-list-id ]
-  (- (scalar (query/get-min-ordinal-by-list { :list_id todo-list-id }
+  (- (scalar-result (query/get-min-ordinal-by-list { :list_id todo-list-id }
                                             { :connection (current-db-connection)})
              0)
      1))
@@ -264,7 +264,7 @@
 
 
 (defn get-pending-item-count [ list-id ]
-  (scalar
+  (scalar-result
    (query/get-pending-item-count { :list_id list-id }
                                  { :connection (current-db-connection) })))
 
@@ -361,6 +361,6 @@
                       {:todo_list_id list-id}))
 
 (defn get-list-id-by-item-id [ item-id ]
-  (scalar
+  (scalar-result
    (query/get-list-id-by-item-id { :item_id item-id }
                                  { :connection (current-db-connection) })))

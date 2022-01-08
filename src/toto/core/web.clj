@@ -2,6 +2,7 @@
   (:gen-class :main true)
   (:use toto.core.util
         compojure.core
+        sql-file.middleware
         [ring.middleware resource
          not-modified
          content-type
@@ -14,7 +15,6 @@
             [ring.util.response :as ring-responsed]
             [compojure.handler :as handler]
             [toto.core.session :as store]
-            [toto.core.data :as data]
             [toto.view.common :as view-common]
             [toto.view.query :as view-query]
             [toto.site.user :as user]))
@@ -60,7 +60,7 @@
       (view-query/wrap-remember-query)
       (wrap-dev-support (:development-mode config))
       (handler/site {:session {:store (store/session-store (:db-conn-pool config))}})
-      (data/wrap-db-connection (:db-conn-pool config))
+      (wrap-db-connection (:db-conn-pool config))
       (view-common/wrap-config config)))
 
 (defn start-site [ config routes ]
