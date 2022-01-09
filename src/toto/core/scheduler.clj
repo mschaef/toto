@@ -20,7 +20,8 @@
 ;; You must not remove this notice, or any other, from this software.
 
 (ns toto.core.scheduler
-  (:use sql-file.middleware)
+  (:use sql-file.middleware
+        toto.core.util)
   (:require [clojure.tools.logging :as log]))
 
 (defn start [ config ]
@@ -34,6 +35,7 @@
     (log/info "Background job scheduled (cron:" cron  "):" desc )
     (.schedule (:scheduler config) cron
                #(do
-                  (log/debug "Running scheduled job: " desc)
+                  (log/info "Running scheduled job: " desc)
                   (with-db-connection (:db-conn-pool config)
-                    (job-fn))))))
+                    (exception-barrier job-fn (str "scheduled job:" desc)))
+                  (log/info "End scheduled job: " desc)))))

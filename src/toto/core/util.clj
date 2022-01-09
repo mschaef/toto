@@ -114,3 +114,12 @@
           (if-let [ int (parsable-integer? prop-binding) ]
             int
             prop-binding)))))
+
+;;; Exception barrier
+
+(defn exception-barrier
+  ([ fn label ]
+   #(try
+      (fn)
+      (catch Exception ex
+        (log/error ex (str "Uncaught exception: " label))))))
