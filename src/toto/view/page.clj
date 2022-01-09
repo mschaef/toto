@@ -22,7 +22,7 @@
    [:meta {:name "viewport"
            ;; user-scalable=no fails to work on iOS n where n > 10
            :content "width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0"}]
-   [:title (:app-name *config*) (when page-title (str " - " page-title))]
+   [:title (:name (:app *config*)) (when page-title (str " - " page-title))]
    [:link { :rel "shortcut icon" :href (resource "favicon.ico")}]
    (page/include-css (resource "toto.css")
                      (resource "font-awesome.min.css"))
@@ -36,7 +36,7 @@
      (when show-menu?
        [:span.toggle-menu img-show-list "&nbsp;"])
      [:span.app-name
-      [:a { :href "/" } (:app-name *config*)] " - "]
+      [:a { :href "/" } (:name (:app *config*))] " - "]
      page-title
      (when *dev-mode*
        [:span.pill.dev "DEV"])
