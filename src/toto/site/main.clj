@@ -39,6 +39,11 @@
    app-routes
    (route/not-found "Resource Not Found")))
 
+(defn schedule-web-session-cull [ config ]
+  (scheduler/schedule-job config "Web Session cull" "19 */1 * * *"
+                          #(data/delete-old-web-sessions))
+  config)
+
 (defn schedule-verification-link-cull [ config ]
   (scheduler/schedule-job config "Verification link cull" "*/15 * * * *"
                           #(data/delete-old-verification-links))
@@ -46,4 +51,5 @@
 
 (defn site-start [ config db-conn app-routes ]
   (schedule-verification-link-cull config)
+  (schedule-web-session-cull config)
   (web/start-site config (all-routes config app-routes)))
