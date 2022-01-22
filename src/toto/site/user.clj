@@ -1,3 +1,24 @@
+;; Copyright (c) 2015-2022 Michael Schaeffer (dba East Coast Toolworks)
+;;
+;; Licensed as below.
+;;
+;; Licensed under the Apache License, Version 2.0 (the "License");
+;; you may not use this file except in compliance with the License.
+;; You may obtain a copy of the License at
+;;
+;;       http://www.apache.org/licenses/LICENSE-2.0
+;;
+;; The license is also includes at the root of the project in the file
+;; LICENSE.
+;;
+;; Unless required by applicable law or agreed to in writing, software
+;; distributed under the License is distributed on an "AS IS" BASIS,
+;; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+;; See the License for the specific language governing permissions and
+;; limitations under the License.
+;;
+;; You must not remove this notice, or any other, from this software.
+
 (ns toto.site.user
   (:use toto.core.util
         compojure.core
@@ -95,7 +116,7 @@
      "Please enter your e-mail address. If an account is associated with that "
      "address, an e-mail will be sent with a link to reset the password."]
     [:div.config-panel.toplevel
-     (form/text-field {:placeholder "E-Mail Address"} "email_addr")]
+     (form/text-field {:placeholder "E-Mail Address"} "email-addr")]
     [:div.submit-panel
      (form/submit-button {} "Send Reset E-Mail")]))  )
 
@@ -118,24 +139,36 @@
     (form/submit-button {} "Login")])))
 
 (defn render-new-user-form [ & { :keys [ error-message ]}]
-  (render-page {:page-title "New User Registration"
-                     :page-data-class "init-new-user"}
-   (form/form-to
-    {:class "auth-form"}
-    [:post "/user"]
-    [:div.config-panel
-     [:h1 "Identity"]
-     (form/text-field {:placeholder "E-Mail Address"} "email_addr")]
-    [:div.config-panel
-     [:h1 "Password"]
-     (form/password-field {:placeholder "Password"} "password1")
-     (form/password-field {:placeholder "Verify Password"} "password2")
-     [:div#error.error-message
-      error-message]]
-    [:div.submit-panel
-     (form/submit-button {} "Register")])))
+  (let [verify-n-1 (rand-int 100)
+        verify-n-2 (rand-int 100)]
+    (render-page
+     {:page-title "New User Registration"
+      :page-data-class "init-new-user"}
+     (form/form-to
+      {:class "auth-form"}
+      [:post "/user"]
+      [:div.config-panel
+       [:h1 "Identity"]
+       (form/text-field {:placeholder "E-Mail Address"} "email-addr")
+       (form/text-field {:placeholder "Verify E-Mail Address"} "email-addr-2")]
+      [:div.config-panel
+       [:h1 "Password"]
+       (form/password-field {:placeholder "Password"} "password")
+       (form/password-field {:placeholder "Verify Password"} "password-2")]
+      [:div.config-panel
+       [:h1 "Math Problem"]
+       "Please solve this math problem to help confirm you are not a robot."
+       [:div.verify-problem
+        (form/hidden-field {} "verify-n-1" verify-n-1)
+        (form/hidden-field {} "verify-n-2" verify-n-2)
+        verify-n-1 " + " verify-n-2 " = "
+        (form/text-field {:class "verify-response"} "verify-response")]]
+      [:div.submit-panel
+       [:div#error.error-message
+        error-message]
+       (form/submit-button {} "Register")]))))
 
-(defn- get-verification-link-by-user-id [ config link-type user-id ]
+(defn get-verification-link-by-user-id [ config link-type user-id ]
   (let [verification-link (data/get-verification-link-by-user-id user-id)]
     (str (:base-url config) "user/" link-type "/" user-id "/"
          (:link_uuid verification-link))))
@@ -194,18 +227,29 @@
                       :content (reset-email-message config link-url)})))
 
 
-(defn add-user [ config email-addr password password2 ]
+
+
+(defn add-user [config {:keys [:email-addr :email-addr-2 :password :password-2
+                               :verify-n-1 :verify-n-2 :verify-response]}]
   (cond
-   (data/user-email-exists? email-addr)
-   (render-new-user-form :error-message "User with this e-mail address already exists.")
+    (not (= (or (parsable-integer? verify-response) -1)
+            (+ (or (parsable-integer? verify-n-1) -1)
+               (or (parsable-integer? verify-n-2) -1))))
+    (render-new-user-form :error-message "Math problem answer incorrect.")
 
-   (not (= password password2))
-   (render-new-user-form :error-message "Passwords do not match.")
+    (not (= email-addr email-addr-2))
+    (render-new-user-form :error-message "E-mail addresses do not match.")
 
-   :else
-   (do
-     (let [user-id (create-user config email-addr password)]
-       (ring/redirect (str "/user/verify/" user-id))))))
+    (not (= password password-2))
+    (render-new-user-form :error-message "Passwords do not match.")
+
+    (data/user-email-exists? email-addr)
+    (render-new-user-form :error-message "User with this e-mail address already exists.")
+
+    :else
+    (do
+      (let [user-id (create-user config email-addr password)]
+        (ring/redirect (str "/user/verify/" user-id))))))
 
 (def date-format (java.text.SimpleDateFormat. "yyyy-MM-dd hh:mm aa"))
 
@@ -277,14 +321,15 @@
                                [:div.config-panel
                                 [:h1 "Change Password"]
                                 (form/password-field {:placeholder "Password"} "password")
-                                (form/password-field {:placeholder "New Password"} "new_password1")
-                                (form/password-field {:placeholder "Verify Password"} "new_password2")
+                                (form/password-field {:placeholder "New Password"} "new-password")
+                                (form/password-field {:placeholder "Verify Password"} "new-password-2")
                                 (when error-message
                                   [:div.error-message error-message])
                                 [:div
                                  (form/submit-button {} "Change Password")]]))))
 
-(defn change-password [ password new-password-1 new-password-2 ]
+(defn- change-password [ {:keys [password new-password new-password-2]} ]
+
   (let [ username (auth/current-identity) ]
     (cond
       (not (auth/get-user-by-credentials {:username username :password password}))
@@ -295,13 +340,12 @@
       (render-change-password-form
        :error-message "New password cannot be the same as the old.")
 
-      (not (= new-password-1 new-password-2))
+      (not (= new-password new-password-2))
       (render-change-password-form
        :error-message "Passwords do not match.")
 
       :else
       (do
-
         ;; The password change handling is done in a Friend workflow
         ;; handler, so that it can reauthenticate the user against the
         ;; new password and assign the user the correct roles for an
@@ -327,24 +371,24 @@
                                  [:input {:type "hidden"
                                           :name "link_uuid"
                                           :value link-uuid}]
-                                 (form/password-field {:placeholder "New Password"} "new_password1")
-                                 (form/password-field {:placeholder "Verify Password"} "new_password2")
+                                 (form/password-field {:placeholder "New Password"} "new-password")
+                                 (form/password-field {:placeholder "Verify Password"} "new-password-2")
                                  [:div#error.error-message
                                   error-message]
                                  (form/submit-button {} "Reset Password")])])))
 
-(defn password-reset [ user-id link-uuid new-password-1 new-password-2 ]
+(defn password-reset [ user-id link-uuid new-password new-password-2 ]
   (let [ user (get-link-verified-user user-id link-uuid)]
     (cond
       (not user)
       nil
 
-      (not (= new-password-1 new-password-2))
+      (not (= new-password new-password-2))
       (render-password-reset-form user-id link-uuid "Passwords do not match.")
 
       :else
       (do
-        (auth/set-user-password (:email_addr user) new-password-1)
+        (auth/set-user-password (:email_addr user) new-password)
         ;; Resetting the password via a link also serves to
         ;; unlock the account.
         (data/reset-login-failures (:user_id user))
@@ -455,7 +499,7 @@
      (render-change-password-form))
 
    (POST "/user/password" {params :params}
-     (change-password (:password params) (:new_password1 params) (:new_password2 params)))
+     (change-password params))
 
    (GET "/user/info" []
      (render-user-info-form))
@@ -469,7 +513,7 @@
      (render-new-user-form))
 
    (POST "/user" {params :params}
-     (add-user config (:email_addr params) (:password1 params) (:password2 params)))
+     (add-user config params))
 
    (GET "/login" { { login-failed :login_failed email-addr :username } :params }
      (render-login-page :email-addr email-addr
@@ -495,11 +539,12 @@
    (GET "/user/forgot-password" []
      (render-forgot-password-form))
 
-   (POST "/user/password-reset" { { email-addr :email_addr } :params }
+   (POST "/user/password-reset" { { email-addr :email-addr } :params }
      (enter-password-reset-workflow config email-addr))
 
    (POST "/user/password-reset/:user-id" {params :params}
-     (password-reset (parsable-integer? (:user-id params)) (:link_uuid params) (:new_password1 params) (:new_password2 params)))
+     (password-reset (parsable-integer? (:user-id params)) (:link_uuid params)
+                     (:new-password params) (:new-password-2 params)))
 
    (friend/logout
     (GET "/user/reset/:user-id/:link-uuid" { { user-id :user-id link-uuid :link-uuid error-message :error-message } :params }

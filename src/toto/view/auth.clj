@@ -1,3 +1,24 @@
+;; Copyright (c) 2015-2022 Michael Schaeffer (dba East Coast Toolworks)
+;;
+;; Licensed as below.
+;;
+;; Licensed under the Apache License, Version 2.0 (the "License");
+;; you may not use this file except in compliance with the License.
+;; You may obtain a copy of the License at
+;;
+;;       http://www.apache.org/licenses/LICENSE-2.0
+;;
+;; The license is also includes at the root of the project in the file
+;; LICENSE.
+;;
+;; Unless required by applicable law or agreed to in writing, software
+;; distributed under the License is distributed on an "AS IS" BASIS,
+;; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+;; See the License for the specific language governing permissions and
+;; limitations under the License.
+;;
+;; You must not remove this notice, or any other, from this software.
+
 (ns toto.view.auth
   (:use toto.core.util
         compojure.core)
@@ -86,14 +107,15 @@
   (data/add-user email-addr (credentials/hash-bcrypt password)))
 
 (defn password-change-workflow []
-  (fn [{:keys [uri request-method params request-ip]}]
-    (when (and (= uri "/user/password-change")
-               (= request-method :post)
-               (get-user-by-credentials params)
-               (not (= (:password params) (:new_password1 params)))
-               (= (:new_password1 params) (:new_password2 params)))
-      (set-user-password (:username params) (:new_password1 params))
-      (workflows/make-auth (get-auth-map-by-email (:username params))))))
+  (fn [{:keys [uri request-method params]}]
+    (let [{:keys [ :password :new-password :new-password-2 :username]} params]
+      (when (and (= uri "/user/password")
+                 (= request-method :post)
+                 (get-user-by-credentials params)
+                 (not (= password new-password))
+                 (= new-password new-password-2))
+        (set-user-password username new-password)
+        (workflows/make-auth (get-auth-map-by-email username))))))
 
 (defn wrap-workflow-request-ip [ workflow ]
   (fn [ req ]

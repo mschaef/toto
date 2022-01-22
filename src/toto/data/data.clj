@@ -1,7 +1,28 @@
+;; Copyright (c) 2015-2022 Michael Schaeffer (dba East Coast Toolworks)
+;;
+;; Licensed as below.
+;;
+;; Licensed under the Apache License, Version 2.0 (the "License");
+;; you may not use this file except in compliance with the License.
+;; You may obtain a copy of the License at
+;;
+;;       http://www.apache.org/licenses/LICENSE-2.0
+;;
+;; The license is also includes at the root of the project in the file
+;; LICENSE.
+;;
+;; Unless required by applicable law or agreed to in writing, software
+;; distributed under the License is distributed on an "AS IS" BASIS,
+;; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+;; See the License for the specific language governing permissions and
+;; limitations under the License.
+;;
+;; You must not remove this notice, or any other, from this software.
+
 (ns toto.data.data
   (:use toto.core.util
-        toto.core.data
-        sql-file.sql-util)
+        sql-file.sql-util
+        sql-file.middleware)
   (:require [clojure.tools.logging :as log]
             [clojure.java.jdbc :as jdbc]
             [sql-file.core :as sql-file]
@@ -64,7 +85,7 @@
                               { :connection (current-db-connection) })))
 
 (defn list-public? [ list-id ]
-  (scalar
+  (scalar-result
    (query/get-todo-list-is-public-by-id { :todo_list_id list-id }
                                         { :connection (current-db-connection) })))
 
@@ -154,6 +175,11 @@
                           " WHERE link_uuid=?")
                      link-uuid]))
 
+(defn delete-old-web-sessions []
+  (jdbc/delete! (current-db-connection)
+                :web_session
+                ["accessed_on_day < DATEADD('month', -1, CURRENT_TIMESTAMP)"]))
+
 (defn delete-old-verification-links []
   (jdbc/delete! (current-db-connection)
                 :verification_link
@@ -208,19 +234,19 @@
                 ["todo_list_id=?" list-id]))
 
 (defn list-owned-by-user-id? [ list-id user-id ]
-  (> (scalar
+  (> (scalar-result
       (query/list-owned-by-user-id? { :list_id list-id :user_id user-id }
                                     { :connection (current-db-connection) }))
      0))
 
 (defn item-owned-by-user-id? [ item-id user-id ]
-  (> (scalar
+  (> (scalar-result
       (query/item-owned-by-user-id? { :item_id item-id :user_id user-id }
                                     { :connection (current-db-connection) }))
      0))
 
 (defn get-next-list-ordinal [ todo-list-id ]
-  (- (scalar (query/get-min-ordinal-by-list { :list_id todo-list-id }
+  (- (scalar-result (query/get-min-ordinal-by-list { :list_id todo-list-id }
                                             { :connection (current-db-connection)})
              0)
      1))
@@ -264,7 +290,7 @@
 
 
 (defn get-pending-item-count [ list-id ]
-  (scalar
+  (scalar-result
    (query/get-pending-item-count { :list_id list-id }
                                  { :connection (current-db-connection) })))
 
@@ -361,6 +387,6 @@
                       {:todo_list_id list-id}))
 
 (defn get-list-id-by-item-id [ item-id ]
-  (scalar
+  (scalar-result
    (query/get-list-id-by-item-id { :item_id item-id }
                                  { :connection (current-db-connection) })))

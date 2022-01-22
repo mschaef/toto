@@ -1,7 +1,30 @@
+;; Copyright (c) 2015-2022 Michael Schaeffer (dba East Coast Toolworks)
+;;
+;; Licensed as below.
+;;
+;; Licensed under the Apache License, Version 2.0 (the "License");
+;; you may not use this file except in compliance with the License.
+;; You may obtain a copy of the License at
+;;
+;;       http://www.apache.org/licenses/LICENSE-2.0
+;;
+;; The license is also includes at the root of the project in the file
+;; LICENSE.
+;;
+;; Unless required by applicable law or agreed to in writing, software
+;; distributed under the License is distributed on an "AS IS" BASIS,
+;; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+;; See the License for the specific language governing permissions and
+;; limitations under the License.
+;;
+;; You must not remove this notice, or any other, from this software.
+
+
 (ns toto.core.web
   (:gen-class :main true)
   (:use toto.core.util
         compojure.core
+        sql-file.middleware
         [ring.middleware resource
          not-modified
          content-type
@@ -14,7 +37,6 @@
             [ring.util.response :as ring-responsed]
             [compojure.handler :as handler]
             [toto.core.session :as store]
-            [toto.core.data :as data]
             [toto.view.common :as view-common]
             [toto.view.query :as view-query]
             [toto.site.user :as user]))
@@ -60,7 +82,7 @@
       (view-query/wrap-remember-query)
       (wrap-dev-support (:development-mode config))
       (handler/site {:session {:store (store/session-store (:db-conn-pool config))}})
-      (data/wrap-db-connection (:db-conn-pool config))
+      (wrap-db-connection (:db-conn-pool config))
       (view-common/wrap-config config)))
 
 (defn start-site [ config routes ]
