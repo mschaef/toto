@@ -346,7 +346,6 @@
 
       :else
       (do
-
         ;; The password change handling is done in a Friend workflow
         ;; handler, so that it can reauthenticate the user against the
         ;; new password and assign the user the correct roles for an

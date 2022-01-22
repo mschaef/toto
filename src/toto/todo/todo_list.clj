@@ -286,9 +286,9 @@
        (map (fn [ [ label snooze-days shortcut-key] ]
               (render-snooze-choice label snooze-days shortcut-key))
             [["Tomorrow" 1 "1"]
+             ["In Three Days" 3 "3"]
              ["Next Week"  7 "2"]
-             ["Next Month" 30 "3"]
-             ["Next Year" 365 "4"]])]
+             ["Next Month" 30 "3"]])]
       (when currently-snoozed
         [:div.choices
          [:hr]
