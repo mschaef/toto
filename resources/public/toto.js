@@ -149,19 +149,6 @@ function setupSidebar() {
     }
 };
 
-function checkPasswords()
-{
-    var pwd1 = elemById("password1").value.trim();
-    var pwd2 = elemById("password2").value.trim();
-
-    var errDiv = elemById("error");
-
-    if ((pwd1.length > 0) && (pwd2.length > 0) && (pwd1 != pwd2))
-        errDiv.innerHTML = "Passwords do not match";
-    else
-        errDiv.innerHTML = "";
-}
-
 //////// todo list
 
 function setupEditableItems() {
@@ -404,11 +391,28 @@ function initTodoList() {
     setupItemDragging();
 };
 
+function checkVerifyFields(field1, field2, message) {
+    function doCheck() {
+        var pwd1 = elemById(field1).value.trim();
+        var pwd2 = elemById(field2).value.trim();
+
+        var errDiv = elemById("error");
+
+        if ((pwd1.length > 0) && (pwd2.length > 0) && (pwd1 != pwd2))
+            errDiv.innerHTML = message;
+        else
+            errDiv.innerHTML = "";
+    }
+
+    elemById(field1).onkeyup = doCheck;
+    elemById(field1).onchange = doCheck;
+    elemById(field2).onkeyup = doCheck;
+    elemById(field2).onchange = doCheck;
+}
+
 function initNewUser() {
-    elemById("password1").onkeyup = checkPasswords;
-    elemById("password1").onchange = checkPasswords;
-    elemById("password2").onkeyup = checkPasswords;
-    elemById("password2").onchange = checkPasswords;
+    checkVerifyFields("password", "password-2", "Passwords do not match.");
+    checkVerifyFields("email-addr", "email-addr-2", "E-mail addresses do not match.");
 };
 
 const initFns = {

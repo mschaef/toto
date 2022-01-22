@@ -107,14 +107,15 @@
   (data/add-user email-addr (credentials/hash-bcrypt password)))
 
 (defn password-change-workflow []
-  (fn [{:keys [uri request-method params request-ip]}]
-    (when (and (= uri "/user/password-change")
-               (= request-method :post)
-               (get-user-by-credentials params)
-               (not (= (:password params) (:new_password1 params)))
-               (= (:new_password1 params) (:new_password2 params)))
-      (set-user-password (:username params) (:new_password1 params))
-      (workflows/make-auth (get-auth-map-by-email (:username params))))))
+  (fn [{:keys [uri request-method params]}]
+    (let [{:keys [ :password :new-password :new-password-2 :username]} params]
+      (when (and (= uri "/user/password")
+                 (= request-method :post)
+                 (get-user-by-credentials params)
+                 (not (= password new-password))
+                 (= new-password new-password-2))
+        (set-user-password username new-password)
+        (workflows/make-auth (get-auth-map-by-email username))))))
 
 (defn wrap-workflow-request-ip [ workflow ]
   (fn [ req ]

@@ -457,7 +457,14 @@ select:hover {
     width: 32px;
 }
 
+.config-panel .verify-problem {
+    margin-top: 8px;
+}
 
+.config-panel .verify-problem .verify-response {
+    width: 64px;
+    margin-left: 8px;
+}
 
 .header a.click {
     padding-left: 0.5em;
