@@ -206,7 +206,7 @@
    (POST "/details" { params :params }
      (update-list-details list-id
                           params
-                          (:list-name params) (:share-with-email params) (:is_public params)))
+                          (:list-name params) (:share-with-email params) (:is-public params)))
 
    (POST "/priority" { { new-priority :new-priority } :params }
      (update-list-priority list-id (auth/current-user-id) new-priority))
