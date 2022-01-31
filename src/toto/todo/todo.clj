@@ -77,7 +77,7 @@
     "snoozed-until" (data/order-list-items-by-snoozed-until! list-id))
   (redirect-to-list list-id))
 
-(defn copy-list [list-id copy-from-list-id]
+(defn- copy-list [list-id copy-from-list-id]
   (data/copy-list (auth/current-user-id) list-id copy-from-list-id)
   (redirect-to-list list-id))
 
@@ -93,10 +93,10 @@
    (map #(Integer/parseInt (.substring % 5))
         (filter #(.startsWith % "user_") (map name (keys params))))))
 
-(defn update-list-details [ list-id params list-name share-with-email is-public ]
+(defn update-list-details [ list-id params ]
   (catch-validation-errors
    (let [share-with-email-id
-         (when-let [ share-with-email (parsable-string? share-with-email) ]
+         (when-let [ share-with-email (parsable-string? (:share-with-email params) ) ]
            (or
             (auth/get-user-id-by-email share-with-email)
             (fail-validation
@@ -108,12 +108,12 @@
                               (if share-with-email-id
                                 (conj selected-ids share-with-email-id)
                                 selected-ids))
-     (update-list-description list-id (string-leftmost list-name 32))
-     (data/set-list-public list-id (boolean is-public))
+     (update-list-description list-id (string-leftmost (:list-name params) 32))
+     (data/set-list-public list-id (boolean (:is-public params)))
      (ring/redirect  (shref "/list/" list-id "/details")))))
 
-(defn update-list-priority [ list-id user-id new-priority ]
-  (data/set-list-priority list-id user-id new-priority)
+(defn update-list-priority [ list-id new-priority ]
+  (data/set-list-priority list-id (auth/current-user-id) new-priority)
   (redirect-to-lists))
 
 (defn add-item [ list-id item-description item-priority ]
@@ -183,33 +183,28 @@
                 (not (data/list-owned-by-user-id? list-id (auth/current-user-id))))
        (todo-list/render-todo-list-public-page list-id)))))
 
+(defn render-todo-list-csv [ list-id ]
+  (-> (todo-list/render-todo-list-csv list-id)
+      (ring-response/response)
+      (ring-response/header "Content-Type" "text/csv")))
+
 (defn- list-routes [ list-id ]
   (ensure-list-owner-access list-id)
   (routes
    (GET "/" { params :params }
-     (todo-list/render-todo-list-page list-id
-                                      (parsable-integer? (:edit-item-id params))
-                                      (or (parsable-integer? (:min-list-priority params)) 0)
-                                      (or (parsable-integer? (:cwithin params)) 0)
-                                      (or (parsable-integer? (:sfor params)) 0)
-                                      (parsable-integer? (:snoozing params))
-                                      (= (:updating-from params) "Y")))
+     (todo-list/render-todo-list-page list-id params))
 
    (GET "/list.csv" []
-     (-> (todo-list/render-todo-list-csv list-id)
-         (ring-response/response)
-         (ring-response/header "Content-Type" "text/csv")))
+     (render-todo-list-csv list-id))
 
    (GET "/details" { params :params }
      (todo-list-manager/render-todo-list-details-page list-id (or (parsable-integer? (:min-list-priority params)) 0)))
 
    (POST "/details" { params :params }
-     (update-list-details list-id
-                          params
-                          (:list-name params) (:share-with-email params) (:is-public params)))
+     (update-list-details list-id params))
 
    (POST "/priority" { { new-priority :new-priority } :params }
-     (update-list-priority list-id (auth/current-user-id) new-priority))
+     (update-list-priority list-id new-priority))
 
    (POST "/delete" []
      (delete-list list-id))

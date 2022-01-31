@@ -314,15 +314,21 @@
       [:div.modal-controls
        [:input {:type "submit" :value "Copy List"}]]))))
 
-(defn render-todo-list-page [ selected-list-id edit-item-id min-list-priority completed-within-days snoozed-for-days snoozing-item-id updating ]
-  (render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)
-                :page-data-class "todo-list"
-                :sidebar (sidebar-view/render-sidebar-list-list selected-list-id min-list-priority snoozed-for-days)}
-               (when snoozing-item-id
-                 (render-snooze-modal selected-list-id snoozing-item-id))
-               (when updating
-                 (render-update-from-modal selected-list-id))
-               (render-todo-list selected-list-id edit-item-id true completed-within-days snoozed-for-days)))
+(defn render-todo-list-page [ selected-list-id params ]
+  (let [edit-item-id (parsable-integer? (:edit-item-id params))
+        min-list-priority (or (parsable-integer? (:min-list-priority params)) 0)
+        completed-within-days (or (parsable-integer? (:cwithin params)) 0)
+        snoozed-for-days (or (parsable-integer? (:sfor params)) 0)
+        snoozing-item-id (parsable-integer? (:snoozing params))
+        updating (= (:updating-from params) "Y")]
+    (render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)
+                  :page-data-class "todo-list"
+                  :sidebar (sidebar-view/render-sidebar-list-list selected-list-id min-list-priority snoozed-for-days)}
+                 (when snoozing-item-id
+                   (render-snooze-modal selected-list-id snoozing-item-id))
+                 (when updating
+                   (render-update-from-modal selected-list-id))
+                 (render-todo-list selected-list-id edit-item-id true completed-within-days snoozed-for-days))))
 
 (defn render-todo-list-public-page [ selected-list-id ]
   (render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)
