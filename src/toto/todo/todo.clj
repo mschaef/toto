@@ -94,23 +94,24 @@
         (filter #(.startsWith % "user_") (map name (keys params))))))
 
 (defn update-list-details [ list-id params ]
-  (catch-validation-errors
-   (let [share-with-email-id
-         (when-let [ share-with-email (parsable-string? (:share-with-email params) ) ]
-           (or
-            (auth/get-user-id-by-email share-with-email)
-            (fail-validation
-             (todo-list-manager/render-todo-list-details-page list-id
-                                                              (or (parsable-integer? (:min-list-priority params)) 0)
-                                                              :error-message "Invalid e-mail address"))))
-         selected-ids (selected-user-ids-from-params params)]
-     (data/set-list-ownership list-id
-                              (if share-with-email-id
-                                (conj selected-ids share-with-email-id)
-                                selected-ids))
-     (update-list-description list-id (string-leftmost (:list-name params) 32))
-     (data/set-list-public list-id (boolean (:is-public params)))
-     (ring/redirect  (shref "/list/" list-id "/details")))))
+  (let [share-with-email (parsable-string? (:share-with-email params))
+        share-with-email-id (and share-with-email
+                                 (auth/get-user-id-by-email share-with-email))
+        selected-ids (selected-user-ids-from-params params)]
+    (if (and share-with-email
+             (not share-with-email-id))
+      (unprocessable-entity
+       (todo-list-manager/render-todo-list-details-page list-id
+                                                        (or (parsable-integer? (:min-list-priority params)) 0)
+                                                        :error-message "Invalid e-mail address"))
+      (do
+        (data/set-list-ownership list-id
+                                 (if share-with-email-id
+                                   (conj selected-ids share-with-email-id)
+                                   selected-ids))
+        (update-list-description list-id (string-leftmost (:list-name params) 32))
+        (data/set-list-public list-id (boolean (:is-public params)))
+        (ring/redirect  (shref "/list/" list-id "/details"))))))
 
 (defn update-list-priority [ list-id new-priority ]
   (data/set-list-priority list-id (auth/current-user-id) new-priority)

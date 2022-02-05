@@ -16,7 +16,6 @@
                  [slester/ring-browser-caching "0.1.1"]
                  [com.cemerick/friend "0.2.3"]
                  [compojure "1.6.2"]
-                 [slingshot "0.12.2"]
                  [joda-time/joda-time "2.10.13"]
                  [com.draines/postal "2.0.5"]
                  [it.sauronsoftware.cron4j/cron4j "2.2.5"]]

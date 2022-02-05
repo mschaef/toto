@@ -124,16 +124,6 @@ function refreshPage()
     visitPage(location);
 }
 
-function beginUserAdd(listId)
-{
-  var formMarkup = "";
-
-  formMarkup += "<input class=\"full-width simple-border\" id=\"share-with-email\" name=\"share-with-email\" type=\"text\" />";
-
-  elem('new-user').outerHTML = formMarkup;
-  elem('share-with-email').focus();
-}
-
 function setupSidebar() {
     var toggleMenu = elemOptional('toggle-menu');
 
