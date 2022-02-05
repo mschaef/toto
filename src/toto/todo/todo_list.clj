@@ -106,12 +106,12 @@
                              :maxlength "1024"
                              :placeholder "New Item Description"
                              :autocomplete "off"
-                             :onkeydown "onNewItemInputKeydown(event)"}
+                             :onkeydown "window._toto.onNewItemInputKeydown(event)"}
                       (not editing-item?) (assoc "autofocus" "on"))
                     "item-description")
    (form/hidden-field "item-priority" "0")
    [:button.high-priority-submit {:type "button"
-                                  :onclick "submitHighPriority()"}
+                                  :onclick "window._toto.submitHighPriority()"}
     img-star-yellow]))
 
 (def url-regex #"(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
@@ -172,7 +172,7 @@
                            :name "description"
                            :item-id item-id
                            :view-href (without-edit-id (shref "/list/" list-id))
-                           :onkeydown "onItemEditKeydown(event)"}
+                           :onkeydown "window._toto.onItemEditKeydown(event)"}
                     editing? (assoc "autofocus" "on"))]])
        (list
         (when writable?

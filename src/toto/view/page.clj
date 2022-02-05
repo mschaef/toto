@@ -47,8 +47,7 @@
    [:link { :rel "shortcut icon" :href (resource "favicon.ico")}]
    (page/include-css (resource "toto.css")
                      (resource "font-awesome.min.css"))
-   (page/include-js (resource "turbolinks.js"))
-   (page/include-js (resource "toto.js"))
+   [:script {:type "module" :src (resource "toto.js")}]
    (page/include-js (resource "DragDropTouch.js"))])
 
 (defn- render-header [ page-title show-menu? ]

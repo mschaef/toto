@@ -35,8 +35,8 @@
   (let [ target (:target attrs)]
     [:span.clickable.post-button
      (cond-> {:onclick (if-let [next-url (:next-url attrs)]
-                         (str "doPost('" target "'," (json/write-str (get attrs :args {})) ", '" next-url "')")
-                         (str "doPost('" target "'," (json/write-str (get attrs :args {})) ")"))}
+                         (str "window._toto.doPost('" target "'," (json/write-str (get attrs :args {})) ", '" next-url "')")
+                         (str "window._toto.doPost('" target "'," (json/write-str (get attrs :args {})) ")"))}
        (:shortcut-key attrs) (merge {:data-shortcut-key (:shortcut-key attrs)
                                      :data-target target}))
      body]))
