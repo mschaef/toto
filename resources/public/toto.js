@@ -177,19 +177,6 @@ function doPost(baseUrl, args, nextUrl) {
     }).then(doRefresh);
 }
 
-function doMoveItem(itemId, newListId) {
-    var formData = new FormData();
-
-    formData.append("target-item", itemId);
-    formData.append("target-list", newListId);
-
-    fetch("/item-list", {
-        body: formData,
-        method: "POST",
-        credentials: 'include'
-    }).then(refreshPage);
-}
-
 function doUpdateItem(itemId, newDescription, thenUrl) {
     var formData = new FormData();
 
@@ -202,14 +189,27 @@ function doUpdateItem(itemId, newDescription, thenUrl) {
     }).then(() => visitPage(thenUrl));
 }
 
-function doSetItemOrder(itemId, newItemOrdinal, newItemPriority) {
+function doMoveItem(itemId, newListId) {
+    var formData = new FormData();
+
+    formData.append("target-item", itemId);
+    formData.append("target-list", newListId);
+
+    fetch("/item/" + itemId + "/list", {
+        body: formData,
+        method: "POST",
+        credentials: 'include'
+    }).then(refreshPage);
+}
+
+function doSetItemOrdinal(itemId, newItemOrdinal, newItemPriority) {
     var formData = new FormData();
 
     formData.append("target-item", itemId);
     formData.append("new-ordinal", newItemOrdinal);
     formData.append("new-priority", newItemPriority);
 
-    fetch("/item-order", {
+    fetch("/item/" + itemId + "/ordinal", {
         body: formData,
         method: "POST",
         credentials: 'include'
@@ -286,7 +286,7 @@ function setupItemDragging() {
             var newItemOrdinal = ev.currentTarget.getAttribute('ordinal');
             var newItemPriority = ev.currentTarget.getAttribute('priority');
 
-            doSetItemOrder(itemId, newItemOrdinal, newItemPriority);
+            doSetItemOrdinal(itemId, newItemOrdinal, newItemPriority);
         });
     });
 

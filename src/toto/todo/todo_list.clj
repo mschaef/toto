@@ -330,8 +330,11 @@
                    (render-update-from-modal selected-list-id))
                  (render-todo-list selected-list-id edit-item-id true completed-within-days snoozed-for-days))))
 
-(defn render-todo-list-public-page [ selected-list-id ]
-  (render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)
-                :page-data-class "todo-list"}
-               (render-todo-list selected-list-id nil false 0 0)))
+(defn render-todo-list-public-page [ params ]
+  (let [ { list-id :list-id } params ]
+    (when (and (data/list-public? list-id)
+               (not (data/list-owned-by-user-id? list-id (auth/current-user-id))))
+      (render-page {:page-title ((data/get-todo-list-by-id list-id) :desc)
+                    :page-data-class "todo-list"}
+                   (render-todo-list list-id nil false 0 0)))))
 
