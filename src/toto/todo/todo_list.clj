@@ -56,15 +56,10 @@
         (ensure-string-breaks "/")
         (ensure-string-breaks "."))))
 
-(defmacro without-edit-id [ & body ]
-  `(with-modified-query #(dissoc % "edit-item-id")
-     ~@body))
+(def without-edit-id {:edit-item-id :remove})
 
-(defmacro without-modal [ & body ]
-  `(with-modified-query #(-> %
-                             (dissoc "snoozing")
-                             (dissoc "updating-from"))
-     ~@body))
+(def without-modal {:snoozing :remove
+                    :updating-from :remove})
 
 (defn- complete-item-button [ item-info ]
   (post-button {:desc "Complete Item"
@@ -79,7 +74,7 @@
 (defn- delete-item-button [ item-info list-id ]
   (post-button {:desc "Delete Item"
                 :target (str "/item/" (item-info :item_id) "/delete")
-                :next-url (without-edit-id (shref "/list/" list-id))}
+                :next-url (shref "/list/" list-id without-edit-id)}
                img-trash))
 
 (defn- snooze-item-button [ item-info body ]
@@ -158,7 +153,7 @@
               :ordinal (:item_ordinal item-info)
               :priority priority
               :class (class-set {"editing" editing?
-                                 "display" (not editing?) 
+                                 "display" (not editing?)
                                  "high-priority" (> priority 0)
                                  "snoozed" currently-snoozed})}
        writable? (assoc :edit-href (shref "/list/" list-id { :edit-item-id item-id })))
@@ -171,7 +166,7 @@
                            :type "text"
                            :name "description"
                            :item-id item-id
-                           :view-href (without-edit-id (shref "/list/" list-id))
+                           :view-href (shref "/list/" list-id without-edit-id)
                            :onkeydown "window._toto.onItemEditKeydown(event)"}
                     editing? (assoc "autofocus" "on"))]])
        (list
@@ -268,7 +263,7 @@
 
 (defn render-snooze-modal [list-id snoozing-item-id]
   (let [currently-snoozed (:currently_snoozed (data/get-item-by-id snoozing-item-id))
-        list-url (without-modal (shref "/list/" list-id))]
+        list-url (shref "/list/" list-id without-modal)]
 
     (defn render-snooze-choice [ label snooze-days shortcut-key ]
       (post-button {:desc (str label " (" shortcut-key ")")
@@ -303,12 +298,12 @@
                               (data/get-todo-lists-by-user (auth/current-user-id)))))])
 
 (defn render-update-from-modal [ list-id ]
-  (let [ list-url (without-modal (shref "/list/" list-id))]
+  (let [ list-url (shref "/list/" list-id without-modal)]
     (render-modal
      list-url
      [:h3 "Update From"]
      (form/form-to
-      [:post (without-modal (shref "/list/" list-id "/copy-from"))]
+      [:post (shref "/list/" list-id "/copy-from" without-modal)]
       "Source:"
       (render-list-select "copy-from-list-id" (parsable-integer? list-id))
       [:div.modal-controls
