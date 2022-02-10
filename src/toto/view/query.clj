@@ -31,20 +31,17 @@
     (binding [ *query* (:query-params req) ]
       (app req))))
 
-(defn call-with-modified-query [ mfn f ]
-  (binding [ *query* (mfn *query*) ]
-    (f)))
-
-(defmacro with-modified-query [ mfn & body ]
-  `(call-with-modified-query ~mfn (fn [] ~@body)))
-
 (defn- normalize-param-map [ params ]
   (into {} (map (fn [[ param val]] [ (keyword param) val ])
                 params)))
 
-(defn shref* [ & args ]
+(defn- merge-param-maps [ param-maps ]
+  (into {} (remove (fn [[ _ val]] (= val :remove))
+                (apply merge (map normalize-param-map param-maps)))))
+
+(defn- shref* [ & args ]
   (let [url (apply str (remove map? args))
-        query-params (apply merge (map normalize-param-map (filter map? args)))]
+        query-params (merge-param-maps (filter map? args))]
     (let [query-string (clojure.string/join "&" (map (fn [[ param val ]] (str (name param) "=" val)) query-params))]
       (if (> (.length query-string) 0)
         (str url "?" query-string)

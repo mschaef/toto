@@ -105,8 +105,8 @@
        [:div.config-panel
         [:h1  "List Permissions:"]
         [:div
-         (form/check-box "is_public" (:is_public list-details))
-         [:label {:for "is_public"} "List publically visible?"]]]
+         (form/check-box "is-public" (:is_public list-details))
+         [:label {:for "is-public"} "List publically visible?"]]]
 
        [:div.config-panel
         [:h1  "List Owners:"]

@@ -20,8 +20,7 @@
 ;; You must not remove this notice, or any other, from this software.
 
 (ns toto.view.common
-  (:use toto.core.util
-        [slingshot.slingshot :only (throw+ try+)]))
+  (:use toto.core.util))
 
 ;;; Development Mode
 
@@ -34,16 +33,12 @@
               *dev-mode* (:development-mode config)]
       (app req))))
 
-;;; Validation
+;;; Ring Responses
 
-(defmacro catch-validation-errors [ & body ]
-  `(try+
-    ~@body
-    (catch [ :type :form-error ] details#
-      ( :markup details#))))
-
-(defn fail-validation [ markup ]
-  (throw+ { :type :form-error :markup markup }))
+(defn unprocessable-entity [ body ]
+  {:status  422
+   :headers {}
+   :body    body})
 
 ;;; HTML Utilities
 

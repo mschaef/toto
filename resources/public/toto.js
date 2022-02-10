@@ -1,3 +1,4 @@
+import { clearCache, visit } from './turbo-7.1.0.js';
 
 /* toto.js */
 
@@ -81,7 +82,7 @@ function doubleTapFilter(onSingleTap, onDoubleTap) {
     };
 }
 
-sidebarVisible = false;
+var sidebarVisible = false;
 
 function onToggleSidebar(evt) {
     evt.preventDefault();
@@ -114,23 +115,13 @@ function doToggleSidebar(evt) {
 function visitPage(target)
 {
     saveScrolls();
-    Turbolinks.clearCache();
-    Turbolinks.visit(target);
+    clearCache();
+    visit(target);
 }
 
 function refreshPage()
 {
     visitPage(location);
-}
-
-function beginUserAdd(listId)
-{
-  var formMarkup = "";
-
-  formMarkup += "<input class=\"full-width simple-border\" id=\"share-with-email\" name=\"share-with-email\" type=\"text\" />";
-
-  elem('new-user').outerHTML = formMarkup;
-  elem('share-with-email').focus();
 }
 
 function setupSidebar() {
@@ -186,19 +177,6 @@ function doPost(baseUrl, args, nextUrl) {
     }).then(doRefresh);
 }
 
-function doMoveItem(itemId, newListId) {
-    var formData = new FormData();
-
-    formData.append("target-item", itemId);
-    formData.append("target-list", newListId);
-
-    fetch("/item-list", {
-        body: formData,
-        method: "POST",
-        credentials: 'include'
-    }).then(refreshPage);
-}
-
 function doUpdateItem(itemId, newDescription, thenUrl) {
     var formData = new FormData();
 
@@ -211,14 +189,27 @@ function doUpdateItem(itemId, newDescription, thenUrl) {
     }).then(() => visitPage(thenUrl));
 }
 
-function doSetItemOrder(itemId, newItemOrdinal, newItemPriority) {
+function doMoveItem(itemId, newListId) {
+    var formData = new FormData();
+
+    formData.append("target-item", itemId);
+    formData.append("target-list", newListId);
+
+    fetch("/item/" + itemId + "/list", {
+        body: formData,
+        method: "POST",
+        credentials: 'include'
+    }).then(refreshPage);
+}
+
+function doSetItemOrdinal(itemId, newItemOrdinal, newItemPriority) {
     var formData = new FormData();
 
     formData.append("target-item", itemId);
     formData.append("new-ordinal", newItemOrdinal);
     formData.append("new-priority", newItemPriority);
 
-    fetch("/item-order", {
+    fetch("/item/" + itemId + "/ordinal", {
         body: formData,
         method: "POST",
         credentials: 'include'
@@ -295,7 +286,7 @@ function setupItemDragging() {
             var newItemOrdinal = ev.currentTarget.getAttribute('ordinal');
             var newItemPriority = ev.currentTarget.getAttribute('priority');
 
-            doSetItemOrder(itemId, newItemOrdinal, newItemPriority);
+            doSetItemOrdinal(itemId, newItemOrdinal, newItemPriority);
         });
     });
 
@@ -420,7 +411,7 @@ const initFns = {
     'init-new-user': initNewUser
 };
 
-document.addEventListener("turbolinks:load", function() {
+document.addEventListener("turbo:load", function() {
     let body = document.getElementsByTagName('body')[0];
 
     let initFn = initFns[body.getAttribute('data-class')];
@@ -430,7 +421,8 @@ document.addEventListener("turbolinks:load", function() {
     }
 });
 
-Turbolinks.savedScrolls = {};
+
+window.savedScrolls = {};
 
 function saveScrolls() {
     let nodes = document.querySelectorAll("[data-preserve-scroll=true]");
@@ -440,15 +432,15 @@ function saveScrolls() {
             console.warn("Cannot preserve scroll on element without an id");
         }
 
-        Turbolinks.savedScrolls[elem.id] = elem.scrollTop;
+        window.savedScrolls[elem.id] = elem.scrollTop;
     });
 }
 
-document.addEventListener("turbolinks:before-visit", function(event) {
+document.addEventListener("turbo:before-visit", function(event) {
     saveScrolls();
 });
 
-document.addEventListener("turbolinks:render", function(event) {
+document.addEventListener("turbo:render", function(event) {
     setupSidebar();
 
     const autofocusedElements = document.querySelectorAll('input[autofocus]');
@@ -457,11 +449,11 @@ document.addEventListener("turbolinks:render", function(event) {
         autofocusedElements[0].focus();
     }
 
-    for(const id in Turbolinks.savedScrolls) {
+    for(const id in window.savedScrolls) {
         const elem = elemOptionalById(id);
 
         if (elem) {
-            elem.scrollTop = Turbolinks.savedScrolls[elem.id];
+            elem.scrollTop = window.savedScrolls[elem.id];
         }
     }
 });
@@ -469,9 +461,15 @@ document.addEventListener("turbolinks:render", function(event) {
 // startup
 
 document.addEventListener('DOMContentLoaded', function() {
-    Turbolinks.start();
     setupSidebar();
 }, false);
 
 document.addEventListener("keydown", onDocumentKeydown);
 document.addEventListener("click", onDocumentClick);
+
+window._toto = {
+    doPost,
+    onItemEditKeydown,
+    onNewItemInputKeydown,
+    submitHighPriority
+};
