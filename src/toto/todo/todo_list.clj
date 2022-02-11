@@ -254,9 +254,10 @@
            (map #(render-todo-item list-id % writable? (= edit-item-id (:item_id %)))
                 display-items)
            (drop-target (+ 1 (apply max (map :item_ordinal display-items)))))))]
-     (when (> n-snoozed-items 0)
+     (when (and writable? (> n-snoozed-items 0))
        (render-snoozed-item-warning n-snoozed-items))
-     (render-todo-list-query-settings list-id completed-within-days snoozed-for-days))))
+     (when writable?
+       (render-todo-list-query-settings list-id completed-within-days snoozed-for-days)))))
 
 (defn render-todo-list-csv [  list-id ]
   (clojure.string/join "\n" (map :desc (data/get-pending-items list-id 0 0))))
