@@ -110,7 +110,8 @@
 (defn render-forgot-password-form []
   (render-page { :page-title "Forgot Password" }
    (form/form-to
-    {:class "auth-form"}
+    {:class "auth-form"
+     :data-turbo "false"}
     [:post "/user/password-reset"]
     [:p
      "Please enter your e-mail address. If an account is associated with that "
