@@ -32,6 +32,7 @@
             [hiccup.util :as util]
             [toto.data.data :as data]
             [toto.view.auth :as auth]
+            [toto.view.request-date :as request-date]
             [toto.todo.sidebar-view :as sidebar-view]))
 
 (def html-breakpoint "&#8203;")
@@ -89,9 +90,13 @@
     image-spec))
 
 (defn- render-item-priority-control [ item-id priority writable? ]
-  (if (<= priority 0)
-    (item-priority-button item-id 1 img-star-gray writable?)
-    (item-priority-button item-id 0 img-star-yellow writable?)))
+  (if (request-date/valentines-day?)
+    (if (<= priority 0)
+      (item-priority-button item-id 1 img-heart-pink writable?)
+      (item-priority-button item-id 0 img-heart-red writable?))
+    (if (<= priority 0)
+      (item-priority-button item-id 1 img-star-gray writable?)
+      (item-priority-button item-id 0 img-star-yellow writable?))))
 
 (defn- render-new-item-form [ list-id editing-item? ]
   (form/form-to
@@ -239,6 +244,19 @@
    n-snoozed-items " more item" (if (= n-snoozed-items 1) "" "s" ) " snoozed for later. "
    "Click " [:a {:href (shref "" {:sfor "99999"})} "here"] " to show."])
 
+(defn- message-recepient? []
+  (or (= 16 (auth/current-user-id))
+      (= 17 (auth/current-user-id))))
+
+(defn- render-valentines-day-banner []
+  (when (message-recepient?)
+    [:div.valentines-day-banner
+     img-heart-red
+     (if (request-date/valentines-day?)
+       " Happy Valentines Day!!! I Love You! "
+       " I Love You, Teresa! ")
+     img-heart-red]))
+
 (defn- render-todo-list [ list-id edit-item-id writable? completed-within-days snoozed-for-days ]
   (let [pending-items (data/get-pending-items list-id completed-within-days snoozed-for-days)
         n-snoozed-items (count (filter :visibly_snoozed pending-items))]
@@ -246,6 +264,7 @@
      "todo-list-scroller"
      (when writable?
        (render-new-item-form list-id (boolean edit-item-id)))
+     (render-valentines-day-banner)
      [:div.toplevel-list
       (let [display-items (remove :visibly_snoozed pending-items)]
         (if (= (count display-items) 0)

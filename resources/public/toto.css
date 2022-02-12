@@ -291,6 +291,14 @@ i.icon-yellow {
     color: #ffd000;
 }
 
+i.icon-pink {
+    color: #ffcccc;
+}
+
+i.icon-red {
+    color: #ff0000;
+}
+
 i.icon-blue {
     color: #0000ff;
 }
@@ -979,4 +987,12 @@ p.new-user {
     .item-row .drag-handle {
         display: none;
     }
+}
+
+div.valentines-day-banner {
+    border: 3px solid red;
+    margin: 4px;
+    padding: 8px;
+    text-align: center;
+    color: red;
 }
