@@ -26,7 +26,9 @@
             [cemerick.friend.credentials :as credentials]
             [cemerick.friend :as friend]
             [cemerick.friend.workflows :as workflows]
-            [toto.data.data :as data]))
+            [toto.data.data :as data]
+            [toto.core.mail :as mail]))
+
 
 (defn get-user-id-by-email [ email ]
   (if-let [ user-info (data/get-user-by-email email) ]
@@ -106,7 +108,25 @@
 (defn create-user [ email-addr password ]
   (data/add-user email-addr (credentials/hash-bcrypt password)))
 
-(defn password-change-workflow []
+(defn password-change-message [ config  ]
+  (let [from-mail (get-in config [:smtp :from])]
+    [:body
+     [:h1
+      "Password Changed"]
+     [:p
+      "This mail confirms that you have changed the password for your"
+      [:a {:href (:base-url config)} "Toto"] "account."]
+     [:p
+      "If this isn't something you've requested, please contact us"
+      " immediately at " [:a {:href (str "mailto:" from-mail)} from-mail] "."]]))
+
+(defn send-password-change-message [ config username ]
+  (mail/send-email config
+                   {:to [ username ]
+                    :subject "Todo - Verify Account"
+                    :content (password-change-message config)}))
+
+(defn password-change-workflow [ config ]
   (fn [{:keys [uri request-method params]}]
     (let [{:keys [ :password :new-password :new-password-2 :username]} params]
       (when (and (= uri "/user/password")
@@ -115,6 +135,7 @@
                  (not (= password new-password))
                  (= new-password new-password-2))
         (set-user-password username new-password)
+        (send-password-change-message config username)
         (workflows/make-auth (get-auth-map-by-email username))))))
 
 (defn wrap-workflow-request-ip [ workflow ]
@@ -122,10 +143,10 @@
     (binding [*request-ip* (:request-ip req)]
       (workflow req))))
 
-(defn wrap-authenticate [ app unauthorized-handler ]
+(defn wrap-authenticate [ app config unauthorized-handler ]
   (friend/authenticate app
                        {:credential-fn get-user-by-credentials
-                        :workflows [(password-change-workflow)
+                        :workflows [(password-change-workflow config)
                                     (wrap-workflow-request-ip
                                      (workflows/interactive-form))]
                         :unauthorized-handler unauthorized-handler}))

@@ -95,7 +95,7 @@
               [:h1
                "New User Created"]
               [:p
-               "New user e-mail: "  email-addr "."]]}))
+               "New user e-mail: " email-addr "."]]}))
 
 (defn create-user [ config email-addr password ]
   (let [user-id (auth/create-user email-addr password)
@@ -104,8 +104,8 @@
     (notify-user-create config email-addr)
     user-id))
 
-(defn wrap-authenticate [ app ]
-  (auth/wrap-authenticate app unauthorized-handler))
+(defn wrap-authenticate [ app config ]
+  (auth/wrap-authenticate app config unauthorized-handler))
 
 (defn render-forgot-password-form []
   (render-page { :page-title "Forgot Password" }
@@ -348,11 +348,11 @@
       :else
       (do
         ;; The password change handling is done in a Friend workflow
-        ;; handler, so that it can reauthenticate the user against the
-        ;; new password and assign the user the correct roles for an
-        ;; account with a valid password. (This is needed so that we
-        ;; allow the user use the website, if their password had
-        ;; expired.)
+        ;; handler (password-change-handler), so that it can
+        ;; reauthenticate the user against the new password and assign
+        ;; the user the correct roles for an account with a valid
+        ;; password. (This is needed so that we allow the user use the
+        ;; website, if their password had expired.)
         (log/warn "Password change unexpectedly fell through workflow!")
         (ring/redirect "/")))))
 

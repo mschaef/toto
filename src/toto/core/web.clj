@@ -77,7 +77,7 @@
       (wrap-content-type)
       (wrap-browser-caching {"text/javascript" 360000
                              "text/css" 360000})
-      (user/wrap-authenticate)
+      (user/wrap-authenticate config)
       (extend-session-duration 30)
       (include-requesting-ip)
       (view-query/wrap-remember-query)
