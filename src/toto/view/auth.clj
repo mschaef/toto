@@ -136,7 +136,8 @@
                  (= new-password new-password-2))
         (set-user-password username new-password)
         (send-password-change-message config username)
-        (workflows/make-auth (get-auth-map-by-email username))))))
+        (workflows/make-auth (get-auth-map-by-email username)
+                             {::friend/redirect-on-auth? "/user/password-changed"})))))
 
 (defn wrap-workflow-request-ip [ workflow ]
   (fn [ req ]

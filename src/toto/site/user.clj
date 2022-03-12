@@ -146,7 +146,8 @@
      {:page-title "New User Registration"
       :page-data-class "init-new-user"}
      (form/form-to
-      {:class "auth-form"}
+      {:class "auth-form"
+       :data-turbo "false"}
       [:post "/user"]
       [:div.config-panel
        [:h1 "Identity"]
@@ -300,25 +301,21 @@
 (defn render-change-password-form  [ & { :keys [ error-message ]}]
   (let [user (data/get-user-by-email (auth/current-identity))]
     (render-page { :page-title "Change Password" }
-                 (form/form-to {:class "auth-form"}
+                 (form/form-to {:class "auth-form"
+                                :data-turbo "false"}
                                [:post "/user/password"]
-
                                [:input {:type "hidden"
                                         :name "username"
                                         :value (auth/current-identity)}]
-
                                [:div.config-panel
                                 [:h1 "E-Mail Address"]
                                 (auth/current-identity)]
-
                                [:div.config-panel
                                 [:h1 "Name"]
                                 (:friendly_name user)]
-
                                [:div.config-panel
                                 [:h1 "Last Login"]
                                 (.format date-format (or (:last_login_on user) (java.util.Date.)))]
-
                                [:div.config-panel
                                 [:h1 "Change Password"]
                                 (form/password-field {:placeholder "Password"} "password")
@@ -356,6 +353,13 @@
         (log/warn "Password change unexpectedly fell through workflow!")
         (ring/redirect "/")))))
 
+(defn render-password-change-success []
+    (render-page { :page-title "Password Successfully Changed" }
+                 [:div.page-message
+                  [:h1 "Password Successfully Changed"]
+                  [:p "Your password has been changed. You can view "
+                   "your lists" [:a {:href "/"} " here"] "."]])  )
+
 (defn- get-link-verified-user [ link-user-id link-uuid ]
   (when-let [ user-id (:verifies_user_id (data/get-verification-link-by-uuid link-uuid)) ]
     (when (= link-user-id user-id)
@@ -365,7 +369,8 @@
   (when-let [ user (get-link-verified-user link-user-id link-uuid)]
     (render-page { :page-title "Reset Password" }
                  [:div.page-message
-                  (form/form-to {:class "auth-form"}
+                  (form/form-to {:class "auth-form"
+                                 :data-turbo "false"}
                                 [:post (str "/user/password-reset/" (:user_id user))]
                                 [:div.config-panel
                                  [:h1 "Reset your password"]
@@ -374,8 +379,9 @@
                                           :value link-uuid}]
                                  (form/password-field {:placeholder "New Password"} "new-password")
                                  (form/password-field {:placeholder "Verify Password"} "new-password-2")
-                                 [:div#error.error-message
-                                  error-message]
+                                 (when error-message
+                                   [:div#error.error-message
+                                    error-message])
                                  (form/submit-button {} "Reset Password")])])))
 
 (defn password-reset [ user-id link-uuid new-password new-password-2 ]
@@ -498,6 +504,9 @@
   (routes
    (GET "/user/password" []
      (render-change-password-form))
+
+   (GET "/user/password-changed" []
+     (render-password-change-success))
 
    (POST "/user/password" {params :params}
      (change-password params))
