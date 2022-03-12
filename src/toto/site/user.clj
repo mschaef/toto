@@ -124,7 +124,8 @@
 (defn render-login-page [ & { :keys [ email-addr login-failure?]}]
   (render-page { :page-title "Log In" }
    (form/form-to
-    {:class "auth-form"}
+    {:class "auth-form"
+     :data-turbo "false"}
     [:post "/login"]
     [:div.config-panel.toplevel
      (form/text-field {:placeholder "E-Mail Address"} "username" email-addr)
