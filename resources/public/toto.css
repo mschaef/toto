@@ -222,25 +222,11 @@ body {
     }
 }
 
-.header .logout {
-    display: none;
-}
-
-@media only screen and (min-device-width : 640px) {
-    .header .logout {
-        display: inline;
-    }
-
-    .footer .logout {
-        display: none;
-    }
-}
-
 /*** Fonts, Colors, and Tools ***/
 
 A {
-  text-decoration: none;
-  color: black;
+    text-decoration: none;
+    color: blue;
 }
 
 .addr {
@@ -479,9 +465,12 @@ select:hover {
     padding-right: 0.5em;
 }
 
-.header .right {
-    float: right;
+@media only screen and (min-device-width : 640px) {
+    .header .login-controls {
+        float: right;
+    }
 }
+
 
 .query-settings {
     margin: 6px 0px 6px 0px;
@@ -545,12 +534,6 @@ select:hover {
     font-weight: bold;
 }
 
-.contents .logout {
-    padding-top: 1em;
-    text-align: center;
-}
-
-
 @media only screen and (min-device-width : 640px) {
     .app-name {
         display: inline-block;
@@ -558,12 +541,36 @@ select:hover {
     }
 }
 
-.logout-control A {
-    color: red;
+@media only screen and (max-device-width : 640px) {
+    .header .session-controls {
+        display: none;
+    }
 }
 
-.login A {
-    color: red;
+@media only screen and (min-device-width : 640px) {
+    .header .session-controls {
+        float: right;
+    }
+}
+
+.page-message .session-controls {
+    padding-top: 10px;
+    display: block;
+    text-align: center;
+}
+
+@media only screen and (min-device-width : 640px) {
+    .page-message .session-controls {
+        display: none;
+    }
+}
+
+.session-controls A.emphasize {
+    padding: 4px 20px 4px 20px;
+    border: 1px solid #d0d0ff;
+    background: #d0d0ff;
+    margin: 6px;
+    color: black;
 }
 
 .completed-item {
@@ -661,6 +668,10 @@ select:hover {
         padding-top: 0px;
         padding-bottom: 0px;
     }
+}
+
+.sidebar .list-list A {
+    color: black;
 }
 
 .sidebar .list-list .list-row:hover {

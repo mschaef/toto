@@ -32,6 +32,7 @@
             [cemerick.friend :as friend]
             [toto.data.data :as data]
             [toto.view.auth :as auth]
+            [toto.todo.landing-page :as landing-page]
             [toto.todo.todo-list :as todo-list]
             [toto.todo.todo-list-manager :as todo-list-manager]))
 
@@ -52,7 +53,7 @@
 (defn redirect-to-list [ list-id ]
   (ring/redirect (shref "/list/" list-id)))
 
-(defn redirect-to-home []
+(defn redirect-to-home-list []
   (redirect-to-list (current-todo-list-id)))
 
 (defn redirect-to-lists []
@@ -70,7 +71,7 @@
   (if (<= (data/get-user-list-count (auth/current-user-id)) 1)
     (log/warn "Attempt to delete user's last visible list" list-id)
     (data/delete-list list-id))
-  (redirect-to-home))
+  (redirect-to-home-list))
 
 (defn- sort-list [ list-id params ]
   (let [{ sort-by :sort-by } params]
@@ -91,7 +92,7 @@
   (let [{list-description :list-description} params
         list-description (string-leftmost list-description 32)]
     (if (string-empty? list-description)
-      (redirect-to-home)
+      (redirect-to-home-list)
       (let [ list-id (data/add-list list-description) ]
         (data/set-list-ownership list-id #{ (auth/current-user-id) })
         (redirect-to-lists)))))
@@ -182,8 +183,16 @@
   (data/restore-item (auth/current-user-id) item-id)
   (success))
 
+(defn- render-launch-page []
+  (if (auth/current-identity)
+    (redirect-to-home-list)
+    (landing-page/render-landing-page)))
+
 (defn- public-routes [ config ]
   (routes
+   (GET "/" []
+     (render-launch-page))
+
    (GET "/list/:list-id/public" { { list-id :list-id } :params }
      ;; Retain backward compatibility with older public list URL scheme
      (redirect-to-list list-id))
@@ -255,8 +264,6 @@
 
 (defn- private-routes [ config ]
   (routes
-   (GET "/" [] (redirect-to-home))
-
    (POST "/list" { params :params }
      (add-list params))
 
