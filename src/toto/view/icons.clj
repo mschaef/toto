@@ -31,7 +31,12 @@
 (def img-group [:i {:class "fa fa-group icon-gray"}])
 (def img-restore [:i {:class "fa fa-repeat icon-black"}])
 (def img-show-list [:i {:class "fa fa-bars fa-lg icon-bars"}])
+
 (def img-star-gray [:i {:class "fa fa-lg fa-star-o icon-gray"}])
 (def img-star-yellow [:i {:class "fa fa-lg fa-star icon-yellow"}])
+
+(def img-heart-pink [:i {:class "fa fa-lg fa-heart icon-pink"}])
+(def img-heart-red [:i {:class "fa fa-lg fa-heart icon-red"}])
+
 (def img-trash [:i {:class "fa fa-trash-o icon-black"}])
 (def img-window-close [:i {:class "fa fa-window-close-o icon-gray"}])

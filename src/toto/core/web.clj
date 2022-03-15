@@ -39,6 +39,7 @@
             [toto.core.session :as store]
             [toto.view.common :as view-common]
             [toto.view.query :as view-query]
+            [toto.view.request-date :as view-request-date]
             [toto.site.user :as user]))
 
 (defn- wrap-request-logging [ app development-mode? ]
@@ -76,10 +77,11 @@
       (wrap-content-type)
       (wrap-browser-caching {"text/javascript" 360000
                              "text/css" 360000})
-      (user/wrap-authenticate)
+      (user/wrap-authenticate config)
       (extend-session-duration 30)
       (include-requesting-ip)
       (view-query/wrap-remember-query)
+      (view-request-date/wrap-remember-request-date)
       (wrap-dev-support (:development-mode config))
       (handler/site {:session {:store (store/session-store (:db-conn-pool config))}})
       (wrap-db-connection (:db-conn-pool config))

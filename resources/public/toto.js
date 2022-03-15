@@ -1,6 +1,6 @@
-import { clearCache, visit } from './turbo-7.1.0.js';
-
 /* toto.js */
+
+import { clearCache, visit } from './turbo-7.1.0.js';
 
 function elemOptional(klass) {
     var elements = document.getElementsByClassName(klass);
@@ -332,6 +332,14 @@ function onItemEditKeydown(event) {
     }
 }
 
+function dismissQueryIfPresent() {
+    /** This dismisses either a query or a model, given that
+     *  modals are requested via the query string. */
+    if (window.location.search !== '') {
+        visitPage(window.location.pathname);
+    }
+}
+
 function dismissModalIfPresent() {
     var modal = elemOptional('modal');
 
@@ -363,7 +371,7 @@ function checkModalShortcutBindings(event) {
 
 function onDocumentKeydown(event) {
     if (event.keyCode == 27) {
-        dismissModalIfPresent();
+        dismissQueryIfPresent();
     } else {
         checkModalShortcutBindings(event);
     }

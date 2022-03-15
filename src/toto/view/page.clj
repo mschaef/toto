@@ -27,13 +27,15 @@
   (:require [hiccup.page :as page]
             [toto.view.auth :as auth]))
 
-(defn- logout-button []
-  [:span.logout
-   [:a { :href "/logout"} "[logout]"]])
-
-(defn- login-button []
-  [:span.login
-   [:a { :href "/"} "[login]"]])
+(defn session-controls []
+  (if-let [ username (auth/current-identity) ]
+    [:div.session-controls
+     [:a {:href "/user/info"} username]
+     " - "
+     [:a.warning { :href "/logout"} "Log Out"]]
+    [:div.session-controls
+     [:a {:href "/login"} "Sign In"]
+     [:a.emphasize {:href "/user"} "Sign Up"]]))
 
 (defn- resource [ path ]
   (str "/" (get-version) "/" path))
@@ -43,7 +45,7 @@
    [:meta {:name "viewport"
            ;; user-scalable=no fails to work on iOS n where n > 10
            :content "width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0"}]
-   [:title (:name (:app *config*)) (when page-title (str " - " page-title))]
+   [:title (when *dev-mode* "DEV - ") (:name (:app *config*)) (when page-title (str " - " page-title))]
    [:link { :rel "shortcut icon" :href (resource "favicon.ico")}]
    (page/include-css (resource "toto.css")
                      (resource "font-awesome.min.css"))
@@ -60,21 +62,13 @@
      page-title
      (when *dev-mode*
        [:span.pill.dev "DEV"])
-     (if username
-       [:div.right
-        [:span.logout
-         [:a {:href "/user/info"} username]
-         [:span.logout-control " - " (logout-button)]]]
-       [:div.right
-        (login-button)])]))
+     (session-controls)]))
 
 (defn- render-sidebar [ sidebar ]
   [:div.sidebar
    [:div.sidebar-control
     [:span.close-menu img-close-list "&nbsp;"]
-    [:span.logout
-     [:a {:href "/user/password-change"} (auth/current-identity)]
-     [:span.logout-control " - " (logout-button)]]]
+    (session-controls)]
    [:div.sidebar-content { :id "sidebar-scroller" :data-preserve-scroll "true" }
     sidebar
     [:div.copyright
