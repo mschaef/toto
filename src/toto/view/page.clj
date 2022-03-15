@@ -45,7 +45,7 @@
    [:meta {:name "viewport"
            ;; user-scalable=no fails to work on iOS n where n > 10
            :content "width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0"}]
-   [:title (:name (:app *config*)) (when page-title (str " - " page-title))]
+   [:title (when *dev-mode* "DEV - ") (:name (:app *config*)) (when page-title (str " - " page-title))]
    [:link { :rel "shortcut icon" :href (resource "favicon.ico")}]
    (page/include-css (resource "toto.css")
                      (resource "font-awesome.min.css"))
