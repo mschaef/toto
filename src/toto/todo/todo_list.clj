@@ -223,7 +223,8 @@
                  [:div.control-segment
                   [:label {:for "cwithin"}
                    "Completed within: "]
-                  (render-query-select "cwithin" completed-within-days false)
+                  (render-query-select "cwithin" completed-within-days false)]
+                 [:div.control-segment
                   [:label {:for "swithin"}
                    "Snoozed for: "]
                   (render-query-select "sfor" snoozed-for-days true)]

@@ -488,10 +488,10 @@ select:hover {
 }
 
 .query-settings .control-segment {
-    display: inline-block;
+    display: inline-flex;
     padding-right: 10px;
-    padding-top: 10px;
-    padding-bottom: 10px;
+    min-height: 40px;
+    align-items: center;
 }
 
 .query-settings .control-segment label {
