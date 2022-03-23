@@ -22,13 +22,15 @@
 
 (ns toto.view.query)
 
- ;;; Persistent Query
+;;; Persistent Query
 
 (def ^:dynamic *query* nil)
+(def ^:dynamic *current-uri* nil)
 
 (defn wrap-remember-query[ app ]
   (fn [ req ]
-    (binding [ *query* (:query-params req) ]
+    (binding [*query* (:query-params req)
+              *current-uri* (:uri req)]
       (app req))))
 
 (defn- normalize-param-map [ params ]
@@ -40,7 +42,10 @@
                 (apply merge (map normalize-param-map param-maps)))))
 
 (defn- shref* [ & args ]
-  (let [url (apply str (remove map? args))
+  (let [url-param (apply str (remove map? args))
+        url (if (> (count url-param) 0)
+              url-param
+              *current-uri*)
         query-params (merge-param-maps (filter map? args))]
     (let [query-string (clojure.string/join "&" (map (fn [[ param val ]] (str (name param) "=" val)) query-params))]
       (if (> (.length query-string) 0)
