@@ -23,7 +23,8 @@
   (:use hiccup.core
         toto.core.util
         toto.view.common
-        toto.view.icons)
+        toto.view.icons
+        toto.view.query)
   (:require [hiccup.page :as page]
             [toto.view.auth :as auth]))
 
@@ -74,12 +75,17 @@
     [:div.copyright
      "&#9400; 2015-2022 East Coast Toolworks"]]])
 
-(defn render-modal [ escape-url & contents ]
-  [:div.modal-background
-   [:div.modal {:data-escape-url escape-url}
-    [:div.cancel
-     [:a {:href escape-url} img-window-close]]
-    contents]])
+(def without-modal {:modal :remove
+                    :edit-item-id :remove
+                    :snoozing-item-id :remove})
+
+(defn render-modal [ & contents ]
+  (let [ escape-url (shref without-modal)]
+    [:div.modal-background
+     [:div.modal {:data-escape-url escape-url}
+      [:div.cancel
+       [:a {:href escape-url} img-window-close]]
+      contents]]))
 
 (defn- render-page-body [ page-data-class page-title sidebar contents ]
   [:body (if page-data-class

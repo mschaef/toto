@@ -57,11 +57,6 @@
         (ensure-string-breaks "/")
         (ensure-string-breaks "."))))
 
-(def without-edit-id {:edit-item-id :remove})
-
-(def without-modal {:snoozing :remove
-                    :updating-from :remove})
-
 (defn- complete-item-button [ item-info ]
   (post-button {:desc "Complete Item"
                 :target (str "/item/" (item-info :item_id) "/complete")}
@@ -75,11 +70,11 @@
 (defn- delete-item-button [ item-info list-id ]
   (post-button {:desc "Delete Item"
                 :target (str "/item/" (item-info :item_id) "/delete")
-                :next-url (shref "/list/" list-id without-edit-id)}
+                :next-url (shref "/list/" list-id without-modal)}
                img-trash))
 
 (defn- snooze-item-button [ item-info body ]
-  [:a {:href (shref "" {:snoozing (item-info :item_id)})} body])
+  [:a {:href (shref "" {:modal "snoozing" :snoozing-item-id (item-info :item_id)})} body])
 
 (defn- item-priority-button [ item-id new-priority image-spec writable? ]
   (if writable?
@@ -171,7 +166,7 @@
                            :type "text"
                            :name "description"
                            :item-id item-id
-                           :view-href (shref "/list/" list-id without-edit-id)
+                           :view-href (shref "/list/" list-id without-modal)
                            :onkeydown "window._toto.onItemEditKeydown(event)"}
                     editing? (assoc "autofocus" "on"))]])
        (list
@@ -229,7 +224,7 @@
                    "Snoozed for: "]
                   (render-query-select "sfor" snoozed-for-days true)]
                  [:div.control-segment
-                  [:a { :href (shref "/list/" list-id {:updating-from "Y"} ) } "[copy from]"]]
+                  [:a { :href (shref "/list/" list-id {:modal "update-from"} ) } "[copy from]"]]
                  [:div.control-segment
                   [:a { :href (shref "/list/" list-id "/list.csv" ) } "[csv]"]])])
 
@@ -282,33 +277,30 @@
 (defn render-todo-list-csv [  list-id ]
   (clojure.string/join "\n" (map :desc (data/get-pending-items list-id 0 0))))
 
-(defn render-snooze-modal [list-id snoozing-item-id]
-  (let [currently-snoozed (:currently_snoozed (data/get-item-by-id snoozing-item-id))
-        list-url (shref "/list/" list-id without-modal)]
-
-    (defn render-snooze-choice [ label snooze-days shortcut-key ]
-      (post-button {:desc (str label " (" shortcut-key ")")
-                    :target (str "/item/" snoozing-item-id "/snooze")
-                    :args {:snooze-days snooze-days}
-                    :shortcut-key shortcut-key
-                    :next-url list-url}
-                   (str label " (" shortcut-key ")")))
-
-    (render-modal
-     list-url
-     [:div.snooze
-      [:h3 "Snooze item until later"]
-      [:div.choices
-       (map (fn [ [ label snooze-days shortcut-key] ]
-              (render-snooze-choice label snooze-days shortcut-key))
-            [["Tomorrow" 1 "1"]
-             ["In Three Days" 3 "2"]
-             ["Next Week"  7 "3"]
-             ["Next Month" 30 "4"]])]
-      (when currently-snoozed
+(defn render-snooze-modal [ list-id params ]
+  (when (= (:modal params) "snoozing")
+    (let [ snoozing-item-id (parsable-integer? (:snoozing-item-id params))]
+      (defn render-snooze-choice [ label snooze-days shortcut-key ]
+        (post-button {:desc (str label " (" shortcut-key ")")
+                      :target (str "/item/" snoozing-item-id "/snooze")
+                      :args {:snooze-days snooze-days}
+                      :shortcut-key shortcut-key
+                      :next-url (shref "/list/" list-id without-modal)}
+                     (str label " (" shortcut-key ")")))
+      (render-modal
+       [:div.snooze
+        [:h3 "Snooze item until later"]
         [:div.choices
-         [:hr]
-         (render-snooze-choice "Unsnooze" 0 "0")])])))
+         (map (fn [ [ label snooze-days shortcut-key] ]
+                (render-snooze-choice label snooze-days shortcut-key))
+              [["Tomorrow" 1 "1"]
+               ["In Three Days" 3 "2"]
+               ["Next Week"  7 "3"]
+               ["Next Month" 30 "4"]])]
+        (when (:currently_snoozed (data/get-item-by-id snoozing-item-id))
+          [:div.choices
+           [:hr]
+           (render-snooze-choice "Unsnooze" 0 "0")])]))))
 
 (defn- render-list-select [ id excluded-list-id ]
   [:select { :id id :name id }
@@ -318,10 +310,9 @@
                               #(= excluded-list-id (:todo_list_id %))
                               (data/get-todo-lists-by-user (auth/current-user-id)))))])
 
-(defn render-update-from-modal [ list-id ]
-  (let [ list-url (shref "/list/" list-id without-modal)]
+(defn render-update-from-modal [ list-id params ]
+  (when (= (:modal params) "update-from")
     (render-modal
-     list-url
      [:h3 "Update From"]
      (form/form-to
       [:post (shref "/list/" list-id "/copy-from" without-modal)]
@@ -334,16 +325,12 @@
   (let [edit-item-id (parsable-integer? (:edit-item-id params))
         min-list-priority (or (parsable-integer? (:min-list-priority params)) 0)
         completed-within-days (or (parsable-integer? (:cwithin params)) 0)
-        snoozed-for-days (or (parsable-integer? (:sfor params)) 0)
-        snoozing-item-id (parsable-integer? (:snoozing params))
-        updating (= (:updating-from params) "Y")]
+        snoozed-for-days (or (parsable-integer? (:sfor params)) 0)]
     (render-page {:page-title ((data/get-todo-list-by-id selected-list-id) :desc)
                   :page-data-class "todo-list"
                   :sidebar (sidebar-view/render-sidebar-list-list selected-list-id min-list-priority snoozed-for-days)}
-                 (when snoozing-item-id
-                   (render-snooze-modal selected-list-id snoozing-item-id))
-                 (when updating
-                   (render-update-from-modal selected-list-id))
+                 (render-snooze-modal selected-list-id params)
+                 (render-update-from-modal selected-list-id params)
                  (render-todo-list selected-list-id edit-item-id true completed-within-days snoozed-for-days))))
 
 (defn render-todo-list-public-page [ params ]
