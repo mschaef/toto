@@ -1,4 +1,4 @@
 urlid local
-url jdbc:hsqldb:~/personal/toto/toto
+url jdbc:hsqldb:~/personal/toto/local-db/toto
 username sa
 password
