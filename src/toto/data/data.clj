@@ -272,6 +272,11 @@
                             :snoozed_within_days snoozed-within-days}
                            { :connection (current-db-connection) }))
 
+(defn get-completed-items [ list-id completed-within-days ]
+  (query/get-completed-items {:list_id list-id
+                              :completed_within_days (- completed-within-days)}
+                           { :connection (current-db-connection) }))
+
 (defn get-pending-item-order-by-description [ list-id ]
   (query/get-pending-item-order-by-description {:list_id list-id}
                                                { :connection (current-db-connection) }))

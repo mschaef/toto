@@ -37,6 +37,8 @@
 
 (def html-breakpoint "&#8203;")
 
+(def pill-date-format (java.text.SimpleDateFormat. "yyyy-MM-dd"))
+
 (defn ensure-string-breakpoints [ s n ]
   (clojure.string/join html-breakpoint (partition-string s n)))
 
@@ -135,8 +137,6 @@
 (defn drop-target [ item-ordinal ]
   [:div.order-drop-target {:ordinal item-ordinal :priority "0"} "&nbsp;"])
 
-(def snooze-date-format (java.text.SimpleDateFormat. "yyyy-MM-dd"))
-
 (defn- render-todo-item [ list-id item-info writable? editing? ]
   (let [{item-id :item_id
          is-complete? :is_complete
@@ -190,7 +190,7 @@
                                             (render-age (:age_in_days item-info))
                                             (when currently-snoozed
                                               (list
-                                               ", snoozed: " (.format snooze-date-format snoozed-until)))])
+                                               ", snoozed: " (.format pill-date-format snoozed-until)))])
              (when (not (= created-by-id (auth/current-user-id)))
                [:span.pill created-by-name])]))]))
      [:div.item-control.priority.right
@@ -206,9 +206,13 @@
                           "-"
                           (str current-value)))])
 
+
 (defn- render-todo-list-query-settings [ list-id completed-within-days snoozed-for-days ]
   [:div.query-settings
    (form/form-to { :class "embedded "} [:get (shref "/list/" list-id)]
+                 [:div.control-segment
+                  [:a {:href (shref "/list/" list-id "/completions")}
+                   "[completions]"]]
                  [:div.control-segment
                   [:a {:href (shref "/list/" list-id "/details")}
                    "[list details]"]]
@@ -227,6 +231,20 @@
                   [:a { :href (shref "/list/" list-id {:modal "update-from"} ) } "[copy from]"]]
                  [:div.control-segment
                   [:a { :href (shref "/list/" list-id "/list.csv" ) } "[csv]"]])])
+
+(defn- render-todo-list-completion-query-settings [ list-id completed-within-days ]
+  [:div.query-settings
+   (form/form-to { :class "embedded "} [:get (shref "/list/" list-id "/completions")]
+                 [:div.control-segment
+                  [:a {:href (shref "/list/" list-id "/details")}
+                   "[list details]"]]
+                 [:div.control-segment
+                  [:a {:href (shref "/list/" list-id)}
+                   " [default view]"]]
+                 [:div.control-segment
+                  [:label {:for "cwithin"}
+                   "Completed within: "]
+                  (render-query-select "cwithin" completed-within-days false)])])
 
 (defn- render-empty-list []
   [:div.empty-list
@@ -274,8 +292,39 @@
      (when writable?
        (render-todo-list-query-settings list-id completed-within-days snoozed-for-days)))))
 
-(defn render-todo-list-csv [  list-id ]
+(defn render-todo-list-csv [ list-id ]
   (clojure.string/join "\n" (map :desc (data/get-pending-items list-id 0 0))))
+
+(defn- render-empty-completion-list [ ]
+  [:div.empty-list
+   [:h1
+    "Nothing here right now!"]
+   [:p
+    "As you complete items, they will appear here."]])
+
+(defn render-todo-list-completions [ list-id params ]
+  (let [min-list-priority (or (parsable-integer? (:min-list-priority params)) 0)
+        completed-within-days (or (parsable-integer? (:cwithin params)) 1)
+        completed-items (data/get-completed-items list-id completed-within-days)]
+    (render-page {:page-title ((data/get-todo-list-by-id list-id) :desc)
+                  :page-data-class "todo-list-completions"
+                  :sidebar (sidebar-view/render-sidebar-list-list list-id min-list-priority 0)}
+                 (scroll-column
+                  "todo-list-completion-scroller"
+                  [:div.toplevel-list
+                   [:h1 "Items completed since "
+                    (.format pill-date-format (add-days (current-time) (- completed-within-days)))]
+                   (if (= (count completed-items) 0)
+                     (render-empty-completion-list)
+                     (map
+                      (fn [ todo-item ]
+                        [:div.item-row
+                         (:desc todo-item)
+                         [:span.pill
+                          (.format pill-date-format (:updated_on todo-item))]])
+                      completed-items))
+
+                   (render-todo-list-completion-query-settings list-id completed-within-days)]))))
 
 (defn render-snooze-modal [ list-id params ]
   (when (= (:modal params) "snoozing")

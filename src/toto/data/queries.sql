@@ -113,6 +113,26 @@ SELECT item.item_id,
             item.item_ordinal,
             item.created_on
 
+-- name: get-completed-items
+SELECT item.item_id,
+       item.todo_list_id,
+       item.desc,
+       item.created_on,
+       user.user_id as created_by_id,
+       user.friendly_name as created_by_name,
+       item.priority,
+       item.updated_on,
+       item.is_deleted,
+       item.is_complete,
+       DATEDIFF('day', item.created_on, CURRENT_TIMESTAMP) as age_in_days,
+       item_ordinal
+   FROM todo_item item, user
+   WHERE item.todo_list_id = :list_id
+     AND user.user_id = item.created_by
+     AND item.is_complete
+     AND item.updated_on > DATEADD('day', :completed_within_days, CURRENT_TIMESTAMP)
+   ORDER BY item.updated_on DESC
+
 -- name: get-pending-item-order-by-description
 SELECT item.item_id,
        item.todo_list_id
