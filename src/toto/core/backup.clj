@@ -44,9 +44,10 @@
     (log/info "Database backup complete.")))
 
 (defn schedule-backup [ config ]
-  (let [backup-cron (get-in config [:db :backup-cron])]
+  (if-let [backup-cron (get-in config [:db :backup-cron])]
     (if-let [backup-path (get-in config [:db :backup-path] false)]
       (scheduler/schedule-job config (str "Automatic backup to " backup-path) backup-cron
                               #(backup-database backup-path))
-      (log/warn "NO BACKUP PATH. AUTOMATIC BACKUP DISABLED!!!")))
+      (log/warn "NO BACKUP PATH. AUTOMATIC BACKUP DISABLED!!!"))
+    (log/warn "NO BACKUP CRON STRING. AUTOMATIC BACKUP DISABLED!!!"))
   config)
