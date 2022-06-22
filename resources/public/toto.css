@@ -603,6 +603,10 @@ select:hover {
     }
 }
 
+.toplevel-list.list-list A {
+    color: black;
+}
+
 .toplevel-list .empty-list {
     text-align: center;
     margin: 20px;
