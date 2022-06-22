@@ -115,7 +115,8 @@
       "Password Changed"]
      [:p
       "This mail confirms that you have changed the password for your"
-      [:a {:href (:base-url config)} "Toto"] "account."]
+      "account at " [:a {:href (:base-url config)} "Toto"]
+      ", the family to-do list manager."]
      [:p
       "If this isn't something you've requested, please contact us"
       " immediately at " [:a {:href (str "mailto:" from-mail)} from-mail] "."]]))

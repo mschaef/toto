@@ -183,7 +183,7 @@
     "Verification E-mail"]
    [:p
     "Thank you for registering with " [:a {:href (:base-url config)} "Toto"]
-    " to manage your todo lists. You can verify your e-mail address by clicking"
+    ", the family to-do list manager. You can verify your e-mail address by clicking"
     [:a {:href verify-link-url} " here"] "."]
    [:p
     "If this isn't something you've requested, you can safely ignore this"
@@ -203,7 +203,8 @@
     "Unlock Password"]
    [:p
     "Click " [:a {:href verify-link-url} "here"] " to unlock your "
-    [:a {:href (:base-url config)} "Toto"] " account."]])
+    "account at " [:a {:href (:base-url config)} "Toto"] ", the family "
+    "to-do list manager."]])
 
 (defn send-unlock-link [ config user-id ]
   (let [user (data/get-user-by-id user-id)
@@ -219,8 +220,8 @@
     "Reset Password"]
    [:p
     "Click " [:a {:href verify-link-url} "here"]
-    " to reset your " [:a {:href (:base-url config)} "Toto"]
-    "password."]])
+    " to reset your password at " [:a {:href (:base-url config)} "Toto"]
+    ", the family to-do list manager."]])
 
 (defn send-reset-link [ config user-id ]
   (let [user (data/get-user-by-id user-id)
