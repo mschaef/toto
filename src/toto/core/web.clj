@@ -72,6 +72,10 @@
   (cond-> (wrap-request-logging handler dev-mode)
     dev-mode (ring-reload/wrap-reload)))
 
+(defn wrap-request-thread-naming [ app ]
+  (fn [ req ]
+    (call-with-thread-name #(app req) (str "http: " (:request-method req) " " (:uri req)))))
+
 (defn handler [ config routes ]
   (-> routes
       (wrap-content-type)
@@ -85,6 +89,7 @@
       (wrap-dev-support (:development-mode config))
       (handler/site {:session {:store (store/session-store (:db-conn-pool config))}})
       (wrap-db-connection (:db-conn-pool config))
+      (wrap-request-thread-naming)
       (view-common/wrap-config config)))
 
 (defn start-site [ config routes ]

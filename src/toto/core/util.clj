@@ -123,3 +123,21 @@
       (fn)
       (catch Exception ex
         (log/error ex (str "Uncaught exception: " label))))))
+
+;;; Thread Naming
+
+(defn call-with-thread-name [ fn name ]
+  (let [thread (Thread/currentThread)
+        initial-thread-name (.getName thread)]
+    (try
+      (.setName thread name)
+      (fn)
+      (finally
+        (.setName thread initial-thread-name)))))
+
+(defmacro unless [ condition & body ]
+  `(when (not ~condition)
+     ~@body))
+
+(defmacro with-thread-name [ thread-name & body ]
+  `(call-with-thread-name (fn [] ~@body) ~thread-name))
