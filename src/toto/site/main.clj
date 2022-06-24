@@ -40,12 +40,12 @@
    (route/not-found "Resource Not Found")))
 
 (defn schedule-web-session-cull [ config ]
-  (scheduler/schedule-job config "Web Session cull" "19 */1 * * *"
+  (scheduler/schedule-job config :web-session-cull "19 */1 * * *"
                           #(data/delete-old-web-sessions))
   config)
 
 (defn schedule-verification-link-cull [ config ]
-  (scheduler/schedule-job config "Verification link cull" "*/15 * * * *"
+  (scheduler/schedule-job config :verification-link-cull "*/15 * * * *"
                           #(data/delete-old-verification-links))
   config)
 

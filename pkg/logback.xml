@@ -1,7 +1,7 @@
 <configuration debug="false">
 
   <!-- File Appender -->
-  
+
   <appender name="FILE" class="ch.qos.logback.core.FileAppender">
     <file>/var/log/toto/toto.log</file>
 
@@ -9,24 +9,21 @@
       <!-- daily rollover. Make sure the path matches the one in the file element or else
            the rollover logs are placed in the working directory. -->
       <fileNamePattern>/var/log/toto/toto_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-      
+
       <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
         <maxFileSize>5MB</maxFileSize>
       </timeBasedFileNamingAndTriggeringPolicy>
       <!-- keep 30 days' worth of history -->
       <maxHistory>30</maxHistory>
-    </rollingPolicy>    
+    </rollingPolicy>
 
     <encoder>
       <pattern>%d [%t] %-5p %logger - %msg%n</pattern>
     </encoder>
   </appender>
 
-  <logger name="toto.core" level="INFO"/>
-  <logger name="toto.data" level="INFO"/>
-
   <root level="INFO">
     <appender-ref ref="FILE"/>
   </root>
-  
+
 </configuration>

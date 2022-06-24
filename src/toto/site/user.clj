@@ -46,7 +46,7 @@
                 [:p
                  "Your e-mail address is unverified and your acccount is "
                  "inactive. A verification e-mail can be sent by following "
-                 [:a {:href (str "/user/verify/" (auth/current-user-id))} "this link"]
+                 [:a {:href (str "/user/verify/" (auth/current-user-id))} " this link"]
                  "."]]))
 
 (defn user-password-expired [ request ]
@@ -56,7 +56,7 @@
                 [:p
                  "Your password has expired and needs to be reset. "
                  "This can be done at "
-                 [:a {:href (str "/user/password")} "this link"]
+                 [:a {:href (str "/user/password")} " this link"]
                  "."]]))
 
 (defn user-account-locked [ request ]
@@ -66,7 +66,7 @@
                 [:p
                  "Your account is locked and must be re-verified by e-mail."
                  "An verification e-mail can be sent by following "
-                 [:a {:href (str "/user/unlock/" (auth/current-user-id))} "this link"]
+                 [:a {:href (str "/user/unlock/" (auth/current-user-id))} " this link"]
                  "."]]))
 
 (defn unauthorized-handler [request]
@@ -183,8 +183,8 @@
     "Verification E-mail"]
    [:p
     "Thank you for registering with " [:a {:href (:base-url config)} "Toto"]
-    " to manage your todo lists. You can verify your e-mail address by clicking"
-    [:a {:href verify-link-url} "here"] "."]
+    ", the family to-do list manager. You can verify your e-mail address by clicking"
+    [:a {:href verify-link-url} " here"] "."]
    [:p
     "If this isn't something you've requested, you can safely ignore this"
     " e-mail, and we won't send anything else."]])
@@ -203,7 +203,8 @@
     "Unlock Password"]
    [:p
     "Click " [:a {:href verify-link-url} "here"] " to unlock your "
-    [:a {:href (:base-url config)} "Toto"] " account."]])
+    "account at " [:a {:href (:base-url config)} "Toto"] ", the family "
+    "to-do list manager."]])
 
 (defn send-unlock-link [ config user-id ]
   (let [user (data/get-user-by-id user-id)
@@ -219,7 +220,8 @@
     "Reset Password"]
    [:p
     "Click " [:a {:href verify-link-url} "here"]
-    "to reset your " [:a {:href (:base-url config)} "Toto"] "password."]])
+    " to reset your password at " [:a {:href (:base-url config)} "Toto"]
+    ", the family to-do list manager."]])
 
 (defn send-reset-link [ config user-id ]
   (let [user (data/get-user-by-id user-id)
@@ -228,9 +230,6 @@
                      {:to [ (:email_addr user) ]
                       :subject "Todo - Reset Account Password"
                       :content (reset-email-message config link-url)})))
-
-
-
 
 (defn add-user [config {:keys [:email-addr :email-addr-2 :password :password-2
                                :verify-n-1 :verify-n-2 :verify-response]}]

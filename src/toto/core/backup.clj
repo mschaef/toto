@@ -40,13 +40,15 @@
 (defn backup-database [ backup-path ]
   (let [ output-path (get-backup-filename backup-path)]
     (log/info "Backing database up to" output-path)
-    (sql-file/backup-to-file-online (current-db-connection) output-path)
-    (log/info "Database backup complete.")))
+    (sql-file/backup-to-file-online (current-db-connection) output-path)))
 
 (defn schedule-backup [ config ]
-  (let [backup-cron (get-in config [:db :backup-cron])]
+  (if-let [backup-cron (get-in config [:db :backup-cron])]
     (if-let [backup-path (get-in config [:db :backup-path] false)]
-      (scheduler/schedule-job config (str "Automatic backup to " backup-path) backup-cron
-                              #(backup-database backup-path))
-      (log/warn "NO BACKUP PATH. AUTOMATIC BACKUP DISABLED!!!")))
+      (do
+        (log/info "Database backup configured with path: " backup-path)
+        (scheduler/schedule-job config :db-backup backup-cron
+                                #(backup-database backup-path)))
+      (log/warn "NO BACKUP PATH. AUTOMATIC BACKUP DISABLED!!!"))
+    (log/warn "NO BACKUP CRON STRING. AUTOMATIC BACKUP DISABLED!!!"))
   config)

@@ -31,11 +31,12 @@
            (.start))))
 
 (defn schedule-job [ config desc cron job-fn ]
-  (do
+  (let [ job-fn (exception-barrier job-fn (str "scheduled job:" desc)) ]
     (log/info "Background job scheduled (cron:" cron  "):" desc )
     (.schedule (:scheduler config) cron
-               #(do
-                  (log/info "Running scheduled job: " desc)
+               #(with-thread-name (str "cron:" desc)
+                  (log/info "Job Begin")
                   (with-db-connection (:db-conn-pool config)
-                    (exception-barrier job-fn (str "scheduled job:" desc)))
-                  (log/info "End scheduled job: " desc)))))
+                    (job-fn))
+                  (log/info "Job End")))))
+
