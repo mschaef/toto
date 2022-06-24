@@ -311,9 +311,10 @@
                   :sidebar (sidebar-view/render-sidebar-list-list list-id min-list-priority 0)}
                  (scroll-column
                   "todo-list-completion-scroller"
-                  [:div.toplevel-list
                    [:h1 "Items completed since "
                     (.format pill-date-format (add-days (current-time) (- completed-within-days)))]
+                  [:div.toplevel-list
+
                    (if (= (count completed-items) 0)
                      (render-empty-completion-list)
                      (map
