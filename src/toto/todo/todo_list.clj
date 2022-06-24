@@ -161,14 +161,14 @@
        (list
         [:div.item-control.complete
          (delete-item-button item-info list-id)]
-         [:div.item-description
-          [:input (cond-> {:value (item-info :desc)
-                           :type "text"
-                           :name "description"
-                           :item-id item-id
-                           :view-href (shref "/list/" list-id without-modal)
-                           :onkeydown "window._toto.onItemEditKeydown(event)"}
-                    editing? (assoc "autofocus" "on"))]])
+        [:div.item-description
+         [:input (cond-> {:value (item-info :desc)
+                          :type "text"
+                          :name "description"
+                          :item-id item-id
+                          :view-href (shref "/list/" list-id without-modal)
+                          :onkeydown "window._toto.onItemEditKeydown(event)"}
+                   editing? (assoc "autofocus" "on"))]])
        (list
         (when writable?
           (list
@@ -295,12 +295,15 @@
 (defn render-todo-list-csv [ list-id ]
   (clojure.string/join "\n" (map :desc (data/get-pending-items list-id 0 0))))
 
-(defn- render-empty-completion-list [ ]
-  [:div.empty-list
-   [:h1
-    "Nothing here right now!"]
-   [:p
-    "As you complete items, they will appear here."]])
+(defn- render-empty-completion-list [ list-id ]
+  (let [n-items (data/get-item-count list-id)]
+    [:div.empty-list
+     [:h1
+      "Nothing here right now!"]
+     [:p
+      (if (= n-items 0)
+        "As you add items and complete them, they will appear here."
+        "Try expanding the query to see earlier completed items.")]]))
 
 (defn render-todo-list-completions [ list-id params ]
   (let [min-list-priority (or (parsable-integer? (:min-list-priority params)) 0)
@@ -316,13 +319,15 @@
                   [:div.toplevel-list
 
                    (if (= (count completed-items) 0)
-                     (render-empty-completion-list)
+                     (render-empty-completion-list list-id)
                      (map
                       (fn [ todo-item ]
                         [:div.item-row
-                         (:desc todo-item)
-                         [:span.pill
-                          (.format pill-date-format (:updated_on todo-item))]])
+                         [:div.item-description
+                          [:div
+                           (render-item-text (:desc todo-item))
+                           [:span.pill
+                            (.format pill-date-format (:updated_on todo-item))]]]])
                       completed-items))
 
                    (render-todo-list-completion-query-settings list-id completed-within-days)]))))

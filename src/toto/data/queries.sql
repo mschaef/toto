@@ -87,6 +87,11 @@ WHERE item.item_id = :item_id
   AND lo.todo_list_id=item.todo_list_id
   AND lo.user_id = :user_id
 
+-- name: get-item-count
+SELECT count(item.item_id)
+   FROM todo_item item
+   WHERE item.todo_list_id = :list_id
+
 -- name: get-pending-items
 SELECT item.item_id,
        item.todo_list_id,

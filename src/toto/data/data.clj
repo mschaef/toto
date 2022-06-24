@@ -266,7 +266,12 @@
                :is_complete false
                :item_ordinal (get-next-list-ordinal todo-list-id)}))))
 
-(defn get-pending-items [ list-id completed-within-days snoozed-within-days]
+(defn get-item-count [ list-id ]
+  (scalar-result
+   (query/get-item-count {:list_id list-id }
+                         { :connection (current-db-connection) })))
+
+(defn get-pending-items [ list-id completed-within-days snoozed-within-days ]
   (query/get-pending-items {:list_id list-id
                             :completed_within_days (- completed-within-days)
                             :snoozed_within_days snoozed-within-days}
