@@ -34,7 +34,7 @@
   {:name (or (config-property "db.subname")
              (get-in config [:db :subname] "toto"))
    :schema-path [ "sql/" ]
-   :schemas [[ "toto" 9 ]]})
+   :schemas [[ "toto" 10 ]]})
 
 (defn app-start [ config app-routes ]
   (sql-file/with-pool [db-conn (db-conn-spec config)]
