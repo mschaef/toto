@@ -271,7 +271,7 @@
        " I Love You, Teresa! ")
      img-heart-red]))
 
-(defn- render-todo-list [ list-id edit-item-id writable? completed-within-days snoozed-for-days ]
+(defn- render-single-todo-list [ list-id edit-item-id writable? completed-within-days snoozed-for-days ]
   (let [pending-items (data/get-pending-items list-id completed-within-days snoozed-for-days)
         n-snoozed-items (count (filter :visibly_snoozed pending-items))]
     (scroll-column
@@ -291,6 +291,28 @@
        (render-snoozed-item-warning n-snoozed-items))
      (when writable?
        (render-todo-list-query-settings list-id completed-within-days snoozed-for-days)))))
+
+(defn- render-empty-view [ list-id ]
+  [:div.empty-list
+   [:h1
+    "Empty list view!"]
+   [:p
+    "This is a todo list view, where it is possible to see the contents of"
+    " more than one list on a single page. To make this work, you need to "
+    " add a few lists to the view, which can be done "
+    [:a {:href (shref "/list/" list-id "/details")} "here"] "."]])
+
+(defn- render-todo-list-view [ list-id edit-item-id writable? completed-within-days snoozed-for-days ]
+  (let [ sublists (data/get-view-sublists (auth/current-user-id) list-id)]
+    (log/info :sublists sublists)
+    (if (= 0 (count sublists))
+      (render-empty-view list-id)
+      [:h1 "foo"])))
+
+(defn- render-todo-list [ list-id edit-item-id writable? completed-within-days snoozed-for-days ]
+  (if (:is_view (data/get-todo-list-by-id list-id))
+    (render-todo-list-view list-id edit-item-id writable? completed-within-days snoozed-for-days )
+    (render-single-todo-list list-id edit-item-id writable? completed-within-days snoozed-for-days)))
 
 (defn render-todo-list-csv [ list-id ]
   (clojure.string/join "\n" (map :desc (data/get-pending-items list-id 0 0))))

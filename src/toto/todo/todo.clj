@@ -89,11 +89,13 @@
     (redirect-to-list list-id)))
 
 (defn- add-list [ params ]
-  (let [{list-description :list-description} params
-        list-description (string-leftmost list-description 32)]
+  (let [{list-description :list-description
+         is-view :is-view} params
+        list-description (string-leftmost list-description 32)
+        is-view (= is-view "Y")]
     (if (string-empty? list-description)
       (redirect-to-home-list)
-      (let [ list-id (data/add-list list-description) ]
+      (let [ list-id (data/add-list list-description is-view) ]
         (data/set-list-ownership list-id #{ (auth/current-user-id) })
         (redirect-to-lists)))))
 

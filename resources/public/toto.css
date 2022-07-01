@@ -716,6 +716,10 @@ h1 {
     border-right: 5px solid red;
 }
 
+.sidebar .list-list .view {
+    font-style: italic;
+}
+
 .sidebar .list-list .control-row {
     text-align: center;
 }
@@ -932,6 +936,11 @@ p.new-user {
     display: inline-block;
 
     width: 32px;
+}
+
+.config-panel .component-lists {
+    max-height: 40vh;
+    overflow-y: auto;
 }
 
 .config-panel A, .query-settings A, A.item-link {

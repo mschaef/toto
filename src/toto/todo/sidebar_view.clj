@@ -24,14 +24,20 @@
         toto.view.common
         toto.view.icons
         toto.view.query)
-  (:require [toto.data.data :as data]
+  (:require [clojure.tools.logging :as log]
+            [toto.data.data :as data]
             [toto.view.auth :as auth]))
 
 (defn render-list-visibility-flag [ list ]
   (let [{is-public :is_public
-         list-owner-count :list_owner_count}
-        list]
+         list-owner-count :list_owner_count
+         is-view :is_view}
+        (log/spy :info list)]
     (cond
+      is-view
+      ;; Views cannot be shared, so the other flags do not apply.
+      [:span.list-visibility-flag img-folders]
+
       is-public
       [:span.list-visibility-flag img-globe]
 
@@ -47,10 +53,12 @@
                    list-item-count :item_count
                    list-total-item-count :total_item_count
                    is-public :is_public
+                   is-view :is_view
                    list-owner-count :list_owner_count
                    priority :priority}
                   list ]
               [:div.list-row {:class (class-set {"selected" (= list-id (Integer. selected-list-id))
+                                                 "view" is-view
                                                  "high-priority" (and include-low-priority (> priority 0))
                                                  "low-priority" (and include-low-priority (< priority 0))})
                               :listid list-id}

@@ -20,6 +20,19 @@ SELECT *
   FROM todo_list
  WHERE todo_list_id = :todo_list_id
 
+-- name: get-view-sublists
+SELECT todo_view_sublist.sublist_id, todo_list.desc
+  FROM todo_view_sublist,
+       todo_list,
+       todo_list_owners
+ WHERE todo_view_sublist.todo_list_id = :todo_list_id
+   AND todo_list.todo_list_id = todo_view_sublist.todo_list_id
+   AND todo_list_owners.todo_list_id = todo_list.todo_list_id
+   AND todo_list_owners.user_id = :user_id
+ ORDER BY todo_list_owners.priority DESC,
+          todo_list.desc
+
+
 -- name: get-todo-list-is-public-by-id
 SELECT is_public
   FROM todo_list
@@ -50,6 +63,7 @@ SELECT DISTINCT todo_list_owners.todo_list_id
 SELECT DISTINCT todo_list.todo_list_id,
                 todo_list.desc,
                 todo_list.is_public,
+                todo_list.is_view,
                 todo_list_owners.priority,
                 (SELECT count(item.item_id)
                    FROM todo_item item
@@ -71,8 +85,9 @@ SELECT DISTINCT todo_list.todo_list_id,
  WHERE NOT(todo_list.is_deleted)
    AND todo_list.todo_list_id=todo_list_owners.todo_list_id
    AND todo_list_owners.user_id = :user_id
- ORDER BY todo_list_owners.priority DESC,
-          todo_list.DESC
+ ORDER BY todo_list.is_view DESC,
+          todo_list_owners.priority DESC,
+          todo_list.desc
 
 -- name: list-owned-by-user-id?
 SELECT COUNT(*)

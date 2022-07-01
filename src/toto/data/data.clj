@@ -84,6 +84,11 @@
    (query/get-todo-list-by-id { :todo_list_id list-id }
                               { :connection (current-db-connection) })))
 
+(defn get-view-sublists [ user-id list-id ]
+  (query/get-view-sublists { :user_id user-id
+                             :todo_list_id list-id }
+                           { :connection (current-db-connection) }))
+
 (defn list-public? [ list-id ]
   (scalar-result
    (query/get-todo-list-is-public-by-id { :todo_list_id list-id }
@@ -185,11 +190,12 @@
                 :verification_link
                 ["created_on < DATEADD('hour', -1, CURRENT_TIMESTAMP)"]))
 
-(defn add-list [ desc ]
+(defn add-list [ desc is-view ]
   (:todo_list_id (first
                   (jdbc/insert! (current-db-connection)
                    :todo_list
-                   {:desc desc}))))
+                   {:desc desc
+                    :is_view is-view}))))
 
 (defn set-list-ownership [ todo-list-id user-ids ]
   (jdbc/with-db-transaction [ trans (current-db-connection) ]
