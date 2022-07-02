@@ -242,9 +242,9 @@
                   [:a {:href (shref "/list/" list-id)}
                    " [default view]"]]
                  [:div.control-segment
-                  [:label {:for "cwithin"}
+                  [:label {:for "clwithin"}
                    "Completed within: "]
-                  (render-query-select "cwithin" completed-within-days false)])])
+                  (render-query-select "clwithin" completed-within-days false)])])
 
 (defn- render-empty-list []
   [:div.empty-list
@@ -307,7 +307,7 @@
 
 (defn render-todo-list-completions [ list-id params ]
   (let [min-list-priority (or (parsable-integer? (:min-list-priority params)) 0)
-        completed-within-days (or (parsable-integer? (:cwithin params)) 1)
+        completed-within-days (or (parsable-integer? (:clwithin params)) 1)
         completed-items (data/get-completed-items list-id completed-within-days)]
     (render-page {:page-title ((data/get-todo-list-by-id list-id) :desc)
                   :page-data-class "todo-list-completions"
