@@ -27,7 +27,8 @@
         toto.view.components
         toto.view.query
         toto.view.page)
-  (:require [hiccup.form :as form]
+  (:require [clojure.tools.logging :as log]
+            [hiccup.form :as form]
             [toto.data.data :as data]
             [toto.view.auth :as auth]
             [toto.todo.sidebar-view :as sidebar-view]))
@@ -149,15 +150,19 @@
            [:div.error-message
             error-message])])])))
 
-(defn- render-todo-list-view-editor [ list-id ]
-  (let [ todo-lists (data/get-todo-lists-by-user (auth/current-user-id))]
+(defn- render-todo-list-view-editor [ view-id ]
+  (let [user-id (auth/current-user-id)
+        todo-lists (data/get-todo-lists-by-user user-id)
+        view-sublist-ids (map :sublist_id (data/get-view-sublists user-id view-id))]
     [:div.config-panel
      [:h1 "Component Lists"]
      [:div.component-lists
       (map (fn [ todo-list ]
-             [:div
-              (form/check-box "is-public" false)
-              (:desc todo-list)])
+             (let [ list-id (:todo_list_id todo-list) ]
+               [:div
+                (form/check-box (str "list_" list-id)
+                                (in? view-sublist-ids list-id))
+                (:desc todo-list)]))
            (remove #(:is_view %) todo-lists))]]))
 
 (defn render-todo-list-details-page [ list-id min-list-priority & { :keys [ error-message ]}]

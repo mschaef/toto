@@ -32,7 +32,7 @@
   (let [{is-public :is_public
          list-owner-count :list_owner_count
          is-view :is_view}
-        (log/spy :info list)]
+        list]
     (cond
       is-view
       ;; Views cannot be shared, so the other flags do not apply.

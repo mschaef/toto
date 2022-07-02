@@ -23,15 +23,10 @@ SELECT *
 -- name: get-view-sublists
 SELECT todo_view_sublist.sublist_id, todo_list.desc
   FROM todo_view_sublist,
-       todo_list,
-       todo_list_owners
+       todo_list
  WHERE todo_view_sublist.todo_list_id = :todo_list_id
-   AND todo_list.todo_list_id = todo_view_sublist.todo_list_id
-   AND todo_list_owners.todo_list_id = todo_list.todo_list_id
-   AND todo_list_owners.user_id = :user_id
- ORDER BY todo_list_owners.priority DESC,
-          todo_list.desc
-
+   AND todo_list.todo_list_id = todo_view_sublist.sublist_id
+ ORDER BY todo_list.desc
 
 -- name: get-todo-list-is-public-by-id
 SELECT is_public

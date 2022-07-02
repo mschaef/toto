@@ -96,20 +96,27 @@
       (item-priority-button item-id 0 img-star-yellow writable?))))
 
 (defn- render-new-item-form [ list-id editing-item? ]
-  (form/form-to
-   {:class "new-item-form"}
-   [:post (shref "/list/" list-id)]
-   (form/text-field (cond-> {:class "simple-border"
-                             :maxlength "1024"
-                             :placeholder "New Item Description"
-                             :autocomplete "off"
-                             :onkeydown "window._toto.onNewItemInputKeydown(event)"}
-                      (not editing-item?) (assoc "autofocus" "on"))
-                    "item-description")
-   (form/hidden-field "item-priority" "0")
-   [:button.high-priority-submit {:type "button"
-                                  :onclick "window._toto.submitHighPriority()"}
-    img-star-yellow]))
+  (let [ sublists (data/get-view-sublists (auth/current-user-id) list-id)]
+    (form/form-to
+     {:class "new-item-form"}
+     [:post (shref "/list/" list-id)]
+     (form/text-field (cond-> {:class "simple-border"
+                               :maxlength "1024"
+                               :placeholder "New Item Description"
+                               :autocomplete "off"
+                               :onkeydown "window._toto.onNewItemInputKeydown(event)"}
+                        (not editing-item?) (assoc "autofocus" "on"))
+                      "item-description")
+     (form/hidden-field "item-priority" "0")
+     (if (= (count sublists) 0)
+       (form/hidden-field "item-list-id" list-id)
+       [:select {:id "item-list-id" :name "item-list-id"}
+        (form/select-options (map (fn [ sublist ]
+                                    [ (:desc sublist) (:sublist_id sublist)])
+                                  sublists))])
+     [:button.high-priority-submit {:type "button"
+                                    :onclick "window._toto.submitHighPriority()"}
+      img-star-yellow])))
 
 (def url-regex #"(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
 
@@ -274,10 +281,7 @@
 (defn- render-single-todo-list [ list-id edit-item-id writable? completed-within-days snoozed-for-days ]
   (let [pending-items (data/get-pending-items list-id completed-within-days snoozed-for-days)
         n-snoozed-items (count (filter :visibly_snoozed pending-items))]
-    (scroll-column
-     "todo-list-scroller"
-     (when writable?
-       (render-new-item-form list-id (boolean edit-item-id)))
+    (list
      (render-valentines-day-banner)
      [:div.toplevel-list
       (let [display-items (remove :visibly_snoozed pending-items)]
@@ -288,9 +292,7 @@
                 display-items)
            (drop-target (+ 1 (apply max (map :item_ordinal display-items)))))))]
      (when (and writable? (> n-snoozed-items 0))
-       (render-snoozed-item-warning n-snoozed-items))
-     (when writable?
-       (render-todo-list-query-settings list-id completed-within-days snoozed-for-days)))))
+       (render-snoozed-item-warning n-snoozed-items)))))
 
 (defn- render-empty-view [ list-id ]
   [:div.empty-list
@@ -304,15 +306,25 @@
 
 (defn- render-todo-list-view [ list-id edit-item-id writable? completed-within-days snoozed-for-days ]
   (let [ sublists (data/get-view-sublists (auth/current-user-id) list-id)]
-    (log/info :sublists sublists)
     (if (= 0 (count sublists))
       (render-empty-view list-id)
-      [:h1 "foo"])))
+      (map (fn [ sublist ]
+             (list
+              [:h1 (:desc sublist)]
+              (render-single-todo-list (:sublist_id sublist) edit-item-id writable? completed-within-days snoozed-for-days )))
+           sublists))))
 
 (defn- render-todo-list [ list-id edit-item-id writable? completed-within-days snoozed-for-days ]
-  (if (:is_view (data/get-todo-list-by-id list-id))
-    (render-todo-list-view list-id edit-item-id writable? completed-within-days snoozed-for-days )
-    (render-single-todo-list list-id edit-item-id writable? completed-within-days snoozed-for-days)))
+  (scroll-column
+   "todo-list-scroller"
+   (when writable?
+     (render-new-item-form list-id (boolean edit-item-id)))
+   (list
+    (if (:is_view (data/get-todo-list-by-id list-id))
+      (render-todo-list-view list-id edit-item-id writable? completed-within-days snoozed-for-days )
+      (render-single-todo-list list-id edit-item-id writable? completed-within-days snoozed-for-days))
+     (when writable?
+       (render-todo-list-query-settings list-id completed-within-days snoozed-for-days)))))
 
 (defn render-todo-list-csv [ list-id ]
   (clojure.string/join "\n" (map :desc (data/get-pending-items list-id 0 0))))

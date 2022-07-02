@@ -197,6 +197,22 @@
                    {:desc desc
                     :is_view is-view}))))
 
+(defn set-view-sublist-ids [ user-id todo-list-id sublist-ids ]
+  (jdbc/with-db-transaction [ trans (current-db-connection) ]
+    (let [next-sublists (set sublist-ids)
+          current-sublists (set (map :sublist_id (get-view-sublists user-id todo-list-id)))
+          add-ids (clojure.set/difference next-sublists current-sublists)
+          remove-ids (clojure.set/difference current-sublists next-sublists)]
+      (doseq [ list-id remove-ids ]
+        (jdbc/delete! trans
+                      :todo_view_sublist
+                      ["todo_list_id=? and sublist_id=?" todo-list-id list-id]))
+      (doseq [ list-id add-ids ]
+        (jdbc/insert! trans
+                      :todo_view_sublist
+                      {:todo_list_id todo-list-id
+                       :sublist_id list-id})))))
+
 (defn set-list-ownership [ todo-list-id user-ids ]
   (jdbc/with-db-transaction [ trans (current-db-connection) ]
     (let [next-owners (set user-ids)
