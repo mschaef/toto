@@ -810,6 +810,7 @@ A .pill {
 .item-row {
     display: flex;
     flex-direction: row;
+    align-items: center;
 
     white-space: nowrap;
 
@@ -818,6 +819,13 @@ A .pill {
     padding-bottom: 8px;
     padding-right: 16px;
 }
+
+.item-row input {
+    margin: 0px;
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
 
 @media only screen and (min-device-width : 640px) {
     .item-row {

@@ -144,7 +144,7 @@
 (defn drop-target [ item-ordinal ]
   [:div.order-drop-target {:ordinal item-ordinal :priority "0"} "&nbsp;"])
 
-(defn- render-todo-item [ list-id item-info writable? editing? ]
+(defn- render-todo-item [ view-list-id list-id item-info writable? editing? ]
   (let [{item-id :item_id
          is-complete? :is_complete
          is-deleted? :is_deleted
@@ -163,47 +163,43 @@
                                  "display" (not editing?)
                                  "high-priority" (> priority 0)
                                  "snoozed" currently-snoozed})}
-       writable? (assoc :edit-href (shref "/list/" list-id { :edit-item-id item-id })))
-     (if editing?
+       writable? (assoc :edit-href (shref "/list/" view-list-id
+                                          { :edit-item-id item-id })))
+     (when writable?
        (list
-        [:div.item-control.complete
-         (delete-item-button item-info list-id)]
-        [:div.item-description
+        (item-drag-handle "left" item-info)
+        [:div.item-control.complete {:id (str "item_control_" item-id)}
+         (if editing?
+           (delete-item-button item-info list-id)
+           (if (or is-complete? is-deleted?)
+             (restore-item-button item-info)
+             (complete-item-button item-info)))]))
+     [:div.item-control.priority.left
+      (render-item-priority-control item-id priority writable?)]
+     [:div.item-description {:itemid item-id}
+      (if editing?
          [:input (cond-> {:value (item-info :desc)
                           :type "text"
                           :name "description"
                           :item-id item-id
-                          :view-href (shref "/list/" list-id without-modal)
+                          :view-href (shref "/list/" view-list-id without-modal)
                           :onkeydown "window._toto.onItemEditKeydown(event)"}
-                   editing? (assoc "autofocus" "on"))]])
-       (list
-        (when writable?
-          (list
-           (item-drag-handle "left" item-info)
-           [:div.item-control.complete {:id (str "item_control_" item-id)}
-            (if (or is-complete? is-deleted?)
-              (restore-item-button item-info)
-              (complete-item-button item-info))]))
-        [:div.item-control.priority.left
-         (render-item-priority-control item-id priority writable?)]
-        [:div.item-description {:itemid item-id}
-         (let [desc (item-info :desc)]
-           (list
-            [:div {:id (str "item_" item-id)
-                   :class (class-set {"deleted-item" is-deleted?
-                                      "completed-item" is-complete?})}
-             (render-item-text desc)
-             (snooze-item-button item-info [:span.pill
-                                            (render-age (:age_in_days item-info))
-                                            (when currently-snoozed
-                                              (list
-                                               ", snoozed: " (.format pill-date-format snoozed-until)))])
-             (when (not (= created-by-id (auth/current-user-id)))
-               [:span.pill created-by-name])]))]))
+                   editing? (assoc "autofocus" "on"))]
+        (let [desc (item-info :desc)]
+          [:div {:id (str "item_" item-id)
+                 :class (class-set {"deleted-item" is-deleted?
+                                    "completed-item" is-complete?})}
+           (render-item-text desc)
+           (snooze-item-button item-info [:span.pill
+                                          (render-age (:age_in_days item-info))
+                                          (when currently-snoozed
+                                            (list
+                                             ", snoozed: " (.format pill-date-format snoozed-until)))])
+           (when (not (= created-by-id (auth/current-user-id)))
+             [:span.pill created-by-name])]))]
      [:div.item-control.priority.right
       (render-item-priority-control item-id priority writable?)]
      (item-drag-handle "right" item-info)]))
-
 
 (defn- render-query-select [ id current-value allow-all? ]
   [:select { :id id :name id :onchange "this.form.submit()"}
@@ -278,7 +274,7 @@
        " I Love You, Teresa! ")
      img-heart-red]))
 
-(defn- render-single-todo-list [ list-id edit-item-id writable? completed-within-days snoozed-for-days ]
+(defn- render-single-todo-list [ view-list-id list-id edit-item-id writable? completed-within-days snoozed-for-days ]
   (let [pending-items (data/get-pending-items list-id completed-within-days snoozed-for-days)
         n-snoozed-items (count (filter :visibly_snoozed pending-items))]
     (list
@@ -288,7 +284,7 @@
         (if (= (count display-items) 0)
           (render-empty-list)
           (list
-           (map #(render-todo-item list-id % writable? (= edit-item-id (:item_id %)))
+           (map #(render-todo-item view-list-id list-id % writable? (= edit-item-id (:item_id %)))
                 display-items)
            (drop-target (+ 1 (apply max (map :item_ordinal display-items)))))))]
      (when (and writable? (> n-snoozed-items 0))
@@ -311,7 +307,7 @@
       (map (fn [ sublist ]
              (list
               [:h1 (:desc sublist)]
-              (render-single-todo-list (:sublist_id sublist) edit-item-id writable? completed-within-days snoozed-for-days )))
+              (render-single-todo-list list-id (:sublist_id sublist) edit-item-id writable? completed-within-days snoozed-for-days )))
            sublists))))
 
 (defn- render-todo-list [ list-id edit-item-id writable? completed-within-days snoozed-for-days ]
@@ -322,7 +318,7 @@
    (list
     (if (:is_view (data/get-todo-list-by-id list-id))
       (render-todo-list-view list-id edit-item-id writable? completed-within-days snoozed-for-days )
-      (render-single-todo-list list-id edit-item-id writable? completed-within-days snoozed-for-days))
+      (render-single-todo-list list-id list-id edit-item-id writable? completed-within-days snoozed-for-days))
      (when writable?
        (render-todo-list-query-settings list-id completed-within-days snoozed-for-days)))))
 
