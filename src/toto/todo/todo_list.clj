@@ -261,24 +261,10 @@
    n-snoozed-items " more item" (if (= n-snoozed-items 1) "" "s" ) " snoozed for later. "
    "Click " [:a {:href (shref "" {:sfor "99999"})} "here"] " to show."])
 
-(defn- message-recepient? []
-  (or (= 16 (auth/current-user-id))
-      (= 17 (auth/current-user-id))))
-
-(defn- render-valentines-day-banner []
-  (when (message-recepient?)
-    [:div.valentines-day-banner
-     img-heart-red
-     (if (request-date/valentines-day?)
-       " Happy Valentines Day!!! I Love You! "
-       " I Love You, Teresa! ")
-     img-heart-red]))
-
 (defn- render-single-todo-list [ view-list-id list-id edit-item-id writable? completed-within-days snoozed-for-days ]
   (let [pending-items (data/get-pending-items list-id completed-within-days snoozed-for-days)
         n-snoozed-items (count (filter :visibly_snoozed pending-items))]
     (list
-     (render-valentines-day-banner)
      [:div.toplevel-list
       (let [display-items (remove :visibly_snoozed pending-items)]
         (if (= (count display-items) 0)
@@ -310,12 +296,26 @@
               (render-single-todo-list list-id (:sublist_id sublist) edit-item-id writable? completed-within-days snoozed-for-days )))
            sublists))))
 
+(defn- message-recepient? []
+  (or (= 16 (auth/current-user-id))
+      (= 17 (auth/current-user-id))))
+
+(defn- render-valentines-day-banner []
+  (when (message-recepient?)
+    [:div.valentines-day-banner
+     img-heart-red
+     (if (request-date/valentines-day?)
+       " Happy Valentines Day!!! I Love You! "
+       " I Love You, Teresa! ")
+     img-heart-red]))
+
 (defn- render-todo-list [ list-id edit-item-id writable? completed-within-days snoozed-for-days ]
   (scroll-column
    "todo-list-scroller"
    (when writable?
      (render-new-item-form list-id (boolean edit-item-id)))
    (list
+    (render-valentines-day-banner)
     (if (:is_view (data/get-todo-list-by-id list-id))
       (render-todo-list-view list-id edit-item-id writable? completed-within-days snoozed-for-days )
       (render-single-todo-list list-id list-id edit-item-id writable? completed-within-days snoozed-for-days))
