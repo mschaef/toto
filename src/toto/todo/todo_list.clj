@@ -157,6 +157,7 @@
     [:div.item-row.order-drop-target
      (cond-> {:id (str "item_row_" item-id)
               :itemid item-id
+              :listid list-id
               :ordinal (:item_ordinal item-info)
               :priority priority
               :class (class-set {"editing" editing?

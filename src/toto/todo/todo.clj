@@ -158,10 +158,12 @@
     (redirect-to-list list-id)))
 
 (defn- update-item-ordinal [ item-id params ]
-  (let [{new-ordinal :new-ordinal
-         new-priority :new-priority} params
-        list-id (data/get-list-id-by-item-id item-id)]
-    (data/shift-list-items! list-id new-ordinal)
+  (let [{target-list-id :target-list
+         new-ordinal :new-ordinal
+         new-priority :new-priority} params]
+    (ensure-list-owner-access target-list-id)
+    (data/update-item-list (auth/current-user-id) item-id target-list-id)
+    (data/shift-list-items! target-list-id new-ordinal)
     (data/update-item-ordinal! item-id new-ordinal)
     (data/update-item-priority-by-id (auth/current-user-id) item-id new-priority))
   (success))

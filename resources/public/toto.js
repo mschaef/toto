@@ -202,10 +202,11 @@ function doMoveItem(itemId, newListId) {
     }).then(refreshPage);
 }
 
-function doSetItemOrdinal(itemId, newItemOrdinal, newItemPriority) {
+function doSetItemOrdinal(itemId, listId, newItemOrdinal, newItemPriority) {
     var formData = new FormData();
 
     formData.append("target-item", itemId);
+    formData.append("target-list", listId);
     formData.append("new-ordinal", newItemOrdinal);
     formData.append("new-priority", newItemPriority);
 
@@ -283,10 +284,12 @@ function setupItemDragging() {
             ev.preventDefault();
 
             var itemId = ev.dataTransfer.getData("text/plain");
+
+            var newListId = ev.currentTarget.getAttribute('listid');
             var newItemOrdinal = ev.currentTarget.getAttribute('ordinal');
             var newItemPriority = ev.currentTarget.getAttribute('priority');
 
-            doSetItemOrdinal(itemId, newItemOrdinal, newItemPriority);
+            doSetItemOrdinal(itemId, newListId, newItemOrdinal, newItemPriority);
         });
     });
 
