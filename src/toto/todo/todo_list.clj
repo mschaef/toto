@@ -210,12 +210,13 @@
                           (str current-value)))])
 
 
-(defn- render-todo-list-query-settings [ list-id completed-within-days snoozed-for-days ]
+(defn- render-todo-list-query-settings [ list-id is-view? completed-within-days snoozed-for-days ]
   [:div.query-settings
    (form/form-to { :class "embedded "} [:get (shref "/list/" list-id)]
-                 [:div.control-segment
-                  [:a {:href (shref "/list/" list-id "/completions")}
-                   "[completions]"]]
+                 (if (not is-view?)
+                   [:div.control-segment
+                    [:a {:href (shref "/list/" list-id "/completions")}
+                     "[completions]"]])
                  [:div.control-segment
                   [:a {:href (shref "/list/" list-id "/details")}
                    "[list details]"]]
@@ -345,13 +346,14 @@
    "todo-list-scroller"
    (when writable?
      (render-new-item-form list-id (boolean edit-item-id)))
-   (list
-    (render-valentines-day-banner)
-    (if (:is_view (data/get-todo-list-by-id list-id))
-      (render-todo-list-view list-id edit-item-id writable? completed-within-days snoozed-for-days )
-      (render-single-todo-list list-id list-id edit-item-id writable? completed-within-days snoozed-for-days))
-     (when writable?
-       (render-todo-list-query-settings list-id completed-within-days snoozed-for-days)))))
+   (let [ is-view? (:is_view (data/get-todo-list-by-id list-id)) ]
+     (list
+      (render-valentines-day-banner)
+      (if is-view?
+        (render-todo-list-view list-id edit-item-id writable? completed-within-days snoozed-for-days )
+        (render-single-todo-list list-id list-id edit-item-id writable? completed-within-days snoozed-for-days))
+      (when writable?
+        (render-todo-list-query-settings list-id is-view? completed-within-days snoozed-for-days))))))
 
 (defn render-todo-list-csv [ list-id ]
   (clojure.string/join "\n" (map :desc (data/get-pending-items list-id 0 0))))
