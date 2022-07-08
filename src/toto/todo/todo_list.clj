@@ -261,20 +261,33 @@
    n-snoozed-items " more item" (if (= n-snoozed-items 1) "" "s" ) " snoozed for later. "
    "Click " [:a {:href (shref "" {:sfor "99999"})} "here"] " to show."])
 
-(defn- render-single-todo-list [ view-list-id list-id edit-item-id writable? completed-within-days snoozed-for-days ]
+(defn- todo-list-details [ view-list-id list-id edit-item-id writable? completed-within-days snoozed-for-days ]
   (let [pending-items (data/get-pending-items list-id completed-within-days snoozed-for-days)
-        n-snoozed-items (count (filter :visibly_snoozed pending-items))]
+        n-snoozed-items (count (filter :visibly_snoozed pending-items))
+        display-items (remove :visibly_snoozed pending-items)]
+
+    {:is-empty? (= (count display-items) 0)
+     :n-snoozed-items n-snoozed-items
+
+     :high-priority
+     (map #(render-todo-item view-list-id list-id % writable? (= edit-item-id (:item_id %)))
+          (filter #(> (:priority %) 0) display-items))
+
+     :normal-priority
+     (map #(render-todo-item view-list-id list-id % writable? (= edit-item-id (:item_id %)))
+          (filter #(<= (:priority %) 0) display-items))}))
+
+(defn- render-single-todo-list [ view-list-id list-id edit-item-id writable? completed-within-days snoozed-for-days ]
+  (let [details (todo-list-details view-list-id list-id edit-item-id writable? completed-within-days snoozed-for-days)]
     (list
      [:div.toplevel-list
-      (let [display-items (remove :visibly_snoozed pending-items)]
-        (if (= (count display-items) 0)
-          (render-empty-list)
-          (list
-           (map #(render-todo-item view-list-id list-id % writable? (= edit-item-id (:item_id %)))
-                display-items)
-           (drop-target (+ 1 (apply max (map :item_ordinal display-items)))))))]
-     (when (and writable? (> n-snoozed-items 0))
-       (render-snoozed-item-warning n-snoozed-items)))))
+      (if (:is-empty? details)
+        (render-empty-list)
+        (concat
+         (:high-priority details)
+         (:normal-priority details)))]
+     (when (and writable? (> (:n-snoozed-items details) 0))
+       (render-snoozed-item-warning (:n-snoozed-items details))))))
 
 (defn- render-empty-view [ list-id ]
   [:div.empty-list
@@ -286,15 +299,33 @@
     " add a few lists to the view, which can be done "
     [:a {:href (shref "/list/" list-id "/details")} "here"] "."]])
 
+(defn- render-todo-list-view-section [ sublist-details key ]
+  (let [ items (key sublist-details ) ]
+    (if (= (count items) 0)
+      []
+      (list
+       [:h1 (:desc sublist-details)]
+       items))))
+
 (defn- render-todo-list-view [ list-id edit-item-id writable? completed-within-days snoozed-for-days ]
-  (let [ sublists (data/get-view-sublists (auth/current-user-id) list-id)]
-    (if (= 0 (count sublists))
-      (render-empty-view list-id)
-      (map (fn [ sublist ]
-             (list
-              [:h1 (:desc sublist)]
-              (render-single-todo-list list-id (:sublist_id sublist) edit-item-id writable? completed-within-days snoozed-for-days )))
-           sublists))))
+  (let [ sublists (map #(merge % (todo-list-details list-id (:sublist_id %) edit-item-id writable? completed-within-days snoozed-for-days))
+                       (data/get-view-sublists (auth/current-user-id) list-id))]
+    [:div.toplevel-list
+     (cond
+       (= 0 (count sublists))
+       (render-empty-view list-id)
+
+       (every? true? (map :is-empty? sublists))
+       (render-empty-list)
+
+       :else
+       (list
+        (mapcat #(render-todo-list-view-section % :high-priority) sublists)
+        (mapcat #(render-todo-list-view-section % :normal-priority) sublists)
+
+        (let [ total-snoozed-items (apply + (map :n-snoozed-items sublists))]
+          (when (and writable? (> total-snoozed-items 0))
+            (render-snoozed-item-warning total-snoozed-items)))))]))
 
 (defn- message-recepient? []
   (or (= 16 (auth/current-user-id))
