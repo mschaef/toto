@@ -28,6 +28,15 @@ SELECT todo_view_sublist.sublist_id, todo_list.desc
    AND todo_list.todo_list_id = todo_view_sublist.sublist_id
  ORDER BY todo_list.desc
 
+-- name: get-views-with-sublist
+SELECT todo_list.todo_list_id
+  FROM todo_list, todo_list_owners, todo_view_sublist
+ WHERE todo_list.is_view
+   AND todo_list_owners.todo_list_id = todo_list.todo_list_id
+   AND todo_view_sublist.todo_list_id = todo_list.todo_list_id
+   AND todo_list_owners.user_id = :user_id
+   AND todo_view_sublist.sublist_id = :sublist_id
+
 -- name: get-todo-list-is-public-by-id
 SELECT is_public
   FROM todo_list
