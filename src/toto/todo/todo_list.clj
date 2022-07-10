@@ -71,8 +71,7 @@
 
 (defn- delete-item-button [ item-info list-id ]
   (post-button {:desc "Delete Item"
-                :target (str "/item/" (item-info :item_id) "/delete")
-                :next-url (shref "/list/" list-id without-modal)}
+                :target (str "/item/" (item-info :item_id) "/delete")}
                img-trash))
 
 (defn- snooze-item-button [ item-info body ]
