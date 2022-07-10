@@ -306,7 +306,7 @@
     (if (= (count items) 0)
       []
       (list
-       [:h1 (:desc sublist-details)]
+       [:h2 (:desc sublist-details)]
        items))))
 
 (defn- render-todo-list-view [ list-id edit-item-id writable? completed-within-days snoozed-for-days ]
@@ -380,7 +380,7 @@
                   "todo-list-completion-scroller"
                   "Items Completed"
                   [:div.toplevel-list
-                   [:h1 "Completed since "
+                   [:h2 "Completed since "
                     (.format pill-date-format (add-days (current-time) (- completed-within-days)))]
                    (if (= (count completed-items) 0)
                      (render-empty-completion-list list-id)

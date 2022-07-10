@@ -596,10 +596,15 @@ select:hover {
     box-sizing: border-box;
 }
 
-.toplevel-list h1 {
-    padding-top: 8px;
+.toplevel-list h2 {
+    margin: 0px;
+    padding: 0px;
     text-align: center;
     font-size: 12px;
+}
+
+.toplevel-list h2:not(:first-child) {
+    padding-top: 12px;
 }
 
 @media only screen and (min-device-width : 640px) {
