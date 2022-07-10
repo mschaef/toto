@@ -99,7 +99,7 @@
 
 (defn create-user [ config email-addr password ]
   (let [user-id (auth/create-user email-addr password)
-        list-id (data/add-list "Todo")]
+        list-id (data/add-list "Todo" false)]
     (data/set-list-ownership list-id #{ user-id })
     (notify-user-create config email-addr)
     user-id))
