@@ -966,6 +966,10 @@ p.new-user {
     color: blue;
 }
 
+.config-panel A:not(:last-child) {
+    margin-bottom: 16px;
+}
+
 @media print {
     .header {
         display: block;

@@ -185,6 +185,12 @@
          (list
           (render-todo-list-permissions list-id error-message)
           (render-sort-list-panel list-id)))
+
+       [:div.config-panel
+        [:h1  "Download List"]
+        [:a { :href (str "/list/" list-id ) } "Go to list"]
+        [:a { :href (str "/list/" list-id "/list.csv" ) } "Download List as CSV"]]
+
        [:div.config-panel
         [:div
          [:input {:type "submit" :value "Update List Details"}]]]
