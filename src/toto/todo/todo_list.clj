@@ -39,6 +39,9 @@
 
 (def pill-date-format (java.text.SimpleDateFormat. "yyyy-MM-dd"))
 
+(defn- format-date [ date ]
+  (.format pill-date-format date))
+
 (defn ensure-string-breakpoints [ s n ]
   (clojure.string/join html-breakpoint (partition-string s n)))
 
@@ -195,7 +198,7 @@
                                           (render-age (:age_in_days item-info))
                                           (when currently-snoozed
                                             (list
-                                             ", snoozed: " (.format pill-date-format snoozed-until)))])
+                                             ", snoozed: " (format-date snoozed-until)))])
            (when (not (= created-by-id (auth/current-user-id)))
              [:span.pill { :title created-by-email }
               created-by-name])]))]
@@ -382,7 +385,7 @@
                   "Items Completed"
                   [:div.toplevel-list
                    [:h2 "Completed since "
-                    (.format pill-date-format (add-days (current-time) (- completed-within-days)))]
+                    (format-date (add-days (current-time) (- completed-within-days)))]
                    (if (= (count completed-items) 0)
                      (render-empty-completion-list list-id)
                      (map
@@ -392,9 +395,8 @@
                           [:div
                            (render-item-text (:desc todo-item))
                            [:span.pill
-                            (.format pill-date-format (:updated_on todo-item))]]]])
+                            (format-date (:updated_on todo-item))]]]])
                       completed-items))
-
                    (render-todo-list-completion-query-settings list-id completed-within-days)]))))
 
 (defn render-snooze-modal [ list-id params ]
