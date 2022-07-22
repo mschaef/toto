@@ -151,6 +151,7 @@
          snoozed-until :snoozed_until
          currently-snoozed :currently_snoozed
          created-by-id :created_by_id
+         created-by-email :created_by_email
          created-by-name :created_by_name}
         item-info]
     [:div.item-row.order-drop-target
@@ -196,7 +197,8 @@
                                             (list
                                              ", snoozed: " (.format pill-date-format snoozed-until)))])
            (when (not (= created-by-id (auth/current-user-id)))
-             [:span.pill created-by-name])]))]
+             [:span.pill { :title created-by-email }
+              created-by-name])]))]
      [:div.item-control.priority.right
       (render-item-priority-control item-id priority writable?)]
      (item-drag-handle "right" item-info)]))
