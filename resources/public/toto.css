@@ -600,11 +600,12 @@ select:hover {
     margin: 0px;
     padding: 0px;
     text-align: center;
-    font-size: 12px;
+    font-size: 14px;
+    font-weight: normal;
 }
 
 .toplevel-list h2:not(:first-child) {
-    padding-top: 12px;
+    padding-top: 18px;
 }
 
 @media only screen and (min-device-width : 640px) {
