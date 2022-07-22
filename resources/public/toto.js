@@ -314,13 +314,46 @@ function submitHighPriority() {
     form.submit();
 }
 
-function onNewItemInputKeydown(event) {
-    if (event.ctrlKey && event.keyCode == 13) {
-        event.preventDefault();
-        event.stopPropagation();
+function selectNavigate(id, direction) {
+    var s = elemById(id);
 
-        submitHighPriority();
+    if (s.type !== 'select-one') {
+        return;
     }
+
+    var newIndex = s.selectedIndex + direction;
+
+    if (newIndex < 0) {
+        newIndex = s.options.length - 1;
+    } else if (newIndex >= s.options.length) {
+        newIndex = 0;
+    }
+
+    s.selectedIndex = newIndex;
+}
+
+function onNewItemInputKeydown(event) {
+
+    if (event.ctrlKey) {
+        if (event.keyCode == 13) {
+            event.preventDefault();
+            event.stopPropagation();
+            submitHighPriority();
+        }
+
+    } else if (event.shiftKey) {
+        if (event.keyCode == 38) {
+            event.preventDefault();
+            event.stopPropagation();
+            selectNavigate('item-list-id', -1);
+        } else if (event.keyCode == 40) {
+            event.preventDefault();
+            event.stopPropagation();
+            selectNavigate('item-list-id', 1);
+        }
+    }
+
+
 }
 
 function onItemEditKeydown(event) {
