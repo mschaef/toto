@@ -307,11 +307,10 @@
 
 (defn- render-todo-list-view-section [ sublist-details key ]
   (let [ items (key sublist-details ) ]
-    (if (= (count items) 0)
-      []
-      (list
+    (when (> (count items) 0)
+      [:div.list-view-section
        [:h2 (:desc sublist-details)]
-       items))))
+       items])))
 
 (defn- render-todo-list-view [ list-id edit-item-id writable? completed-within-days snoozed-for-days ]
   (let [ sublists (map #(merge % (todo-list-details list-id (:sublist_id %) edit-item-id writable? completed-within-days snoozed-for-days))
@@ -326,8 +325,8 @@
 
        :else
        (list
-        (mapcat #(render-todo-list-view-section % :high-priority) sublists)
-        (mapcat #(render-todo-list-view-section % :normal-priority) sublists)
+        (map #(render-todo-list-view-section % :high-priority) sublists)
+        (map #(render-todo-list-view-section % :normal-priority) sublists)
 
         (let [ total-snoozed-items (apply + (map :n-snoozed-items sublists))]
           (when (and writable? (> total-snoozed-items 0))

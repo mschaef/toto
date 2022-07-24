@@ -596,6 +596,14 @@ select:hover {
     box-sizing: border-box;
 }
 
+.toplevel-list .list-view-section {
+    padding-top: 8px;
+}
+
+.toplevel-list .list-view-section:not(:first-child) {
+    border-top: 1px solid #f0f0f0;;
+}
+
 .toplevel-list h2 {
     margin: 0px;
     padding: 0px;
