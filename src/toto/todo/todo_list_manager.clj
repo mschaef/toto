@@ -89,14 +89,13 @@
 (defn- render-sort-list-panel [ list-id ]
   [:div.config-panel
    [:h1 "Sort List"]
-   [:div
-    [:input {:type "submit" :value "Sort By"
-             :formaction (shref "/list/" list-id "/sort")}]
+   (form/form-to {} [:post (shref "/list/" list-id "/sort")]
+    [:input {:type "submit" :value "Sort By"}]
     [:select {:id "sort-by" :name "sort-by"}
      (form/select-options [["Description" "desc"]
                            ["Created Date" "created-on"]
                            ["Updated Date" "updated-on"]
-                           ["Snoozed Until" "snoozed-until"]])]]])
+                           ["Snoozed Until" "snoozed-until"]])])])
 
 (defn- render-list-delete-panel [ list-id ]
   [:div.config-panel
@@ -122,7 +121,6 @@
       [:div
        (form/check-box "is-public" (:is_public list-details))
        [:label {:for "is-public"} "List publically visible?"]]]
-
      [:div.config-panel
       [:h1  "List Owners:"]
       (let [list-owners (data/get-todo-list-owners-by-list-id list-id) ]
@@ -179,21 +177,20 @@
        [:div.config-panel
         [:h1 (str list-type " Name:")]
         (form/text-field { :maxlength "32" } "list-name" list-name)]
-
        (if is-view
          (render-todo-list-view-editor list-id)
-         (list
-          (render-todo-list-permissions list-id error-message)
-          (render-sort-list-panel list-id)))
-
-       [:div.config-panel
-        [:h1  "Download List"]
-        [:a { :href (str "/list/" list-id ) } "Go to list"]
-        [:a { :href (str "/list/" list-id "/list.csv" ) } "Download List as CSV"]]
-
+         (render-todo-list-permissions list-id error-message))
        [:div.config-panel
         [:div
-         [:input {:type "submit" :value "Update List Details"}]]]
-       (render-list-delete-panel list-id)))))
+         [:input {:type "submit" :value "Update List Details"}]]])
+     (when (not is-view)
+         (render-sort-list-panel list-id))
+     [:div.config-panel
+      [:h1  "Download List"]
+      [:a { :href (str "/list/" list-id ) } "Go to list"]
+      [:a { :href (str "/list/" list-id "/list.csv" ) } "Download List as CSV"]]
+
+
+     (render-list-delete-panel list-id))))
 
 

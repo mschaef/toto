@@ -461,4 +461,3 @@
       (render-page {:page-title ((data/get-todo-list-by-id list-id) :desc)
                     :page-data-class "todo-list"}
                    (render-todo-list list-id nil false 0 0)))))
-
