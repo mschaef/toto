@@ -27,6 +27,7 @@
 (def img-check [:i {:class "fa fa-check icon-black"}])
 (def img-close-list [:i {:class "fa fa-times-circle fa-lg"}])
 (def img-edit-list [:i {:class "fa fa-pencil icon-edit"}])
+(def img-folders [:i {:class "fa fa-briefcase fa-lg icon-gray"}])
 (def img-globe [:i {:class "fa fa-globe fa-lg icon-gray"}])
 (def img-group [:i {:class "fa fa-group icon-gray"}])
 (def img-restore [:i {:class "fa fa-repeat icon-black"}])

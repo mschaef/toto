@@ -20,6 +20,23 @@ SELECT *
   FROM todo_list
  WHERE todo_list_id = :todo_list_id
 
+-- name: get-view-sublists
+SELECT todo_view_sublist.sublist_id, todo_list.desc
+  FROM todo_view_sublist,
+       todo_list
+ WHERE todo_view_sublist.todo_list_id = :todo_list_id
+   AND todo_list.todo_list_id = todo_view_sublist.sublist_id
+ ORDER BY todo_list.desc
+
+-- name: get-views-with-sublist
+SELECT todo_list.todo_list_id
+  FROM todo_list, todo_list_owners, todo_view_sublist
+ WHERE todo_list.is_view
+   AND todo_list_owners.todo_list_id = todo_list.todo_list_id
+   AND todo_view_sublist.todo_list_id = todo_list.todo_list_id
+   AND todo_list_owners.user_id = :user_id
+   AND todo_view_sublist.sublist_id = :sublist_id
+
 -- name: get-todo-list-is-public-by-id
 SELECT is_public
   FROM todo_list
@@ -50,6 +67,7 @@ SELECT DISTINCT todo_list_owners.todo_list_id
 SELECT DISTINCT todo_list.todo_list_id,
                 todo_list.desc,
                 todo_list.is_public,
+                todo_list.is_view,
                 todo_list_owners.priority,
                 (SELECT count(item.item_id)
                    FROM todo_item item
@@ -71,8 +89,9 @@ SELECT DISTINCT todo_list.todo_list_id,
  WHERE NOT(todo_list.is_deleted)
    AND todo_list.todo_list_id=todo_list_owners.todo_list_id
    AND todo_list_owners.user_id = :user_id
- ORDER BY todo_list_owners.priority DESC,
-          todo_list.DESC
+ ORDER BY todo_list.is_view DESC,
+          todo_list_owners.priority DESC,
+          todo_list.desc
 
 -- name: list-owned-by-user-id?
 SELECT COUNT(*)
@@ -87,12 +106,18 @@ WHERE item.item_id = :item_id
   AND lo.todo_list_id=item.todo_list_id
   AND lo.user_id = :user_id
 
+-- name: get-item-count
+SELECT count(item.item_id)
+   FROM todo_item item
+   WHERE item.todo_list_id = :list_id
+
 -- name: get-pending-items
 SELECT item.item_id,
        item.todo_list_id,
        item.desc,
        item.created_on,
        user.user_id as created_by_id,
+       user.email_addr as created_by_email,
        user.friendly_name as created_by_name,
        item.priority,
        item.updated_on,
@@ -112,6 +137,26 @@ SELECT item.item_id,
    ORDER BY item.priority DESC,
             item.item_ordinal,
             item.created_on
+
+-- name: get-completed-items
+SELECT item.item_id,
+       item.todo_list_id,
+       item.desc,
+       item.created_on,
+       user.user_id as created_by_id,
+       user.friendly_name as created_by_name,
+       item.priority,
+       item.updated_on,
+       item.is_deleted,
+       item.is_complete,
+       DATEDIFF('day', item.created_on, CURRENT_TIMESTAMP) as age_in_days,
+       item_ordinal
+   FROM todo_item item, user
+   WHERE item.todo_list_id = :list_id
+     AND user.user_id = item.created_by
+     AND item.is_complete
+     AND item.updated_on > DATEADD('day', :completed_within_days, CURRENT_TIMESTAMP)
+   ORDER BY item.updated_on DESC
 
 -- name: get-pending-item-order-by-description
 SELECT item.item_id,

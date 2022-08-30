@@ -27,7 +27,8 @@
         toto.view.components
         toto.view.query
         toto.view.page)
-  (:require [hiccup.form :as form]
+  (:require [clojure.tools.logging :as log]
+            [hiccup.form :as form]
             [toto.data.data :as data]
             [toto.view.auth :as auth]
             [toto.todo.sidebar-view :as sidebar-view]))
@@ -52,10 +53,13 @@
   (form/form-to
    {:class "new-item-form"}
    [:post (shref "/list")]
-   (form/text-field {:maxlength "1024"
+   (form/text-field {:maxlength "32"
                      :placeholder "New List Name"
                      :autofocus "autofocus"}
-                    "list-description")))
+                    "list-description")
+   [:div
+    (form/check-box "is-view" false "Y")
+    [:label {:for "is-view"} "View"]]))
 
 (defn render-list-list-page []
   (render-page
@@ -82,34 +86,45 @@
                 (sidebar-view/render-list-visibility-flag list)]]))
           (data/get-todo-lists-by-user (auth/current-user-id)))])))
 
-(defn render-todo-list-details-page [ list-id min-list-priority & { :keys [ error-message ]}]
-  (let [list-details (data/get-todo-list-by-id list-id)
-        list-name (:desc list-details)
-        list-owners (data/get-todo-list-owners-by-list-id list-id) ]
-    (render-page
-     {:page-title (str "List Details: " list-name)
-      :sidebar (sidebar-view/render-sidebar-list-list list-id min-list-priority 0)}
+(defn- render-sort-list-panel [ list-id ]
+  [:div.config-panel
+   [:h1 "Sort List"]
+   (form/form-to {} [:post (shref "/list/" list-id "/sort")]
+    [:input {:type "submit" :value "Sort By"}]
+    [:select {:id "sort-by" :name "sort-by"}
+     (form/select-options [["Description" "desc"]
+                           ["Created Date" "created-on"]
+                           ["Updated Date" "updated-on"]
+                           ["Snoozed Until" "snoozed-until"]])])])
 
-     (form/form-to
-      {:class "details"}
-      [:post (shref "/list/" list-id "/details")]
-      [:div.config-panel
-       [:h1 "List Views"]
-       [:a {:href (shref "/stocking/" list-id) } "As Stocking"]
-       [:a {:href (shref "/list/" list-id) } "As List"]]
 
-       [:div.config-panel
-        [:h1 "List Name:"]
-        (form/text-field { :maxlength "32" } "list-name" list-name)]
+(defn- render-list-delete-panel [ list-id ]
+  [:div.config-panel
+   [:h1 "Delete List"]
+   (cond
+     (<= (data/get-user-list-count (auth/current-user-id)) 1)
+     [:span.warning "Your last list cannot be deleted."]
 
-       [:div.config-panel
-        [:h1  "List Permissions:"]
-        [:div
-         (form/check-box "is-public" (:is_public list-details))
-         [:label {:for "is-public"} "List publically visible?"]]]
+     (not (data/empty-list? list-id))
+     [:span.warning "To delete this list, remove all items first."]
 
-       [:div.config-panel
-        [:h1  "List Owners:"]
+     :else
+     (list
+      [:div
+       [:input.dangerous {:type "submit" :value "Delete List" :formaction (shref "/list/" list-id "/delete")}]
+       [:span.warning "Warning, this cannot be undone."]]))])
+
+(defn- render-todo-list-permissions [ list-id error-message ]
+  (let [list-details (data/get-todo-list-by-id list-id)]
+    (list
+     [:div.config-panel
+      [:h1  "List Permissions:"]
+      [:div
+       (form/check-box "is-public" (:is_public list-details))
+       [:label {:for "is-public"} "List publically visible?"]]]
+     [:div.config-panel
+      [:h1  "List Owners:"]
+      (let [list-owners (data/get-todo-list-owners-by-list-id list-id) ]
         [:div.list-owners
          (map (fn [ { user-id :user_id user-email-addr :email_addr } ]
                 (let [ user-parameter-name (str "user_" user-id)]
@@ -132,36 +147,51 @@
                    :placeholder "Share Mail Address"}]]
          (when error-message
            [:div.error-message
-            error-message])]]
+            error-message])])])))
 
+(defn- render-todo-list-view-editor [ view-id ]
+  (let [user-id (auth/current-user-id)
+        todo-lists (data/get-todo-lists-by-user user-id)
+        view-sublist-ids (map :sublist_id (data/get-view-sublists user-id view-id))]
+    [:div.config-panel
+     [:h1 "Component Lists"]
+     [:div.component-lists
+      (map (fn [ todo-list ]
+             (let [ list-id (:todo_list_id todo-list) ]
+               [:div
+                (form/check-box (str "list_" list-id)
+                                (in? view-sublist-ids list-id))
+                (:desc todo-list)]))
+           (remove #(:is_view %) todo-lists))]]))
+
+(defn render-todo-list-details-page [ list-id min-list-priority & { :keys [ error-message ]}]
+  (let [list-details (data/get-todo-list-by-id list-id)
+        list-name (:desc list-details)
+        is-view (:is_view list-details)
+        list-type (if is-view "View" "List")]
+    (render-page
+     {:page-title (str list-type " Details: " list-name)
+      :sidebar (sidebar-view/render-sidebar-list-list list-id min-list-priority 0)}
+     (form/form-to
+      {:class "details"}
+      [:post (shref "/list/" list-id "/details")]
+       [:div.config-panel
+        [:h1 (str list-type " Name:")]
+        (form/text-field { :maxlength "32" } "list-name" list-name)]
+       (if is-view
+         (render-todo-list-view-editor list-id)
+         (render-todo-list-permissions list-id error-message))
        [:div.config-panel
         [:div
-         [:input {:type "submit" :value "Update List Details"}]]]
+         [:input {:type "submit" :value "Update List Details"}]]])
+     (when (not is-view)
+         (render-sort-list-panel list-id))
+     [:div.config-panel
+      [:h1  "Download List"]
+      [:a { :href (str "/list/" list-id ) } "Go to list"]
+      [:a { :href (str "/list/" list-id "/list.csv" ) } "Download List as CSV"]]
 
-       [:div.config-panel
-        [:h1 "Sort List"]
-        [:div
-         [:input {:type "submit" :value "Sort By"
-                  :formaction (shref "/list/" list-id "/sort")}]
-         [:select {:id "sort-by" :name "sort-by"}
-          (form/select-options [["Description" "desc"]
-                                ["Created Date" "created-on"]
-                                ["Updated Date" "updated-on"]
-                                ["Snoozed Until" "snoozed-until"]])]]]
 
-       [:div.config-panel
-        [:h1 "Delete List"]
-        (cond
-          (<= (data/get-user-list-count (auth/current-user-id)) 1)
-          [:span.warning "Your last list cannot be deleted."]
-
-          (not (data/empty-list? list-id))
-          [:span.warning "To delete this list, remove all items first."]
-
-          :else
-          (list
-           [:div
-            [:input.dangerous {:type "submit" :value "Delete List" :formaction (shref "/list/" list-id "/delete")}]
-            [:span.warning "Warning, this cannot be undone."]]))]))))
+     (render-list-delete-panel list-id))))
 
 

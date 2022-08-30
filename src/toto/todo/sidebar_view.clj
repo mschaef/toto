@@ -24,14 +24,20 @@
         toto.view.common
         toto.view.icons
         toto.view.query)
-  (:require [toto.data.data :as data]
+  (:require [clojure.tools.logging :as log]
+            [toto.data.data :as data]
             [toto.view.auth :as auth]))
 
 (defn render-list-visibility-flag [ list ]
   (let [{is-public :is_public
-         list-owner-count :list_owner_count}
+         list-owner-count :list_owner_count
+         is-view :is_view}
         list]
     (cond
+      is-view
+      ;; Views cannot be shared, so the other flags do not apply.
+      [:span.list-visibility-flag img-folders]
+
       is-public
       [:span.list-visibility-flag img-globe]
 
@@ -47,22 +53,25 @@
                    list-item-count :item_count
                    list-total-item-count :total_item_count
                    is-public :is_public
+                   is-view :is_view
                    list-owner-count :list_owner_count
                    priority :priority}
                   list ]
               [:div.list-row {:class (class-set {"selected" (= list-id (Integer. selected-list-id))
+                                                 "view" is-view
                                                  "high-priority" (and include-low-priority (> priority 0))
                                                  "low-priority" (and include-low-priority (< priority 0))})
                               :listid list-id}
                [:a.item {:href (shref "/list/" list-id)}
                 (hiccup.util/escape-html list-desc)
                 (render-list-visibility-flag list)]
-               [:span.pill {:class (class-set {"highlight" (and (> snoozed-for-days 0)
-                                                                (not (= list-item-count list-total-item-count)))
-                                               "emphasize" (not (= list-item-count list-total-item-count))})}
-                (if (> snoozed-for-days 0)
-                  list-total-item-count
-                  list-item-count)]]))
+               (if (not is-view)
+                 [:span.pill {:class (class-set {"highlight" (and (> snoozed-for-days 0)
+                                                                  (not (= list-item-count list-total-item-count)))
+                                                 "emphasize" (not (= list-item-count list-total-item-count))})}
+                  (if (> snoozed-for-days 0)
+                    list-total-item-count
+                    list-item-count)])]))
           (remove #(and (< (:priority %) min-list-priority)
                         (not (= (Integer. selected-list-id) (:todo_list_id %))))
                   (data/get-todo-lists-by-user (auth/current-user-id))))

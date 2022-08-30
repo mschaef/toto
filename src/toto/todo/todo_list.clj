@@ -37,6 +37,11 @@
 
 (def html-breakpoint "&#8203;")
 
+(def pill-date-format (java.text.SimpleDateFormat. "yyyy-MM-dd"))
+
+(defn- format-date [ date ]
+  (.format pill-date-format date))
+
 (defn ensure-string-breakpoints [ s n ]
   (clojure.string/join html-breakpoint (partition-string s n)))
 
@@ -69,8 +74,7 @@
 
 (defn- delete-item-button [ item-info list-id ]
   (post-button {:desc "Delete Item"
-                :target (str "/item/" (item-info :item_id) "/delete")
-                :next-url (shref "/list/" list-id without-modal)}
+                :target (str "/item/" (item-info :item_id) "/delete")}
                img-trash))
 
 (defn- snooze-item-button [ item-info body ]
@@ -94,20 +98,27 @@
       (item-priority-button item-id 0 img-star-yellow writable?))))
 
 (defn- render-new-item-form [ list-id editing-item? ]
-  (form/form-to
-   {:class "new-item-form"}
-   [:post (shref "/list/" list-id)]
-   (form/text-field (cond-> {:class "simple-border"
-                             :maxlength "1024"
-                             :placeholder "New Item Description"
-                             :autocomplete "off"
-                             :onkeydown "window._toto.onNewItemInputKeydown(event)"}
-                      (not editing-item?) (assoc "autofocus" "on"))
-                    "item-description")
-   (form/hidden-field "item-priority" "0")
-   [:button.high-priority-submit {:type "button"
-                                  :onclick "window._toto.submitHighPriority()"}
-    img-star-yellow]))
+  (let [ sublists (data/get-view-sublists (auth/current-user-id) list-id)]
+    (form/form-to
+     {:class "new-item-form"}
+     [:post (shref "/list/" list-id)]
+     (if (= (count sublists) 0)
+       (form/hidden-field "item-list-id" list-id)
+       [:select {:id "item-list-id" :name "item-list-id"}
+        (form/select-options (map (fn [ sublist ]
+                                    [ (:desc sublist) (:sublist_id sublist)])
+                                  sublists))])
+     (form/text-field (cond-> {:class "simple-border"
+                               :maxlength "1024"
+                               :placeholder "New Item Description"
+                               :autocomplete "off"
+                               :onkeydown "window._toto.onNewItemInputKeydown(event)"}
+                        (not editing-item?) (assoc "autofocus" "on"))
+                      "item-description")
+     (form/hidden-field "item-priority" "0")
+     [:button.high-priority-submit {:type "button"
+                                    :onclick "window._toto.submitHighPriority()"}
+      img-star-yellow])))
 
 (def url-regex #"(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
 
@@ -135,9 +146,7 @@
 (defn drop-target [ item-ordinal ]
   [:div.order-drop-target {:ordinal item-ordinal :priority "0"} "&nbsp;"])
 
-(def snooze-date-format (java.text.SimpleDateFormat. "yyyy-MM-dd"))
-
-(defn- render-todo-item [ list-id item-info writable? editing? ]
+(defn- render-todo-item [ view-list-id list-id item-info writable? editing? ]
   (let [{item-id :item_id
          is-complete? :is_complete
          is-deleted? :is_deleted
@@ -145,58 +154,57 @@
          snoozed-until :snoozed_until
          currently-snoozed :currently_snoozed
          created-by-id :created_by_id
+         created-by-email :created_by_email
          created-by-name :created_by_name}
         item-info]
     [:div.item-row.order-drop-target
      (cond-> {:id (str "item_row_" item-id)
               :itemid item-id
+              :listid list-id
               :ordinal (:item_ordinal item-info)
               :priority priority
               :class (class-set {"editing" editing?
                                  "display" (not editing?)
                                  "high-priority" (> priority 0)
                                  "snoozed" currently-snoozed})}
-       writable? (assoc :edit-href (shref "/list/" list-id { :edit-item-id item-id })))
-     (if editing?
+       writable? (assoc :edit-href (shref "/list/" view-list-id
+                                          { :edit-item-id item-id })))
+     (when writable?
        (list
-        [:div.item-control.complete
-         (delete-item-button item-info list-id)]
-         [:div.item-description
-          [:input (cond-> {:value (item-info :desc)
-                           :type "text"
-                           :name "description"
-                           :item-id item-id
-                           :view-href (shref "/list/" list-id without-modal)
-                           :onkeydown "window._toto.onItemEditKeydown(event)"}
-                    editing? (assoc "autofocus" "on"))]])
-       (list
-        (when writable?
-          (list
-           (item-drag-handle "left" item-info)
-           [:div.item-control.complete {:id (str "item_control_" item-id)}
-            (if (or is-complete? is-deleted?)
-              (restore-item-button item-info)
-              (complete-item-button item-info))]))
-        [:div.item-control.priority.left
-         (render-item-priority-control item-id priority writable?)]
-        [:div.item-description {:itemid item-id}
-         (let [desc (item-info :desc)]
-           (list
-            [:div {:id (str "item_" item-id)
-                   :class (class-set {"deleted-item" is-deleted?
-                                      "completed-item" is-complete?})}
-             (render-item-text desc)
-             (snooze-item-button item-info [:span.pill
-                                            (render-age (:age_in_days item-info))
-                                            (when currently-snoozed
-                                              (list
-                                               ", snoozed: " (.format snooze-date-format snoozed-until)))])
-             (when (not (= created-by-id (auth/current-user-id)))
-               [:span.pill created-by-name])]))]))
+        (item-drag-handle "left" item-info)
+        [:div.item-control.complete {:id (str "item_control_" item-id)}
+         (if editing?
+           (delete-item-button item-info list-id)
+           (if (or is-complete? is-deleted?)
+             (restore-item-button item-info)
+             (complete-item-button item-info)))]))
+     [:div.item-control.priority.left
+      (render-item-priority-control item-id priority writable?)]
+     [:div.item-description {:itemid item-id}
+      (if editing?
+         [:input (cond-> {:value (item-info :desc)
+                          :type "text"
+                          :name "description"
+                          :item-id item-id
+                          :view-href (shref "/list/" view-list-id without-modal)
+                          :onkeydown "window._toto.onItemEditKeydown(event)"}
+                   editing? (assoc "autofocus" "on"))]
+        (let [desc (item-info :desc)]
+          [:div {:id (str "item_" item-id)
+                 :class (class-set {"deleted-item" is-deleted?
+                                    "completed-item" is-complete?})}
+           (render-item-text desc)
+           (snooze-item-button item-info [:span.pill
+                                          (render-age (:age_in_days item-info))
+                                          (when currently-snoozed
+                                            (list
+                                             ", snoozed: " (format-date snoozed-until)))])
+           (when (not (= created-by-id (auth/current-user-id)))
+             [:span.pill { :title created-by-email }
+              created-by-name])]))]
      [:div.item-control.priority.right
       (render-item-priority-control item-id priority writable?)]
      (item-drag-handle "right" item-info)]))
-
 
 (defn- render-query-select [ id current-value allow-all? ]
   [:select { :id id :name id :onchange "this.form.submit()"}
@@ -206,9 +214,14 @@
                           "-"
                           (str current-value)))])
 
-(defn- render-todo-list-query-settings [ list-id completed-within-days snoozed-for-days ]
+
+(defn- render-todo-list-query-settings [ list-id is-view? completed-within-days snoozed-for-days ]
   [:div.query-settings
    (form/form-to { :class "embedded "} [:get (shref "/list/" list-id)]
+                 (if (not is-view?)
+                   [:div.control-segment
+                    [:a {:href (shref "/list/" list-id "/completions")}
+                     "[completed items]"]])
                  [:div.control-segment
                   [:a {:href (shref "/list/" list-id "/details")}
                    "[list details]"]]
@@ -228,6 +241,20 @@
                  [:div.control-segment
                   [:a { :href (shref "/list/" list-id "/list.csv" ) } "[csv]"]])])
 
+(defn- render-todo-list-completion-query-settings [ list-id completed-within-days ]
+  [:div.query-settings
+   (form/form-to { :class "embedded "} [:get (shref "/list/" list-id "/completions")]
+                 [:div.control-segment
+                  [:a {:href (shref "/list/" list-id "/details")}
+                   "[list details]"]]
+                 [:div.control-segment
+                  [:a {:href (shref "/list/" list-id)}
+                   " [default view]"]]
+                 [:div.control-segment
+                  [:label {:for "clwithin"}
+                   "Completed within: "]
+                  (render-query-select "clwithin" completed-within-days false)])])
+
 (defn- render-empty-list []
   [:div.empty-list
    [:h1
@@ -239,6 +266,71 @@
   [:div.snoozed-item-warning
    n-snoozed-items " more item" (if (= n-snoozed-items 1) "" "s" ) " snoozed for later. "
    "Click " [:a {:href (shref "" {:sfor "99999"})} "here"] " to show."])
+
+(defn- todo-list-details [ view-list-id list-id edit-item-id writable? completed-within-days snoozed-for-days ]
+  (let [pending-items (data/get-pending-items list-id completed-within-days snoozed-for-days)
+        n-snoozed-items (count (filter :visibly_snoozed pending-items))
+        display-items (remove :visibly_snoozed pending-items)]
+
+    {:is-empty? (= (count display-items) 0)
+     :n-snoozed-items n-snoozed-items
+
+     :high-priority
+     (map #(render-todo-item view-list-id list-id % writable? (= edit-item-id (:item_id %)))
+          (filter #(> (:priority %) 0) display-items))
+
+     :normal-priority
+     (map #(render-todo-item view-list-id list-id % writable? (= edit-item-id (:item_id %)))
+          (filter #(<= (:priority %) 0) display-items))}))
+
+(defn- render-single-todo-list [ view-list-id list-id edit-item-id writable? completed-within-days snoozed-for-days ]
+  (let [details (todo-list-details view-list-id list-id edit-item-id writable? completed-within-days snoozed-for-days)]
+    (list
+     [:div.toplevel-list
+      (if (:is-empty? details)
+        (render-empty-list)
+        (concat
+         (:high-priority details)
+         (:normal-priority details)))]
+     (when (and writable? (> (:n-snoozed-items details) 0))
+       (render-snoozed-item-warning (:n-snoozed-items details))))))
+
+(defn- render-empty-view [ list-id ]
+  [:div.empty-list
+   [:h1
+    "Empty list view!"]
+   [:p
+    "This is a todo list view, where it is possible to see the contents of"
+    " more than one list on a single page. To make this work, you need to "
+    " add a few lists to the view, which can be done "
+    [:a {:href (shref "/list/" list-id "/details")} "here"] "."]])
+
+(defn- render-todo-list-view-section [ sublist-details key ]
+  (let [ items (key sublist-details ) ]
+    (when (> (count items) 0)
+      [:div.list-view-section
+       [:h2 (:desc sublist-details)]
+       items])))
+
+(defn- render-todo-list-view [ list-id edit-item-id writable? completed-within-days snoozed-for-days ]
+  (let [ sublists (map #(merge % (todo-list-details list-id (:sublist_id %) edit-item-id writable? completed-within-days snoozed-for-days))
+                       (data/get-view-sublists (auth/current-user-id) list-id))]
+    [:div.toplevel-list
+     (cond
+       (= 0 (count sublists))
+       (render-empty-view list-id)
+
+       (every? true? (map :is-empty? sublists))
+       (render-empty-list)
+
+       :else
+       (list
+        (map #(render-todo-list-view-section % :high-priority) sublists)
+        (map #(render-todo-list-view-section % :normal-priority) sublists)
+
+        (let [ total-snoozed-items (apply + (map :n-snoozed-items sublists))]
+          (when (and writable? (> total-snoozed-items 0))
+            (render-snoozed-item-warning total-snoozed-items)))))]))
 
 (defn- message-recepient? []
   (or (= 16 (auth/current-user-id))
@@ -254,28 +346,57 @@
      img-heart-red]))
 
 (defn- render-todo-list [ list-id edit-item-id writable? completed-within-days snoozed-for-days ]
-  (let [pending-items (data/get-pending-items list-id completed-within-days snoozed-for-days)
-        n-snoozed-items (count (filter :visibly_snoozed pending-items))]
-    (scroll-column
-     "todo-list-scroller"
-     (when writable?
-       (render-new-item-form list-id (boolean edit-item-id)))
-     (render-valentines-day-banner)
-     [:div.toplevel-list
-      (let [display-items (remove :visibly_snoozed pending-items)]
-        (if (= (count display-items) 0)
-          (render-empty-list)
-          (list
-           (map #(render-todo-item list-id % writable? (= edit-item-id (:item_id %)))
-                display-items)
-           (drop-target (+ 1 (apply max (map :item_ordinal display-items)))))))]
-     (when (and writable? (> n-snoozed-items 0))
-       (render-snoozed-item-warning n-snoozed-items))
-     (when writable?
-       (render-todo-list-query-settings list-id completed-within-days snoozed-for-days)))))
+  (scroll-column
+   "todo-list-scroller"
+   (when writable?
+     (render-new-item-form list-id (boolean edit-item-id)))
+   (let [ is-view? (:is_view (data/get-todo-list-by-id list-id)) ]
+     (list
+      (render-valentines-day-banner)
+      (if is-view?
+        (render-todo-list-view list-id edit-item-id writable? completed-within-days snoozed-for-days )
+        (render-single-todo-list list-id list-id edit-item-id writable? completed-within-days snoozed-for-days))
+      (when writable?
+        (render-todo-list-query-settings list-id is-view? completed-within-days snoozed-for-days))))))
 
-(defn render-todo-list-csv [  list-id ]
+(defn render-todo-list-csv [ list-id ]
   (clojure.string/join "\n" (map :desc (data/get-pending-items list-id 0 0))))
+
+(defn- render-empty-completion-list [ list-id ]
+  (let [n-items (data/get-item-count list-id)]
+    [:div.empty-list
+     [:h1
+      "Nothing here right now!"]
+     [:p
+      (if (= n-items 0)
+        "As you add items and complete them, they will appear here."
+        "Try expanding the query to see earlier completed items.")]]))
+
+(defn render-todo-list-completions [ list-id params ]
+  (let [min-list-priority (or (parsable-integer? (:min-list-priority params)) 0)
+        completed-within-days (or (parsable-integer? (:clwithin params)) 1)
+        completed-items (data/get-completed-items list-id completed-within-days)]
+    (render-page {:page-title ((data/get-todo-list-by-id list-id) :desc)
+                  :page-data-class "todo-list-completions"
+                  :sidebar (sidebar-view/render-sidebar-list-list list-id min-list-priority 0)}
+                 (scroll-column
+                  "todo-list-completion-scroller"
+                  "Items Completed"
+                  [:div.toplevel-list
+                   [:h2 "Completed since "
+                    (format-date (add-days (current-time) (- completed-within-days)))]
+                   (if (= (count completed-items) 0)
+                     (render-empty-completion-list list-id)
+                     (map
+                      (fn [ todo-item ]
+                        [:div.item-row
+                         [:div.item-description
+                          [:div
+                           (render-item-text (:desc todo-item))
+                           [:span.pill
+                            (format-date (:updated_on todo-item))]]]])
+                      completed-items))
+                   (render-todo-list-completion-query-settings list-id completed-within-days)]))))
 
 (defn render-snooze-modal [ list-id params ]
   (when (= (:modal params) "snoozing")
@@ -340,6 +461,7 @@
       (render-page {:page-title ((data/get-todo-list-by-id list-id) :desc)
                     :page-data-class "todo-list"}
                    (render-todo-list list-id nil false 0 0)))))
+
 
 (defn render-stocking-page [ list-id item-id ]
   (let [pending-items (vec (data/get-pending-items list-id 0 0))

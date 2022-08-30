@@ -202,10 +202,11 @@ function doMoveItem(itemId, newListId) {
     }).then(refreshPage);
 }
 
-function doSetItemOrdinal(itemId, newItemOrdinal, newItemPriority) {
+function doSetItemOrdinal(itemId, listId, newItemOrdinal, newItemPriority) {
     var formData = new FormData();
 
     formData.append("target-item", itemId);
+    formData.append("target-list", listId);
     formData.append("new-ordinal", newItemOrdinal);
     formData.append("new-priority", newItemPriority);
 
@@ -283,10 +284,12 @@ function setupItemDragging() {
             ev.preventDefault();
 
             var itemId = ev.dataTransfer.getData("text/plain");
+
+            var newListId = ev.currentTarget.getAttribute('listid');
             var newItemOrdinal = ev.currentTarget.getAttribute('ordinal');
             var newItemPriority = ev.currentTarget.getAttribute('priority');
 
-            doSetItemOrdinal(itemId, newItemOrdinal, newItemPriority);
+            doSetItemOrdinal(itemId, newListId, newItemOrdinal, newItemPriority);
         });
     });
 
@@ -311,13 +314,46 @@ function submitHighPriority() {
     form.submit();
 }
 
-function onNewItemInputKeydown(event) {
-    if (event.ctrlKey && event.keyCode == 13) {
-        event.preventDefault();
-        event.stopPropagation();
+function selectNavigate(id, direction) {
+    var s = elemById(id);
 
-        submitHighPriority();
+    if (s.type !== 'select-one') {
+        return;
     }
+
+    var newIndex = s.selectedIndex + direction;
+
+    if (newIndex < 0) {
+        newIndex = s.options.length - 1;
+    } else if (newIndex >= s.options.length) {
+        newIndex = 0;
+    }
+
+    s.selectedIndex = newIndex;
+}
+
+function onNewItemInputKeydown(event) {
+
+    if (event.ctrlKey) {
+        if (event.keyCode == 13) {
+            event.preventDefault();
+            event.stopPropagation();
+            submitHighPriority();
+        }
+
+    } else if (event.shiftKey) {
+        if (event.keyCode == 38) {
+            event.preventDefault();
+            event.stopPropagation();
+            selectNavigate('item-list-id', -1);
+        } else if (event.keyCode == 40) {
+            event.preventDefault();
+            event.stopPropagation();
+            selectNavigate('item-list-id', 1);
+        }
+    }
+
+
 }
 
 function onItemEditKeydown(event) {

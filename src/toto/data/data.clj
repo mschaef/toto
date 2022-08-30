@@ -84,6 +84,11 @@
    (query/get-todo-list-by-id { :todo_list_id list-id }
                               { :connection (current-db-connection) })))
 
+(defn get-view-sublists [ user-id list-id ]
+  (query/get-view-sublists { :user_id user-id
+                             :todo_list_id list-id }
+                           { :connection (current-db-connection) }))
+
 (defn list-public? [ list-id ]
   (scalar-result
    (query/get-todo-list-is-public-by-id { :todo_list_id list-id }
@@ -185,24 +190,53 @@
                 :verification_link
                 ["created_on < DATEADD('hour', -1, CURRENT_TIMESTAMP)"]))
 
-(defn add-list [ desc ]
+(defn add-list [ desc is-view ]
   (:todo_list_id (first
                   (jdbc/insert! (current-db-connection)
                    :todo_list
-                   {:desc desc}))))
+                   {:desc desc
+                    :is_view is-view}))))
+
+(defn set-view-sublist-ids [ user-id todo-list-id sublist-ids ]
+  (jdbc/with-db-transaction [ trans (current-db-connection) ]
+    (let [next-sublists (set sublist-ids)
+          current-sublists (set (map :sublist_id (get-view-sublists user-id todo-list-id)))
+          add-ids (clojure.set/difference next-sublists current-sublists)
+          remove-ids (clojure.set/difference current-sublists next-sublists)]
+      (doseq [ list-id remove-ids ]
+        (jdbc/delete! trans
+                      :todo_view_sublist
+                      ["todo_list_id=? and sublist_id=?" todo-list-id list-id]))
+      (doseq [ list-id add-ids ]
+        (jdbc/insert! trans
+                      :todo_view_sublist
+                      {:todo_list_id todo-list-id
+                       :sublist_id list-id})))))
+
+(defn- get-views-with-sublist [ user-id sublist-id ]
+  (map :todo_list_id
+       (query/get-views-with-sublist { :user_id user-id :sublist_id sublist-id}
+                                     { :connection (current-db-connection) })))
+
+(defn- delete-sublist-from-users-views [ trans user-id sublist-id ]
+  (doseq [ containing-todo-list-id (get-views-with-sublist user-id sublist-id)]
+    (jdbc/delete! trans
+                  :todo_view_sublist
+                  ["todo_list_id=? and sublist_id=?" containing-todo-list-id sublist-id])))
 
 (defn set-list-ownership [ todo-list-id user-ids ]
   (jdbc/with-db-transaction [ trans (current-db-connection) ]
     (let [next-owners (set user-ids)
           current-owners (set (get-todo-list-owners-by-list-id todo-list-id))
-          add-ids (clojure.set/difference next-owners current-owners)
-          remove-ids (clojure.set/difference current-owners next-owners)]
-      (doseq [id remove-ids]
+          add-user-ids (clojure.set/difference next-owners current-owners)
+          remove-user-ids (clojure.set/difference current-owners next-owners)]
+      (doseq [ user-id remove-user-ids ]
+        (delete-sublist-from-users-views trans user-id todo-list-id)
         (jdbc/delete! trans
                       :todo_list_owners
-                      ["todo_list_id=? and user_id=?" todo-list-id id]))
+                      ["todo_list_id=? and user_id=?" todo-list-id user-id]))
 
-      (doseq [ user-id add-ids ]
+      (doseq [ user-id add-user-ids ]
         (jdbc/insert! trans
                       :todo_list_owners
                       {:user_id user-id
@@ -266,10 +300,20 @@
                :is_complete false
                :item_ordinal (get-next-list-ordinal todo-list-id)}))))
 
-(defn get-pending-items [ list-id completed-within-days snoozed-within-days]
+(defn get-item-count [ list-id ]
+  (scalar-result
+   (query/get-item-count {:list_id list-id }
+                         { :connection (current-db-connection) })))
+
+(defn get-pending-items [ list-id completed-within-days snoozed-within-days ]
   (query/get-pending-items {:list_id list-id
                             :completed_within_days (- completed-within-days)
                             :snoozed_within_days snoozed-within-days}
+                           { :connection (current-db-connection) }))
+
+(defn get-completed-items [ list-id completed-within-days ]
+  (query/get-completed-items {:list_id list-id
+                              :completed_within_days (- completed-within-days)}
                            { :connection (current-db-connection) }))
 
 (defn get-pending-item-order-by-description [ list-id ]
