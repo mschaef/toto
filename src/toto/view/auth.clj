@@ -103,6 +103,7 @@
   (:roles (friend/current-authentication)))
 
 (defn set-user-password [ username password ]
+  (log/info "Changing password for user:" username)
   (data/set-user-password username (credentials/hash-bcrypt password)))
 
 (defn create-user [ email-addr password ]
@@ -124,7 +125,7 @@
 (defn send-password-change-message [ config username ]
   (mail/send-email config
                    {:to [ username ]
-                    :subject "Todo - Verify Account"
+                    :subject "Todo - Password Changed"
                     :content (password-change-message config)}))
 
 (defn password-change-workflow [ config ]
