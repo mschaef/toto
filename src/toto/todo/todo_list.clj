@@ -221,7 +221,7 @@
                  (if (not is-view?)
                    [:div.control-segment
                     [:a {:href (shref "/list/" list-id "/completions")}
-                     "[completions]"]])
+                     "[completed items]"]])
                  [:div.control-segment
                   [:a {:href (shref "/list/" list-id "/details")}
                    "[list details]"]]
