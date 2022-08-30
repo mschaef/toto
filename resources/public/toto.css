@@ -403,10 +403,25 @@ select:hover {
     align-items: center;
 }
 
-.new-item-form input {
+.new-item-form input[type=text] {
     flex: 1;
     min-width: auto;
     width: auto;
+}
+
+.new-item-form select {
+    margin-right: 10px;
+}
+
+@media only screen and (max-device-width : 640px) {
+    .new-item-form {
+        flex-wrap: wrap;
+    }
+
+    .new-item-form select {
+        width: 100%;
+        margin-bottom: 10px;
+    }
 }
 
 .new-item-form .high-priority-submit {
@@ -601,7 +616,7 @@ select:hover {
 }
 
 .toplevel-list .list-view-section:not(:first-child) {
-    border-top: 1px solid #f0f0f0;;
+    border-top: 1px solid #f0f0f0;
 }
 
 .toplevel-list h2 {

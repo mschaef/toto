@@ -102,6 +102,12 @@
     (form/form-to
      {:class "new-item-form"}
      [:post (shref "/list/" list-id)]
+     (if (= (count sublists) 0)
+       (form/hidden-field "item-list-id" list-id)
+       [:select {:id "item-list-id" :name "item-list-id"}
+        (form/select-options (map (fn [ sublist ]
+                                    [ (:desc sublist) (:sublist_id sublist)])
+                                  sublists))])
      (form/text-field (cond-> {:class "simple-border"
                                :maxlength "1024"
                                :placeholder "New Item Description"
@@ -110,12 +116,6 @@
                         (not editing-item?) (assoc "autofocus" "on"))
                       "item-description")
      (form/hidden-field "item-priority" "0")
-     (if (= (count sublists) 0)
-       (form/hidden-field "item-list-id" list-id)
-       [:select {:id "item-list-id" :name "item-list-id"}
-        (form/select-options (map (fn [ sublist ]
-                                    [ (:desc sublist) (:sublist_id sublist)])
-                                  sublists))])
      [:button.high-priority-submit {:type "button"
                                     :onclick "window._toto.submitHighPriority()"}
       img-star-yellow])))
