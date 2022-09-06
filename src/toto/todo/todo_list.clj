@@ -139,9 +139,9 @@
         :else (str days "d")))
 
 (defn item-drag-handle [ class item-info ]
-  [:div.item-control.drag-handle {:itemid (:item_id item-info)
-                                  :class class}
-   img-bars])
+  [:div.item-drag-handle {:itemid (:item_id item-info)
+                          :class class}
+   img-drag-handle])
 
 (defn drop-target [ item-ordinal ]
   [:div.order-drop-target {:ordinal item-ordinal :priority "0"} "&nbsp;"])

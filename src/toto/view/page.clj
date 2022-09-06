@@ -40,9 +40,6 @@
      [:a {:href "/login"} "Sign In"]
      [:a.emphasize {:href "/user"} "Sign Up"]]))
 
-(defn- resource [ path ]
-  (str "/" (get-version) "/" path))
-
 (defn- render-standard-header [ title ]
   [:head
    [:meta {:name "viewport"

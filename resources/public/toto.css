@@ -600,20 +600,17 @@ select:hover {
     box-sizing: border-box;
 }
 
-.toplevel-list .list-view-section {
-    padding-top: 8px;
-}
-
 .toplevel-list .list-view-section:not(:first-child) {
     border-top: 1px solid #f0f0f0;
+    padding-top: 16px;
 }
 
 .toplevel-list h2 {
     margin: 0px;
     padding: 0px;
-    text-align: center;
+    padding-left: 12px;
+
     font-size: 14px;
-    font-weight: normal;
 }
 
 .toplevel-list h2:not(:first-child) {
@@ -807,16 +804,20 @@ A .pill {
     flex: 1;
 }
 
-.priority.left, .drag-handle.left {
+.item-drag-handle {
+    width: 16px;
+}
+
+.priority.left,.item-drag-handle.left {
     display: none;
 }
 
 @media only screen and (min-device-width : 640px) {
-    .priority.left, .drag-handle.left {
+    .priority.left,.item-drag-handle.left {
         display: block;
     }
 
-    .priority.right, .drag-handle.right {
+    .priority.right,.item-drag-handle.right {
         display: none;
     }
 }
@@ -859,13 +860,13 @@ A .pill {
     }
 }
 
-.item-row .drag-handle {
+.item-row.item-drag-handle {
     width: 25px;
     min-width: 25px;
 }
 
 @media only screen and (min-device-width : 640px) {
-    .item-row .drag-handle {
+    .item-row.item-drag-handle {
         padding: 3px 6px 3px 3px;
         font-size: inherit;
     }
@@ -1044,7 +1045,7 @@ p.new-user {
         display: none;
     }
 
-    .item-row .drag-handle {
+    .item-row.item-drag-handle {
         display: none;
     }
 }

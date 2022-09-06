@@ -19,7 +19,11 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns toto.view.icons)
+(ns toto.view.icons
+  (:use toto.view.common))
+
+(def img-drag-handle [:img {:src (resource "drag-vertical.svg")
+                            :width "12"}])
 
 (def img-arrow-blue [:i {:class "fa fa-lg fa-arrow-down icon-blue"}])
 (def img-arrow-gray [:i {:class "fa fa-lg fa-arrow-down icon-gray"}])

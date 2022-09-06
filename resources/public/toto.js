@@ -264,7 +264,7 @@ function makeDropTarget(el, onDrop) {
 }
 
 function setupItemDragging() {
-    foreach_elem(".drag-handle", function(el) {
+    foreach_elem(".item-drag-handle", function(el) {
         el.setAttribute('draggable', true);
 
         el.ondragstart = function(ev) {
