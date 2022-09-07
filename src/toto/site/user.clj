@@ -279,7 +279,7 @@
 
                   [:div.config-panel
                    [:h1 "Last Login"]
-                   (.format date-format (or (:last_login_on user) (java.util.Date.)))]
+                   (.format date-format (or (:last_login_on user) (current-time)))]
 
                   [:div.config-panel
                     [:a {:href "/user/password"} "Change Password"]]))))
@@ -315,7 +315,7 @@
                                 (:friendly_name user)]
                                [:div.config-panel
                                 [:h1 "Last Login"]
-                                (.format date-format (or (:last_login_on user) (java.util.Date.)))]
+                                (.format date-format (or (:last_login_on user) (current-time)))]
                                [:div.config-panel
                                 [:h1 "Change Password"]
                                 (form/password-field {:placeholder "Password"} "password")

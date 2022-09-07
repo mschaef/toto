@@ -418,6 +418,10 @@
   (update-item-by-id! user-id item-id
                       {:snoozed_until snoozed-until}))
 
+(defn remove-item-snooze-by-id [ user-id item-id ]
+  (update-item-by-id! user-id item-id
+                      {:snoozed_until nil}))
+
 (defn update-item-desc-by-id [ user-id item-id item-description ]
   (update-item-by-id! user-id item-id
                       {:desc item-description}))

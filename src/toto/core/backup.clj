@@ -34,7 +34,7 @@
   (str
    backup-path
    "/toto-backup-"
-   (.format date-format (java.util.Date.))
+   (.format date-format (current-time))
    ".tgz"))
 
 (defn backup-database [ backup-path ]

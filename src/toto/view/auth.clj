@@ -56,7 +56,7 @@
 
 (defn- password-current? [ user-record ]
   (if-let [expiry (:password_expires_on user-record)]
-    (or (.after expiry (java.util.Date.))
+    (or (.after expiry (current-time))
         (.after (:password_created_on user-record) expiry))
     true))
 

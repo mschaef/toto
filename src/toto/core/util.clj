@@ -91,17 +91,20 @@
 (defn current-time []
   (java.util.Date.))
 
-(defn add-days [ date days ]
-  "Given a date, advance it forward n days, leaving it at the
-  beginning of that day"
-  (let [c (java.util.Calendar/getInstance)]
-    (.setTime c date)
-    (.add c java.util.Calendar/DATE days)
-    (.set c java.util.Calendar/HOUR_OF_DAY 0)
-    (.set c java.util.Calendar/MINUTE 0)
-    (.set c java.util.Calendar/SECOND 0)
-    (.set c java.util.Calendar/MILLISECOND 0)
-    (.getTime c)))
+(defn add-days
+  "Given a date, advance it forward n days, leaving it at the beginning
+  of that day in the JVM default time zone. An hour-of-day can
+  optionally be specified."
+  ( [ date days ] (add-days date days 0))
+  ( [ date days hour-of-day]
+   (let [c (java.util.Calendar/getInstance)]
+     (.setTime c date)
+     (.add c java.util.Calendar/DATE days)
+     (.set c java.util.Calendar/HOUR_OF_DAY hour-of-day)
+     (.set c java.util.Calendar/MINUTE 0)
+     (.set c java.util.Calendar/SECOND 0)
+     (.set c java.util.Calendar/MILLISECOND 0)
+     (.getTime c))))
 
 ;;; Configuration properties
 

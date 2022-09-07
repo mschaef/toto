@@ -176,13 +176,11 @@
     (success)))
 
 (defn- update-item-snooze-days [ item-id params ]
-  (let [{ snooze-days :snooze-days } params
-        list-id (data/get-list-id-by-item-id item-id)
-        snooze-days (or (parsable-integer? snooze-days) 0)]
-    (data/update-item-snooze-by-id (auth/current-user-id) item-id
-                                   (if (= snooze-days 0)
-                                     nil
-                                     (add-days (java.util.Date.) snooze-days)))
+  (let [snooze-days (or (parsable-integer? (:snooze-days params)) 0)
+        user-id (auth/current-user-id)]
+    (if (= snooze-days 0)
+      (data/remove-item-snooze-by-id user-id item-id)
+      (data/update-item-snooze-by-id user-id item-id (add-days (current-time) snooze-days 5)))
     (success)))
 
 (defn- update-item-list [ item-id params ]
