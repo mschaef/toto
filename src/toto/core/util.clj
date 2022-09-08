@@ -86,6 +86,17 @@
       (catch Exception ex
         false))))
 
+(defn uri-path? [ uri ]
+  "Returns only the path of the URI, if it is a parsable URI and false
+  otherwise."
+  (and
+   uri
+   (try
+     (.getPath (java.net.URI. uri))
+     (catch java.net.URISyntaxException ex
+       (log/error "Invalid URI" uri)
+       false))))
+
 ;;; Date utilities
 
 (defn current-time []

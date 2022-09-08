@@ -207,15 +207,15 @@
   (data/restore-item (auth/current-user-id) item-id)
   (success))
 
-(defn- render-launch-page []
+(defn- render-launch-page [ params ]
   (if (auth/current-identity)
     (redirect-to-home-list)
-    (landing-page/render-landing-page)))
+    (landing-page/render-landing-page params)))
 
 (defn- public-routes [ config ]
   (routes
-   (GET "/" []
-     (render-launch-page))
+   (GET "/" { params :params }
+     (render-launch-page params))
 
    (GET "/list/:list-id/public" { { list-id :list-id } :params }
      ;; Retain backward compatibility with older public list URL scheme

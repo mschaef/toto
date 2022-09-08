@@ -25,6 +25,7 @@
         hiccup.core
         toto.view.common
         toto.view.components
+        toto.view.query
         toto.view.page)
   (:require [clojure.tools.logging :as log]
             [ring.util.response :as ring]
@@ -141,8 +142,6 @@
     (form/submit-button {} "Login")])))
 
 (defn render-new-user-form [ & { :keys [ error-message ]}]
-  (let [verify-n-1 (rand-int 100)
-        verify-n-2 (rand-int 100)]
     (render-page
      {:title "New User Registration"
       :page-data-class "init-new-user"}
@@ -158,18 +157,11 @@
        [:h1 "Password"]
        (form/password-field {:placeholder "Password"} "password")
        (form/password-field {:placeholder "Verify Password"} "password-2")]
-      [:div.config-panel
-       [:h1 "Math Problem"]
-       "Please solve this math problem to help confirm you are not a robot."
-       [:div.verify-problem
-        (form/hidden-field {} "verify-n-1" verify-n-1)
-        (form/hidden-field {} "verify-n-2" verify-n-2)
-        verify-n-1 " + " verify-n-2 " = "
-        (form/text-field {:class "verify-response"} "verify-response")]]
+      (render-verify-question)
       [:div.submit-panel
        [:div#error.error-message
         error-message]
-       (form/submit-button {} "Register")]))))
+       (form/submit-button {} "Register")])))
 
 (defn get-verification-link-by-user-id [ config link-type user-id ]
   (let [verification-link (data/get-verification-link-by-user-id user-id)]
@@ -231,27 +223,25 @@
                       :subject "Todo - Reset Account Password"
                       :content (reset-email-message config link-url)})))
 
-(defn add-user [config {:keys [:email-addr :email-addr-2 :password :password-2
-                               :verify-n-1 :verify-n-2 :verify-response]}]
-  (cond
-    (not (= (or (parsable-integer? verify-response) -1)
-            (+ (or (parsable-integer? verify-n-1) -1)
-               (or (parsable-integer? verify-n-2) -1))))
-    (render-new-user-form :error-message "Math problem answer incorrect.")
+(defn add-user [ config params ]
+  (let [{:keys [:email-addr :email-addr-2 :password :password-2]} params]
+    (cond
+      (not (verify-response-correct params))
+      (render-new-user-form :error-message "Math problem answer incorrect.")
 
-    (not (= email-addr email-addr-2))
-    (render-new-user-form :error-message "E-mail addresses do not match.")
+      (not (= email-addr email-addr-2))
+      (render-new-user-form :error-message "E-mail addresses do not match.")
 
-    (not (= password password-2))
-    (render-new-user-form :error-message "Passwords do not match.")
+      (not (= password password-2))
+      (render-new-user-form :error-message "Passwords do not match.")
 
-    (data/user-email-exists? email-addr)
-    (render-new-user-form :error-message "User with this e-mail address already exists.")
+      (data/user-email-exists? email-addr)
+      (render-new-user-form :error-message "User with this e-mail address already exists.")
 
-    :else
-    (do
-      (let [user-id (create-user config email-addr password)]
-        (ring/redirect (str "/user/verify/" user-id))))))
+      :else
+      (do
+        (let [user-id (create-user config email-addr password)]
+          (ring/redirect (str "/user/verify/" user-id)))))))
 
 (def date-format (java.text.SimpleDateFormat. "yyyy-MM-dd hh:mm aa"))
 
@@ -500,6 +490,39 @@
                   [:p "Your password has been reset. You can login "
                    [:a {:href "/"} "here"] "."]])  )
 
+  ;; {email-addr :email-addr
+  ;;  full-name :full-name
+  ;;  message-text :message-text}
+
+(defn notify-support-message [ config params ]
+  (log/info "Sending support message:" (:email-addr params) "Regarding URI:" (:current-uri params))
+  (let [message  {:subject "Todo - Support Request"
+                  :content [:body
+                            [:h1
+                             "Todo List - Support Request"]
+                            [:p
+                             (:full-name params) ","]
+                            [:p]
+                            [:p
+                             "Thank you for contacting support, we will be in "
+                             "touch soon. The contents of your message are below."]
+                            [:p
+                             "-- Todo Support"]
+                            [:hr]
+                            [:h2 "Message:"]
+                            [:p (:message-text params)]
+                            [:p
+                             "Site URL:" [:tt (:current-uri params)]]]}]
+    (mail/send-email config (assoc message :to (:admin-mails config)))
+    (mail/send-email config (assoc message :to (:email-address params)))))
+
+(defn send-support-message [ config params ]
+  (if (verify-response-correct params)
+    (notify-support-message config params)
+    (log/warn "Non verified request" params))
+  (ring/redirect (or (uri-path? (:current-uri params))
+                     "/")))
+
 (defn private-routes [ config ]
   (routes
    (GET "/user/password" []
@@ -562,6 +585,10 @@
 
    (GET "/user/password-reset-success" []
      (render-password-reset-success))
+
+   ;; Support Messages
+   (POST "/support-message" { params :params }
+     (send-support-message config params))
 
    ;; Logout Link
    (friend/logout

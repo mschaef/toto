@@ -108,8 +108,7 @@
         (form/select-options (map (fn [ sublist ]
                                     [ (:desc sublist) (:sublist_id sublist)])
                                   sublists))])
-     (form/text-field (cond-> {:class "simple-border"
-                               :maxlength "1024"
+     (form/text-field (cond-> {:maxlength "1024"
                                :placeholder "New Item Description"
                                :autocomplete "off"
                                :onkeydown "window._toto.onNewItemInputKeydown(event)"}

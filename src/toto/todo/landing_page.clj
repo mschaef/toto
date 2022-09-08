@@ -24,11 +24,13 @@
         toto.view.common
         toto.view.icons
         toto.view.components
+        toto.view.query
         toto.view.page)
-  (:require [clojure.tools.logging :as log]))
+  (:require [clojure.tools.logging :as log]
+            [hiccup.form :as form]))
 
-(defn render-landing-page []
-  (render-page {:title "The Todo List Manager"}
+(defn render-landing-page [ params ]
+  (render-page {:page-title "The Todo List Manager"}
                [:div.page-message
                 [:h1 "Toto"]
                 [:p
@@ -43,4 +45,5 @@
                  [:li "Reorder list items to match your priorities."]
                  [:li "Star items that need special focus."]
                  [:li "Snooze to hide items that can wait a bit."]]
+                (contact-support-button)
                 (session-controls)]))

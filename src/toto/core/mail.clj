@@ -25,18 +25,16 @@
   (:require [clojure.tools.logging :as log]
             [postal.core :as postal]))
 
-(defn send-email [config {to :to
-                          subject :subject
-                          hiccup-content :content}]
-  (log/info "Sending mail to " to " with subject: " subject)
+(defn send-email [config message-info]
   (let [smtp (:smtp config)
+        {to :to subject :subject hiccup-content :content} message-info
         html-content (html [:html hiccup-content])]
+    (log/info "Sending mail to " to " with subject: " subject)
     (cond
       (not (:enabled smtp))
       (do
         (log/warn "E-mail disabled. Message not sent. Message text: ")
         (log/warn html-content))
-
 
       (or (nil? to) (= (count to) 0))
       (do
