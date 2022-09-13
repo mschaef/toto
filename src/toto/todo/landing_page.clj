@@ -28,7 +28,7 @@
   (:require [clojure.tools.logging :as log]))
 
 (defn render-landing-page []
-  (render-page {:page-title "The Todo List Manager"}
+  (render-page {:title "The Todo List Manager"}
                [:div.page-message
                 [:h1 "Toto"]
                 [:p

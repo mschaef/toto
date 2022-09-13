@@ -35,12 +35,12 @@
             [toto.view.auth :as auth]))
 
 (defn user-unauthorized [ request ]
-  (render-page { :page-title "Access Denied"}
+  (render-page { :title "Access Denied"}
                [:div.page-message
                 [:h1 "Access Denied"]]))
 
 (defn user-unverified [ request ]
-  (render-page { :page-title "E-Mail Unverified"}
+  (render-page { :title "E-Mail Unverified"}
                [:div.page-message
                 [:h1 "E-Mail Unverified"]
                 [:p
@@ -50,7 +50,7 @@
                  "."]]))
 
 (defn user-password-expired [ request ]
-  (render-page { :page-title "Password Expired"}
+  (render-page { :title "Password Expired"}
                [:div.page-message
                 [:h1 "Password Expired"]
                 [:p
@@ -60,7 +60,7 @@
                  "."]]))
 
 (defn user-account-locked [ request ]
-  (render-page { :page-title "Account Locked"}
+  (render-page { :title "Account Locked"}
                [:div.page-message
                 [:h1 "Account Locked"]
                 [:p
@@ -108,7 +108,7 @@
   (auth/wrap-authenticate app config unauthorized-handler))
 
 (defn render-forgot-password-form []
-  (render-page { :page-title "Forgot Password" }
+  (render-page { :title "Forgot Password" }
    (form/form-to
     {:class "auth-form"
      :data-turbo "false"}
@@ -122,7 +122,7 @@
      (form/submit-button {} "Send Reset E-Mail")]))  )
 
 (defn render-login-page [ & { :keys [ email-addr login-failure?]}]
-  (render-page { :page-title "Log In" }
+  (render-page { :title "Log In" }
    (form/form-to
     {:class "auth-form"
      :data-turbo "false"}
@@ -144,7 +144,7 @@
   (let [verify-n-1 (rand-int 100)
         verify-n-2 (rand-int 100)]
     (render-page
-     {:page-title "New User Registration"
+     {:title "New User Registration"
       :page-data-class "init-new-user"}
      (form/form-to
       {:class "auth-form"
@@ -257,7 +257,7 @@
 
 (defn render-user-info-form [ & { :keys [ error-message ]}]
   (let [user (data/get-user-by-email (auth/current-identity))]
-    (render-page { :page-title "User Information" }
+    (render-page { :title "User Information" }
                  (form/form-to
                   [:post "/user/info"]
                   [:input {:type "hidden"
@@ -300,7 +300,7 @@
 
 (defn render-change-password-form  [ & { :keys [ error-message ]}]
   (let [user (data/get-user-by-email (auth/current-identity))]
-    (render-page { :page-title "Change Password" }
+    (render-page { :title "Change Password" }
                  (form/form-to {:class "auth-form"
                                 :data-turbo "false"}
                                [:post "/user/password"]
@@ -354,7 +354,7 @@
         (ring/redirect "/")))))
 
 (defn render-password-change-success []
-    (render-page { :page-title "Password Successfully Changed" }
+    (render-page { :title "Password Successfully Changed" }
                  [:div.page-message
                   [:h1 "Password Successfully Changed"]
                   [:p "Your password has been changed. You can view "
@@ -367,7 +367,7 @@
 
 (defn render-password-reset-form [ link-user-id link-uuid error-message ]
   (when-let [ user (get-link-verified-user link-user-id link-uuid)]
-    (render-page { :page-title "Reset Password" }
+    (render-page { :title "Reset Password" }
                  [:div.page-message
                   (form/form-to {:class "auth-form"
                                  :data-turbo "false"}
@@ -428,7 +428,7 @@
   (let [ user (data/get-user-by-id user-id) ]
     (ensure-verification-link user-id)
     (send-verification-link config user-id)
-    (render-page { :page-title "e-Mail Address Verification" }
+    (render-page { :title "e-Mail Address Verification" }
                       [:div.page-message
                        [:h1 "e-Mail Address Verification"]
                        [:p "An e-mail has been sent to "  [:span.addr (:email_addr user)]
@@ -442,7 +442,7 @@
 (defn verify-user [ link-user-id link-uuid ]
   (when-let [ user (get-link-verified-user link-user-id link-uuid ) ]
     (data/add-user-roles (:user_id user) #{:toto.role/verified})
-    (render-page { :page-title "e-Mail Address Verified" }
+    (render-page { :title "e-Mail Address Verified" }
                  [:div.page-message
                   [:h1 "e-Mail Address Verified"]
                   [:p "Thank you for verifying your e-mail address at: "
@@ -454,7 +454,7 @@
   (let [user (data/get-user-by-email (auth/current-identity))]
     (ensure-verification-link user-id)
     (send-unlock-link config user-id)
-    (render-page { :page-title "Unlock Account" }
+    (render-page { :title "Unlock Account" }
                       [:div.page-message
                        [:h1 "Unlock Account"]
                        [:p "An e-mail has been sent to "  [:span.addr (:email_addr user)]
@@ -467,7 +467,7 @@
 (defn unlock-user [ link-user-id link-uuid ]
   (when-let [ user (get-link-verified-user link-user-id link-uuid ) ]
     (data/reset-login-failures (:user_id user))
-    (render-page { :page-title "Account Unlocked" }
+    (render-page { :title "Account Unlocked" }
                  [:div.page-message
                   [:h1 "Account Unlocked"]
                   [:p "Thank you for unlocking your account at: "
@@ -481,7 +481,7 @@
     (when user-id
       (ensure-verification-link user-id)
       (send-reset-link config user-id))
-    (render-page { :page-title "Reset Password" }
+    (render-page { :title "Reset Password" }
                  [:div.page-message
                   [:h1 "Reset Password"]
                   [:p "If there is an account with this e-mail address, an e-mail"
@@ -494,7 +494,7 @@
                       (development-no-user-form)))])))
 
 (defn render-password-reset-success []
-    (render-page { :page-title "Password Successfully Reset" }
+    (render-page { :title "Password Successfully Reset" }
                  [:div.page-message
                   [:h1 "Password Successfully Reset"]
                   [:p "Your password has been reset. You can login "

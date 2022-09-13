@@ -63,7 +63,7 @@
 
 (defn render-list-list-page []
   (render-page
-   {:page-title "Manage Todo Lists"}
+   {:title "Manage Todo Lists"}
    (scroll-column
     "todo-list-list-scroller"
     (render-new-list-form)
@@ -169,7 +169,7 @@
         is-view (:is_view list-details)
         list-type (if is-view "View" "List")]
     (render-page
-     {:page-title (str list-type " Details: " list-name)
+     {:title (str list-type " Details: " list-name)
       :sidebar (sidebar-view/render-sidebar-list-list list-id min-list-priority 0)}
      (form/form-to
       {:class "details"}
