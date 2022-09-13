@@ -25,7 +25,9 @@
         toto.view.common
         toto.view.icons
         toto.view.query)
-  (:require [hiccup.page :as page]
+  (:require [clojure.tools.logging :as log]
+            [hiccup.page :as page]
+            [hiccup.form :as form]
             [toto.view.auth :as auth]))
 
 (defn session-controls []
@@ -41,12 +43,12 @@
 (defn- resource [ path ]
   (str "/" (get-version) "/" path))
 
-(defn- render-standard-header [ page-title ]
+(defn- render-standard-header [ title ]
   [:head
    [:meta {:name "viewport"
            ;; user-scalable=no fails to work on iOS n where n > 10
            :content "width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0"}]
-   [:title (when *dev-mode* "DEV - ") (:name (:app *config*)) (when page-title (str " - " page-title))]
+   [:title (when *dev-mode* "DEV - ") (:name (:app *config*)) (when title (str " - " title))]
    [:link { :rel "shortcut icon" :href (resource "favicon.ico")}]
    (page/include-css (resource "toto.css")
                      (resource "font-awesome.min.css"))
@@ -79,24 +81,37 @@
                     :edit-item-id :remove
                     :snoozing-item-id :remove})
 
-(defn render-modal [ & contents ]
+(defn render-modal [ attrs & contents ]
   (let [ escape-url (shref without-modal)]
-    [:div.modal-background
-     [:div.modal {:data-escape-url escape-url}
+    [:div.dialog-background
+     [:dialog {:open "true" :data-escape-url escape-url}
+      [:h3 (:title attrs)]
       [:div.cancel
        [:a {:href escape-url} img-window-close]]
+      (if-let [ form-post-to (:form-post-to attrs)]
+        (form/form-to [:post form-post-to] contents)
+        contents)]]))
+
+(defn- render-page-modal [ attrs ]
+  (when-let [ modal-name (current-modal) ]
+    (let [ modal-defns (or (:modals attrs) {}) ]
+      (if-let [modal (modal-defns modal-name)]
+        (modal)
+        (log/error "Invalid modal for this page:" modal-name
+                   "(known:" (keys modal-defns) ")")))))
+
+(defn- render-page-body [ attrs contents ]
+  (let [{ :keys [ title page-data-class sidebar ] } attrs ]
+    [:body (if page-data-class
+             {:data-class page-data-class})
+     (render-header title (not (nil? sidebar)))
+     (if sidebar
+       (render-sidebar sidebar))
+     [:div.contents {:class (class-set { "with-sidebar" sidebar })}
+      (render-page-modal attrs)
       contents]]))
 
-(defn- render-page-body [ page-data-class page-title sidebar contents ]
-  [:body (if page-data-class
-           {:data-class page-data-class})
-   (render-header page-title (not (nil? sidebar)))
-   (if sidebar
-     (render-sidebar sidebar))
-   [:div.contents {:class (class-set { "with-sidebar" sidebar })}
-    contents]])
-
-(defn render-page [{ :keys [ page-title page-data-class sidebar ] }  & contents]
+(defn render-page [ attrs & contents]
   (html [:html
-         (render-standard-header page-title)
-         (render-page-body page-data-class page-title sidebar contents)]))
+         (render-standard-header (:title attrs))
+         (render-page-body attrs contents)]))

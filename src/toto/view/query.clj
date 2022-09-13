@@ -20,17 +20,20 @@
 ;; You must not remove this notice, or any other, from this software.
 
 
-(ns toto.view.query)
+(ns toto.view.query
+  (:require [clojure.tools.logging :as log]))
 
 ;;; Persistent Query
 
 (def ^:dynamic *query* nil)
 (def ^:dynamic *current-uri* nil)
+(def ^:dynamic *current-modal* nil)
 
 (defn wrap-remember-query[ app ]
   (fn [ req ]
     (binding [*query* (:query-params req)
-              *current-uri* (:uri req)]
+              *current-uri* (:uri req)
+              *current-modal* (:modal (:params req))]
       (app req))))
 
 (defn- normalize-param-map [ params ]
@@ -54,3 +57,6 @@
 
 (defn shref [ & args ]
   (apply shref* (or *query* {}) args))
+
+(defn current-modal []
+  *current-modal*)

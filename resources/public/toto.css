@@ -18,7 +18,7 @@ body {
     line-height: 1.2;
 }
 
-.modal-background {
+.dialog-background {
     position: fixed;
     z-index: 1;
     left: 0;
@@ -29,18 +29,11 @@ body {
     background-color: rgba(0,0,0,0.1);
 }
 
-.modal {
-    z-index: 10;
-
+dialog {
     border: 1px solid #c0c0c0;
 
-    position: absolute;
-    float: left;
-    left: 50%;
-    top: 40%;
-    transform: translate(-50%, -50%);
+    top: 10%;
 
-    background-color: white;
     box-shadow: 2px 1px 1px #e0e0e0;
 
     padding: 20px;
@@ -49,52 +42,48 @@ body {
 }
 
 @media only screen and (min-device-width : 640px) {
-    .modal {
+    dialog {
         width: auto;
         max-width: 40%;
     }
 }
 
-.modal .cancel {
+dialog .cancel {
     position: absolute;
 
     top: 10px;
     right: 10px;
 }
 
-.modal .modal-controls {
+dialog .modal-controls {
     padding: 10px 0px 0px 0px;
     text-align: right;
 }
 
-.modal .modal-controls input {
+dialog .modal-controls input {
     margin-right: 0px;
 }
 
-.modal select {
+dialog select {
     margin-left: 10px;
 }
 
 
-.modal p {
+dialog p {
     padding-bottom: 12px;
 }
 
-.modal .snooze form {
-    text-align: right;
-    padding: 0px;
-}
-
-.modal .snooze input {
-    width: 120px;
-}
-
-.modal .snooze .choices {
+.snooze-choices {
     display: flex;
     flex-direction: column;
 }
 
-.modal .snooze .post-button {
+.snooze-choices input {
+    width: 120px;
+}
+
+
+.snooze-choices .post-button {
     display: block;
 
     width: 120px;
@@ -103,7 +92,7 @@ body {
     margin-bottom: 12px;
 }
 
-.modal .snooze .post-button:hover {
+.snooze-choices .post-button:hover {
     background: #e0e0e0;
 }
 
