@@ -309,7 +309,10 @@
   (let [ items (key sublist-details ) ]
     (when (> (count items) 0)
       [:div.list-view-section
-       [:h2 (:desc sublist-details)]
+       [:h2
+        [:a
+         {:href (shref "/list/" (:sublist_id sublist-details))}
+         (:desc sublist-details)]]
        items])))
 
 (defn- render-todo-list-view [ list-id edit-item-id writable? completed-within-days snoozed-for-days ]

@@ -617,6 +617,10 @@ select:hover {
     padding-top: 18px;
 }
 
+.toplevel-list h2 A {
+    color: black;
+}
+
 @media only screen and (min-device-width : 640px) {
     .toplevel-list {
         padding-left: 0px;
@@ -870,10 +874,6 @@ A .pill {
         padding: 3px 6px 3px 3px;
         font-size: inherit;
     }
-}
-
-.high-priority {
-    font-weight: bold;
 }
 
 .low-priority {
