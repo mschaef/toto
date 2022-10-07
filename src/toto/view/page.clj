@@ -20,8 +20,7 @@
 ;; You must not remove this notice, or any other, from this software.
 
 (ns toto.view.page
-  (:use hiccup.core
-        toto.core.util
+  (:use toto.core.util
         toto.view.common
         toto.view.icons
         toto.view.query)
@@ -109,6 +108,7 @@
       contents]]))
 
 (defn render-page [ attrs & contents]
-  (html [:html
-         (render-standard-header (:title attrs))
-         (render-page-body attrs contents)]))
+  (page/html5
+   [:html
+    (render-standard-header (:title attrs))
+    (render-page-body attrs contents)]))
