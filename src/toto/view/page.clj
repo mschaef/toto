@@ -23,7 +23,8 @@
   (:use toto.core.util
         toto.view.common
         toto.view.icons
-        toto.view.query)
+        toto.view.query
+        toto.view.components)
   (:require [clojure.tools.logging :as log]
             [hiccup.page :as page]
             [hiccup.form :as form]
@@ -65,13 +66,14 @@
 
 (defn- render-sidebar [ sidebar ]
   [:div.sidebar
-   [:div.sidebar-control
-    [:span.close-menu img-close-list "&nbsp;"]
-    (session-controls)]
-   [:div.sidebar-content { :id "sidebar-scroller" :data-preserve-scroll "true" }
+   (scroll-column
+    "sidebar-scroller"
+    [:div.sidebar-control
+     [:span.close-menu img-close-list "&nbsp;"]
+     (session-controls)]
     sidebar
     [:div.copyright
-     "&#9400; 2015-2022 East Coast Toolworks"]]])
+     "&#9400; 2015-2022 East Coast Toolworks"])])
 
 (def without-modal {:modal :remove
                     :edit-item-id :remove

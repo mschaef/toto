@@ -181,7 +181,7 @@ dialog p {
 }
 
 .sidebar-control {
-    flex: 0;
+    flex: 1;
 
     border: 0px;
     border-right: 5px solid #f0f0f0;
@@ -193,12 +193,6 @@ dialog p {
     min-height: 6em;
     height: 6em;
     line-height: 3em;
-}
-
-.sidebar .sidebar-content {
-    flex: 1;
-    overflow-y: auto;
-    min-height: 0;
 }
 
 @media only screen and (min-device-width : 640px) {
@@ -249,42 +243,46 @@ A {
 
 /*** Icons ***/
 
-i.icon-edit {
+.icon-edit {
     color: #000000;
 }
 
-i.icon-black {
+.icon-black {
     color: black;
     font-weight: bold;
 }
 
-i.icon-gray {
+.icon-gray {
     color: #b0b0b0;
 }
 
-i.icon-yellow {
+.icon-yellow {
     color: #ffd000;
 }
 
-i.icon-pink {
+.icon-pink {
     color: #ffcccc;
 }
 
-i.icon-red {
+.icon-red {
     color: #ff0000;
 }
 
-i.icon-blue {
+.icon-blue {
     color: #0000ff;
 }
 
-i.icon-yellow:hover {
+.icon-yellow:hover {
     color: #ffe700;
 }
 
-i.icon-bars {
+.icon-bars {
     color: black;
     padding: 0.5em;
+}
+
+.icon-drag-handle {
+    width: 10px;
 }
 
 /*** Forms ***/
@@ -810,22 +808,30 @@ A .pill {
 
 .item-drag-handle {
     width: 16px;
+    justify-content: center;
+}
+
+.item-drag-handle.right {
+    width: 24px;
 }
 
 .priority.left,.item-drag-handle.left {
     display: none;
 }
 
+.priority.right,.item-drag-handle.right {
+    display: flex;
+}
+
 @media only screen and (min-device-width : 640px) {
     .priority.left,.item-drag-handle.left {
-        display: block;
+        display: flex;
     }
 
     .priority.right,.item-drag-handle.right {
         display: none;
     }
 }
-
 
 .editing .right {
     display: none;

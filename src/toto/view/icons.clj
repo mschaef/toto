@@ -22,8 +22,8 @@
 (ns toto.view.icons
   (:use toto.view.common))
 
-(def img-drag-handle [:img {:src (resource "drag-vertical.svg")
-                            :width "12"}])
+(def img-drag-handle [:img {:class "icon-drag-handle"
+                            :src (resource "drag-vertical.svg")}])
 
 (def img-arrow-blue [:i {:class "fa fa-lg fa-arrow-down icon-blue"}])
 (def img-arrow-gray [:i {:class "fa fa-lg fa-arrow-down icon-gray"}])
