@@ -167,7 +167,7 @@
                                  "high-priority" (> priority 0)
                                  "snoozed" currently-snoozed})}
        writable? (assoc :edit-href (shref "/list/" view-list-id
-                                          { :edit-item-id item-id })))
+                                          { :edit-id item-id })))
      (when writable?
        (list
         (item-drag-handle "left" item-info)
@@ -205,22 +205,23 @@
       (render-item-priority-control item-id priority writable?)]
      (item-drag-handle "right" item-info)]))
 
-(defn- render-query-select [ id current-value allow-all? ]
+(defn- render-query-select [ id current-value ]
   [:select { :id id :name id :onchange "this.form.submit()"}
-   (form/select-options (cond-> [ [ "-" "-"] ["1d" "1"] ["7d" "7"] ["30d" "30"] ["90d" "90"] ]
-                          allow-all? (conj ["*" "99999"] ))
+   (form/select-options [[ "-" "-"]
+                         ["1d" "1"]
+                         ["7d" "7"]
+                         ["30d" "30"]
+                         ["90d" "90"] ]
                         (if (nil? current-value)
                           "-"
                           (str current-value)))])
 
-
-(defn- render-todo-list-query-settings [ list-id is-view? completed-within-days snoozed-for-days ]
+(defn- render-todo-list-query-settings [ list-id completed-within-days snoozed-for-days ]
   [:div.query-settings
    (form/form-to { :class "embedded "} [:get (shref "/list/" list-id)]
-                 (if (not is-view?)
-                   [:div.control-segment
-                    [:a {:href (shref "/list/" list-id "/completions")}
-                     "[completed items]"]])
+                 [:div.control-segment
+                  [:a {:href (shref "/list/" list-id "/completions")}
+                   "[completed items]"]]
                  [:div.control-segment
                   [:a {:href (shref "/list/" list-id "/details")}
                    "[list details]"]]
@@ -230,11 +231,7 @@
                  [:div.control-segment
                   [:label {:for "cwithin"}
                    "Completed within: "]
-                  (render-query-select "cwithin" completed-within-days false)]
-                 [:div.control-segment
-                  [:label {:for "swithin"}
-                   "Snoozed for: "]
-                  (render-query-select "sfor" snoozed-for-days true)]
+                  (render-query-select "cwithin" completed-within-days)]
                  [:div.control-segment
                   [:a { :href (shref "/list/" list-id {:modal "update-from"} ) } "[copy from]"]]
                  [:div.control-segment
@@ -252,7 +249,7 @@
                  [:div.control-segment
                   [:label {:for "clwithin"}
                    "Completed within: "]
-                  (render-query-select "clwithin" completed-within-days false)])])
+                  (render-query-select "clwithin" completed-within-days)])])
 
 (defn- render-empty-list []
   [:div.empty-list
@@ -352,14 +349,13 @@
    "todo-list-scroller"
    (when writable?
      (render-new-item-form list-id (boolean edit-item-id)))
-   (let [ is-view? (:is_view (data/get-todo-list-by-id list-id)) ]
-     (list
-      (render-valentines-day-banner)
-      (if is-view?
-        (render-todo-list-view list-id edit-item-id writable? completed-within-days snoozed-for-days )
-        (render-single-todo-list list-id list-id edit-item-id writable? completed-within-days snoozed-for-days))
-      (when writable?
-        (render-todo-list-query-settings list-id is-view? completed-within-days snoozed-for-days))))))
+   (list
+    (render-valentines-day-banner)
+    (if (:is_view (data/get-todo-list-by-id list-id))
+      (render-todo-list-view list-id edit-item-id writable? completed-within-days snoozed-for-days )
+      (render-single-todo-list list-id list-id edit-item-id writable? completed-within-days snoozed-for-days))
+    (when writable?
+      (render-todo-list-query-settings list-id completed-within-days snoozed-for-days)))))
 
 (defn render-todo-list-csv [ list-id ]
   (clojure.string/join "\n" (map :desc (data/get-pending-items list-id 0 0))))
@@ -374,30 +370,45 @@
         "As you add items and complete them, they will appear here."
         "Try expanding the query to see earlier completed items.")]]))
 
+(defn- completed-items [ list-id completed-within-days ]
+  (let [ list-info (data/get-todo-list-by-id list-id) ]
+    (sort-by :updated_on
+             (mapcat (fn [ sublist-info ]
+                       (map #(assoc % :sublist_desc (:desc sublist-info))
+                            (data/get-completed-items (:sublist_id sublist-info) completed-within-days)))
+                     (if (:is_view list-info)
+                       (data/get-view-sublists (auth/current-user-id) list-id)
+                       [ { :sublist_id list-id :desc (:desc list-info)}])))))
+
+(defn- render-completed-item-list [ list-id completed-within-days ]
+  (let [ completed-items (completed-items list-id completed-within-days)]
+    (if (= (count completed-items) 0)
+      (render-empty-completion-list list-id)
+      (map
+       (fn [ todo-item ]
+         [:div.item-row {:class (class-set
+                                 {"high-priority" (> (:priority todo-item) 0)})}
+          [:div.item-description
+           [:div
+            (render-item-text (:desc todo-item))
+            [:span.pill (:sublist_desc todo-item)]
+            (when (> (:priority todo-item) 0)
+              (if (request-date/valentines-day?)
+                img-heart-red
+                img-star-yellow))]]])
+       completed-items))))
+
 (defn render-todo-list-completions [ list-id params ]
   (let [min-list-priority (or (parsable-integer? (:min-list-priority params)) 0)
-        completed-within-days (or (parsable-integer? (:clwithin params)) 1)
-        completed-items (data/get-completed-items list-id completed-within-days)]
+        completed-within-days (or (parsable-integer? (:clwithin params)) 1)]
     (render-page {:title ((data/get-todo-list-by-id list-id) :desc)
                   :page-data-class "todo-list-completions"
                   :sidebar (sidebar-view/render-sidebar-list-list list-id min-list-priority 0)}
                  (scroll-column
                   "todo-list-completion-scroller"
-                  "Items Completed"
+                  [:h3 "Items Completed Since: " (format-date (add-days (current-time) (- completed-within-days)))]
                   [:div.toplevel-list
-                   [:h2 "Completed since "
-                    (format-date (add-days (current-time) (- completed-within-days)))]
-                   (if (= (count completed-items) 0)
-                     (render-empty-completion-list list-id)
-                     (map
-                      (fn [ todo-item ]
-                        [:div.item-row
-                         [:div.item-description
-                          [:div
-                           (render-item-text (:desc todo-item))
-                           [:span.pill
-                            (format-date (:updated_on todo-item))]]]])
-                      completed-items))
+                   (render-completed-item-list list-id completed-within-days)
                    (render-todo-list-completion-query-settings list-id completed-within-days)]))))
 
 (defn- render-snooze-modal [ params list-id ]
