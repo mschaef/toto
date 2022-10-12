@@ -352,8 +352,6 @@ function onNewItemInputKeydown(event) {
             selectNavigate('item-list-id', 1);
         }
     }
-
-
 }
 
 function onItemEditKeydown(event) {

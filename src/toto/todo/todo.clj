@@ -241,9 +241,6 @@
    (GET "/list.csv" []
      (render-todo-list-csv list-id))
 
-   (GET "/completions" { params :params }
-     (todo-list/render-todo-list-completions list-id params))
-
    (GET "/details" { params :params }
      (todo-list-manager/render-todo-list-details-page list-id (or (parsable-integer? (:min-list-priority params)) 0)))
 

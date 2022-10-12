@@ -220,7 +220,7 @@
   [:div.query-settings
    (form/form-to { :class "embedded "} [:get (shref "/list/" list-id)]
                  [:div.control-segment
-                  [:a {:href (shref "/list/" list-id "/completions")}
+                  [:a {:href (shref "/list/" list-id {:view "completions"})}
                    "[completed items]"]]
                  [:div.control-segment
                   [:a {:href (shref "/list/" list-id "/details")}
@@ -451,7 +451,7 @@
    [:div.modal-controls
     [:input {:type "submit" :value "Copy List"}]]))
 
-(defn render-todo-list-page [ selected-list-id params ]
+(defn- render-todo-list-item-page [ selected-list-id params ]
   (let [edit-item-id (parsable-integer? (:edit-item-id params))
         min-list-priority (or (parsable-integer? (:min-list-priority params)) 0)
         completed-within-days (or (parsable-integer? (:cwithin params)) 0)
@@ -462,6 +462,11 @@
                   :modals {"snoozing" #(render-snooze-modal params selected-list-id)
                            "update-from" #(render-update-from-modal params selected-list-id)}}
                  (render-todo-list selected-list-id edit-item-id true completed-within-days snoozed-for-days))))
+
+(defn render-todo-list-page [ selected-list-id params ]
+  (if (= (:view params) "completions")
+    (render-todo-list-completions selected-list-id params)
+    (render-todo-list-item-page selected-list-id params)))
 
 (defn render-todo-list-public-page [ params ]
   (let [ { list-id :list-id } params ]
