@@ -233,9 +233,7 @@
                    "Completed within: "]
                   (render-query-select "cwithin" completed-within-days)]
                  [:div.control-segment
-                  [:a { :href (shref "/list/" list-id {:modal "update-from"} ) } "[copy from]"]]
-                 [:div.control-segment
-                  [:a { :href (shref "/list/" list-id "/list.csv" ) } "[csv]"]])])
+                  [:a { :href (shref "/list/" list-id {:modal "update-from"} ) } "[copy from]"]])])
 
 (defn- render-todo-list-completion-query-settings [ list-id completed-within-days ]
   [:div.query-settings
@@ -356,9 +354,6 @@
       (render-single-todo-list list-id list-id edit-item-id writable? completed-within-days snoozed-for-days))
     (when writable?
       (render-todo-list-query-settings list-id completed-within-days snoozed-for-days)))))
-
-(defn render-todo-list-csv [ list-id ]
-  (clojure.string/join "\n" (map :desc (data/get-pending-items list-id 0 0))))
 
 (defn- render-empty-completion-list [ list-id ]
   (let [n-items (data/get-item-count list-id)]

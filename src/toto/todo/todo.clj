@@ -224,11 +224,6 @@
    (GET "/list/:list-id" { params :params }
      (todo-list/render-todo-list-public-page params))))
 
-(defn render-todo-list-csv [ list-id ]
-  (-> (todo-list/render-todo-list-csv list-id)
-      (ring-response/response)
-      (ring-response/header "Content-Type" "text/csv")))
-
 (defn- list-routes [ list-id ]
   (ensure-list-owner-access list-id)
   (routes
@@ -237,9 +232,6 @@
 
    (POST "/" { params :params }
      (add-item list-id params))
-
-   (GET "/list.csv" []
-     (render-todo-list-csv list-id))
 
    (GET "/details" { params :params }
      (todo-list-manager/render-todo-list-details-page list-id (or (parsable-integer? (:min-list-priority params)) 0)))
