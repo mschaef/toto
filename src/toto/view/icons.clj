@@ -25,6 +25,7 @@
 (def img-drag-handle [:img {:class "icon-drag-handle"
                             :src (resource "drag-vertical.svg")}])
 
+(def img-back-arrow [:i {:class "fa fa-arrow-left icon-back-arrow"}])
 (def img-arrow-blue [:i {:class "fa fa-lg fa-arrow-down icon-blue"}])
 (def img-arrow-gray [:i {:class "fa fa-lg fa-arrow-down icon-gray"}])
 (def img-bars [:i {:class "fa fa-bars icon-gray"}])

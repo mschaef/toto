@@ -171,9 +171,14 @@
     (render-page
      {:title (str list-type " Details: " list-name)
       :sidebar (sidebar-view/render-sidebar-list-list list-id min-list-priority 0)}
-     (form/form-to
-      {:class "details"}
-      [:post (shref "/list/" list-id "/details")]
+     (scroll-column
+      'todo-list-details-column
+      [:h3
+       [:a { :href (str "/list/" list-id ) } img-back-arrow]
+       "List Details: " list-name]
+      (form/form-to
+       {:class "details"}
+       [:post (shref "/list/" list-id "/details")]
        [:div.config-panel
         [:h1 (str list-type " Name:")]
         (form/text-field { :maxlength "32" } "list-name" list-name)]
@@ -183,13 +188,8 @@
        [:div.config-panel
         [:div
          [:input {:type "submit" :value "Update List Details"}]]])
-     (when (not is-view)
-         (render-sort-list-panel list-id))
-     [:div.config-panel
-      [:h1  "Download List"]
-      [:a { :href (str "/list/" list-id ) } "Go to list"]]
-
-
-     (render-list-delete-panel list-id))))
+      (when (not is-view)
+        (render-sort-list-panel list-id))
+      (render-list-delete-panel list-id)))))
 
 

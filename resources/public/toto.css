@@ -251,6 +251,11 @@ A {
 
 /*** Icons ***/
 
+.icon-back-arrow {
+    padding-right: 3px;
+    color: black;
+}
+
 .icon-edit {
     color: #000000;
 }
