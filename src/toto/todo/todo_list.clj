@@ -226,7 +226,7 @@
                   [:a {:href (shref "/list/" list-id "/details")}
                    "[list details]"]]
                  [:div.control-segment
-                  [:a {:href (str list-id)}
+                  [:a {:href (shref (str list-id) {:view :remove})}
                    " [default view]"]]
                  [:div.control-segment
                   [:label {:for "cwithin"}
@@ -242,7 +242,7 @@
                   [:a {:href (shref "/list/" list-id "/details")}
                    "[list details]"]]
                  [:div.control-segment
-                  [:a {:href (shref "/list/" list-id)}
+                  [:a {:href (shref (str list-id) {:view :remove})}
                    " [default view]"]]
                  [:div.control-segment
                   [:label {:for "clwithin"}
@@ -401,7 +401,9 @@
                   :sidebar (sidebar-view/render-sidebar-list-list list-id min-list-priority 0)}
                  (scroll-column
                   "todo-list-completion-scroller"
-                  [:h3 "Items Completed Since: " (format-date (add-days (current-time) (- completed-within-days)))]
+                  [:h3
+                   [:a { :href (shref (str "/list/" list-id) {:view :remove}) } img-back-arrow]
+                   "Items Completed Since: " (format-date (add-days (current-time) (- completed-within-days)))]
                   [:div.toplevel-list
                    (render-completed-item-list list-id completed-within-days)
                    (render-todo-list-completion-query-settings list-id completed-within-days)]))))
