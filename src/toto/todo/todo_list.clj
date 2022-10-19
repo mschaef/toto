@@ -167,7 +167,7 @@
                                  "high-priority" (> priority 0)
                                  "snoozed" currently-snoozed})}
        writable? (assoc :edit-href (shref "/list/" view-list-id
-                                          { :edit-id item-id })))
+                                          { :edit-item-id item-id })))
      (when writable?
        (list
         (item-drag-handle "left" item-info)
