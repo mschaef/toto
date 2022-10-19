@@ -87,22 +87,25 @@
               user-unauthorized)
             request)}))
 
-(defn notify-user-create [ config email-addr ]
+(defn- user-create-notification-message [ email-addr ]
+  [:body
+   [:h1
+    "New User Created"]
+   [:p
+    "New user e-mail: " email-addr "."]])
+
+(defn- send-user-create-notification [ config email-addr ]
   (mail/send-email
    config
    {:to (:admin-mails config)
     :subject "Todo - New User Account Created"
-    :content [:body
-              [:h1
-               "New User Created"]
-              [:p
-               "New user e-mail: " email-addr "."]]}))
+    :content (user-create-notification-message email-addr)}))
 
 (defn create-user [ config email-addr password ]
   (let [user-id (auth/create-user email-addr password)
         list-id (data/add-list "Todo" false)]
     (data/set-list-ownership list-id #{ user-id })
-    (notify-user-create config email-addr)
+    (send-user-create-notification config email-addr)
     user-id))
 
 (defn wrap-authenticate [ app config ]
@@ -169,7 +172,7 @@
          (:link_uuid verification-link))))
 
 
-(defn verification-email-message [ config verify-link-url ]
+(defn- verification-link-email-message [ config verify-link-url ]
   [:body
    [:h1
     "Verification E-mail"]
@@ -181,15 +184,15 @@
     "If this isn't something you've requested, you can safely ignore this"
     " e-mail, and we won't send anything else."]])
 
-(defn send-verification-link [ config user-id ]
+(defn- send-verification-link [ config user-id ]
   (let [user (data/get-user-by-id user-id)
         link-url (get-verification-link-by-user-id config "verify" user-id)]
     (mail/send-email config
                      {:to [ (:email_addr user) ]
                       :subject "Todo - Verify Account"
-                      :content (verification-email-message config link-url)})))
+                      :content (verification-link-email-message config link-url)})))
 
-(defn unlock-email-message [ config verify-link-url ]
+(defn- unlock-link-email-message [ config verify-link-url ]
   [:body
    [:h1
     "Unlock Password"]
@@ -198,15 +201,15 @@
     "account at " [:a {:href (:base-url config)} "Toto"] ", the family "
     "to-do list manager."]])
 
-(defn send-unlock-link [ config user-id ]
+(defn- send-unlock-link [ config user-id ]
   (let [user (data/get-user-by-id user-id)
         link-url (get-verification-link-by-user-id config "unlock" user-id)]
     (mail/send-email config
                      {:to [ (:email_addr user) ]
                       :subject "Todo - Unlock Account"
-                      :content (unlock-email-message config link-url)})))
+                      :content (unlock-link-email-message config link-url)})))
 
-(defn reset-email-message [ config verify-link-url ]
+(defn- reset-link-email-message [ config verify-link-url ]
   [:body
    [:h1
     "Reset Password"]
@@ -215,13 +218,13 @@
     " to reset your password at " [:a {:href (:base-url config)} "Toto"]
     ", the family to-do list manager."]])
 
-(defn send-reset-link [ config user-id ]
+(defn- send-reset-link [ config user-id ]
   (let [user (data/get-user-by-id user-id)
         link-url (get-verification-link-by-user-id config "reset" user-id)]
     (mail/send-email config
                      {:to [ (:email_addr user) ]
                       :subject "Todo - Reset Account Password"
-                      :content (reset-email-message config link-url)})))
+                      :content (reset-link-email-message config link-url)})))
 
 (defn add-user [ config params ]
   (let [{:keys [:email-addr :email-addr-2 :password :password-2]} params]
@@ -490,35 +493,35 @@
                   [:p "Your password has been reset. You can login "
                    [:a {:href "/"} "here"] "."]])  )
 
-  ;; {email-addr :email-addr
-  ;;  full-name :full-name
-  ;;  message-text :message-text}
+(defn- support-message [ params ]
+  [:body
+   [:h1
+    "Todo List - Support Request"]
+   [:p
+    (:full-name params) ","]
+   [:p]
+   [:p
+    "Thank you for contacting support, we will be in "
+    "touch soon. The contents of your message are below."]
+   [:p
+    "-- Todo Support"]
+   [:hr]
+   [:h2 "Message:"]
+   [:p (:message-text params)]
+   [:p
+    "Site URL:" [:tt (:current-uri params)]]])
 
-(defn notify-support-message [ config params ]
-  (log/info "Sending support message:" (:email-addr params) "Regarding URI:" (:current-uri params))
+(defn- send-support-message [ config params ]
   (let [message  {:subject "Todo - Support Request"
-                  :content [:body
-                            [:h1
-                             "Todo List - Support Request"]
-                            [:p
-                             (:full-name params) ","]
-                            [:p]
-                            [:p
-                             "Thank you for contacting support, we will be in "
-                             "touch soon. The contents of your message are below."]
-                            [:p
-                             "-- Todo Support"]
-                            [:hr]
-                            [:h2 "Message:"]
-                            [:p (:message-text params)]
-                            [:p
-                             "Site URL:" [:tt (:current-uri params)]]]}]
+                  :content (support-message params)}]
+    (log/info "Sending support message:" (:email-addr params)
+              "Regarding URI:" (:current-uri params))
     (mail/send-email config (assoc message :to (:admin-mails config)))
     (mail/send-email config (assoc message :to (:email-address params)))))
 
-(defn send-support-message [ config params ]
+(defn- handle-support-message [ config params ]
   (if (verify-response-correct params)
-    (notify-support-message config params)
+    (send-support-message config params)
     (log/warn "Non verified request" params))
   (ring/redirect (or (uri-path? (:current-uri params))
                      "/")))
@@ -588,7 +591,7 @@
 
    ;; Support Messages
    (POST "/support-message" { params :params }
-     (send-support-message config params))
+     (handle-support-message config params))
 
    ;; Logout Link
    (friend/logout
