@@ -221,7 +221,7 @@
    (form/form-to { :class "embedded "} [:get (shref "/list/" list-id)]
                  [:div.control-segment
                   [:a {:href (shref "/list/" list-id {:view "completions"})}
-                   "[completed items]"]]
+                   "[recently completed]"]]
                  [:div.control-segment
                   [:a {:href (shref "/list/" list-id "/details")}
                    "[list details]"]]
