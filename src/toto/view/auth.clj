@@ -102,15 +102,14 @@
 (defn current-roles []
   (:roles (friend/current-authentication)))
 
-
-(defn password-change-message [ config ]
-  (let [from-mail (get-in config [:smtp :from])]
+(defn password-change-message [ params ]
+  (let [ { :keys [ from-mail ]} params ]
     [:body
      [:h1
       "Password Changed"]
      [:p
       "This mail confirms that you have changed the password for your "
-      "account at " [:a {:href (:base-url config)} "Toto"]
+      "account at " [:a {:href (:base-url params)} "Toto"]
       ", the family to-do list manager."]
      [:p
       "If this isn't something you've requested, please contact us"
@@ -121,7 +120,7 @@
                    {:to [ username ]
                     :subject "Todo - Password Changed"
                     :content password-change-message
-                    :params config}))
+                    :params { :from-mail (get-in config [:smtp :from]) }}))
 
 (defn set-user-password [ config username password ]
   (log/info "Changing password for user:" username)

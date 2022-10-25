@@ -178,7 +178,7 @@
    [:h1
     "Verification E-mail"]
    [:p
-    "Thank you for registering with " [:a {:href (:base-url (:config params))} "Toto"]
+    "Thank you for registering with " [:a {:href (:base-url params)} "Toto"]
     ", the family to-do list manager. You can verify your e-mail address by clicking"
     [:a {:href (:verify-link-url params)} " here"] "."]
    [:p
@@ -200,7 +200,7 @@
     "Unlock Password"]
    [:p
     "Click " [:a {:href (:verify-link-url params)} "here"] " to unlock your "
-    "account at " [:a {:href (:base-url (:config params))} "Toto"] ", the family "
+    "account at " [:a {:href (:base-url params)} "Toto"] ", the family "
     "to-do list manager."]])
 
 (defn- send-unlock-link [ config user-id ]
@@ -218,7 +218,7 @@
     "Reset Password"]
    [:p
     "Click " [:a {:href (:verify-link-url params)} "here"]
-    " to reset your password at " [:a {:href (:base-url (:config params))} "Toto"]
+    " to reset your password at " [:a {:href (:base-url params)} "Toto"]
     ", the family to-do list manager."]])
 
 (defn- send-reset-link [ config user-id ]

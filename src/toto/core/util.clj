@@ -155,3 +155,7 @@
 
 (defmacro with-thread-name [ thread-name & body ]
   `(call-with-thread-name (fn [] ~@body) ~thread-name))
+
+(defn map-values [f m]
+  (->> (map (fn [[k v]] [k (f v)]) m)
+       (into {})))
