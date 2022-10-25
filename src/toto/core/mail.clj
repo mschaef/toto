@@ -27,8 +27,10 @@
 
 (defn send-email [config message-info]
   (let [smtp (:smtp config)
-        {to :to subject :subject hiccup-content :content} message-info
-        html-content (html [:html hiccup-content])]
+        {to :to subject :subject content :content params :params} message-info
+        html-content (html [:html (if (fn? content)
+                                    (content (merge config (or params {})))
+                                    content)])]
     (log/info "Sending mail to " to " with subject: " subject)
     (cond
       (not (:enabled smtp))

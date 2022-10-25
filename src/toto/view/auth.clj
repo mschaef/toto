@@ -102,20 +102,14 @@
 (defn current-roles []
   (:roles (friend/current-authentication)))
 
-(defn set-user-password [ username password ]
-  (log/info "Changing password for user:" username)
-  (data/set-user-password username (credentials/hash-bcrypt password)))
 
-(defn create-user [ email-addr password ]
-  (data/add-user email-addr (credentials/hash-bcrypt password)))
-
-(defn password-change-message [ config  ]
+(defn password-change-message [ config ]
   (let [from-mail (get-in config [:smtp :from])]
     [:body
      [:h1
       "Password Changed"]
      [:p
-      "This mail confirms that you have changed the password for your"
+      "This mail confirms that you have changed the password for your "
       "account at " [:a {:href (:base-url config)} "Toto"]
       ", the family to-do list manager."]
      [:p
@@ -126,7 +120,16 @@
   (mail/send-email config
                    {:to [ username ]
                     :subject "Todo - Password Changed"
-                    :content (password-change-message config)}))
+                    :content password-change-message
+                    :params config}))
+
+(defn set-user-password [ config username password ]
+  (log/info "Changing password for user:" username)
+  (data/set-user-password username (credentials/hash-bcrypt password))
+  (send-password-change-message config username))
+
+(defn create-user [ email-addr password ]
+  (data/add-user email-addr (credentials/hash-bcrypt password)))
 
 (defn password-change-workflow [ config ]
   (fn [{:keys [uri request-method params]}]
@@ -136,8 +139,7 @@
                  (get-user-by-credentials params)
                  (not (= password new-password))
                  (= new-password new-password-2))
-        (set-user-password username new-password)
-        (send-password-change-message config username)
+        (set-user-password config username new-password)
         (workflows/make-auth (get-auth-map-by-email username)
                              {::friend/redirect-on-auth? "/user/password-changed"})))))
 

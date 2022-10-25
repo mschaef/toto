@@ -87,19 +87,20 @@
               user-unauthorized)
             request)}))
 
-(defn- user-create-notification-message [ email-addr ]
+(defn- user-create-notification-message [ params ]
   [:body
    [:h1
     "New User Created"]
    [:p
-    "New user e-mail: " email-addr "."]])
+    "New user e-mail: " (:email-addr params) "."]])
 
 (defn- send-user-create-notification [ config email-addr ]
   (mail/send-email
    config
    {:to (:admin-mails config)
     :subject "Todo - New User Account Created"
-    :content (user-create-notification-message email-addr)}))
+    :content user-create-notification-message
+    :params { :email-addr email-addr }}))
 
 (defn create-user [ config email-addr password ]
   (let [user-id (auth/create-user email-addr password)
@@ -172,14 +173,14 @@
          (:link_uuid verification-link))))
 
 
-(defn- verification-link-email-message [ config verify-link-url ]
+(defn- verification-link-email-message [ params ]
   [:body
    [:h1
     "Verification E-mail"]
    [:p
-    "Thank you for registering with " [:a {:href (:base-url config)} "Toto"]
+    "Thank you for registering with " [:a {:href (:base-url (:config params))} "Toto"]
     ", the family to-do list manager. You can verify your e-mail address by clicking"
-    [:a {:href verify-link-url} " here"] "."]
+    [:a {:href (:verify-link-url params)} " here"] "."]
    [:p
     "If this isn't something you've requested, you can safely ignore this"
     " e-mail, and we won't send anything else."]])
@@ -190,15 +191,16 @@
     (mail/send-email config
                      {:to [ (:email_addr user) ]
                       :subject "Todo - Verify Account"
-                      :content (verification-link-email-message config link-url)})))
+                      :content verification-link-email-message
+                      :params { :verify-link-url link-url }})))
 
-(defn- unlock-link-email-message [ config verify-link-url ]
+(defn- unlock-link-email-message [ params ]
   [:body
    [:h1
     "Unlock Password"]
    [:p
-    "Click " [:a {:href verify-link-url} "here"] " to unlock your "
-    "account at " [:a {:href (:base-url config)} "Toto"] ", the family "
+    "Click " [:a {:href (:verify-link-url params)} "here"] " to unlock your "
+    "account at " [:a {:href (:base-url (:config params))} "Toto"] ", the family "
     "to-do list manager."]])
 
 (defn- send-unlock-link [ config user-id ]
@@ -207,15 +209,16 @@
     (mail/send-email config
                      {:to [ (:email_addr user) ]
                       :subject "Todo - Unlock Account"
-                      :content (unlock-link-email-message config link-url)})))
+                      :content unlock-link-email-message
+                      :params { :verify-link-url link-url }})))
 
-(defn- reset-link-email-message [ config verify-link-url ]
+(defn- reset-link-email-message [ params ]
   [:body
    [:h1
     "Reset Password"]
    [:p
-    "Click " [:a {:href verify-link-url} "here"]
-    " to reset your password at " [:a {:href (:base-url config)} "Toto"]
+    "Click " [:a {:href (:verify-link-url params)} "here"]
+    " to reset your password at " [:a {:href (:base-url (:config params))} "Toto"]
     ", the family to-do list manager."]])
 
 (defn- send-reset-link [ config user-id ]
@@ -224,7 +227,8 @@
     (mail/send-email config
                      {:to [ (:email_addr user) ]
                       :subject "Todo - Reset Account Password"
-                      :content (reset-link-email-message config link-url)})))
+                      :content reset-link-email-message
+                      :params { :verify-link-url link-url }})))
 
 (defn add-user [ config params ]
   (let [{:keys [:email-addr :email-addr-2 :password :password-2]} params]
@@ -377,7 +381,7 @@
                                     error-message])
                                  (form/submit-button {} "Reset Password")])])))
 
-(defn password-reset [ user-id link-uuid new-password new-password-2 ]
+(defn password-reset [ config user-id link-uuid new-password new-password-2 ]
   (let [ user (get-link-verified-user user-id link-uuid)]
     (cond
       (not user)
@@ -388,7 +392,7 @@
 
       :else
       (do
-        (auth/set-user-password (:email_addr user) new-password)
+        (auth/set-user-password config (:email_addr user) new-password)
         ;; Resetting the password via a link also serves to
         ;; unlock the account.
         (data/reset-login-failures (:user_id user))
@@ -513,7 +517,8 @@
 
 (defn- send-support-message [ config params ]
   (let [message  {:subject "Todo - Support Request"
-                  :content (support-message params)}]
+                  :content support-message
+                  :params params}]
     (log/info "Sending support message:" (:email-addr params)
               "Regarding URI:" (:current-uri params))
     (mail/send-email config (assoc message :to (:admin-mails config)))
@@ -579,7 +584,8 @@
      (enter-password-reset-workflow config email-addr))
 
    (POST "/user/password-reset/:user-id" {params :params}
-     (password-reset (parsable-integer? (:user-id params)) (:link_uuid params)
+     (password-reset config
+                     (parsable-integer? (:user-id params)) (:link_uuid params)
                      (:new-password params) (:new-password-2 params)))
 
    (friend/logout
