@@ -28,7 +28,8 @@
         toto.view.query
         toto.view.page)
   (:require [clojure.tools.logging :as log]
-            [hiccup.form :as form]
+            [hiccup.form :as hiccup-form]
+            [hiccup.util :as hiccup-util]
             [toto.data.data :as data]
             [toto.view.auth :as auth]
             [toto.todo.sidebar-view :as sidebar-view]))
@@ -50,15 +51,15 @@
     (list-priority-button list-id 0 img-arrow-blue)))
 
 (defn render-new-list-form [ ]
-  (form/form-to
+  (hiccup-form/form-to
    {:class "new-item-form"}
    [:post (shref "/list")]
-   (form/text-field {:maxlength "32"
+   (hiccup-form/text-field {:maxlength "32"
                      :placeholder "New List Name"
                      :autofocus "autofocus"}
                     "list-description")
    [:div
-    (form/check-box "is-view" false "Y")
+    (hiccup-form/check-box "is-view" false "Y")
     [:label {:for "is-view"} "View"]]))
 
 (defn render-list-list-page []
@@ -89,10 +90,10 @@
 (defn- render-sort-list-panel [ list-id ]
   [:div.config-panel
    [:h1 "Sort List"]
-   (form/form-to {} [:post (shref "/list/" list-id "/sort")]
+   (hiccup-form/form-to {} [:post (shref "/list/" list-id "/sort")]
     [:input {:type "submit" :value "Sort By"}]
     [:select {:id "sort-by" :name "sort-by"}
-     (form/select-options [["Description" "desc"]
+     (hiccup-form/select-options [["Description" "desc"]
                            ["Created Date" "created-on"]
                            ["Updated Date" "updated-on"]
                            ["Snoozed Until" "snoozed-until"]])])])
@@ -119,7 +120,7 @@
      [:div.config-panel
       [:h1  "List Permissions:"]
       [:div
-       (form/check-box "is-public" (:is_public list-details))
+       (hiccup-form/check-box "is-public" (:is_public list-details))
        [:label {:for "is-public"} "List publically visible?"]]]
      [:div.config-panel
       [:h1  "List Owners:"]
@@ -131,8 +132,8 @@
                    (if (= (auth/current-user-id) user-id)
                      [:div.self-owner
                       "&nbsp;"
-                      (form/hidden-field user-parameter-name "on")]
-                     (form/check-box user-parameter-name (in? list-owners user-id)))
+                      (hiccup-form/hidden-field user-parameter-name "on")]
+                     (hiccup-form/check-box user-parameter-name (in? list-owners user-id)))
                    [:label {:for user-parameter-name}
                     user-email-addr
                     (when (= (auth/current-user-id) user-id)
@@ -158,9 +159,10 @@
       (map (fn [ todo-list ]
              (let [ list-id (:todo_list_id todo-list) ]
                [:div
-                (form/check-box (str "list_" list-id)
-                                (in? view-sublist-ids list-id))
-                (:desc todo-list)]))
+                (hiccup-form/check-box (str "list_" list-id)
+                                       (in? view-sublist-ids list-id))
+                (hiccup-util/escape-html
+                 (:desc todo-list))]))
            (remove #(:is_view %) todo-lists))]]))
 
 (defn render-todo-list-details-page [ list-id min-list-priority & { :keys [ error-message ]}]
@@ -169,19 +171,19 @@
         is-view (:is_view list-details)
         list-type (if is-view "View" "List")]
     (render-page
-     {:title (str list-type " Details: " list-name)
+     {:title (str list-type " Details: " (hiccup-util/escape-html list-name))
       :sidebar (sidebar-view/render-sidebar-list-list list-id min-list-priority 0)}
      (scroll-column
       'todo-list-details-column
       [:h3
        [:a { :href (str "/list/" list-id ) } img-back-arrow]
-       "List Details: " list-name]
-      (form/form-to
+       "List Details: " (hiccup-util/escape-html list-name)]
+      (hiccup-form/form-to
        {:class "details"}
        [:post (shref "/list/" list-id "/details")]
        [:div.config-panel
         [:h1 (str list-type " Name:")]
-        (form/text-field { :maxlength "32" } "list-name" list-name)]
+        (hiccup-form/text-field { :maxlength "32" } "list-name" list-name)]
        (if is-view
          (render-todo-list-view-editor list-id)
          (render-todo-list-permissions list-id error-message))

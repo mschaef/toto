@@ -27,8 +27,9 @@
         toto.view.query
         toto.view.components)
   (:require [clojure.tools.logging :as log]
-            [hiccup.page :as page]
-            [hiccup.form :as form]
+            [hiccup.page :as hiccup-page]
+            [hiccup.form :as hiccup-form]
+            [hiccup.util :as hiccup-util]
             [toto.view.auth :as auth]))
 
 (defn session-controls []
@@ -54,7 +55,7 @@
       [:div.cancel
        [:a {:href escape-url} img-window-close]]
       (if-let [ form-post-to (:form-post-to attrs)]
-        (form/form-to [:post form-post-to] contents)
+        (hiccup-form/form-to [:post form-post-to] contents)
         contents)]]))
 
 (defn- render-support-modal [ ]
@@ -64,12 +65,12 @@
       :form-post-to "/support-message"}
      [:div.config-panel
       [:h1 "Contact Information"]
-      (form/text-field {:maxlength "128"
+      (hiccup-form/text-field {:maxlength "128"
                         :placeholder "Full Name"
                         :autocomplete "off"
                         :autofocus "on"}
                        "full-name")
-      (form/text-field (cond-> {:maxlength "128"
+      (hiccup-form/text-field (cond-> {:maxlength "128"
                                 :placeholder "E-Mail Address"
                                 :value user-identity}
                          user-identity (assoc :readonly "readonly"))
@@ -77,12 +78,12 @@
      (render-verify-question)
      [:div.config-panel
       [:h1 "Message"]
-      (form/text-area {:maxlength "4096"
+      (hiccup-form/text-area {:maxlength "4096"
                        :rows "12"
                        :cols "64"
                        :autocomplete "off"}
                       "message-text")]
-     (form/hidden-field "current-uri" (shref))
+     (hiccup-form/hidden-field "current-uri" (shref))
      [:input {:type "submit" :value "Send Message"}])))
 
 (defn contact-support-button [ ]
@@ -95,10 +96,10 @@
            :content "width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0"}]
    [:title (when *dev-mode* "DEV - ") (:name (:app *config*)) (when title (str " - " title))]
    [:link { :rel "shortcut icon" :href (resource "favicon.ico")}]
-   (page/include-css (resource "toto.css")
+   (hiccup-page/include-css (resource "toto.css")
                      (resource "font-awesome.min.css"))
    [:script {:type "module" :src (resource "toto.js")}]
-   (page/include-js (resource "DragDropTouch.js"))])
+   (hiccup-page/include-js (resource "DragDropTouch.js"))])
 
 (defn- render-header [ page-title show-menu? ]
   (let [ username (auth/current-identity)]
@@ -107,7 +108,7 @@
        [:span.toggle-menu img-show-list "&nbsp;"])
      [:span.app-name
       [:a { :href "/" } (:name (:app *config*))] " - "]
-     page-title
+     (hiccup-util/escape-html page-title)
      (when *dev-mode*
        [:span.pill.dev "DEV"])
      (session-controls)]))
@@ -149,7 +150,7 @@
       contents]]))
 
 (defn render-page [ attrs & contents]
-  (page/html5
+  (hiccup-page/html5
    [:html
     (render-standard-header (:title attrs))
     (render-page-body attrs contents)]))
