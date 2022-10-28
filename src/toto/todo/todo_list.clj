@@ -28,8 +28,8 @@
         toto.view.query
         toto.view.page)
   (:require [clojure.tools.logging :as log]
-            [hiccup.form :as form]
-            [hiccup.util :as util]
+            [hiccup.form :as hiccup-form]
+            [hiccup.util :as hiccup-util]
             [toto.data.data :as data]
             [toto.view.auth :as auth]
             [toto.view.request-date :as request-date]
@@ -42,8 +42,8 @@
 (defn- format-date [ date ]
   (.format pill-date-format date))
 
-(defn ensure-string-breakpoints [ s n ]
-  (clojure.string/join html-breakpoint (partition-string s n)))
+(defn- ensure-string-breakpoints [ s n ]
+  (clojure.string/join html-breakpoint (map hiccup-util/escape-html (partition-string s n))))
 
 (defn- ensure-string-breaks [ string at ]
   (clojure.string/replace string at (str at html-breakpoint)))
@@ -54,7 +54,7 @@
                   ":"
                   (if-let [authority (.getAuthority url)]
                     (str "//" authority)))]
-    (-> (util/escape-html
+    (-> (hiccup-util/escape-html
          (str base
               (string-leftmost (.getPath url)
                                (max 0 (- (- target-length 3) (.length base)))
@@ -99,22 +99,23 @@
 
 (defn- render-new-item-form [ list-id editing-item? ]
   (let [ sublists (data/get-view-sublists (auth/current-user-id) list-id)]
-    (form/form-to
+    (hiccup-form/form-to
      {:class "new-item-form"}
      [:post (shref "/list/" list-id)]
      (if (= (count sublists) 0)
-       (form/hidden-field "item-list-id" list-id)
+       (hiccup-form/hidden-field "item-list-id" list-id)
        [:select {:id "item-list-id" :name "item-list-id"}
-        (form/select-options (map (fn [ sublist ]
-                                    [ (:desc sublist) (:sublist_id sublist)])
+        (hiccup-form/select-options (map (fn [ sublist ]
+                                           [(hiccup-util/escape-html (:desc sublist))
+                                            (:sublist_id sublist)])
                                   sublists))])
-     (form/text-field (cond-> {:maxlength "1024"
+     (hiccup-form/text-field (cond-> {:maxlength "1024"
                                :placeholder "New Item Description"
                                :autocomplete "off"
                                :onkeydown "window._toto.onNewItemInputKeydown(event)"}
                         (not editing-item?) (assoc "autofocus" "on"))
                       "item-description")
-     (form/hidden-field "item-priority" "0")
+     (hiccup-form/hidden-field "item-priority" "0")
      [:button.high-priority-submit {:type "button"
                                     :onclick "window._toto.submitHighPriority()"}
       img-star-yellow])))
@@ -200,14 +201,15 @@
                                              ", snoozed: " (format-date snoozed-until)))])
            (when (not (= created-by-id (auth/current-user-id)))
              [:span.pill { :title created-by-email }
-              created-by-name])]))]
+              (hiccup-util/escape-html
+               created-by-name)])]))]
      [:div.item-control.priority.right
       (render-item-priority-control item-id priority writable?)]
      (item-drag-handle "right" item-info)]))
 
 (defn- render-query-select [ id current-value ]
   [:select { :id id :name id :onchange "this.form.submit()"}
-   (form/select-options [[ "-" "-"]
+   (hiccup-form/select-options [[ "-" "-"]
                          ["1d" "1"]
                          ["7d" "7"]
                          ["30d" "30"]
@@ -218,7 +220,7 @@
 
 (defn- render-todo-list-query-settings [ list-id completed-within-days snoozed-for-days ]
   [:div.query-settings
-   (form/form-to { :class "embedded "} [:get (shref "/list/" list-id)]
+   (hiccup-form/form-to { :class "embedded "} [:get (shref "/list/" list-id)]
                  [:div.control-segment
                   [:a {:href (shref "/list/" list-id {:view "completions"})}
                    "[recently completed]"]]
@@ -237,7 +239,7 @@
 
 (defn- render-todo-list-completion-query-settings [ list-id completed-within-days ]
   [:div.query-settings
-   (form/form-to { :class "embedded "} [:get (shref "/list/" list-id "/completions")]
+   (hiccup-form/form-to { :class "embedded "} [:get (shref "/list/" list-id "/completions")]
                  [:div.control-segment
                   [:a {:href (shref "/list/" list-id "/details")}
                    "[list details]"]]
@@ -306,7 +308,8 @@
        [:h2
         [:a
          {:href (shref "/list/" (:sublist_id sublist-details))}
-         (:desc sublist-details)]]
+         (hiccup-util/escape-html
+          (:desc sublist-details))]]
        items])))
 
 (defn- render-todo-list-view [ list-id edit-item-id writable? completed-within-days snoozed-for-days ]
@@ -433,11 +436,13 @@
 
 (defn- render-list-select [ id excluded-list-id ]
   [:select { :id id :name id }
-   (form/select-options (map (fn [ list-info ]
-                               [ (:desc list-info) (:todo_list_id list-info)])
-                             (remove
-                              #(= excluded-list-id (:todo_list_id %))
-                              (data/get-todo-lists-by-user (auth/current-user-id)))))])
+   (hiccup-form/select-options
+    (map (fn [ list-info ]
+           [(hiccup-util/escape-html (:desc list-info))
+            (:todo_list_id list-info)])
+         (remove
+          #(= excluded-list-id (:todo_list_id %))
+          (data/get-todo-lists-by-user (auth/current-user-id)))))])
 
 (defn render-update-from-modal [ params list-id ]
   (render-modal
