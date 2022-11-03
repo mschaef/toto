@@ -25,6 +25,7 @@
         hiccup.core
         toto.view.common
         toto.view.components
+        toto.view.query
         toto.view.page)
   (:require [clojure.tools.logging :as log]
             [ring.util.response :as ring]
@@ -35,12 +36,12 @@
             [toto.view.auth :as auth]))
 
 (defn user-unauthorized [ request ]
-  (render-page { :page-title "Access Denied"}
+  (render-page { :title "Access Denied"}
                [:div.page-message
                 [:h1 "Access Denied"]]))
 
 (defn user-unverified [ request ]
-  (render-page { :page-title "E-Mail Unverified"}
+  (render-page { :title "E-Mail Unverified"}
                [:div.page-message
                 [:h1 "E-Mail Unverified"]
                 [:p
@@ -50,7 +51,7 @@
                  "."]]))
 
 (defn user-password-expired [ request ]
-  (render-page { :page-title "Password Expired"}
+  (render-page { :title "Password Expired"}
                [:div.page-message
                 [:h1 "Password Expired"]
                 [:p
@@ -60,7 +61,7 @@
                  "."]]))
 
 (defn user-account-locked [ request ]
-  (render-page { :page-title "Account Locked"}
+  (render-page { :title "Account Locked"}
                [:div.page-message
                 [:h1 "Account Locked"]
                 [:p
@@ -86,29 +87,33 @@
               user-unauthorized)
             request)}))
 
-(defn notify-user-create [ config email-addr ]
+(defn- user-create-notification-message [ params ]
+  [:body
+   [:h1
+    "New User Created"]
+   [:p
+    "New user e-mail: " (:email-addr params) "."]])
+
+(defn- send-user-create-notification [ config email-addr ]
   (mail/send-email
    config
    {:to (:admin-mails config)
     :subject "Todo - New User Account Created"
-    :content [:body
-              [:h1
-               "New User Created"]
-              [:p
-               "New user e-mail: " email-addr "."]]}))
+    :content user-create-notification-message
+    :params { :email-addr email-addr }}))
 
 (defn create-user [ config email-addr password ]
   (let [user-id (auth/create-user email-addr password)
         list-id (data/add-list "Todo" false)]
     (data/set-list-ownership list-id #{ user-id })
-    (notify-user-create config email-addr)
+    (send-user-create-notification config email-addr)
     user-id))
 
 (defn wrap-authenticate [ app config ]
   (auth/wrap-authenticate app config unauthorized-handler))
 
 (defn render-forgot-password-form []
-  (render-page { :page-title "Forgot Password" }
+  (render-page { :title "Forgot Password" }
    (form/form-to
     {:class "auth-form"
      :data-turbo "false"}
@@ -122,7 +127,7 @@
      (form/submit-button {} "Send Reset E-Mail")]))  )
 
 (defn render-login-page [ & { :keys [ email-addr login-failure?]}]
-  (render-page { :page-title "Log In" }
+  (render-page { :title "Log In" }
    (form/form-to
     {:class "auth-form"
      :data-turbo "false"}
@@ -141,10 +146,8 @@
     (form/submit-button {} "Login")])))
 
 (defn render-new-user-form [ & { :keys [ error-message ]}]
-  (let [verify-n-1 (rand-int 100)
-        verify-n-2 (rand-int 100)]
     (render-page
-     {:page-title "New User Registration"
+     {:title "New User Registration"
       :page-data-class "init-new-user"}
      (form/form-to
       {:class "auth-form"
@@ -158,18 +161,11 @@
        [:h1 "Password"]
        (form/password-field {:placeholder "Password"} "password")
        (form/password-field {:placeholder "Verify Password"} "password-2")]
-      [:div.config-panel
-       [:h1 "Math Problem"]
-       "Please solve this math problem to help confirm you are not a robot."
-       [:div.verify-problem
-        (form/hidden-field {} "verify-n-1" verify-n-1)
-        (form/hidden-field {} "verify-n-2" verify-n-2)
-        verify-n-1 " + " verify-n-2 " = "
-        (form/text-field {:class "verify-response"} "verify-response")]]
+      (render-verify-question)
       [:div.submit-panel
        [:div#error.error-message
         error-message]
-       (form/submit-button {} "Register")]))))
+       (form/submit-button {} "Register")])))
 
 (defn get-verification-link-by-user-id [ config link-type user-id ]
   (let [verification-link (data/get-verification-link-by-user-id user-id)]
@@ -177,87 +173,88 @@
          (:link_uuid verification-link))))
 
 
-(defn verification-email-message [ config verify-link-url ]
+(defn- verification-link-email-message [ params ]
   [:body
    [:h1
     "Verification E-mail"]
    [:p
-    "Thank you for registering with " [:a {:href (:base-url config)} "Toto"]
+    "Thank you for registering with " [:a {:href (:base-url params)} "Toto"]
     ", the family to-do list manager. You can verify your e-mail address by clicking"
-    [:a {:href verify-link-url} " here"] "."]
+    [:a {:href (:verify-link-url params)} " here"] "."]
    [:p
     "If this isn't something you've requested, you can safely ignore this"
     " e-mail, and we won't send anything else."]])
 
-(defn send-verification-link [ config user-id ]
+(defn- send-verification-link [ config user-id ]
   (let [user (data/get-user-by-id user-id)
         link-url (get-verification-link-by-user-id config "verify" user-id)]
     (mail/send-email config
                      {:to [ (:email_addr user) ]
                       :subject "Todo - Verify Account"
-                      :content (verification-email-message config link-url)})))
+                      :content verification-link-email-message
+                      :params { :verify-link-url link-url }})))
 
-(defn unlock-email-message [ config verify-link-url ]
+(defn- unlock-link-email-message [ params ]
   [:body
    [:h1
     "Unlock Password"]
    [:p
-    "Click " [:a {:href verify-link-url} "here"] " to unlock your "
-    "account at " [:a {:href (:base-url config)} "Toto"] ", the family "
+    "Click " [:a {:href (:verify-link-url params)} "here"] " to unlock your "
+    "account at " [:a {:href (:base-url params)} "Toto"] ", the family "
     "to-do list manager."]])
 
-(defn send-unlock-link [ config user-id ]
+(defn- send-unlock-link [ config user-id ]
   (let [user (data/get-user-by-id user-id)
         link-url (get-verification-link-by-user-id config "unlock" user-id)]
     (mail/send-email config
                      {:to [ (:email_addr user) ]
                       :subject "Todo - Unlock Account"
-                      :content (unlock-email-message config link-url)})))
+                      :content unlock-link-email-message
+                      :params { :verify-link-url link-url }})))
 
-(defn reset-email-message [ config verify-link-url ]
+(defn- reset-link-email-message [ params ]
   [:body
    [:h1
     "Reset Password"]
    [:p
-    "Click " [:a {:href verify-link-url} "here"]
-    " to reset your password at " [:a {:href (:base-url config)} "Toto"]
+    "Click " [:a {:href (:verify-link-url params)} "here"]
+    " to reset your password at " [:a {:href (:base-url params)} "Toto"]
     ", the family to-do list manager."]])
 
-(defn send-reset-link [ config user-id ]
+(defn- send-reset-link [ config user-id ]
   (let [user (data/get-user-by-id user-id)
         link-url (get-verification-link-by-user-id config "reset" user-id)]
     (mail/send-email config
                      {:to [ (:email_addr user) ]
                       :subject "Todo - Reset Account Password"
-                      :content (reset-email-message config link-url)})))
+                      :content reset-link-email-message
+                      :params { :verify-link-url link-url }})))
 
-(defn add-user [config {:keys [:email-addr :email-addr-2 :password :password-2
-                               :verify-n-1 :verify-n-2 :verify-response]}]
-  (cond
-    (not (= (or (parsable-integer? verify-response) -1)
-            (+ (or (parsable-integer? verify-n-1) -1)
-               (or (parsable-integer? verify-n-2) -1))))
-    (render-new-user-form :error-message "Math problem answer incorrect.")
+(defn add-user [ config params ]
+  (let [{:keys [:email-addr :email-addr-2 :password :password-2]} params]
+    (cond
+      (not (verify-response-correct params))
+      (render-new-user-form :error-message "Math problem answer incorrect.")
 
-    (not (= email-addr email-addr-2))
-    (render-new-user-form :error-message "E-mail addresses do not match.")
+      (not (= email-addr email-addr-2))
+      (render-new-user-form :error-message "E-mail addresses do not match.")
 
-    (not (= password password-2))
-    (render-new-user-form :error-message "Passwords do not match.")
+      (not (= password password-2))
+      (render-new-user-form :error-message "Passwords do not match.")
 
-    (data/user-email-exists? email-addr)
-    (render-new-user-form :error-message "User with this e-mail address already exists.")
+      (data/user-email-exists? email-addr)
+      (render-new-user-form :error-message "User with this e-mail address already exists.")
 
-    :else
-    (do
-      (let [user-id (create-user config email-addr password)]
-        (ring/redirect (str "/user/verify/" user-id))))))
+      :else
+      (do
+        (let [user-id (create-user config email-addr password)]
+          (ring/redirect (str "/user/verify/" user-id)))))))
 
 (def date-format (java.text.SimpleDateFormat. "yyyy-MM-dd hh:mm aa"))
 
 (defn render-user-info-form [ & { :keys [ error-message ]}]
   (let [user (data/get-user-by-email (auth/current-identity))]
-    (render-page { :page-title "User Information" }
+    (render-page { :title "User Information" }
                  (form/form-to
                   [:post "/user/info"]
                   [:input {:type "hidden"
@@ -279,7 +276,7 @@
 
                   [:div.config-panel
                    [:h1 "Last Login"]
-                   (.format date-format (or (:last_login_on user) (java.util.Date.)))]
+                   (.format date-format (or (:last_login_on user) (current-time)))]
 
                   [:div.config-panel
                     [:a {:href "/user/password"} "Change Password"]]))))
@@ -300,7 +297,7 @@
 
 (defn render-change-password-form  [ & { :keys [ error-message ]}]
   (let [user (data/get-user-by-email (auth/current-identity))]
-    (render-page { :page-title "Change Password" }
+    (render-page { :title "Change Password" }
                  (form/form-to {:class "auth-form"
                                 :data-turbo "false"}
                                [:post "/user/password"]
@@ -315,7 +312,7 @@
                                 (:friendly_name user)]
                                [:div.config-panel
                                 [:h1 "Last Login"]
-                                (.format date-format (or (:last_login_on user) (java.util.Date.)))]
+                                (.format date-format (or (:last_login_on user) (current-time)))]
                                [:div.config-panel
                                 [:h1 "Change Password"]
                                 (form/password-field {:placeholder "Password"} "password")
@@ -354,7 +351,7 @@
         (ring/redirect "/")))))
 
 (defn render-password-change-success []
-    (render-page { :page-title "Password Successfully Changed" }
+    (render-page { :title "Password Successfully Changed" }
                  [:div.page-message
                   [:h1 "Password Successfully Changed"]
                   [:p "Your password has been changed. You can view "
@@ -367,7 +364,7 @@
 
 (defn render-password-reset-form [ link-user-id link-uuid error-message ]
   (when-let [ user (get-link-verified-user link-user-id link-uuid)]
-    (render-page { :page-title "Reset Password" }
+    (render-page { :title "Reset Password" }
                  [:div.page-message
                   (form/form-to {:class "auth-form"
                                  :data-turbo "false"}
@@ -384,7 +381,7 @@
                                     error-message])
                                  (form/submit-button {} "Reset Password")])])))
 
-(defn password-reset [ user-id link-uuid new-password new-password-2 ]
+(defn password-reset [ config user-id link-uuid new-password new-password-2 ]
   (let [ user (get-link-verified-user user-id link-uuid)]
     (cond
       (not user)
@@ -395,7 +392,7 @@
 
       :else
       (do
-        (auth/set-user-password (:email_addr user) new-password)
+        (auth/set-user-password config (:email_addr user) new-password)
         ;; Resetting the password via a link also serves to
         ;; unlock the account.
         (data/reset-login-failures (:user_id user))
@@ -428,7 +425,7 @@
   (let [ user (data/get-user-by-id user-id) ]
     (ensure-verification-link user-id)
     (send-verification-link config user-id)
-    (render-page { :page-title "e-Mail Address Verification" }
+    (render-page { :title "e-Mail Address Verification" }
                       [:div.page-message
                        [:h1 "e-Mail Address Verification"]
                        [:p "An e-mail has been sent to "  [:span.addr (:email_addr user)]
@@ -442,7 +439,7 @@
 (defn verify-user [ link-user-id link-uuid ]
   (when-let [ user (get-link-verified-user link-user-id link-uuid ) ]
     (data/add-user-roles (:user_id user) #{:toto.role/verified})
-    (render-page { :page-title "e-Mail Address Verified" }
+    (render-page { :title "e-Mail Address Verified" }
                  [:div.page-message
                   [:h1 "e-Mail Address Verified"]
                   [:p "Thank you for verifying your e-mail address at: "
@@ -454,7 +451,7 @@
   (let [user (data/get-user-by-email (auth/current-identity))]
     (ensure-verification-link user-id)
     (send-unlock-link config user-id)
-    (render-page { :page-title "Unlock Account" }
+    (render-page { :title "Unlock Account" }
                       [:div.page-message
                        [:h1 "Unlock Account"]
                        [:p "An e-mail has been sent to "  [:span.addr (:email_addr user)]
@@ -467,7 +464,7 @@
 (defn unlock-user [ link-user-id link-uuid ]
   (when-let [ user (get-link-verified-user link-user-id link-uuid ) ]
     (data/reset-login-failures (:user_id user))
-    (render-page { :page-title "Account Unlocked" }
+    (render-page { :title "Account Unlocked" }
                  [:div.page-message
                   [:h1 "Account Unlocked"]
                   [:p "Thank you for unlocking your account at: "
@@ -481,7 +478,7 @@
     (when user-id
       (ensure-verification-link user-id)
       (send-reset-link config user-id))
-    (render-page { :page-title "Reset Password" }
+    (render-page { :title "Reset Password" }
                  [:div.page-message
                   [:h1 "Reset Password"]
                   [:p "If there is an account with this e-mail address, an e-mail"
@@ -494,11 +491,45 @@
                       (development-no-user-form)))])))
 
 (defn render-password-reset-success []
-    (render-page { :page-title "Password Successfully Reset" }
+    (render-page { :title "Password Successfully Reset" }
                  [:div.page-message
                   [:h1 "Password Successfully Reset"]
                   [:p "Your password has been reset. You can login "
                    [:a {:href "/"} "here"] "."]])  )
+
+(defn- support-message [ params ]
+  [:body
+   [:h1
+    "Todo List - Support Request"]
+   [:p
+    (:full-name params) ","]
+   [:p]
+   [:p
+    "Thank you for contacting support, we will be in "
+    "touch soon. The contents of your message are below."]
+   [:p
+    "-- Todo Support"]
+   [:hr]
+   [:h2 "Message:"]
+   [:p (:message-text params)]
+   [:p
+    "Site URL:" [:tt (:current-uri params)]]])
+
+(defn- send-support-message [ config params ]
+  (let [message  {:subject "Todo - Support Request"
+                  :content support-message
+                  :params params}]
+    (log/info "Sending support message:" (:email-addr params)
+              "Regarding URI:" (:current-uri params))
+    (mail/send-email config (assoc message :to (:admin-mails config)))
+    (mail/send-email config (assoc message :to (:email-address params)))))
+
+(defn- handle-support-message [ config params ]
+  (if (verify-response-correct params)
+    (send-support-message config params)
+    (log/warn "Non verified request" params))
+  (ring/redirect (or (uri-path? (:current-uri params))
+                     "/")))
 
 (defn private-routes [ config ]
   (routes
@@ -553,7 +584,8 @@
      (enter-password-reset-workflow config email-addr))
 
    (POST "/user/password-reset/:user-id" {params :params}
-     (password-reset (parsable-integer? (:user-id params)) (:link_uuid params)
+     (password-reset config
+                     (parsable-integer? (:user-id params)) (:link_uuid params)
                      (:new-password params) (:new-password-2 params)))
 
    (friend/logout
@@ -562,6 +594,10 @@
 
    (GET "/user/password-reset-success" []
      (render-password-reset-success))
+
+   ;; Support Messages
+   (POST "/support-message" { params :params }
+     (handle-support-message config params))
 
    ;; Logout Link
    (friend/logout

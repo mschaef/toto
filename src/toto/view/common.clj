@@ -46,5 +46,7 @@
   (clojure.string/join " " (map str (filter #(classes %)
                                             (keys classes)))))
 
+;;; Resource Paths
 
-
+(defn resource [ path ]
+  (str "/" (get-version) "/" path))

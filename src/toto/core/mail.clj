@@ -19,29 +19,37 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-
 (ns toto.core.mail
-  (:use hiccup.core)
+  (:use toto.core.util)
   (:require [clojure.tools.logging :as log]
-            [postal.core :as postal]))
+            [postal.core :as postal]
+            [hiccup.core :as hiccup]
+            [hiccup.util :as hiccup-util]))
 
-(defn send-email [config {to :to
-                          subject :subject
-                          hiccup-content :content}]
-  (log/info "Sending mail to " to " with subject: " subject)
+(defn- escape-email-params [ params ]
+  (map-values #(if (string? %)
+                 (hiccup-util/escape-html %)
+                 "")
+              params))
+
+(defn send-email [config message-info]
   (let [smtp (:smtp config)
-        html-content (html [:html hiccup-content])]
+        {:keys [ to subject content params ]} message-info
+        html-content (hiccup/html
+                      [:html
+                       (content (escape-email-params
+                                 (merge {:base-url (:base-url config)}
+                                        (or params {}))))])]
+
+    (log/info "Sending mail to " to " with subject: " subject)
     (cond
       (not (:enabled smtp))
-      (do
-        (log/warn "E-mail disabled. Message not sent. Message text: ")
-        (log/warn html-content))
-
+      (log/warn "E-mail disabled. Message not sent. Message text: "
+                html-content)
 
       (or (nil? to) (= (count to) 0))
-      (do
-        (log/warn "No destination e-mail address. Message not send. Message text: ")
-        (log/warn html-content))
+      (log/warn "No destination e-mail address. Message not send. Message text: "
+                html-content)
 
       :else
       (postal/send-message {:host (:host smtp)

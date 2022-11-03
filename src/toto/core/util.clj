@@ -86,22 +86,36 @@
       (catch Exception ex
         false))))
 
+(defn uri-path? [ uri ]
+  "Returns only the path of the URI, if it is a parsable URI and false
+  otherwise."
+  (and
+   uri
+   (try
+     (.getPath (java.net.URI. uri))
+     (catch java.net.URISyntaxException ex
+       (log/error "Invalid URI" uri)
+       false))))
+
 ;;; Date utilities
 
 (defn current-time []
   (java.util.Date.))
 
-(defn add-days [ date days ]
-  "Given a date, advance it forward n days, leaving it at the
-  beginning of that day"
-  (let [c (java.util.Calendar/getInstance)]
-    (.setTime c date)
-    (.add c java.util.Calendar/DATE days)
-    (.set c java.util.Calendar/HOUR_OF_DAY 0)
-    (.set c java.util.Calendar/MINUTE 0)
-    (.set c java.util.Calendar/SECOND 0)
-    (.set c java.util.Calendar/MILLISECOND 0)
-    (.getTime c)))
+(defn add-days
+  "Given a date, advance it forward n days, leaving it at the beginning
+  of that day in the JVM default time zone. An hour-of-day can
+  optionally be specified."
+  ( [ date days ] (add-days date days 0))
+  ( [ date days hour-of-day]
+   (let [c (java.util.Calendar/getInstance)]
+     (.setTime c date)
+     (.add c java.util.Calendar/DATE days)
+     (.set c java.util.Calendar/HOUR_OF_DAY hour-of-day)
+     (.set c java.util.Calendar/MINUTE 0)
+     (.set c java.util.Calendar/SECOND 0)
+     (.set c java.util.Calendar/MILLISECOND 0)
+     (.getTime c))))
 
 ;;; Configuration properties
 
@@ -141,3 +155,7 @@
 
 (defmacro with-thread-name [ thread-name & body ]
   `(call-with-thread-name (fn [] ~@body) ~thread-name))
+
+(defn map-values [f m]
+  (->> (map (fn [[k v]] [k (f v)]) m)
+       (into {})))

@@ -176,13 +176,11 @@
     (success)))
 
 (defn- update-item-snooze-days [ item-id params ]
-  (let [{ snooze-days :snooze-days } params
-        list-id (data/get-list-id-by-item-id item-id)
-        snooze-days (or (parsable-integer? snooze-days) 0)]
-    (data/update-item-snooze-by-id (auth/current-user-id) item-id
-                                   (if (= snooze-days 0)
-                                     nil
-                                     (add-days (java.util.Date.) snooze-days)))
+  (let [snooze-days (or (parsable-integer? (:snooze-days params)) 0)
+        user-id (auth/current-user-id)]
+    (if (= snooze-days 0)
+      (data/remove-item-snooze-by-id user-id item-id)
+      (data/update-item-snooze-by-id user-id item-id (add-days (current-time) snooze-days 5)))
     (success)))
 
 (defn- update-item-list [ item-id params ]
@@ -209,15 +207,15 @@
   (data/restore-item (auth/current-user-id) item-id)
   (success))
 
-(defn- render-launch-page []
+(defn- render-launch-page [ params ]
   (if (auth/current-identity)
     (redirect-to-home-list)
-    (landing-page/render-landing-page)))
+    (landing-page/render-landing-page params)))
 
 (defn- public-routes [ config ]
   (routes
-   (GET "/" []
-     (render-launch-page))
+   (GET "/" { params :params }
+     (render-launch-page params))
 
    (GET "/list/:list-id/public" { { list-id :list-id } :params }
      ;; Retain backward compatibility with older public list URL scheme
@@ -232,11 +230,6 @@
    (GET "/stocking/:list-id/:item-id" { { list-id :list-id item-id :item-id } :params }
      (todo-list/render-stocking-page list-id (parsable-integer? item-id)))))
 
-(defn render-todo-list-csv [ list-id ]
-  (-> (todo-list/render-todo-list-csv list-id)
-      (ring-response/response)
-      (ring-response/header "Content-Type" "text/csv")))
-
 (defn- list-routes [ list-id ]
   (ensure-list-owner-access list-id)
   (routes
@@ -245,12 +238,6 @@
 
    (POST "/" { params :params }
      (add-item list-id params))
-
-   (GET "/list.csv" []
-     (render-todo-list-csv list-id))
-
-   (GET "/completions" { params :params }
-     (todo-list/render-todo-list-completions list-id params))
 
    (GET "/details" { params :params }
      (todo-list-manager/render-todo-list-details-page list-id (or (parsable-integer? (:min-list-priority params)) 0)))
