@@ -513,7 +513,9 @@
    [:h2 "Message:"]
    [:p (:message-text params)]
    [:p
-    "Site URL:" [:tt (:current-uri params)]]])
+    "Site URL:" [:tt (:current-uri params)]]
+   [:p
+    "E-Mail:" [:tt (:email-address params)]]])
 
 (defn- send-support-message [ config params ]
   (let [message  {:subject "Todo - Support Request"
