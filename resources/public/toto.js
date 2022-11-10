@@ -375,7 +375,7 @@ function dismissQueryIfPresent() {
 }
 
 function dismissModalIfPresent() {
-    var modal = elemOptional('dialog');
+    var modal = elemOptional('modal');
 
     var nextUrl;
 
@@ -412,9 +412,9 @@ function onDocumentKeydown(event) {
 }
 
 function onDocumentClick(event) {
-    var modalBackground = elemOptional('modal-background');
+    var modalBackground = elemOptional('dialog-background');
 
-    if (modalBackground && (event.target == modalBackground)) {
+    if (modalBackground && (event.target === modalBackground)) {
         dismissModalIfPresent();
     }
 }
