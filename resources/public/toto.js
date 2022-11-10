@@ -375,7 +375,7 @@ function dismissQueryIfPresent() {
 }
 
 function dismissModalIfPresent() {
-    var modal = elemOptional('modal');
+    var modal = elemOptional('dialog');
 
     var nextUrl;
 
