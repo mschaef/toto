@@ -8,7 +8,7 @@
 ;;
 ;;       http://www.apache.org/licenses/LICENSE-2.0
 ;;
-;; The license is also includes at the root of the project in the file
+;; Thecense is also includes at the root of the project in the file
 ;; LICENSE.
 ;;
 ;; Unless required by applicable law or agreed to in writing, software
@@ -430,7 +430,7 @@
             ["Next Week"  7 "3"]
             ["Next Month" 30 "4"]])]
      (when (:currently_snoozed (data/get-item-by-id snoozing-item-id))
-       [:div.snooze-hoices
+       [:div.snooze-choices
         [:hr]
         (render-snooze-choice "Unsnooze" 0 "0")]))))
 
