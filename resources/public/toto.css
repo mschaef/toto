@@ -1018,6 +1018,10 @@ p.new-user {
     margin-bottom: 16px;
 }
 
+form.details {
+    padding-left: 0px;
+}
+
 @media print {
     .header {
         display: block;
