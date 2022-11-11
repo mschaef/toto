@@ -391,6 +391,10 @@ select:hover {
     padding-bottom: 30px;
 }
 
+.scroll-column .scrollable.scrolled {
+    box-shadow: inset 0 7px 9px -7px rgb(0 0 0 / 40%)
+}
+
 @media only screen and (max-device-width : 640px) {
     .scrollable {
         padding-bottom: 120px;
@@ -692,7 +696,7 @@ h1 {
     padding-top: 10px;
     padding-bottom: 10px;
 
-    background: #e0e0e0;
+    font-style: italic;
 }
 
 .snoozed-item-warning A {
