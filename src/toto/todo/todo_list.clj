@@ -347,7 +347,7 @@
 
 (defn- render-todo-list [ list-id edit-item-id writable? completed-within-days snoozed-for-days ]
   (scroll-column
-   "todo-list-scroller"
+   (str "todo-list-scroller-" list-id)
    (when writable?
      (render-new-item-form list-id (boolean edit-item-id)))
    (list
