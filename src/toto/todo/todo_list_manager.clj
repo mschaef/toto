@@ -175,7 +175,7 @@
      {:title (str list-type " Details: " (hiccup-util/escape-html list-name))
       :sidebar (sidebar-view/render-sidebar-list-list list-id min-list-priority 0)}
      (scroll-column
-      'todo-list-details-column
+      "todo-list-details-column"
       [:h3
        [:a { :href (str "/list/" list-id ) } img-back-arrow]
        "List Details: " (hiccup-util/escape-html list-name)]

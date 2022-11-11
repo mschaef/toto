@@ -412,9 +412,9 @@ function onDocumentKeydown(event) {
 }
 
 function onDocumentClick(event) {
-    var modalBackground = elemOptional('modal-background');
+    var modalBackground = elemOptional('dialog-background');
 
-    if (modalBackground && (event.target == modalBackground)) {
+    if (modalBackground && (event.target === modalBackground)) {
         dismissModalIfPresent();
     }
 }
@@ -467,14 +467,36 @@ document.addEventListener("turbo:load", function() {
 window.savedScrolls = {};
 
 function saveScrolls() {
-    let nodes = document.querySelectorAll("[data-preserve-scroll=true]");
-
     foreach_elem("[data-preserve-scroll=true]", function(elem) {
         if (elem.id === '') {
             console.warn("Cannot preserve scroll on element without an id");
         }
 
         window.savedScrolls[elem.id] = elem.scrollTop;
+    });
+}
+
+function restoreScrolls() {
+    for(const id in window.savedScrolls) {
+        const elem = elemOptionalById(id);
+
+        if (elem) {
+            elem.scrollTop = window.savedScrolls[elem.id];
+        }
+    }
+}
+
+function updateScrollState(elem, scrollTop) {
+    elem.classList.toggle('scrolled', scrollTop > 0);
+}
+
+function setupScrollListeners() {
+    foreach_elem(".scroll-column .scrollable", function(elem) {
+        updateScrollState(elem, elem.scrollTop);
+
+        elem.addEventListener('scroll', (event) => {
+            updateScrollState(event.target, event.target.scrollTop);
+        });
     });
 }
 
@@ -491,19 +513,15 @@ document.addEventListener("turbo:render", function(event) {
         autofocusedElements[0].focus();
     }
 
-    for(const id in window.savedScrolls) {
-        const elem = elemOptionalById(id);
-
-        if (elem) {
-            elem.scrollTop = window.savedScrolls[elem.id];
-        }
-    }
+    restoreScrolls();
+    setupScrollListeners();
 });
 
 // startup
 
 document.addEventListener('DOMContentLoaded', function() {
     setupSidebar();
+    setupScrollListeners();
 }, false);
 
 document.addEventListener("keydown", onDocumentKeydown);

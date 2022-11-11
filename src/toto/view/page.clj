@@ -50,7 +50,7 @@
 (defn render-modal [ attrs & contents ]
   (let [ escape-url (shref without-modal)]
     [:div.dialog-background
-     [:dialog {:open "true" :data-escape-url escape-url}
+     [:dialog {:class "modal" :open "true" :data-escape-url escape-url}
       [:h3 (:title attrs)]
       [:div.cancel
        [:a {:href escape-url} img-window-close]]
