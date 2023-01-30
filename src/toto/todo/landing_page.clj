@@ -45,5 +45,4 @@
                  [:li "Reorder list items to match your priorities."]
                  [:li "Star items that need special focus."]
                  [:li "Snooze to hide items that can wait a bit."]]
-                (contact-support-button)
                 (session-controls)]))

@@ -62,7 +62,7 @@
   (let [ user-identity (auth/current-identity)]
     (render-modal
      {:title "Contact Support"
-      :form-post-to "/support-message"}
+      :form-post-to "/contact-support"}
      [:div.config-panel
       [:h1 "Contact Information"]
       (hiccup-form/text-field {:maxlength "128"
@@ -97,7 +97,7 @@
    [:title (when *dev-mode* "DEV - ") (:name (:app *config*)) (when title (str " - " title))]
    [:link { :rel "shortcut icon" :href (resource "favicon.ico")}]
    (hiccup-page/include-css (resource "toto.css")
-                     (resource "font-awesome.min.css"))
+                            (resource "font-awesome.min.css"))
    [:script {:type "module" :src (resource "toto.js")}]
    (hiccup-page/include-js (resource "DragDropTouch.js"))])
 

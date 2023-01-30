@@ -598,7 +598,7 @@
      (render-password-reset-success))
 
    ;; Support Messages
-   (POST "/support-message" { params :params }
+   (POST "/contact-support" { params :params }
      (handle-support-message config params))
 
    ;; Logout Link
