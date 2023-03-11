@@ -548,7 +548,10 @@
      (render-user-info-form))
 
    (POST "/user/info" { { name :name } :params }
-     (update-user-info name))))
+     (update-user-info name))
+
+   (POST "/contact-support" { params :params }
+     (handle-support-message config params))))
 
 (defn all-routes [ config ]
   (routes
@@ -596,10 +599,6 @@
 
    (GET "/user/password-reset-success" []
      (render-password-reset-success))
-
-   ;; Support Messages
-   (POST "/contact-support" { params :params }
-     (handle-support-message config params))
 
    ;; Logout Link
    (friend/logout
