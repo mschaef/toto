@@ -59,30 +59,33 @@
         contents)]]))
 
 (defn- render-support-modal [ ]
-  (let [ user-identity (auth/current-identity)]
+  (let [user-identity (auth/current-identity)
+        friendly-name (auth/current-friendly-name)]
     (render-modal
      {:title "Contact Support"
       :form-post-to "/contact-support"}
      [:div.config-panel
       [:h1 "Contact Information"]
-      (hiccup-form/text-field {:maxlength "128"
-                        :placeholder "Full Name"
-                        :autocomplete "off"
-                        :autofocus "on"}
-                       "full-name")
+      (hiccup-form/text-field (cond->{:maxlength "128"
+                                      :placeholder "Full Name"
+                                      :autocomplete "off"
+                                      :value friendly-name}
+                                friendly-name (assoc :readonly "readonly"))
+                              "full-name")
       (hiccup-form/text-field (cond-> {:maxlength "128"
-                                :placeholder "E-Mail Address"
-                                :value user-identity}
-                         user-identity (assoc :readonly "readonly"))
-                       "email-address")]
+                                       :placeholder "E-Mail Address"
+                                       :value user-identity}
+                                user-identity (assoc :readonly "readonly"))
+                              "email-address")]
      (render-verify-question)
      [:div.config-panel
       [:h1 "Message"]
       (hiccup-form/text-area {:maxlength "4096"
-                       :rows "12"
-                       :cols "64"
-                       :autocomplete "off"}
-                      "message-text")]
+                              :rows "12"
+                              :cols "64"
+                              :autocomplete "off"
+                              :autofocus "on"}
+                             "message-text")]
      (hiccup-form/hidden-field "current-uri" (shref))
      [:input {:type "submit" :value "Send Message"}])))
 

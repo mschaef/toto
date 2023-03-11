@@ -49,6 +49,9 @@
   (if-let [ cauth (friend/current-authentication) ]
     (:user-id cauth)))
 
+(defn current-friendly-name []
+  (if-let [ cauth (friend/current-authentication) ]
+    (:friendly_name (:user-record cauth))))
 
 (defn authorize-toto-valid-user [ routes ]
   (-> routes
