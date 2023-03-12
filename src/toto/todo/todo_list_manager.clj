@@ -75,13 +75,11 @@
               [:div.item-row {:class (class-set {"high-priority" (> priority 0)
                                                  "low-priority" (< priority 0)})}
                [:div.item-control
-                [:a {:href (shref "/list/" list-id "/details")} img-edit-list]]
-               [:div.item-control
                 (render-list-star-control list-id priority)]
                [:div.item-control
                 (render-list-arrow-control list-id priority)]
                [:div.item-description
-                [:a {:href (shref "/list/" list-id)}
+                [:a {:href (shref "/list/" list-id "/details")}
                  (hiccup.util/escape-html (:desc list))
                  [:span.pill (:item_count list)]]
                 (sidebar-view/render-list-visibility-flag list)]]))
@@ -161,8 +159,9 @@
                [:div
                 (hiccup-form/check-box (str "list_" list-id)
                                        (in? view-sublist-ids list-id))
-                (hiccup-util/escape-html
-                 (:desc todo-list))]))
+                [:a {:href (shref "/list/" list-id "/details")}
+                 (hiccup-util/escape-html
+                  (:desc todo-list))]]))
            (remove #(:is_view %) todo-lists))]]))
 
 (defn render-todo-list-details-page [ list-id min-list-priority & { :keys [ error-message ]}]

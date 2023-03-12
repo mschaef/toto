@@ -1015,6 +1015,10 @@ p.new-user {
     overflow-y: auto;
 }
 
+.config-panel .component-lists A {
+    color: black;
+}
+
 .config-panel A, .query-settings A, A.item-link {
     color: blue;
 }
