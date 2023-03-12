@@ -228,7 +228,7 @@
                   [:a {:href (shref "/list/" list-id "/details")}
                    "[list details]"]]
                  [:div.control-segment
-                  [:a {:href (shref (str list-id) {:view :remove})}
+                  [:a {:href (str "/list/" list-id)}
                    " [default view]"]]
                  [:div.control-segment
                   [:label {:for "cwithin"}
@@ -243,9 +243,6 @@
                  [:div.control-segment
                   [:a {:href (shref "/list/" list-id "/details")}
                    "[list details]"]]
-                 [:div.control-segment
-                  [:a {:href (shref (str list-id) {:view :remove})}
-                   " [default view]"]]
                  [:div.control-segment
                   [:label {:for "cwithin"}
                    "Completed within: "]
