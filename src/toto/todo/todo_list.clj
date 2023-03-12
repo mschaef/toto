@@ -222,7 +222,7 @@
   [:div.query-settings
    (hiccup-form/form-to { :class "embedded "} [:get (shref "/list/" list-id)]
                  [:div.control-segment
-                  [:a {:href (shref "/list/" list-id {:view "completions"})}
+                  [:a {:href (shref "/list/" list-id "/completions")}
                    "[recently completed]"]]
                  [:div.control-segment
                   [:a {:href (shref "/list/" list-id "/details")}
@@ -232,7 +232,7 @@
                    " [default view]"]]
                  [:div.control-segment
                   [:label {:for "cwithin"}
-                   "Completed within: "]
+                   "completed within: "]
                   (render-query-select "cwithin" completed-within-days)]
                  [:div.control-segment
                   [:a { :href (shref "/list/" list-id {:modal "update-from"} ) } "[copy from]"]])])
@@ -247,7 +247,7 @@
                   [:a {:href (shref (str list-id) {:view :remove})}
                    " [default view]"]]
                  [:div.control-segment
-                  [:label {:for "clwithin"}
+                  [:label {:for "cwithin"}
                    "Completed within: "]
                   (render-query-select "clwithin" completed-within-days)])])
 
@@ -396,7 +396,7 @@
                 img-star-yellow))]]])
        completed-items))))
 
-(defn render-todo-list-completions [ list-id params ]
+(defn render-todo-list-completions-page [ list-id params ]
   (let [min-list-priority (or (parsable-integer? (:min-list-priority params)) 0)
         completed-within-days (or (parsable-integer? (:clwithin params)) 1)]
     (render-page {:title ((data/get-todo-list-by-id list-id) :desc)
@@ -453,7 +453,7 @@
    [:div.modal-controls
     [:input {:type "submit" :value "Copy List"}]]))
 
-(defn- render-todo-list-item-page [ selected-list-id params ]
+(defn render-todo-list-page [ selected-list-id params ]
   (let [edit-item-id (parsable-integer? (:edit-item-id params))
         min-list-priority (or (parsable-integer? (:min-list-priority params)) 0)
         completed-within-days (or (parsable-integer? (:cwithin params)) 0)
@@ -464,11 +464,6 @@
                   :modals {"snoozing" #(render-snooze-modal params selected-list-id)
                            "update-from" #(render-update-from-modal params selected-list-id)}}
                  (render-todo-list selected-list-id edit-item-id true completed-within-days snoozed-for-days))))
-
-(defn render-todo-list-page [ selected-list-id params ]
-  (if (= (:view params) "completions")
-    (render-todo-list-completions selected-list-id params)
-    (render-todo-list-item-page selected-list-id params)))
 
 (defn render-todo-list-public-page [ params ]
   (let [ { list-id :list-id } params ]
