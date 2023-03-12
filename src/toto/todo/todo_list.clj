@@ -301,7 +301,7 @@
     " add a few lists to the view, which can be done "
     [:a {:href (shref "/list/" list-id "/details")} "here"] "."]])
 
-(defn- render-todo-list-view-section [ sublist-details key ]
+(defn- render-todo-list-view-section [ sublist-details key other-key]
   (let [ items (key sublist-details ) ]
     (when (> (count items) 0)
       [:div.list-view-section
@@ -309,7 +309,11 @@
         [:a
          {:href (shref "/list/" (:sublist_id sublist-details))}
          (hiccup-util/escape-html
-          (:desc sublist-details))]]
+          (:desc sublist-details))]
+        (let [other-count (count (get sublist-details other-key []))]
+          (when (> other-count 0)
+            [:span.other-item-count
+             (str " (" other-count " other" (when (not= other-count 1) "s") ")")]))]
        items])))
 
 (defn- render-todo-list-view [ list-id edit-item-id writable? completed-within-days snoozed-for-days ]
@@ -325,8 +329,8 @@
 
        :else
        (list
-        (map #(render-todo-list-view-section % :high-priority) sublists)
-        (map #(render-todo-list-view-section % :normal-priority) sublists)
+        (map #(render-todo-list-view-section % :high-priority :normal-priority) sublists)
+        (map #(render-todo-list-view-section % :normal-priority false) sublists)
 
         (let [ total-snoozed-items (apply + (map :n-snoozed-items sublists))]
           (when (and writable? (> total-snoozed-items 0))

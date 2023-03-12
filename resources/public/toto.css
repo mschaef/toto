@@ -635,6 +635,11 @@ select:hover {
     font-size: 14px;
 }
 
+.toplevel-list .list-view-section h2 .other-item-count {
+    font-weight: normal;
+    font-style: italic;
+}
+
 .toplevel-list h2:not(:first-child) {
     padding-top: 18px;
 }
