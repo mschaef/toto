@@ -1,4 +1,4 @@
-;; Copyright (c) 2015-2022 Michael Schaeffer (dba East Coast Toolworks)
+;; Copyright (c) 2015-2023 Michael Schaeffer (dba East Coast Toolworks)
 ;;
 ;; Licensed as below.
 ;;
@@ -119,7 +119,7 @@
 (defn- render-sidebar-footer []
   [:div.sidebar-footer
    [:div.copyright
-    "&#9400; 2015-2022 East Coast Toolworks"]
+    "&#9400; 2015-2023 East Coast Toolworks"]
    (contact-support-button)])
 
 (defn- render-sidebar [ sidebar ]
