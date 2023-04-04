@@ -29,7 +29,8 @@
             [toto.core.web :as web]
             [toto.site.user :as user]
             [toto.data.data :as data]
-            [toto.todo.todo :as todo]))
+            [toto.todo.todo :as todo]
+            [toto.todo.sunset :as sunset]))
 
 (defn all-routes [ config app-routes ]
   (log/info "Resources on path: " (str "/" (get-version)))
@@ -44,6 +45,11 @@
                           #(data/delete-old-web-sessions))
   config)
 
+(defn schedule-item-sunset-job [ config ]
+  (scheduler/schedule-job config :item-sunset "*/1 * * * *"  ;; "13 */1 * * *"
+                          #(sunset/item-sunset-job))
+  config)
+
 (defn schedule-verification-link-cull [ config ]
   (scheduler/schedule-job config :verification-link-cull "*/15 * * * *"
                           #(data/delete-old-verification-links))
@@ -52,4 +58,5 @@
 (defn site-start [ config db-conn app-routes ]
   (schedule-verification-link-cull config)
   (schedule-web-session-cull config)
+  (schedule-item-sunset-job config)
   (web/start-site config (all-routes config app-routes)))

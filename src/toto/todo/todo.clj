@@ -136,6 +136,9 @@
                                    selected-user-ids))
         (update-list-description list-id (string-leftmost (:list-name params) 32))
         (data/set-list-public list-id (boolean (:is-public params)))
+        (if-let [ max-item-age (parsable-integer? (:max-item-age params)) ]
+          (data/set-list-max-item-age list-id max-item-age)
+          (data/clear-list-max-item-age list-id))
         (ring/redirect  (shref "/list/" list-id "/details"))))))
 
 (defn- update-list-or-view-details [ list-id params ]
