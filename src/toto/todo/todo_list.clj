@@ -1,4 +1,4 @@
-;; Copyright (c) 2015-2022 Michael Schaeffer (dba East Coast Toolworks)
+;; Copyright (c) 2015-2023 Michael Schaeffer (dba East Coast Toolworks)
 ;;
 ;; Licensed as below.
 ;;
@@ -222,17 +222,17 @@
   [:div.query-settings
    (hiccup-form/form-to { :class "embedded "} [:get (shref "/list/" list-id)]
                  [:div.control-segment
-                  [:a {:href (shref "/list/" list-id {:view "completions"})}
+                  [:a {:href (shref "/list/" list-id "/completions")}
                    "[recently completed]"]]
                  [:div.control-segment
                   [:a {:href (shref "/list/" list-id "/details")}
                    "[list details]"]]
                  [:div.control-segment
-                  [:a {:href (shref (str list-id) {:view :remove})}
+                  [:a {:href (str "/list/" list-id)}
                    " [default view]"]]
                  [:div.control-segment
                   [:label {:for "cwithin"}
-                   "Completed within: "]
+                   "completed within: "]
                   (render-query-select "cwithin" completed-within-days)]
                  [:div.control-segment
                   [:a { :href (shref "/list/" list-id {:modal "update-from"} ) } "[copy from]"]])])
@@ -244,10 +244,7 @@
                   [:a {:href (shref "/list/" list-id "/details")}
                    "[list details]"]]
                  [:div.control-segment
-                  [:a {:href (shref (str list-id) {:view :remove})}
-                   " [default view]"]]
-                 [:div.control-segment
-                  [:label {:for "clwithin"}
+                  [:label {:for "cwithin"}
                    "Completed within: "]
                   (render-query-select "clwithin" completed-within-days)])])
 
@@ -301,7 +298,7 @@
     " add a few lists to the view, which can be done "
     [:a {:href (shref "/list/" list-id "/details")} "here"] "."]])
 
-(defn- render-todo-list-view-section [ sublist-details key ]
+(defn- render-todo-list-view-section [ sublist-details key other-key]
   (let [ items (key sublist-details ) ]
     (when (> (count items) 0)
       [:div.list-view-section
@@ -309,7 +306,11 @@
         [:a
          {:href (shref "/list/" (:sublist_id sublist-details))}
          (hiccup-util/escape-html
-          (:desc sublist-details))]]
+          (:desc sublist-details))]
+        (let [other-count (count (get sublist-details other-key []))]
+          (when (> other-count 0)
+            [:span.other-item-count
+             (str " (" other-count " other" (when (not= other-count 1) "s") ")")]))]
        items])))
 
 (defn- render-todo-list-view [ list-id edit-item-id writable? completed-within-days snoozed-for-days ]
@@ -325,8 +326,8 @@
 
        :else
        (list
-        (map #(render-todo-list-view-section % :high-priority) sublists)
-        (map #(render-todo-list-view-section % :normal-priority) sublists)
+        (map #(render-todo-list-view-section % :high-priority :normal-priority) sublists)
+        (map #(render-todo-list-view-section % :normal-priority false) sublists)
 
         (let [ total-snoozed-items (apply + (map :n-snoozed-items sublists))]
           (when (and writable? (> total-snoozed-items 0))
@@ -396,7 +397,7 @@
                 img-star-yellow))]]])
        completed-items))))
 
-(defn render-todo-list-completions [ list-id params ]
+(defn render-todo-list-completions-page [ list-id params ]
   (let [min-list-priority (or (parsable-integer? (:min-list-priority params)) 0)
         completed-within-days (or (parsable-integer? (:clwithin params)) 1)]
     (render-page {:title ((data/get-todo-list-by-id list-id) :desc)
@@ -453,7 +454,7 @@
    [:div.modal-controls
     [:input {:type "submit" :value "Copy List"}]]))
 
-(defn- render-todo-list-item-page [ selected-list-id params ]
+(defn render-todo-list-page [ selected-list-id params ]
   (let [edit-item-id (parsable-integer? (:edit-item-id params))
         min-list-priority (or (parsable-integer? (:min-list-priority params)) 0)
         completed-within-days (or (parsable-integer? (:cwithin params)) 0)
@@ -464,11 +465,6 @@
                   :modals {"snoozing" #(render-snooze-modal params selected-list-id)
                            "update-from" #(render-update-from-modal params selected-list-id)}}
                  (render-todo-list selected-list-id edit-item-id true completed-within-days snoozed-for-days))))
-
-(defn render-todo-list-page [ selected-list-id params ]
-  (if (= (:view params) "completions")
-    (render-todo-list-completions selected-list-id params)
-    (render-todo-list-item-page selected-list-id params)))
 
 (defn render-todo-list-public-page [ params ]
   (let [ { list-id :list-id } params ]

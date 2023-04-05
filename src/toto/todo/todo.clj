@@ -1,4 +1,4 @@
-;; Copyright (c) 2015-2022 Michael Schaeffer (dba East Coast Toolworks)
+;; Copyright (c) 2015-2023 Michael Schaeffer (dba East Coast Toolworks)
 ;;
 ;; Licensed as below.
 ;;
@@ -236,11 +236,15 @@
    (GET "/" { params :params }
      (todo-list/render-todo-list-page list-id params))
 
+   (GET "/completions" { params :params }
+     (todo-list/render-todo-list-completions-page list-id params))
+
    (POST "/" { params :params }
      (add-item list-id params))
 
    (GET "/details" { params :params }
-     (todo-list-manager/render-todo-list-details-page list-id (or (parsable-integer? (:min-list-priority params)) 0)))
+     (todo-list-manager/render-todo-list-details-page
+      list-id (or (parsable-integer? (:min-list-priority params)) 0)))
 
    (POST "/details" { params :params }
      (update-list-or-view-details list-id params))

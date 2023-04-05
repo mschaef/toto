@@ -635,6 +635,11 @@ select:hover {
     font-size: 14px;
 }
 
+.toplevel-list .list-view-section h2 .other-item-count {
+    font-weight: normal;
+    font-style: italic;
+}
+
 .toplevel-list h2:not(:first-child) {
     padding-top: 18px;
 }
@@ -1008,6 +1013,10 @@ p.new-user {
 .config-panel .component-lists {
     max-height: 40vh;
     overflow-y: auto;
+}
+
+.config-panel .component-lists A {
+    color: black;
 }
 
 .config-panel A, .query-settings A, A.item-link {

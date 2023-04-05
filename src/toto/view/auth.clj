@@ -1,4 +1,4 @@
-;; Copyright (c) 2015-2022 Michael Schaeffer (dba East Coast Toolworks)
+;; Copyright (c) 2015-2023 Michael Schaeffer (dba East Coast Toolworks)
 ;;
 ;; Licensed as below.
 ;;
@@ -49,6 +49,9 @@
   (if-let [ cauth (friend/current-authentication) ]
     (:user-id cauth)))
 
+(defn current-friendly-name []
+  (if-let [ cauth (friend/current-authentication) ]
+    (:friendly_name (:user-record cauth))))
 
 (defn authorize-toto-valid-user [ routes ]
   (-> routes
@@ -127,8 +130,8 @@
   (data/set-user-password username (credentials/hash-bcrypt password))
   (send-password-change-message config username))
 
-(defn create-user [ email-addr password ]
-  (data/add-user email-addr (credentials/hash-bcrypt password)))
+(defn create-user [ friendly-name email-addr password ]
+  (data/add-user friendly-name email-addr (credentials/hash-bcrypt password)))
 
 (defn password-change-workflow [ config ]
   (fn [{:keys [uri request-method params]}]

@@ -1,4 +1,4 @@
-;; Copyright (c) 2015-2022 Michael Schaeffer (dba East Coast Toolworks)
+;; Copyright (c) 2015-2023 Michael Schaeffer (dba East Coast Toolworks)
 ;;
 ;; Licensed as below.
 ;;
@@ -116,7 +116,7 @@
 (defn get-user-list-count [ user-id ]
   (count (get-todo-lists-by-user user-id)))
 
-(defn add-user [ email-addr password ]
+(defn add-user [ friendly-name email-addr password ]
   (:user_id (first
              (jdbc/insert! (current-db-connection)
               :user
@@ -124,7 +124,7 @@
                :password password
                :account_created_on (current-time)
                :password_created_on (current-time)
-               :friendly_name email-addr}))))
+               :friendly_name friendly-name}))))
 
 (defn set-user-password [ email-addr password ]
   (jdbc/update! (current-db-connection) :user

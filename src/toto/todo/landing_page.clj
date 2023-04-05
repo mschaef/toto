@@ -1,4 +1,4 @@
-;; Copyright (c) 2015-2022 Michael Schaeffer (dba East Coast Toolworks)
+;; Copyright (c) 2015-2023 Michael Schaeffer (dba East Coast Toolworks)
 ;;
 ;; Licensed as below.
 ;;
@@ -45,5 +45,4 @@
                  [:li "Reorder list items to match your priorities."]
                  [:li "Star items that need special focus."]
                  [:li "Snooze to hide items that can wait a bit."]]
-                (contact-support-button)
                 (session-controls)]))
