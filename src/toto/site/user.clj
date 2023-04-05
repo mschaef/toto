@@ -102,8 +102,8 @@
     :content user-create-notification-message
     :params { :email-addr email-addr }}))
 
-(defn create-user [ config email-addr password ]
-  (let [user-id (auth/create-user email-addr password)
+(defn create-user [ config friendly-name email-addr password ]
+  (let [user-id (auth/create-user (.trim friendly-name) email-addr password)
         list-id (data/add-list "Todo" false)]
     (data/set-list-ownership list-id #{ user-id })
     (send-user-create-notification config email-addr)
@@ -154,7 +154,10 @@
        :data-turbo "false"}
       [:post "/user"]
       [:div.config-panel
-       [:h1 "Identity"]
+       [:h1 "Full Name"]
+       (form/text-field {:placeholder "Full Name"} "friendly-name")]
+      [:div.config-panel
+       [:h1 "E-Mail Address"]
        (form/text-field {:placeholder "E-Mail Address"} "email-addr")
        (form/text-field {:placeholder "Verify E-Mail Address"} "email-addr-2")]
       [:div.config-panel
@@ -231,10 +234,13 @@
                       :params { :verify-link-url link-url }})))
 
 (defn add-user [ config params ]
-  (let [{:keys [:email-addr :email-addr-2 :password :password-2]} params]
+  (let [{:keys [:friendly-name :email-addr :email-addr-2 :password :password-2]} params]
     (cond
       (not (verify-response-correct params))
       (render-new-user-form :error-message "Math problem answer incorrect.")
+
+      (not (parsable-string? friendly-name))
+      (render-new-user-form :error-message "No full name specified.")
 
       (not (= email-addr email-addr-2))
       (render-new-user-form :error-message "E-mail addresses do not match.")
@@ -247,7 +253,7 @@
 
       :else
       (do
-        (let [user-id (create-user config email-addr password)]
+        (let [user-id (create-user config friendly-name email-addr password)]
           (ring/redirect (str "/user/verify/" user-id)))))))
 
 (def date-format (java.text.SimpleDateFormat. "yyyy-MM-dd hh:mm aa"))
