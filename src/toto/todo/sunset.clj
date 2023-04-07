@@ -20,9 +20,9 @@
 ;; You must not remove this notice, or any other, from this software.
 
 (ns toto.todo.sunset
-  (:use toto.core.util
+  (:use playbook.core
         compojure.core)
-  (:require [clojure.tools.logging :as log]
+  (:require [taoensso.timbre :as log]
             [toto.data.data :as data]))
 
 (defn sunset-items-by-age [ list-id age-limit ]

@@ -20,10 +20,10 @@
 ;; You must not remove this notice, or any other, from this software.
 
 (ns toto.data.data
-  (:use toto.core.util
+  (:use playbook.core
         sql-file.sql-util
         sql-file.middleware)
-  (:require [clojure.tools.logging :as log]
+  (:require [taoensso.timbre :as log]
             [clojure.java.jdbc :as jdbc]
             [sql-file.core :as sql-file]
             [toto.data.queries :as query]))

@@ -20,9 +20,9 @@
 ;; You must not remove this notice, or any other, from this software.
 
 (ns toto.view.auth
-  (:use toto.core.util
+  (:use playbook.core
         compojure.core)
-  (:require [clojure.tools.logging :as log]
+  (:require [taoensso.timbre :as log]
             [cemerick.friend.credentials :as credentials]
             [cemerick.friend :as friend]
             [cemerick.friend.workflows :as workflows]

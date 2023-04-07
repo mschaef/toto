@@ -20,12 +20,12 @@
 ;; You must not remove this notice, or any other, from this software.
 
 (ns toto.todo.todo
-  (:use toto.core.util
+  (:use playbook.core
         compojure.core
         toto.view.common
         toto.view.query
         toto.view.page)
-  (:require [clojure.tools.logging :as log]
+  (:require [taoensso.timbre :as log]
             [ring.util.response :as ring]
             [compojure.handler :as handler]
             [ring.util.response :as ring-response]
@@ -127,7 +127,7 @@
              (not share-with-email-id))
       (unprocessable-entity
        (todo-list-manager/render-todo-list-details-page list-id
-                                                        (or (parsable-integer? (:min-list-priority params)) 0)
+                                                        (or (try-parse-integer (:min-list-priority params)) 0)
                                                         :error-message "Invalid e-mail address"))
       (do
         (data/set-list-ownership list-id
@@ -136,7 +136,7 @@
                                    selected-user-ids))
         (update-list-description list-id (string-leftmost (:list-name params) 32))
         (data/set-list-public list-id (boolean (:is-public params)))
-        (if-let [ max-item-age (parsable-integer? (:max-item-age params)) ]
+        (if-let [ max-item-age (try-parse-integer (:max-item-age params)) ]
           (data/set-list-max-item-age list-id max-item-age)
           (data/clear-list-max-item-age list-id))
         (ring/redirect  (shref "/list/" list-id "/details"))))))
@@ -179,7 +179,7 @@
     (success)))
 
 (defn- update-item-snooze-days [ item-id params ]
-  (let [snooze-days (or (parsable-integer? (:snooze-days params)) 0)
+  (let [snooze-days (or (try-parse-integer (:snooze-days params)) 0)
         user-id (auth/current-user-id)]
     (if (= snooze-days 0)
       (data/remove-item-snooze-by-id user-id item-id)
@@ -241,7 +241,7 @@
 
    (GET "/details" { params :params }
      (todo-list-manager/render-todo-list-details-page
-      list-id (or (parsable-integer? (:min-list-priority params)) 0)))
+      list-id (or (try-parse-integer (:min-list-priority params)) 0)))
 
    (POST "/details" { params :params }
      (update-list-or-view-details list-id params))

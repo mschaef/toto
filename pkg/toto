@@ -47,7 +47,6 @@ TOTO_CREDS_FILE=/etc/${SERVICE_NAME}/creds.edn
 JAVA_OPTS="-Ddb.subname=/var/lib/${SERVICE_NAME}/${TOTO_DB_SUBNAME}"
 JAVA_OPTS="$JAVA_OPTS -Dconf=${TOTO_CONFIG_FILE}"
 JAVA_OPTS="$JAVA_OPTS -Dcreds=${TOTO_CREDS_FILE}"
-JAVA_OPTS="$JAVA_OPTS -Dlogback.configurationFile=/etc/${SERVICE_NAME}/logback.xml"
 
 JAVA_OPTS="$JAVA_OPTS -jar /usr/share/${SERVICE_NAME}/${TOTO_JAR}"
 

@@ -20,9 +20,9 @@
 ;; You must not remove this notice, or any other, from this software.
 
 (ns toto.core.backup
-  (:use toto.core.util
+  (:use playbook.core
         sql-file.middleware)
-  (:require [clojure.tools.logging :as log]
+  (:require [taoensso.timbre :as log]
             [sql-file.core :as sql-file]
             [toto.core.scheduler :as scheduler]))
 

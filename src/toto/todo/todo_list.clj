@@ -21,13 +21,13 @@
 
 
 (ns toto.todo.todo-list
-  (:use toto.core.util
+  (:use playbook.core
         toto.view.common
         toto.view.icons
         toto.view.components
         toto.view.query
         toto.view.page)
-  (:require [clojure.tools.logging :as log]
+  (:require [taoensso.timbre :as log]
             [hiccup.form :as hiccup-form]
             [hiccup.util :as hiccup-util]
             [toto.data.data :as data]
@@ -400,8 +400,8 @@
        completed-items))))
 
 (defn render-todo-list-completions-page [ list-id params ]
-  (let [min-list-priority (or (parsable-integer? (:min-list-priority params)) 0)
-        completed-within-days (or (parsable-integer? (:clwithin params)) 1)]
+  (let [min-list-priority (or (try-parse-integer (:min-list-priority params)) 0)
+        completed-within-days (or (try-parse-integer (:clwithin params)) 1)]
     (render-page {:title ((data/get-todo-list-by-id list-id) :desc)
                   :page-data-class "todo-list-completions"
                   :sidebar (sidebar-view/render-sidebar-list-list list-id min-list-priority 0)}
@@ -415,7 +415,7 @@
                    (render-todo-list-completion-query-settings list-id completed-within-days)]))))
 
 (defn- render-snooze-modal [ params list-id ]
-  (let [ snoozing-item-id (parsable-integer? (:snoozing-item-id params))]
+  (let [ snoozing-item-id (try-parse-integer (:snoozing-item-id params))]
     (defn render-snooze-choice [ label snooze-days shortcut-key ]
       (post-button {:desc (str label " (" shortcut-key ")")
                     :target (str "/item/" snoozing-item-id "/snooze")
@@ -452,15 +452,15 @@
    {:title "Update From"
     :form-post-to (shref "/list/" list-id "/copy-from" without-modal)}
    "Source:"
-   (render-list-select "copy-from-list-id" (parsable-integer? list-id))
+   (render-list-select "copy-from-list-id" (try-parse-integer list-id))
    [:div.modal-controls
     [:input {:type "submit" :value "Copy List"}]]))
 
 (defn render-todo-list-page [ selected-list-id params ]
-  (let [edit-item-id (parsable-integer? (:edit-item-id params))
-        min-list-priority (or (parsable-integer? (:min-list-priority params)) 0)
-        completed-within-days (or (parsable-integer? (:cwithin params)) 0)
-        snoozed-for-days (or (parsable-integer? (:sfor params)) 0)]
+  (let [edit-item-id (try-parse-integer (:edit-item-id params))
+        min-list-priority (or (try-parse-integer (:min-list-priority params)) 0)
+        completed-within-days (or (try-parse-integer (:cwithin params)) 0)
+        snoozed-for-days (or (try-parse-integer (:sfor params)) 0)]
     (render-page {:title ((data/get-todo-list-by-id selected-list-id) :desc)
                   :page-data-class "todo-list"
                   :sidebar (sidebar-view/render-sidebar-list-list selected-list-id min-list-priority snoozed-for-days)

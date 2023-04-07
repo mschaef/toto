@@ -20,7 +20,8 @@
 ;; You must not remove this notice, or any other, from this software.
 
 (ns toto.view.common
-  (:use toto.core.util))
+  (:use playbook.core)
+  (:require [toto.util :as util]))
 
 ;;; Development Mode
 
@@ -49,4 +50,4 @@
 ;;; Resource Paths
 
 (defn resource [ path ]
-  (str "/" (get-version) "/" path))
+  (str "/" (util/get-version) "/" path))

@@ -1,5 +1,6 @@
-{:http-port 8080
+{:log-path "./toto.log"
  :development-mode true
+ :http-port 8080
 
  :base-url "http://localhost:8080/"
  :db {:subname "./local-db/toto"

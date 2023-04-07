@@ -20,14 +20,14 @@
 ;; You must not remove this notice, or any other, from this
 
 (ns toto.todo.todo-list-manager
-  (:use toto.core.util
+  (:use playbook.core
         compojure.core
         toto.view.common
         toto.view.icons
         toto.view.components
         toto.view.query
         toto.view.page)
-  (:require [clojure.tools.logging :as log]
+  (:require [taoensso.timbre :as log]
             [hiccup.form :as hiccup-form]
             [hiccup.util :as hiccup-util]
             [toto.data.data :as data]

@@ -19,10 +19,9 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-
 (ns toto.view.request-date
-  (:use toto.core.util)
-  (:require [clojure.tools.logging :as log]))
+  (:use playbook.core)
+  (:require [taoensso.timbre :as log]))
 
  ;;; Persistent Query
 

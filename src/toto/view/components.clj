@@ -20,11 +20,11 @@
 ;; You must not remove this notice, or any other, from this software.
 
 (ns toto.view.components
-  (:use toto.view.query
-        hiccup.def
-        toto.core.util)
+  (:use playbook.core
+        toto.view.query
+        hiccup.def)
   (:require [clojure.data.json :as json]
-            [clojure.tools.logging :as log]
+            [taoensso.timbre :as log]
             [hiccup.form :as hiccup-form]
             [toto.view.auth :as auth]))
 
@@ -60,9 +60,9 @@
 (defn verify-response-correct [ params ]
   (or (auth/current-identity)
       (let [{:keys [:verify-n-1 :verify-n-2 :verify-response]} params]
-        (= (or (parsable-integer? verify-response) -1)
-           (+ (or (parsable-integer? verify-n-1) -1)
-              (or (parsable-integer? verify-n-2) -1))))))
+        (= (or (try-parse-integer verify-response) -1)
+           (+ (or (try-parse-integer verify-n-1) -1)
+              (or (try-parse-integer verify-n-2) -1))))))
 
 
 

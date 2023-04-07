@@ -21,11 +21,12 @@
 
 (ns toto.site.main
   (:gen-class :main true)
-  (:use toto.core.util
+  (:use playbook.core
         compojure.core)
-  (:require [clojure.tools.logging :as log]
+  (:require [taoensso.timbre :as log]
             [compojure.route :as route]
             [toto.core.scheduler :as scheduler]
+            [toto.util :as util]
             [toto.core.web :as web]
             [toto.site.user :as user]
             [toto.data.data :as data]
@@ -33,9 +34,9 @@
             [toto.todo.sunset :as sunset]))
 
 (defn all-routes [ config app-routes ]
-  (log/info "Resources on path: " (str "/" (get-version)))
+  (log/info "Resources on path: " (str "/" (util/get-version)))
   (routes
-   (route/resources (str "/" (get-version)))
+   (route/resources (str "/" (util/get-version)))
    (user/all-routes config)
    app-routes
    (route/not-found "Resource Not Found")))

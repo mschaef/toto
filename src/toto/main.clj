@@ -21,10 +21,11 @@
 
 (ns toto.main
   (:gen-class :main true)
-  (:use toto.core.util)
-  (:require [clojure.tools.logging :as log]
+  (:use playbook.core)
+  (:require [playbook.logging :as logging]
+            [playbook.config :as config]
+            [taoensso.timbre :as log]
             [sql-file.core :as sql-file]
-            [toto.core.config :as config]
             [toto.core.backup :as backup]
             [toto.site.main :as site]
             [toto.core.scheduler :as scheduler]
@@ -46,6 +47,9 @@
 
 (defn -main [& args]
   (let [config (config/load-config)]
+    (logging/setup-logging
+     (assoc config
+            :log-levels [[#{"hsqldb.*" "com.zaxxer.hikari.*"} :warn]]))
     (log/info "Starting App" (:app config))
     (when (:development-mode config)
       (log/warn "=== DEVELOPMENT MODE ==="))
