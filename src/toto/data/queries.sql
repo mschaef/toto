@@ -93,6 +93,11 @@ SELECT DISTINCT todo_list.todo_list_id,
           todo_list_owners.priority DESC,
           todo_list.desc
 
+-- name: get-todo-lists-with-item-age-limit
+SELECT todo_list.todo_list_id, todo_list.max_item_age
+  FROM todo_list
+ WHERE todo_list.max_item_age IS NOT NULL
+
 -- name: list-owned-by-user-id?
 SELECT COUNT(*)
   FROM todo_list_owners
@@ -124,6 +129,7 @@ SELECT item.item_id,
        item.is_deleted,
        item.is_complete,
        DATEDIFF('day', item.created_on, CURRENT_TIMESTAMP) as age_in_days,
+       DATEDIFF('day', item.updated_on, CURRENT_TIMESTAMP) as sunset_age_in_days,
        item.snoozed_until,
        CURRENT_TIMESTAMP < NVL(item.snoozed_until, CURRENT_TIMESTAMP) AS currently_snoozed,
        DATEADD('day', :snoozed_within_days, CURRENT_TIMESTAMP) < NVL(item.snoozed_until, CURRENT_TIMESTAMP) AS visibly_snoozed,
@@ -150,6 +156,7 @@ SELECT item.item_id,
        item.is_deleted,
        item.is_complete,
        DATEDIFF('day', item.created_on, CURRENT_TIMESTAMP) as age_in_days,
+       DATEDIFF('day', item.updated_on, CURRENT_TIMESTAMP) as sunset_age_in_days,
        item_ordinal
    FROM todo_item item, user
    WHERE item.todo_list_id = :list_id
@@ -157,6 +164,14 @@ SELECT item.item_id,
      AND item.is_complete
      AND item.updated_on > DATEADD('day', :completed_within_days, CURRENT_TIMESTAMP)
    ORDER BY item.updated_on DESC
+
+-- name: get-sunset-items-by-id
+SELECT item_id
+  FROM todo_item
+ WHERE todo_list_id = :todo_list_id
+   AND DATEDIFF('day', updated_on, CURRENT_TIMESTAMP) > :age_limit
+   AND NOT is_deleted
+   AND NOT is_complete
 
 -- name: get-pending-item-order-by-description
 SELECT item.item_id,
@@ -214,10 +229,10 @@ SELECT item.item_id,
        item.is_deleted,
        item.is_complete,
        DATEDIFF('day', item.created_on, CURRENT_TIMESTAMP) as age_in_days,
+       DATEDIFF('day', item.updated_on, CURRENT_TIMESTAMP) as sunset_age_in_days,
        item.snoozed_until,
        CURRENT_TIMESTAMP < NVL(item.snoozed_until, CURRENT_TIMESTAMP) AS currently_snoozed,
        item_ordinal
-       
   FROM todo_item item
  WHERE item_id = :item_id
 

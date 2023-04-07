@@ -20,10 +20,10 @@
 ;; You must not remove this notice, or any other, from this software.
 
 (ns toto.data.data
-  (:use toto.core.util
+  (:use playbook.core
         sql-file.sql-util
         sql-file.middleware)
-  (:require [clojure.tools.logging :as log]
+  (:require [taoensso.timbre :as log]
             [clojure.java.jdbc :as jdbc]
             [sql-file.core :as sql-file]
             [toto.data.queries :as query]))
@@ -112,6 +112,10 @@
 (defn get-todo-lists-by-user [ user-id ]
   (query/get-todo-lists-by-user { :user_id user-id }
                                 { :connection (current-db-connection) }))
+
+(defn get-todo-lists-with-item-age-limit [ ]
+  (query/get-todo-lists-with-item-age-limit { }
+                                            { :connection (current-db-connection) }))
 
 (defn get-user-list-count [ user-id ]
   (count (get-todo-lists-by-user user-id)))
@@ -267,6 +271,16 @@
                 {:is_public public?}
                 ["todo_list_id=?" list-id]))
 
+(defn set-list-max-item-age [ list-id max-item-age ]
+  (jdbc/update! (current-db-connection) :todo_list
+                {:max_item_age max-item-age}
+                ["todo_list_id=?" list-id]))
+
+(defn clear-list-max-item-age [ list-id ]
+  (jdbc/update! (current-db-connection) :todo_list
+                {:max_item_age nil}
+                ["todo_list_id=?" list-id]))
+
 (defn list-owned-by-user-id? [ list-id user-id ]
   (> (scalar-result
       (query/list-owned-by-user-id? { :list_id list-id :user_id user-id }
@@ -408,6 +422,14 @@
 
 (defn delete-item-by-id [ user-id item-id ]
   (update-item-by-id! user-id item-id {:is_deleted true}))
+
+(defn get-system-user-id []
+  (:user_id (get-user-by-email "toto@mschaef.com")))
+
+(defn get-sunset-items-by-id [ list-id age-limit ]
+  (query/get-sunset-items-by-id {:todo_list_id list-id
+                                 :age_limit age-limit}
+                                { :connection (current-db-connection) }))
 
 (defn restore-item [ user-id item-id ]
   (update-item-by-id! user-id item-id

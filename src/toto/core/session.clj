@@ -20,10 +20,10 @@
 ;; You must not remove this notice, or any other, from this software.
 
 (ns toto.core.session
-  (:use toto.core.util
+  (:use playbook.core
         sql-file.sql-util
         sql-file.middleware)
-  (:require [clojure.tools.logging :as log]
+  (:require [taoensso.timbre :as log]
             [ring.middleware.session.store :as store]
             [clojure.java.jdbc :as jdbc]
             [clojure.edn :as edn])

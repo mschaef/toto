@@ -20,9 +20,9 @@
 ;; You must not remove this notice, or any other, from this software.
 
 (ns toto.core.scheduler
-  (:use sql-file.middleware
-        toto.core.util)
-  (:require [clojure.tools.logging :as log]))
+  (:use playbook.core
+        sql-file.middleware)
+  (:require [taoensso.timbre :as log]))
 
 (defn start [ config ]
   (assoc config :scheduler
@@ -31,12 +31,18 @@
            (.start))))
 
 (defn schedule-job [ config desc cron job-fn ]
-  (let [ job-fn (exception-barrier job-fn (str "scheduled job:" desc)) ]
+  (let [scheduler (:scheduler config)
+        job-lock (java.util.concurrent.locks.ReentrantLock.)]
     (log/info "Background job scheduled (cron:" cron  "):" desc )
-    (.schedule (:scheduler config) cron
-               #(with-thread-name (str "cron:" desc)
-                  (log/info "Job Begin")
-                  (with-db-connection (:db-conn-pool config)
-                    (job-fn))
-                  (log/info "Job End")))))
+    (.schedule scheduler cron
+               #(if (.tryLock job-lock)
+                  (try
+                    (with-exception-barrier (str "scheduled job:" desc)
+                      (log/info "Scheduled job:" desc)
+                      (with-db-connection (:db-conn-pool config)
+                        (job-fn)))
+                    (finally
+                      (.unlock job-lock)))
+                  (log/info "Cannot run scheduled job reentrantly:" desc)))
+    config))
 

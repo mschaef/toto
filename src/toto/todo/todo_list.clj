@@ -21,13 +21,13 @@
 
 
 (ns toto.todo.todo-list
-  (:use toto.core.util
+  (:use playbook.core
         toto.view.common
         toto.view.icons
         toto.view.components
         toto.view.query
         toto.view.page)
-  (:require [clojure.tools.logging :as log]
+  (:require [taoensso.timbre :as log]
             [hiccup.form :as hiccup-form]
             [hiccup.util :as hiccup-util]
             [toto.data.data :as data]
@@ -146,7 +146,7 @@
 (defn drop-target [ item-ordinal ]
   [:div.order-drop-target {:ordinal item-ordinal :priority "0"} "&nbsp;"])
 
-(defn- render-todo-item [ view-list-id list-id item-info writable? editing? ]
+(defn- render-todo-item [ view-list-id list-id item-info writable? editing? max-item-age ]
   (let [{item-id :item_id
          is-complete? :is_complete
          is-deleted? :is_deleted
@@ -194,6 +194,8 @@
                  :class (class-set {"deleted-item" is-deleted?
                                     "completed-item" is-complete?})}
            (render-item-text desc)
+           (if (> (:sunset_age_in_days item-info) (- max-item-age 3))
+             img-sunset)
            (snooze-item-button item-info [:span.pill
                                           (render-age (:age_in_days item-info))
                                           (when currently-snoozed
@@ -207,16 +209,7 @@
       (render-item-priority-control item-id priority writable?)]
      (item-drag-handle "right" item-info)]))
 
-(defn- render-query-select [ id current-value ]
-  [:select { :id id :name id :onchange "this.form.submit()"}
-   (hiccup-form/select-options [[ "-" "-"]
-                         ["1d" "1"]
-                         ["7d" "7"]
-                         ["30d" "30"]
-                         ["90d" "90"] ]
-                        (if (nil? current-value)
-                          "-"
-                          (str current-value)))])
+(def query-durations [1 7 30 90])
 
 (defn- render-todo-list-query-settings [ list-id completed-within-days snoozed-for-days ]
   [:div.query-settings
@@ -232,8 +225,8 @@
                    " [default view]"]]
                  [:div.control-segment
                   [:label {:for "cwithin"}
-                   "completed within: "]
-                  (render-query-select "cwithin" completed-within-days)]
+                   "Completed within: "]
+                  (render-duration-select "cwithin" completed-within-days query-durations true)]
                  [:div.control-segment
                   [:a { :href (shref "/list/" list-id {:modal "update-from"} ) } "[copy from]"]])])
 
@@ -246,7 +239,7 @@
                  [:div.control-segment
                   [:label {:for "cwithin"}
                    "Completed within: "]
-                  (render-query-select "clwithin" completed-within-days)])])
+                  (render-duration-select "clwithin" completed-within-days query-durations true)])])
 
 (defn- render-empty-list []
   [:div.empty-list
@@ -261,7 +254,9 @@
    "Click " [:a {:href (shref "" {:sfor "99999"})} "here"] " to show."])
 
 (defn- todo-list-details [ view-list-id list-id edit-item-id writable? completed-within-days snoozed-for-days ]
-  (let [pending-items (data/get-pending-items list-id completed-within-days snoozed-for-days)
+  (let [max-item-age (or (:max_item_age (data/get-todo-list-by-id list-id))
+                         Integer/MAX_VALUE)
+        pending-items (data/get-pending-items list-id completed-within-days snoozed-for-days)
         n-snoozed-items (count (filter :visibly_snoozed pending-items))
         display-items (remove :visibly_snoozed pending-items)]
 
@@ -269,11 +264,11 @@
      :n-snoozed-items n-snoozed-items
 
      :high-priority
-     (map #(render-todo-item view-list-id list-id % writable? (= edit-item-id (:item_id %)))
+     (map #(render-todo-item view-list-id list-id % writable? (= edit-item-id (:item_id %)) max-item-age)
           (filter #(> (:priority %) 0) display-items))
 
      :normal-priority
-     (map #(render-todo-item view-list-id list-id % writable? (= edit-item-id (:item_id %)))
+     (map #(render-todo-item view-list-id list-id % writable? (= edit-item-id (:item_id %)) max-item-age)
           (filter #(<= (:priority %) 0) display-items))}))
 
 (defn- render-single-todo-list [ view-list-id list-id edit-item-id writable? completed-within-days snoozed-for-days ]
@@ -339,18 +334,25 @@
 
 (defn- render-valentines-day-banner []
   (when (message-recepient?)
-    [:div.valentines-day-banner
+    [:div.banner.valentines-day
      img-heart-red
      (if (request-date/valentines-day?)
        " Happy Valentines Day!!! I Love You! "
        " I Love You, Teresa! ")
      img-heart-red]))
 
+(defn- render-sunset-banner [ list-id ]
+  (when-let [ max-item-age (:max_item_age (data/get-todo-list-by-id list-id))]
+    [:div.banner.sunset
+     "This list automatically sunsets items older than " max-item-age
+     " day" (if (not (= max-item-age 1)) "s") "."]))
+
 (defn- render-todo-list [ list-id edit-item-id writable? completed-within-days snoozed-for-days ]
   (scroll-column
    (str "todo-list-scroller-" list-id)
    (when writable?
      (render-new-item-form list-id (boolean edit-item-id)))
+   (render-sunset-banner list-id)
    (list
     (render-valentines-day-banner)
     (if (:is_view (data/get-todo-list-by-id list-id))
@@ -398,8 +400,8 @@
        completed-items))))
 
 (defn render-todo-list-completions-page [ list-id params ]
-  (let [min-list-priority (or (parsable-integer? (:min-list-priority params)) 0)
-        completed-within-days (or (parsable-integer? (:clwithin params)) 1)]
+  (let [min-list-priority (or (try-parse-integer (:min-list-priority params)) 0)
+        completed-within-days (or (try-parse-integer (:clwithin params)) 1)]
     (render-page {:title ((data/get-todo-list-by-id list-id) :desc)
                   :page-data-class "todo-list-completions"
                   :sidebar (sidebar-view/render-sidebar-list-list list-id min-list-priority 0)}
@@ -413,7 +415,7 @@
                    (render-todo-list-completion-query-settings list-id completed-within-days)]))))
 
 (defn- render-snooze-modal [ params list-id ]
-  (let [ snoozing-item-id (parsable-integer? (:snoozing-item-id params))]
+  (let [ snoozing-item-id (try-parse-integer (:snoozing-item-id params))]
     (defn render-snooze-choice [ label snooze-days shortcut-key ]
       (post-button {:desc (str label " (" shortcut-key ")")
                     :target (str "/item/" snoozing-item-id "/snooze")
@@ -450,15 +452,15 @@
    {:title "Update From"
     :form-post-to (shref "/list/" list-id "/copy-from" without-modal)}
    "Source:"
-   (render-list-select "copy-from-list-id" (parsable-integer? list-id))
+   (render-list-select "copy-from-list-id" (try-parse-integer list-id))
    [:div.modal-controls
     [:input {:type "submit" :value "Copy List"}]]))
 
 (defn render-todo-list-page [ selected-list-id params ]
-  (let [edit-item-id (parsable-integer? (:edit-item-id params))
-        min-list-priority (or (parsable-integer? (:min-list-priority params)) 0)
-        completed-within-days (or (parsable-integer? (:cwithin params)) 0)
-        snoozed-for-days (or (parsable-integer? (:sfor params)) 0)]
+  (let [edit-item-id (try-parse-integer (:edit-item-id params))
+        min-list-priority (or (try-parse-integer (:min-list-priority params)) 0)
+        completed-within-days (or (try-parse-integer (:cwithin params)) 0)
+        snoozed-for-days (or (try-parse-integer (:sfor params)) 0)]
     (render-page {:title ((data/get-todo-list-by-id selected-list-id) :desc)
                   :page-data-class "todo-list"
                   :sidebar (sidebar-view/render-sidebar-list-list selected-list-id min-list-priority snoozed-for-days)

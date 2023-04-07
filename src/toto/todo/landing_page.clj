@@ -20,13 +20,13 @@
 ;; You must not remove this notice, or any other, from this software.
 
 (ns toto.todo.landing-page
-  (:use toto.core.util
+  (:use playbook.core
         toto.view.common
         toto.view.icons
         toto.view.components
         toto.view.query
         toto.view.page)
-  (:require [clojure.tools.logging :as log]
+  (:require [taoensso.timbre :as log]
             [hiccup.form :as form]))
 
 (defn render-landing-page [ params ]

@@ -20,12 +20,12 @@
 ;; You must not remove this notice, or any other, from this software.
 
 (ns toto.view.components
-  (:use toto.view.query
-        hiccup.def
-        toto.core.util)
+  (:use playbook.core
+        toto.view.query
+        hiccup.def)
   (:require [clojure.data.json :as json]
-            [clojure.tools.logging :as log]
-            [hiccup.form :as form]
+            [taoensso.timbre :as log]
+            [hiccup.form :as hiccup-form]
             [toto.view.auth :as auth]))
 
 (defelem scroll-column [ id title & contents ]
@@ -52,14 +52,28 @@
        [:h1 "Math Problem"]
        "Please solve this math problem to help confirm you are not a robot."
        [:div.verify-problem
-        (form/hidden-field {} "verify-n-1" verify-n-1)
-        (form/hidden-field {} "verify-n-2" verify-n-2)
+        (hiccup-form/hidden-field {} "verify-n-1" verify-n-1)
+        (hiccup-form/hidden-field {} "verify-n-2" verify-n-2)
         verify-n-1 " + " verify-n-2 " = "
-        (form/text-field {:class "verify-response"} "verify-response")]])))
+        (hiccup-form/text-field {:class "verify-response"} "verify-response")]])))
 
 (defn verify-response-correct [ params ]
   (or (auth/current-identity)
       (let [{:keys [:verify-n-1 :verify-n-2 :verify-response]} params]
-        (= (or (parsable-integer? verify-response) -1)
-           (+ (or (parsable-integer? verify-n-1) -1)
-              (or (parsable-integer? verify-n-2) -1))))))
+        (= (or (try-parse-integer verify-response) -1)
+           (+ (or (try-parse-integer verify-n-1) -1)
+              (or (try-parse-integer verify-n-2) -1))))))
+
+
+
+(defn render-duration-select [ id current-value query-durations autosubmit? ]
+  [:select (cond-> { :id id :name id }
+             autosubmit? (merge {:onchange "this.form.submit()"}))
+   (hiccup-form/select-options (conj
+                                (map (fn [ duration ]
+                                       [(str duration "d") (str duration)])
+                                     query-durations)
+                                [ "-" "-"])
+                               (if (nil? current-value)
+                                 "-"
+                                 (str current-value)))])

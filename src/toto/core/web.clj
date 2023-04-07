@@ -22,14 +22,14 @@
 
 (ns toto.core.web
   (:gen-class :main true)
-  (:use toto.core.util
+  (:use playbook.core
         compojure.core
         sql-file.middleware
         [ring.middleware resource
          not-modified
          content-type
          browser-caching])
-  (:require [clojure.tools.logging :as log]
+  (:require [taoensso.timbre :as log]
             [ring.adapter.jetty :as jetty]
             [ring.middleware.reload :as ring-reload]
             [ring.middleware.file-info :as ring-file-info]

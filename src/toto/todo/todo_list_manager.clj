@@ -20,14 +20,14 @@
 ;; You must not remove this notice, or any other, from this
 
 (ns toto.todo.todo-list-manager
-  (:use toto.core.util
+  (:use playbook.core
         compojure.core
         toto.view.common
         toto.view.icons
         toto.view.components
         toto.view.query
         toto.view.page)
-  (:require [clojure.tools.logging :as log]
+  (:require [taoensso.timbre :as log]
             [hiccup.form :as hiccup-form]
             [hiccup.util :as hiccup-util]
             [toto.data.data :as data]
@@ -92,9 +92,9 @@
     [:input {:type "submit" :value "Sort By"}]
     [:select {:id "sort-by" :name "sort-by"}
      (hiccup-form/select-options [["Description" "desc"]
-                           ["Created Date" "created-on"]
-                           ["Updated Date" "updated-on"]
-                           ["Snoozed Until" "snoozed-until"]])])])
+                                  ["Created Date" "created-on"]
+                                  ["Updated Date" "updated-on"]
+                                  ["Snoozed Until" "snoozed-until"]])])])
 
 
 (defn- render-list-delete-panel [ list-id ]
@@ -165,11 +165,21 @@
                   (:desc todo-list))]]))
            (remove #(:is_view %) todo-lists))]]))
 
+(defn- render-item-sunset-panel [ max-item-age ]
+  [:div.config-panel
+   [:h1 "Item Age Limit"]
+   [:div
+    [:p
+     "The maximum age for an item on this list. If this is set, items older than "
+     "this number of days will automatically be deleted."]
+    (render-duration-select "max-item-age" max-item-age [7 14 30 90] false)]])
+
 (defn render-todo-list-details-page [ list-id min-list-priority & { :keys [ error-message ]}]
   (let [list-details (data/get-todo-list-by-id list-id)
         list-name (:desc list-details)
         is-view (:is_view list-details)
-        list-type (if is-view "View" "List")]
+        list-type (if is-view "View" "List")
+        max-item-age (:max_item_age list-details)]
     (render-page
      {:title (str list-type " Details: " (hiccup-util/escape-html list-name))
       :sidebar (sidebar-view/render-sidebar-list-list list-id min-list-priority 0)}
@@ -187,6 +197,8 @@
        (if is-view
          (render-todo-list-view-editor list-id)
          (render-todo-list-permissions list-id error-message))
+       (if (not is-view)
+         (render-item-sunset-panel max-item-age))
        [:div.config-panel
         [:div
          [:input {:type "submit" :value "Update List Details"}]]])

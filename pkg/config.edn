@@ -1,5 +1,7 @@
-{:http-port 8088
- :development-mode false
+{:development-mode false
+ :log-path "/var/log/toto/toto.log"
+
+ :http-port 8088
 
  :base-url "http://todo.mschaef.com/"
  :db {:backup-path "/var/lib/toto"

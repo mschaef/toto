@@ -298,6 +298,10 @@ A {
     width: 10px;
 }
 
+.icon-sunset {
+    color: #fcba03;
+}
+
 /*** Forms ***/
 
 form {
@@ -1098,6 +1102,7 @@ form.details {
 }
 
 
+
 .stocking-item {
     border: 1px solid red;
 }
@@ -1113,10 +1118,19 @@ form.details {
     padding: 20px;
 }
 
-div.valentines-day-banner {
-    border: 3px solid red;
+div.banner {
+    border: 3px solid white;
     margin: 4px;
     padding: 8px;
     text-align: center;
+}
+
+div.banner.valentines-day {
+    border: 3px solid red;
     color: red;
+}
+
+div.banner.sunset {
+    border: 3px solid #fffec2;
+    background: #fffec2;
 }

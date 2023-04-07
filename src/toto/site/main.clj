@@ -21,20 +21,22 @@
 
 (ns toto.site.main
   (:gen-class :main true)
-  (:use toto.core.util
+  (:use playbook.core
         compojure.core)
-  (:require [clojure.tools.logging :as log]
+  (:require [taoensso.timbre :as log]
             [compojure.route :as route]
             [toto.core.scheduler :as scheduler]
+            [toto.util :as util]
             [toto.core.web :as web]
             [toto.site.user :as user]
             [toto.data.data :as data]
-            [toto.todo.todo :as todo]))
+            [toto.todo.todo :as todo]
+            [toto.todo.sunset :as sunset]))
 
 (defn all-routes [ config app-routes ]
-  (log/info "Resources on path: " (str "/" (get-version)))
+  (log/info "Resources on path: " (str "/" (util/get-version)))
   (routes
-   (route/resources (str "/" (get-version)))
+   (route/resources (str "/" (util/get-version)))
    (user/all-routes config)
    app-routes
    (route/not-found "Resource Not Found")))
@@ -42,6 +44,11 @@
 (defn schedule-web-session-cull [ config ]
   (scheduler/schedule-job config :web-session-cull "19 */1 * * *"
                           #(data/delete-old-web-sessions))
+  config)
+
+(defn schedule-item-sunset-job [ config ]
+  (scheduler/schedule-job config :item-sunset "13 */1 * * *"
+                          #(sunset/item-sunset-job))
   config)
 
 (defn schedule-verification-link-cull [ config ]
@@ -52,4 +59,5 @@
 (defn site-start [ config db-conn app-routes ]
   (schedule-verification-link-cull config)
   (schedule-web-session-cull config)
+  (schedule-item-sunset-job config)
   (web/start-site config (all-routes config app-routes)))

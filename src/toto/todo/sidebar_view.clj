@@ -20,11 +20,11 @@
 ;; You must not remove this notice, or any other, from this software.
 
 (ns toto.todo.sidebar-view
-  (:use toto.core.util
+  (:use playbook.core
         toto.view.common
         toto.view.icons
         toto.view.query)
-  (:require [clojure.tools.logging :as log]
+  (:require [taoensso.timbre :as log]
             [toto.data.data :as data]
             [toto.view.auth :as auth]))
 

@@ -19,21 +19,18 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns toto.view.request-date
-  (:use playbook.core)
-  (:require [taoensso.timbre :as log]))
+(ns toto.todo.sunset
+  (:use playbook.core
+        compojure.core)
+  (:require [taoensso.timbre :as log]
+            [toto.data.data :as data]))
 
- ;;; Persistent Query
+(defn sunset-items-by-age [ list-id age-limit ]
+  (let [ toto-user-id (data/get-system-user-id)]
+    (doseq [ item (data/get-sunset-items-by-id list-id age-limit)]
+      (data/delete-item-by-id toto-user-id (:item_id item)))))
 
-(def ^:dynamic *request-date* nil)
-
-(defn wrap-remember-request-date [ app ]
-  (fn [ req ]
-    (binding [ *request-date* (current-time) ]
-      (app req))))
-
-(defn valentines-day? []
-  (and *request-date*
-       (= 1 (.getMonth *request-date*))
-       (let [day (.getDate *request-date*)]
-         (or (= day 14) (= day 15)))))
+(defn item-sunset-job []
+  (doseq [list-info (data/get-todo-lists-with-item-age-limit)]
+    (sunset-items-by-age (:todo_list_id list-info)
+                         (:max_item_age list-info))))

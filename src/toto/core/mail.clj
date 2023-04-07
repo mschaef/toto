@@ -20,8 +20,8 @@
 ;; You must not remove this notice, or any other, from this software.
 
 (ns toto.core.mail
-  (:use toto.core.util)
-  (:require [clojure.tools.logging :as log]
+  (:use playbook.core)
+  (:require [taoensso.timbre :as log]
             [postal.core :as postal]
             [hiccup.core :as hiccup]
             [hiccup.util :as hiccup-util]))

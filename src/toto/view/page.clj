@@ -20,13 +20,13 @@
 ;; You must not remove this notice, or any other, from this software.
 
 (ns toto.view.page
-  (:use toto.core.util
+  (:use playbook.core
         toto.view.common
         toto.view.components
         toto.view.icons
         toto.view.query
         toto.view.components)
-  (:require [clojure.tools.logging :as log]
+  (:require [taoensso.timbre :as log]
             [hiccup.page :as hiccup-page]
             [hiccup.form :as hiccup-form]
             [hiccup.util :as hiccup-util]

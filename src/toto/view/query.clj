@@ -21,7 +21,7 @@
 
 
 (ns toto.view.query
-  (:require [clojure.tools.logging :as log]))
+  (:require [taoensso.timbre :as log]))
 
 ;;; Persistent Query
 

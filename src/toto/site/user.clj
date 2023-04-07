@@ -20,14 +20,14 @@
 ;; You must not remove this notice, or any other, from this software.
 
 (ns toto.site.user
-  (:use toto.core.util
+  (:use playbook.core
         compojure.core
         hiccup.core
         toto.view.common
         toto.view.components
         toto.view.query
         toto.view.page)
-  (:require [clojure.tools.logging :as log]
+  (:require [taoensso.timbre :as log]
             [ring.util.response :as ring]
             [cemerick.friend :as friend]
             [hiccup.form :as form]
@@ -577,7 +577,7 @@
 
    (friend/logout
     (GET "/user/verify/:user-id/:link-uuid" { { user-id :user-id link-uuid :link-uuid } :params }
-      (verify-user (parsable-integer? user-id) link-uuid)))
+      (verify-user (try-parse-integer user-id) link-uuid)))
 
    ;; Account Unlock workflow
    (GET "/user/unlock/:user-id" { { user-id :user-id } :params }
@@ -585,7 +585,7 @@
 
    (friend/logout
     (GET "/user/unlock/:user-id/:link-uuid" { { user-id :user-id link-uuid :link-uuid } :params }
-      (unlock-user (parsable-integer? user-id) link-uuid)))
+      (unlock-user (try-parse-integer user-id) link-uuid)))
 
    ;; Password Reset Workflow
    (GET "/user/forgot-password" []
@@ -596,12 +596,12 @@
 
    (POST "/user/password-reset/:user-id" {params :params}
      (password-reset config
-                     (parsable-integer? (:user-id params)) (:link_uuid params)
+                     (try-parse-integer (:user-id params)) (:link_uuid params)
                      (:new-password params) (:new-password-2 params)))
 
    (friend/logout
     (GET "/user/reset/:user-id/:link-uuid" { { user-id :user-id link-uuid :link-uuid error-message :error-message } :params }
-      (render-password-reset-form (parsable-integer? user-id) link-uuid error-message)))
+      (render-password-reset-form (try-parse-integer user-id) link-uuid error-message)))
 
    (GET "/user/password-reset-success" []
      (render-password-reset-success))
