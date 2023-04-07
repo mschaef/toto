@@ -46,7 +46,7 @@
   config)
 
 (defn schedule-item-sunset-job [ config ]
-  (scheduler/schedule-job config :item-sunset "*/1 * * * *"  ;; "13 */1 * * *"
+  (scheduler/schedule-job config :item-sunset "13 */1 * * *"
                           #(sunset/item-sunset-job))
   config)
 
