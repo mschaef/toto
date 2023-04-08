@@ -196,13 +196,14 @@
                  :class (class-set {"deleted-item" is-deleted?
                                     "completed-item" is-complete?})}
            (render-item-text desc)
-           (if (> (:sunset_age_in_days item-info) (- max-item-age 3))
-             img-sunset)
-           (snooze-item-button item-info [:span.pill
-                                          (render-age (:age_in_days item-info))
-                                          (when currently-snoozed
-                                            (list
-                                             ", snoozed: " (format-date snoozed-until)))])
+           (snooze-item-button item-info
+                               (if (> (:sunset_age_in_days item-info) (- max-item-age 3))
+                                 img-sunset
+                                 [:span.pill
+                                  (render-age (:age_in_days item-info))
+                                  (when currently-snoozed
+                                    (list
+                                     ", snoozed: " (format-date snoozed-until)))]))
            (when (not (= created-by-id (auth/current-user-id)))
              [:span.pill { :title created-by-email }
               (hiccup-util/escape-html
