@@ -108,7 +108,7 @@
        [:select {:id "item-list-id" :name "item-list-id"}
         (hiccup-form/select-options (map (fn [ sublist ]
                                            [(hiccup-util/escape-html (:desc sublist))
-                                            (:sublist_id sublist)])
+                                            (encode-list-id (:sublist_id sublist))])
                                          sublists)
                                     last-item-list-id)])
      (hiccup-form/text-field (cond-> {:maxlength "1024"
@@ -265,7 +265,8 @@
                          Integer/MAX_VALUE)
         pending-items (data/get-pending-items list-id completed-within-days snoozed-for-days)
         n-snoozed-items (count (filter :visibly_snoozed pending-items))
-        display-items (remove :visibly_snoozed pending-items)]
+        display-items (remove :visibly_snoozed pending-items)
+        edit-item-id (if edit-item-id (decode-item-id edit-item-id))]
 
     {:is-empty? (= (count display-items) 0)
      :n-snoozed-items n-snoozed-items
@@ -423,11 +424,11 @@
                    (render-todo-list-completion-query-settings list-id completed-within-days)]))))
 
 (defn render-todo-list-page [ selected-list-id params ]
-  (let [edit-item-id (try-parse-integer (:edit-item-id params))
+  (let [edit-item-id (:edit-item-id params)
         min-list-priority (or (try-parse-integer (:min-list-priority params)) 0)
         completed-within-days (or (try-parse-integer (:cwithin params)) 0)
         snoozed-for-days (or (try-parse-integer (:sfor params)) 0)
-        last-item-list-id (try-parse-integer (:last-item-list-id params))]
+        last-item-list-id  (:last-item-list-id params)]
     (render-page {:title ((data/get-todo-list-by-id selected-list-id) :desc)
                   :page-data-class "todo-list"
                   :sidebar (sidebar-view/render-sidebar-list-list selected-list-id min-list-priority snoozed-for-days)

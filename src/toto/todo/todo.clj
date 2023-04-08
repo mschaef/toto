@@ -172,7 +172,7 @@
     (let [item-list-id (accept-authorized-list-id item-list-id)]
       (when (not (string-empty? item-description))
         (data/add-todo-item (auth/current-user-id) item-list-id item-description item-priority))
-      (redirect-to-list list-id {:last-item-list-id item-list-id}))))
+      (redirect-to-list list-id {:last-item-list-id (encode-list-id item-list-id)}))))
 
 (defn- update-item-ordinal [ item-id params ]
   (let [{target-list-id :target-list
