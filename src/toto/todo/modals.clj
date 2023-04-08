@@ -40,9 +40,11 @@
    (hiccup-form/select-options
     (map (fn [ list-info ]
            [(hiccup-util/escape-html (:desc list-info))
-            (:todo_list_id list-info)])
+            (encode-list-id (:todo_list_id list-info))])
          (remove
-          #(= excluded-list-id (:todo_list_id %))
+          #(or
+            (:is_view %)
+            (= excluded-list-id (:todo_list_id %)))
           (data/get-todo-lists-by-user (auth/current-user-id)))))])
 
 (defn render-update-from-modal [ params list-id ]
@@ -50,7 +52,7 @@
    {:title "Update From"
     :form-post-to (shref "/list/" (encode-list-id list-id) "/copy-from" without-modal)}
    "Source:"
-   (render-list-select "copy-from-list-id" (try-parse-integer list-id))
+   (render-list-select "copy-from-list-id" list-id )
    [:div.modal-controls
     [:input {:type "submit" :value "Copy List"}]]))
 
