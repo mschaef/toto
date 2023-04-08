@@ -118,32 +118,37 @@
     (ring/redirect  (shref "/list/" list-id "/details")))  )
 
 (defn- update-list-details [ list-id params ]
+  (update-list-description list-id (string-leftmost (:list-name params) 32))
+  (if-let [ max-item-age (try-parse-integer (:max-item-age params)) ]
+    (data/set-list-max-item-age list-id max-item-age)
+    (data/clear-list-max-item-age list-id))
+  (ring/redirect  (shref "/list/" list-id "/details")))
+
+(defn- update-list-or-view-details [ list-id params ]
+  (if (:is_view (data/get-todo-list-by-id list-id))
+    (update-view-details list-id params)
+    (update-list-details list-id params)))
+
+(defn- update-list-sharing [ list-id params ]
   (let [share-with-email (parsable-string? (:share-with-email params))
         share-with-email-id (and share-with-email
                                  (auth/get-user-id-by-email share-with-email))
         selected-user-ids (selected-user-ids-from-params params)]
     (if (and share-with-email
              (not share-with-email-id))
-      (unprocessable-entity
-       (todo-list-manager/render-todo-list-details-page list-id
-                                                        (or (try-parse-integer (:min-list-priority params)) 0)
-                                                        :error-message "Invalid e-mail address"))
+      (ring/redirect (shref {:error-message "Invalid e-mail address"}))
       (do
         (data/set-list-ownership list-id
                                  (if share-with-email-id
                                    (conj selected-user-ids share-with-email-id)
                                    selected-user-ids))
-        (update-list-description list-id (string-leftmost (:list-name params) 32))
         (data/set-list-public list-id (boolean (:is-public params)))
-        (if-let [ max-item-age (try-parse-integer (:max-item-age params)) ]
-          (data/set-list-max-item-age list-id max-item-age)
-          (data/clear-list-max-item-age list-id))
-        (ring/redirect  (shref "/list/" list-id "/details"))))))
+        (ring/redirect (shref "/list/" list-id without-modal))))))
 
-(defn- update-list-or-view-details [ list-id params ]
+(defn- update-list-or-view-sharing [ list-id params ]
   (if (:is_view (data/get-todo-list-by-id list-id))
-    (update-view-details list-id params)
-    (update-list-details list-id params)))
+    (ring/bad-request "Cannot update view sharing.")
+    (update-list-sharing list-id params)))
 
 (defn- update-list-priority [ list-id new-priority ]
   (data/set-list-priority list-id (auth/current-user-id) new-priority)
@@ -247,6 +252,9 @@
 
    (POST "/details" { params :params }
      (update-list-or-view-details list-id params))
+
+   (POST "/sharing" { params :params }
+     (update-list-or-view-sharing list-id params))
 
    (POST "/priority" { { new-priority :new-priority } :params }
      (update-list-priority list-id new-priority))

@@ -112,41 +112,6 @@
        [:input.dangerous {:type "submit" :value "Delete List" :formaction (shref "/list/" list-id "/delete")}]
        [:span.warning "Warning, this cannot be undone."]]))])
 
-(defn- render-todo-list-permissions [ list-id error-message ]
-  (let [list-details (data/get-todo-list-by-id list-id)]
-    (list
-     [:div.config-panel
-      [:h1  "List Permissions:"]
-      [:div
-       (hiccup-form/check-box "is-public" (:is_public list-details))
-       [:label {:for "is-public"} "List publically visible?"]]]
-     [:div.config-panel
-      [:h1  "List Owners:"]
-      (let [list-owners (data/get-todo-list-owners-by-list-id list-id) ]
-        [:div.list-owners
-         (map (fn [ { user-id :user_id user-email-addr :email_addr } ]
-                (let [ user-parameter-name (str "user_" user-id)]
-                  [:div.list-owner
-                   (if (= (auth/current-user-id) user-id)
-                     [:div.self-owner
-                      "&nbsp;"
-                      (hiccup-form/hidden-field user-parameter-name "on")]
-                     (hiccup-form/check-box user-parameter-name (in? list-owners user-id)))
-                   [:label {:for user-parameter-name}
-                    user-email-addr
-                    (when (= (auth/current-user-id) user-id)
-                      [:span.pill "you"])]]))
-              (data/get-friendly-users-by-id (auth/current-user-id)))
-         [:div.list-owner
-          [:div.self-owner "&nbsp;"]
-          [:input {:id "share-with-email"
-                   :name "share-with-email"
-                   :type "text"
-                   :placeholder "Share Mail Address"}]]
-         (when error-message
-           [:div.error-message
-            error-message])])])))
-
 (defn- render-todo-list-view-editor [ view-id ]
   (let [user-id (auth/current-user-id)
         todo-lists (data/get-todo-lists-by-user user-id)
@@ -195,8 +160,6 @@
         (hiccup-form/text-field { :maxlength "32" } "list-name" list-name)]
        (if is-view
          (render-todo-list-view-editor list-id)
-         (render-todo-list-permissions list-id error-message))
-       (if (not is-view)
          (render-item-sunset-panel max-item-age))
        [:div.config-panel
         [:div

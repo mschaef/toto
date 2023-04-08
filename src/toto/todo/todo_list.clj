@@ -33,6 +33,7 @@
             [toto.data.data :as data]
             [toto.view.auth :as auth]
             [toto.view.request-date :as request-date]
+            [toto.todo.modals :as modals]
             [toto.todo.sidebar-view :as sidebar-view]))
 
 (def html-breakpoint "&#8203;")
@@ -217,6 +218,10 @@
                  [:div.control-segment
                   [:a {:href (shref "/list/" list-id "/completions")}
                    "[recently completed]"]]
+                 (when (not (:is_view (data/get-todo-list-by-id list-id)))
+                   [:div.control-segment
+                    [:a {:href (shref "/list/" list-id {:modal "share-with"})}
+                     "[share list]"]])
                  [:div.control-segment
                   [:a {:href (shref "/list/" list-id "/details")}
                    "[list details]"]]
@@ -233,13 +238,13 @@
 (defn- render-todo-list-completion-query-settings [ list-id completed-within-days ]
   [:div.query-settings
    (hiccup-form/form-to { :class "embedded "} [:get (shref "/list/" list-id "/completions")]
-                 [:div.control-segment
-                  [:a {:href (shref "/list/" list-id "/details")}
-                   "[list details]"]]
-                 [:div.control-segment
-                  [:label {:for "cwithin"}
-                   "Completed within: "]
-                  (render-duration-select "clwithin" completed-within-days query-durations true)])])
+                        [:div.control-segment
+                         [:a {:href (shref "/list/" list-id "/details")}
+                          "[list details]"]]
+                        [:div.control-segment
+                         [:label {:for "cwithin"}
+                          "Completed within: "]
+                         (render-duration-select "clwithin" completed-within-days query-durations true)])])
 
 (defn- render-empty-list []
   [:div.empty-list
@@ -414,48 +419,6 @@
                    (render-completed-item-list list-id completed-within-days)
                    (render-todo-list-completion-query-settings list-id completed-within-days)]))))
 
-(defn- render-snooze-modal [ params list-id ]
-  (let [ snoozing-item-id (try-parse-integer (:snoozing-item-id params))]
-    (defn render-snooze-choice [ label snooze-days shortcut-key ]
-      (post-button {:desc (str label " (" shortcut-key ")")
-                    :target (str "/item/" snoozing-item-id "/snooze")
-                    :args {:snooze-days snooze-days}
-                    :shortcut-key shortcut-key
-                    :next-url (shref "/list/" list-id without-modal)}
-                   (str label " (" shortcut-key ")")))
-    (render-modal
-     {:title "Snooze item until later"}
-     [:div.snooze-choices
-      (map (fn [ [ label snooze-days shortcut-key] ]
-               (render-snooze-choice label snooze-days shortcut-key))
-           [["Tomorrow" 1 "1"]
-            ["In Three Days" 3 "2"]
-            ["Next Week"  7 "3"]
-            ["Next Month" 30 "4"]])]
-     (when (:currently_snoozed (data/get-item-by-id snoozing-item-id))
-       [:div.snooze-choices
-        [:hr]
-        (render-snooze-choice "Unsnooze" 0 "0")]))))
-
-(defn- render-list-select [ id excluded-list-id ]
-  [:select { :id id :name id }
-   (hiccup-form/select-options
-    (map (fn [ list-info ]
-           [(hiccup-util/escape-html (:desc list-info))
-            (:todo_list_id list-info)])
-         (remove
-          #(= excluded-list-id (:todo_list_id %))
-          (data/get-todo-lists-by-user (auth/current-user-id)))))])
-
-(defn render-update-from-modal [ params list-id ]
-  (render-modal
-   {:title "Update From"
-    :form-post-to (shref "/list/" list-id "/copy-from" without-modal)}
-   "Source:"
-   (render-list-select "copy-from-list-id" (try-parse-integer list-id))
-   [:div.modal-controls
-    [:input {:type "submit" :value "Copy List"}]]))
-
 (defn render-todo-list-page [ selected-list-id params ]
   (let [edit-item-id (try-parse-integer (:edit-item-id params))
         min-list-priority (or (try-parse-integer (:min-list-priority params)) 0)
@@ -464,8 +427,9 @@
     (render-page {:title ((data/get-todo-list-by-id selected-list-id) :desc)
                   :page-data-class "todo-list"
                   :sidebar (sidebar-view/render-sidebar-list-list selected-list-id min-list-priority snoozed-for-days)
-                  :modals {"snoozing" #(render-snooze-modal params selected-list-id)
-                           "update-from" #(render-update-from-modal params selected-list-id)}}
+                  :modals {"snoozing" #(modals/render-snooze-modal params selected-list-id)
+                           "update-from" #(modals/render-update-from-modal params selected-list-id)
+                           "share-with" #(modals/render-share-with-modal params selected-list-id)}}
                  (render-todo-list selected-list-id edit-item-id true completed-within-days snoozed-for-days))))
 
 (defn render-todo-list-public-page [ params ]
