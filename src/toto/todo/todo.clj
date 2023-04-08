@@ -28,7 +28,6 @@
   (:require [taoensso.timbre :as log]
             [ring.util.response :as ring]
             [compojure.handler :as handler]
-            [ring.util.response :as ring-response]
             [cemerick.friend :as friend]
             [toto.data.data :as data]
             [toto.view.auth :as auth]
@@ -189,8 +188,11 @@
 (defn- update-item-list [ item-id params ]
   (let [ { target-list :target-list } params ]
     (ensure-list-owner-access target-list)
-    (data/update-item-list (auth/current-user-id) item-id target-list)
-    (success)))
+    (if (:is_view (data/get-todo-list-by-id target-list))
+      (ring/bad-request "Cannot move list item directly to view.")
+      (do
+        (data/update-item-list (auth/current-user-id) item-id target-list)
+        (success)))))
 
 (defn update-item-priority [ item-id params ]
   (let [ { new-priority :new-priority } params]

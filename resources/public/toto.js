@@ -293,7 +293,7 @@ function setupItemDragging() {
         });
     });
 
-    foreach_elem('.list-list .list-row', function(el) {
+    foreach_elem('.list-list .list-drop-target', function(el) {
         makeDropTarget(el, function(ev) {
             ev.preventDefault();
 

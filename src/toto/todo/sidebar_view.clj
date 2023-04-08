@@ -58,6 +58,7 @@
                    priority :priority}
                   list ]
               [:div.list-row {:class (class-set {"selected" (= list-id (Integer. selected-list-id))
+                                                 "list-drop-target" (not is-view)
                                                  "view" is-view
                                                  "high-priority" (and include-low-priority (> priority 0))
                                                  "low-priority" (and include-low-priority (< priority 0))})
