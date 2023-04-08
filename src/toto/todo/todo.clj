@@ -183,7 +183,7 @@
         user-id (auth/current-user-id)]
     (if (= snooze-days 0)
       (data/remove-item-snooze-by-id user-id item-id)
-      (data/update-item-snooze-by-id user-id item-id (add-days (current-time) snooze-days 5)))
+      (data/update-item-snooze-by-id user-id item-id (add-days (current-time) snooze-days)))
     (success)))
 
 (defn- update-item-list [ item-id params ]
