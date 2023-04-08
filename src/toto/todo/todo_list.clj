@@ -209,7 +209,7 @@
       (render-item-priority-control item-id priority writable?)]
      (item-drag-handle "right" item-info)]))
 
-(def query-durations [1 7 30 90])
+(def query-durations [1 7 30 90 365 730])
 
 (defn- render-todo-list-query-settings [ list-id completed-within-days snoozed-for-days ]
   [:div.query-settings
