@@ -49,8 +49,12 @@
    (unless (data/item-owned-by-user-id? item-id (auth/current-user-id))
            (auth/report-unauthorized))))
 
-(defn redirect-to-list [ list-id ]
-  (ring/redirect (shref "/list/" list-id)))
+(defn redirect-to-list
+  ([ list-id ]
+   (redirect-to-list list-id {}))
+
+  ([ list-id params ]
+   (ring/redirect (shref "/list/" list-id params))))
 
 (defn redirect-to-home-list []
   (redirect-to-list (current-todo-list-id)))
@@ -162,7 +166,7 @@
     (ensure-list-owner-access item-list-id)
     (when (not (string-empty? item-description))
       (data/add-todo-item (auth/current-user-id) item-list-id item-description item-priority))
-    (redirect-to-list list-id)))
+    (redirect-to-list list-id {:last-item-list-id item-list-id})))
 
 (defn- update-item-ordinal [ item-id params ]
   (let [{target-list-id :target-list

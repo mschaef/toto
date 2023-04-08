@@ -98,7 +98,7 @@
       (item-priority-button item-id 1 img-star-gray writable?)
       (item-priority-button item-id 0 img-star-yellow writable?))))
 
-(defn- render-new-item-form [ list-id editing-item? ]
+(defn- render-new-item-form [ list-id editing-item? last-item-list-id ]
   (let [ sublists (data/get-view-sublists (auth/current-user-id) list-id)]
     (hiccup-form/form-to
      {:class "new-item-form"}
@@ -109,7 +109,8 @@
         (hiccup-form/select-options (map (fn [ sublist ]
                                            [(hiccup-util/escape-html (:desc sublist))
                                             (:sublist_id sublist)])
-                                  sublists))])
+                                         sublists)
+                                    last-item-list-id)])
      (hiccup-form/text-field (cond-> {:maxlength "1024"
                                :placeholder "New Item Description"
                                :autocomplete "off"
@@ -352,11 +353,11 @@
      "This list automatically sunsets items older than " max-item-age
      " day" (if (not (= max-item-age 1)) "s") "."]))
 
-(defn- render-todo-list [ list-id edit-item-id writable? completed-within-days snoozed-for-days ]
+(defn- render-todo-list [ list-id edit-item-id writable? completed-within-days snoozed-for-days last-item-list-id ]
   (scroll-column
    (str "todo-list-scroller-" list-id)
    (when writable?
-     (render-new-item-form list-id (boolean edit-item-id)))
+     (render-new-item-form list-id (boolean edit-item-id) last-item-list-id))
    (render-sunset-banner list-id)
    (list
     (render-valentines-day-banner)
@@ -423,14 +424,15 @@
   (let [edit-item-id (try-parse-integer (:edit-item-id params))
         min-list-priority (or (try-parse-integer (:min-list-priority params)) 0)
         completed-within-days (or (try-parse-integer (:cwithin params)) 0)
-        snoozed-for-days (or (try-parse-integer (:sfor params)) 0)]
+        snoozed-for-days (or (try-parse-integer (:sfor params)) 0)
+        last-item-list-id (try-parse-integer (:last-item-list-id params))]
     (render-page {:title ((data/get-todo-list-by-id selected-list-id) :desc)
                   :page-data-class "todo-list"
                   :sidebar (sidebar-view/render-sidebar-list-list selected-list-id min-list-priority snoozed-for-days)
                   :modals {"snoozing" #(modals/render-snooze-modal params selected-list-id)
                            "update-from" #(modals/render-update-from-modal params selected-list-id)
                            "share-with" #(modals/render-share-with-modal params selected-list-id)}}
-                 (render-todo-list selected-list-id edit-item-id true completed-within-days snoozed-for-days))))
+                 (render-todo-list selected-list-id edit-item-id true completed-within-days snoozed-for-days last-item-list-id))))
 
 (defn render-todo-list-public-page [ params ]
   (let [ { list-id :list-id } params ]
@@ -438,4 +440,4 @@
                (not (data/list-owned-by-user-id? list-id (auth/current-user-id))))
       (render-page {:title ((data/get-todo-list-by-id list-id) :desc)
                     :page-data-class "todo-list"}
-                   (render-todo-list list-id nil false 0 0)))))
+                   (render-todo-list list-id nil false 0 0 false)))))
