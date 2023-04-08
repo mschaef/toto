@@ -23,7 +23,8 @@
   (:use playbook.core
         toto.view.common
         toto.view.icons
-        toto.view.query)
+        toto.view.query
+        toto.todo.ids)
   (:require [taoensso.timbre :as log]
             [toto.data.data :as data]
             [toto.view.auth :as auth]))
@@ -63,7 +64,7 @@
                                                  "high-priority" (and include-low-priority (> priority 0))
                                                  "low-priority" (and include-low-priority (< priority 0))})
                               :listid list-id}
-               [:a.item {:href (shref "/list/" list-id)}
+               [:a.item {:href (shref "/list/" (encode-list-id list-id))}
                 (hiccup.util/escape-html list-desc)
                 (render-list-visibility-flag list)]
                (if (not is-view)

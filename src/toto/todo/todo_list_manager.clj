@@ -26,7 +26,8 @@
         toto.view.icons
         toto.view.components
         toto.view.query
-        toto.view.page)
+        toto.view.page
+        toto.todo.ids)
   (:require [taoensso.timbre :as log]
             [hiccup.form :as hiccup-form]
             [hiccup.util :as hiccup-util]
@@ -35,7 +36,7 @@
             [toto.todo.sidebar-view :as sidebar-view]))
 
 (defn- list-priority-button [ list-id new-priority image-spec ]
-  (post-button {:target (shref "/list/" list-id "/priority")
+  (post-button {:target (shref "/list/" (encode-list-id list-id) "/priority")
                 :args {:new-priority new-priority}
                 :desc "Set List Priority"}
                image-spec))
@@ -79,7 +80,7 @@
                [:div.item-control
                 (render-list-arrow-control list-id priority)]
                [:div.item-description
-                [:a {:href (shref "/list/" list-id "/details")}
+                [:a {:href (shref "/list/" (encode-list-id list-id) "/details")}
                  (hiccup.util/escape-html (:desc list))
                  [:span.pill (:item_count list)]]
                 (sidebar-view/render-list-visibility-flag list)]]))
@@ -88,7 +89,7 @@
 (defn- render-sort-list-panel [ list-id ]
   [:div.config-panel
    [:h1 "Sort List"]
-   (hiccup-form/form-to {} [:post (shref "/list/" list-id "/sort")]
+   (hiccup-form/form-to {} [:post (shref "/list/" (encode-list-id list-id) "/sort")]
     [:input {:type "submit" :value "Sort By"}]
     [:select {:id "sort-by" :name "sort-by"}
      (hiccup-form/select-options [["Description" "desc"]
@@ -109,7 +110,8 @@
      :else
      (list
       [:div
-       [:input.dangerous {:type "submit" :value "Delete List" :formaction (shref "/list/" list-id "/delete")}]
+       [:input.dangerous {:type "submit" :value "Delete List"
+                          :formaction (shref "/list/" (encode-list-id list-id) "/delete")}]
        [:span.warning "Warning, this cannot be undone."]]))])
 
 (defn- render-todo-list-view-editor [ view-id ]
@@ -124,7 +126,7 @@
                [:div
                 (hiccup-form/check-box (str "list_" list-id)
                                        (in? view-sublist-ids list-id))
-                [:a {:href (shref "/list/" list-id "/details")}
+                [:a {:href (shref "/list/" (encode-list-id list-id) "/details")}
                  (hiccup-util/escape-html
                   (:desc todo-list))]]))
            (remove #(:is_view %) todo-lists))]]))
@@ -154,7 +156,7 @@
        "List Details: " (hiccup-util/escape-html list-name)]
       (hiccup-form/form-to
        {:class "details"}
-       [:post (shref "/list/" list-id "/details")]
+       [:post (shref "/list/" (encode-list-id list-id) "/details")]
        [:div.config-panel
         [:h1 (str list-type " Name:")]
         (hiccup-form/text-field { :maxlength "32" } "list-name" list-name)]

@@ -4,7 +4,8 @@
         toto.view.icons
         toto.view.components
         toto.view.query
-        toto.view.page)
+        toto.view.page
+        toto.todo.ids)
   (:require [taoensso.timbre :as log]
             [hiccup.form :as hiccup-form]
             [hiccup.util :as hiccup-util]
@@ -12,13 +13,13 @@
             [toto.view.auth :as auth]))
 
 (defn render-snooze-modal [ params list-id ]
-  (let [ snoozing-item-id (try-parse-integer (:snoozing-item-id params))]
+  (let [ snoozing-item-id (decode-item-id  (:snoozing-item-id params))]
     (defn render-snooze-choice [ label snooze-days shortcut-key ]
       (post-button {:desc (str label " (" shortcut-key ")")
-                    :target (str "/item/" snoozing-item-id "/snooze")
+                    :target (str "/item/" (encode-item-id snoozing-item-id) "/snooze")
                     :args {:snooze-days snooze-days}
                     :shortcut-key shortcut-key
-                    :next-url (shref "/list/" list-id without-modal)}
+                    :next-url (shref "/list/" (encode-list-id list-id) without-modal)}
                    (str label " (" shortcut-key ")")))
     (render-modal
      {:title "Snooze item until later"}
@@ -47,7 +48,7 @@
 (defn render-update-from-modal [ params list-id ]
   (render-modal
    {:title "Update From"
-    :form-post-to (shref "/list/" list-id "/copy-from" without-modal)}
+    :form-post-to (shref "/list/" (encode-list-id list-id) "/copy-from" without-modal)}
    "Source:"
    (render-list-select "copy-from-list-id" (try-parse-integer list-id))
    [:div.modal-controls
@@ -91,7 +92,7 @@
 (defn render-share-with-modal [ params list-id ]
   (render-modal
    {:title "Share With"
-    :form-post-to (shref "/list/" list-id "/sharing" without-modal)}
+    :form-post-to (shref "/list/" (encode-list-id list-id) "/sharing" without-modal)}
    (render-todo-list-permissions list-id nil)
    [:div.modal-controls
     [:input {:type "submit" :value "Share"}]]))
