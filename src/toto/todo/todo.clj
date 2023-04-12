@@ -36,6 +36,7 @@
             [toto.view.auth :as auth]
             [toto.todo.landing-page :as landing-page]
             [toto.todo.todo-list :as todo-list]
+            [toto.todo.todo-list-details :as todo-list-details]
             [toto.todo.todo-list-manager :as todo-list-manager]))
 
 (defn- current-todo-list-id []
@@ -132,7 +133,7 @@
   (if-let [ max-item-age (try-parse-integer (:max-item-age params)) ]
     (data/set-list-max-item-age list-id max-item-age)
     (data/clear-list-max-item-age list-id))
-  (ring/redirect  (shref "/list/" (encode-list-id list-id) "/details")))
+  (ring/redirect (shref "/list/" (encode-list-id list-id) "/details")))
 
 (defn- update-list-or-view-details [ list-id params ]
   (if (:is_view (data/get-todo-list-by-id list-id))
@@ -256,7 +257,7 @@
       (add-item list-id params))
 
     (GET "/details" { params :params }
-      (todo-list-manager/render-todo-list-details-page
+      (todo-list-details/render-todo-list-details-page
        list-id (or (try-parse-integer (:min-list-priority params)) 0)))
 
     (POST "/details" { params :params }
@@ -309,7 +310,7 @@
      (add-list params))
 
    (GET "/lists" []
-     (todo-list-manager/render-list-list-page))
+     (todo-list-manager/render-list-manager-page))
 
    (context "/list/:list-id" [ list-id ]
      (list-routes list-id))

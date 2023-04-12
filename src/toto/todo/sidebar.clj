@@ -19,7 +19,7 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns toto.todo.sidebar-view
+(ns toto.todo.sidebar
   (:use playbook.core
         toto.view.common
         toto.view.icons
@@ -45,7 +45,7 @@
       (> list-owner-count 1)
       [:span.list-visibility-flag img-group])))
 
-(defn render-sidebar-list-list [ selected-list-id min-list-priority snoozed-for-days ]
+(defn render-sidebar [ selected-list-id min-list-priority snoozed-for-days ]
   (let [include-low-priority (< min-list-priority 0)]
     [:div.list-list
      (map (fn [ list ]

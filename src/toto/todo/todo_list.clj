@@ -34,69 +34,8 @@
             [toto.view.auth :as auth]
             [toto.view.request-date :as request-date]
             [toto.todo.modals :as modals]
-            [toto.todo.sidebar-view :as sidebar-view]))
-
-(def html-breakpoint "&#8203;")
-
-(def pill-date-format (java.text.SimpleDateFormat. "yyyy-MM-dd"))
-
-(defn- format-date [ date ]
-  (.format pill-date-format date))
-
-(defn- ensure-string-breakpoints [ s n ]
-  (clojure.string/join html-breakpoint (map hiccup-util/escape-html (partition-string s n))))
-
-(defn- ensure-string-breaks [ string at ]
-  (clojure.string/replace string at (str at html-breakpoint)))
-
-(defn shorten-url-text [ url-text target-length ]
-  (let [url (java.net.URL. url-text)
-        base (str (.getProtocol url)
-                  ":"
-                  (if-let [authority (.getAuthority url)]
-                    (str "//" authority)))]
-    (-> (hiccup-util/escape-html
-         (str base
-              (string-leftmost (.getPath url)
-                               (max 0 (- (- target-length 3) (.length base)))
-                               "...")))
-        (ensure-string-breaks "/")
-        (ensure-string-breaks "."))))
-
-(defn- complete-item-button [ item-info ]
-  (post-button {:desc "Complete Item"
-                :target (str "/item/" (encode-item-id (item-info :item_id)) "/complete")}
-               img-check))
-
-(defn- restore-item-button [ item-info ]
-  (post-button {:desc "Restore Item"
-                :target (str "/item/" (encode-item-id (item-info :item_id)) "/restore")}
-               img-restore))
-
-(defn- delete-item-button [ item-info list-id ]
-  (post-button {:desc "Delete Item"
-                :target (str "/item/" (encode-item-id (item-info :item_id)) "/delete")}
-               img-trash))
-
-(defn- snooze-item-button [ item-info body ]
-  [:a {:href (shref "" {:modal "snoozing" :snoozing-item-id (encode-item-id (item-info :item_id))})} body])
-
-(defn- item-priority-button [ item-id new-priority image-spec writable? ]
-  (if writable?
-    (post-button {:target (str "/item/" item-id "/priority")
-                  :args {:new-priority new-priority}
-                  :desc "Set Item Priority"}
-                 image-spec)
-    image-spec))
-
-(defn- render-item-priority-control [ item-id priority writable? ]
-  (if (request-date/valentines-day?)
-    (if (<= priority 0)
-      (item-priority-button item-id 1 img-heart-pink writable?)
-      (item-priority-button item-id 0 img-heart-red writable?))
-    (if (<= priority 0)
-      (item-priority-button item-id 1 img-star-gray writable?)
-      (item-priority-button item-id 0 img-star-yellow writable?))))
+            [toto.todo.sidebar :as sidebar]
+            [toto.todo.todo-item :as todo-item]))
 
 (defn- render-new-item-form [ list-id editing-item? last-item-list-id ]
   (let [ sublists (data/get-view-sublists (auth/current-user-id) list-id)]
@@ -122,95 +61,6 @@
                                     :onclick "window._toto.submitHighPriority()"}
       img-star-yellow])))
 
-(def url-regex #"(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
-
-(defn- render-url [ [ url ] ]
-  [:a.item-link { :href url :target "_blank" } (shorten-url-text url 60)])
-
-(defn- render-item-text-segment [ item-text-segment ]
-  (clojure.string/join " " (map #(ensure-string-breakpoints % 15)
-                                (clojure.string/split item-text-segment #"\s"))))
-
-(defn- render-item-text [ item-text ]
-  (interleave (conj (vec (map #(str " " (render-item-text-segment (.trim %)) " ") (clojure.string/split item-text url-regex))) "")
-              (conj (vec (map render-url (re-seq url-regex item-text))) "")))
-
-(defn- render-age [ days ]
-  (cond (> days 720) (str (quot days 360) "y")
-        (> days 60) (str (quot days 30) "m")
-        :else (str days "d")))
-
-(defn item-drag-handle [ class item-info ]
-  [:div.item-drag-handle {:itemid (:item_id item-info)
-                          :class class}
-   img-drag-handle])
-
-(defn drop-target [ item-ordinal ]
-  [:div.order-drop-target {:ordinal item-ordinal :priority "0"} "&nbsp;"])
-
-(defn- render-todo-item [ view-list-id list-id item-info writable? editing? max-item-age ]
-  (let [{item-id :item_id
-         is-complete? :is_complete
-         is-deleted? :is_deleted
-         priority :priority
-         snoozed-until :snoozed_until
-         currently-snoozed :currently_snoozed
-         created-by-id :created_by_id
-         created-by-email :created_by_email
-         created-by-name :created_by_name}
-        item-info]
-    [:div.item-row.order-drop-target
-     (cond-> {:id (str "item_row_" item-id)
-              :itemid item-id
-              :listid list-id
-              :ordinal (:item_ordinal item-info)
-              :priority priority
-              :class (class-set {"editing" editing?
-                                 "display" (not editing?)
-                                 "high-priority" (> priority 0)
-                                 "snoozed" currently-snoozed})}
-       writable? (assoc :edit-href (shref "/list/" (encode-list-id view-list-id)
-                                          { :edit-item-id (encode-item-id item-id) })))
-     (when writable?
-       (list
-        (item-drag-handle "left" item-info)
-        [:div.item-control.complete {:id (str "item_control_" item-id)}
-         (if editing?
-           (delete-item-button item-info list-id)
-           (if (or is-complete? is-deleted?)
-             (restore-item-button item-info)
-             (complete-item-button item-info)))]))
-     [:div.item-control.priority.left
-      (render-item-priority-control item-id priority writable?)]
-     [:div.item-description {:itemid item-id}
-      (if editing?
-         [:input (cond-> {:value (item-info :desc)
-                          :type "text"
-                          :name "description"
-                          :item-id item-id
-                          :view-href (shref "/list/" (encode-list-id view-list-id) without-modal)
-                          :onkeydown "window._toto.onItemEditKeydown(event)"}
-                   editing? (assoc "autofocus" "on"))]
-        (let [desc (item-info :desc)]
-          [:div {:id (str "item_" item-id)
-                 :class (class-set {"deleted-item" is-deleted?
-                                    "completed-item" is-complete?})}
-           (render-item-text desc)
-           (snooze-item-button item-info
-                               (if (> (:sunset_age_in_days item-info) (- max-item-age 3))
-                                 img-sunset
-                                 [:span.pill
-                                  (render-age (:age_in_days item-info))
-                                  (when currently-snoozed
-                                    (list
-                                     ", snoozed: " (format-date snoozed-until)))]))
-           (when (not (= created-by-id (auth/current-user-id)))
-             [:span.pill { :title created-by-email }
-              (hiccup-util/escape-html
-               created-by-name)])]))]
-     [:div.item-control.priority.right
-      (render-item-priority-control item-id priority writable?)]
-     (item-drag-handle "right" item-info)]))
 
 (def query-durations [1 7 30 90 365 730])
 
@@ -272,11 +122,11 @@
      :n-snoozed-items n-snoozed-items
 
      :high-priority
-     (map #(render-todo-item view-list-id list-id % writable? (= edit-item-id (:item_id %)) max-item-age)
+     (map #(todo-item/render-todo-item view-list-id list-id % writable? (= edit-item-id (:item_id %)) max-item-age)
           (filter #(> (:priority %) 0) display-items))
 
      :normal-priority
-     (map #(render-todo-item view-list-id list-id % writable? (= edit-item-id (:item_id %)) max-item-age)
+     (map #(todo-item/render-todo-item view-list-id list-id % writable? (= edit-item-id (:item_id %)) max-item-age)
           (filter #(<= (:priority %) 0) display-items))}))
 
 (defn- render-single-todo-list [ view-list-id list-id edit-item-id writable? completed-within-days snoozed-for-days ]
@@ -399,7 +249,7 @@
                                  {"high-priority" (> (:priority todo-item) 0)})}
           [:div.item-description
            [:div
-            (render-item-text (:desc todo-item))
+            (todo-item/render-item-text (:desc todo-item))
             [:span.pill (:sublist_desc todo-item)]
             (when (> (:priority todo-item) 0)
               (if (request-date/valentines-day?)
@@ -412,13 +262,13 @@
         completed-within-days (or (try-parse-integer (:clwithin params)) 1)]
     (render-page {:title ((data/get-todo-list-by-id list-id) :desc)
                   :page-data-class "todo-list-completions"
-                  :sidebar (sidebar-view/render-sidebar-list-list list-id min-list-priority 0)}
+                  :sidebar (sidebar/render-sidebar list-id min-list-priority 0)}
                  (scroll-column
                   "todo-list-completion-scroller"
                   [:h3
                    [:a { :href (shref (str "/list/" (encode-list-id list-id)) {:view :remove}) }
                     img-back-arrow]
-                   "Items Completed Since: " (format-date (add-days (current-time) (- completed-within-days)))]
+                   "Items Completed Since: " (todo-item/format-date (add-days (current-time) (- completed-within-days)))]
                   [:div.toplevel-list
                    (render-completed-item-list list-id completed-within-days)
                    (render-todo-list-completion-query-settings list-id completed-within-days)]))))
@@ -431,7 +281,7 @@
         last-item-list-id  (:last-item-list-id params)]
     (render-page {:title ((data/get-todo-list-by-id selected-list-id) :desc)
                   :page-data-class "todo-list"
-                  :sidebar (sidebar-view/render-sidebar-list-list selected-list-id min-list-priority snoozed-for-days)
+                  :sidebar (sidebar/render-sidebar selected-list-id min-list-priority snoozed-for-days)
                   :modals {"snoozing" #(modals/render-snooze-modal params selected-list-id)
                            "update-from" #(modals/render-update-from-modal params selected-list-id)
                            "share-with" #(modals/render-share-with-modal params selected-list-id)}}

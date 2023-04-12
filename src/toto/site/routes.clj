@@ -19,20 +19,19 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns toto.main
-  (:gen-class :main true)
-  (:use playbook.core)
-  (:require [playbook.logging :as logging]
-            [playbook.config :as config]
-            [taoensso.timbre :as log]
-            [toto.site.main :as main]))
+(ns toto.site.routes
+  (:use playbook.core
+        compojure.core)
+  (:require [taoensso.timbre :as log]
+            [compojure.route :as route]
+            [toto.util :as util]
+            [toto.site.user :as user]))
 
-(defn -main [& args]
-  (let [config (-> (config/load-config)
-                   (assoc :log-levels [[#{"hsqldb.*" "com.zaxxer.hikari.*"} :warn]]))]
-    (logging/setup-logging config)
-    (log/info "Starting App" (:app config))
-    (when (:development-mode config)
-      (log/warn "=== DEVELOPMENT MODE ==="))
-    (main/app-start config)
-    (log/info "end run.")))
+(defn all-routes [ config app-routes ]
+  (let [ resources-path (str "/" (util/get-version)) ]
+    (log/info "Resources on path: " resources-path )
+    (routes
+     (route/resources resources-path)
+     (user/all-routes config)
+     app-routes
+     (route/not-found "Resource Not Found"))))
