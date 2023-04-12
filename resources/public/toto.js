@@ -99,10 +99,15 @@ function onToggleSidebar(evt) {
 function doToggleSidebar(evt) {
     evt.preventDefault();
 
-    var menu = elem('sidebar');
-
     sidebarVisible = !sidebarVisible;
 
+    updateSidebarVisibility(true);
+}
+
+function updateSidebarVisibility(animated) {
+    const menu = elem('sidebar');
+
+    menu.classList.toggle('animated', animated);
     menu.classList.toggle('menu-visible', sidebarVisible);
 
     if(sidebarVisible) {
@@ -514,6 +519,7 @@ document.addEventListener("turbo:render", function(event) {
     }
 
     restoreScrolls();
+    updateSidebarVisibility(false);
     setupScrollListeners();
 });
 

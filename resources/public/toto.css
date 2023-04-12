@@ -167,7 +167,14 @@ dialog p {
     box-shadow: 2px 1px 1px #e0e0e0;
 
     transform: translate3d( 0, 0, 0 );
+}
+
+.sidebar.animated {
     transition: transform 0.25s ease-in-out;
+}
+
+.sidebar.menu-visible {
+    transform: translate3d( 320px, 0, 0 );
 }
 
 .sidebar::-webkit-scrollbar {
@@ -782,10 +789,6 @@ h1 {
 
 .sidebar .list-list .control-row {
     text-align: center;
-}
-
-.sidebar.menu-visible {
-    transform: translate3d( 320px, 0, 0 );
 }
 
 .sidebar .copyright {
