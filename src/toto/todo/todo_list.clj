@@ -32,7 +32,6 @@
             [hiccup.util :as hiccup-util]
             [toto.data.data :as data]
             [toto.view.auth :as auth]
-            [toto.view.request-date :as request-date]
             [toto.todo.modals :as modals]
             [toto.todo.sidebar :as sidebar]
             [toto.todo.todo-item :as todo-item]))
@@ -194,7 +193,7 @@
   (when (message-recepient?)
     [:div.banner.valentines-day
      img-heart-red
-     (if (request-date/valentines-day?)
+     (if (todo-item/valentines-day?)
        " Happy Valentines Day!!! I Love You! "
        " I Love You, Teresa! ")
      img-heart-red]))
@@ -252,7 +251,7 @@
             (todo-item/render-item-text (:desc todo-item))
             [:span.pill (:sublist_desc todo-item)]
             (when (> (:priority todo-item) 0)
-              (if (request-date/valentines-day?)
+              (if (todo-item/valentines-day?)
                 img-heart-red
                 img-star-yellow))]]])
        completed-items))))

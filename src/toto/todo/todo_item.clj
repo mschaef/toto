@@ -29,8 +29,13 @@
         toto.todo.ids)
   (:require [taoensso.timbre :as log]
             [hiccup.util :as hiccup-util]
-            [toto.view.auth :as auth]
-            [toto.view.request-date :as request-date]))
+            [toto.view.auth :as auth]))
+
+(defn valentines-day? []
+  (let [now (current-time)]
+    (and (= 1 (.getMonth now))
+         (let [day (.getDate now)]
+           (or (= day 14) (= day 15))))))
 
 ;;;; Item text rendering. This is the textual representation of a todo
 ;;;; item, without any surrounding controls.
@@ -109,7 +114,7 @@
     image-spec))
 
 (defn- render-item-priority-control [ item-id priority writable? ]
-  (if (request-date/valentines-day?)
+  (if (valentines-day?)
     (if (<= priority 0)
       (item-priority-button item-id 1 img-heart-pink writable?)
       (item-priority-button item-id 0 img-heart-red writable?))
