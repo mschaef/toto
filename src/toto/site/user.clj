@@ -539,6 +539,24 @@
   (ring/redirect (or (uri-path? (:current-uri params))
                      "/")))
 
+(defn- notice-gdpr-consent [ req ]
+  (assoc (ring/redirect (or (get-in req [:headers "referer"])
+                            "/" ))
+         :session {:gdpr-consent "yes"}))
+
+(defn- render-gdpr-consent-decline []
+  (render-page {:title "Cookie Consent Declined"
+                :suppress-gdpr-consent true}
+               [:div.page-message
+                [:h1 "Cookie Consent Declined"]
+                [:p
+                 "You have declined consent for this website's use of cookies. "
+                 "However, cookies are required for this site to function "
+                 "properly and securely. Please accept our apologies for any "
+                 "inconvenience this may cause. If you change your mind, you can "
+                 "do so " [:a {:href "/"} "here"] ". Otherwise, this will take you "
+                 " to " [:a {:href "https://www.google.com"} "Google"] "."]]))
+
 (defn private-routes [ config ]
   (routes
    (GET "/user/password" []
@@ -570,6 +588,12 @@
    (GET "/login" { { login-failed :login_failed email-addr :username } :params }
      (render-login-page :email-addr email-addr
                         :login-failure? (= login-failed "Y")))
+
+   (POST "/user/gdpr-consent" req
+     (notice-gdpr-consent req))
+
+   (GET "/user/gdpr-consent-decline" req
+     (render-gdpr-consent-decline))
 
    ;; User Verification Workflow
    (GET "/user/verify/:user-id" { { user-id :user-id } :params }
