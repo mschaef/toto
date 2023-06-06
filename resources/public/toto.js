@@ -382,13 +382,15 @@ function dismissQueryIfPresent() {
 function dismissModalIfPresent() {
     var modal = elemOptional('modal');
 
-    var nextUrl;
-
-    if (modal) {
-        nextUrl = modal.getAttribute('data-escape-url');
+    if (!modal) {
+        return;
     }
 
-    visitPage(nextUrl);
+    var nextUrl = modal.getAttribute('data-escape-url');
+
+    if (nextUrl) {
+        visitPage(nextUrl);
+    }
 }
 
 function checkModalShortcutBindings(event) {

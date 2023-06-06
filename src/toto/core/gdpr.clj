@@ -19,21 +19,20 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns toto.main
+
+(ns toto.core.gdpr
   (:gen-class :main true)
   (:use playbook.core)
-  (:require [playbook.logging :as logging]
-            [playbook.config :as config]
-            [taoensso.timbre :as log]
-            [toto.site.main :as main]))
+  (:require [taoensso.timbre :as log]))
 
-(defn -main [& args]
-  (let [config (-> (config/load-config)
+(def ^:dynamic *gdpr-consent* nil)
 
-                   (assoc :log-levels [[#{"hsqldb.*" "com.zaxxer.hikari.*"} :warn]]))]
-    (logging/setup-logging config)
-    (log/info "Starting App" (:app config))
-    (when (:development-mode config)
-      (log/warn "=== DEVELOPMENT MODE ==="))
-    (main/app-start config)
-    (log/info "end run.")))
+(defn wrap-gdpr-filter [ app ]
+  (fn [ req ]
+    (binding [ *gdpr-consent* (get-in req [:headers "cookie"] )]
+      (let [ resp (app req) ]
+        (if  (or *gdpr-consent*
+                 (= (:uri req) "/user/gdpr-consent"))
+          resp
+          (dissoc resp :session))))))
+

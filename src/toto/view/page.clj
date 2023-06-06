@@ -30,6 +30,7 @@
             [hiccup.page :as hiccup-page]
             [hiccup.form :as hiccup-form]
             [hiccup.util :as hiccup-util]
+            [toto.core.gdpr :as gdpr]
             [toto.view.auth :as auth]))
 
 (defn session-controls []
@@ -48,14 +49,21 @@
                     :snoozing-item-id :remove})
 
 (defn render-modal [ attrs & contents ]
-  (let [ escape-url (shref without-modal)]
+  (let [ escape-url (or (:escape-url attrs)
+                     (shref without-modal))]
     [:div.dialog-background
      [:dialog {:class "modal" :open "true" :data-escape-url escape-url}
       [:h3 (:title attrs)]
-      [:div.cancel
-       [:a {:href escape-url} img-window-close]]
+      (when (:escape-url attrs)
+        [:div.cancel
+         [:a {:href escape-url} img-window-close]])
       (if-let [ form-post-to (:form-post-to attrs)]
-        (hiccup-form/form-to [:post form-post-to] contents)
+        (hiccup-form/form-to
+         (if (:data-turbo attrs)
+           {:data-turbo (:data-turbo attrs)}
+           {})
+         [:post form-post-to]
+         contents)
         contents)]]))
 
 (defn- render-support-modal [ ]
@@ -141,8 +149,22 @@
         (log/error "Invalid modal for this page:" modal-name
                    "(known:" (keys modal-defns) ")")))))
 
+(defn- render-gdpr-consent-banner []
+  (when (not gdpr/*gdpr-consent*)
+    (render-modal
+     {:title "Cookie Consent"
+      :form-post-to "/user/gdpr-consent"
+      :data-turbo "false"}
+     [:div
+      "This website uses a cookie to remember who you are from visit "
+      "to visit. This information is not shared "
+      "or used for tracking or advertising purposes."]
+     [:div.modal-controls
+      [:a {:href "/user/gdpr-consent-decline"} "Decline"]
+      (hiccup-form/submit-button {} "Accept")]  )))
+
 (defn- render-page-body [ attrs contents ]
-  (let [{ :keys [ title page-data-class sidebar ] } attrs ]
+  (let [{ :keys [ title page-data-class sidebar suppress-gdpr-consent ] } attrs ]
     [:body (if page-data-class
              {:data-class page-data-class})
      (render-header title (not (nil? sidebar)))
@@ -150,6 +172,9 @@
        (render-sidebar sidebar))
      [:div.contents {:class (class-set { "with-sidebar" sidebar })}
       (render-page-modal attrs)
+      (when (not suppress-gdpr-consent)
+        (render-gdpr-consent-banner))
+
       contents]]))
 
 (defn render-page [ attrs & contents]

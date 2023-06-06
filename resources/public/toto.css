@@ -69,6 +69,7 @@ dialog .modal-controls {
 }
 
 dialog .modal-controls input {
+    margin-left: 8px;
     margin-right: 0px;
 }
 
@@ -1104,19 +1105,20 @@ form.details {
     }
 }
 
-div.banner {
+.banner {
     border: 3px solid white;
     margin: 4px;
     padding: 8px;
     text-align: center;
 }
 
-div.banner.valentines-day {
+.banner.valentines-day {
     border: 3px solid red;
     color: red;
 }
 
-div.banner.sunset {
+.banner.sunset {
     border: 3px solid #fffec2;
     background: #fffec2;
 }
+
