@@ -58,7 +58,7 @@
 
      :else
      (list
-      [:div
+      [:form {:method "POST"}
        [:input.dangerous {:type "submit" :value "Delete List"
                           :formaction (shref "/list/" (encode-list-id list-id) "/delete")}]
        [:span.warning "Warning, this cannot be undone."]]))])
