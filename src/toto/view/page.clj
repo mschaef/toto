@@ -118,8 +118,9 @@
      (when show-menu?
        [:span.toggle-menu img-show-list "&nbsp;"])
      [:span.app-name
-      [:a { :href "/" } (:name (:app *config*))] " - "]
-     (hiccup-util/escape-html page-title)
+      [:a { :href "/" } (:name (:app *config*))] " "]
+     (when page-title
+      (str "- " (hiccup-util/escape-html page-title)))
      (when *dev-mode*
        [:span.pill.dev "DEV"])
      (session-controls)]))
