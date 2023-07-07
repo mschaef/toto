@@ -178,6 +178,12 @@ dialog p {
     transform: translate3d( 320px, 0, 0 );
 }
 
+@media only screen and (min-device-width : 640px) {
+    .sidebar.menu-visible {
+        transform: none;
+    }
+}
+
 .sidebar::-webkit-scrollbar {
     display: none;
 }
