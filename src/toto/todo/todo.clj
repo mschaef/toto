@@ -84,6 +84,10 @@
     (data/delete-list list-id))
   (redirect-to-home-list))
 
+(defn- restore-list [ list-id ]
+  (data/restore-list list-id)
+  (redirect-to-list list-id))
+
 (defn- sort-list [ list-id params ]
   (let [{ sort-by :sort-by } params]
     (case sort-by
@@ -272,6 +276,9 @@
     (POST "/delete" []
       (delete-list list-id))
 
+    (POST "/restore" []
+      (restore-list list-id))
+
     (POST "/sort" { params :params }
       (sort-list list-id params))
 
@@ -309,8 +316,8 @@
    (POST "/list" { params :params }
      (add-list params))
 
-   (GET "/lists" []
-     (todo-list-manager/render-list-manager-page))
+   (GET "/lists" { params :params }
+     (todo-list-manager/render-list-manager-page params))
 
    (context "/list/:list-id" [ list-id ]
      (list-routes list-id))

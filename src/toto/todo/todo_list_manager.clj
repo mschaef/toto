@@ -63,25 +63,42 @@
     (hiccup-form/check-box "is-view" false "Y")
     [:label {:for "is-view"} "View"]]))
 
-(defn render-list-manager-page []
-  (render-page
-   {:title "Manage Todo Lists"}
-   (scroll-column
-    "todo-list-list-scroller"
-    (render-new-list-form)
-    [:div.toplevel-list.list-list
-     (map (fn [ list ]
-            (let [list-id (:todo_list_id list)
-                  priority (:priority list)]
-              [:div.item-row {:class (class-set {"high-priority" (> priority 0)
-                                                 "low-priority" (< priority 0)})}
-               [:div.item-control
-                (render-list-star-control list-id priority)]
-               [:div.item-control
-                (render-list-arrow-control list-id priority)]
-               [:div.item-description
-                [:a {:href (shref "/list/" (encode-list-id list-id) "/details")}
-                 (hiccup.util/escape-html (:desc list))
-                 [:span.pill (:item_count list)]]
-                (sidebar/render-list-visibility-flag list)]]))
-          (data/get-todo-lists-by-user (auth/current-user-id)))])))
+(defn- render-list-manager-query-settings []
+  [:div.query-settings
+   [:div.control-segment
+    [:a {:href (shref "/lists" {:deleted "yes"})}
+     "[include deleted]" ]]
+   [:div.control-segment
+    [:a {:href (str "/lists")}
+     " [default view]"]]])
+
+(defn- render-list-manager-entry [ list-info ]
+  (let [list-id (:todo_list_id list-info)
+        priority (:priority list-info)
+        desc (:desc list-info)
+        item-count (:item_count list-info)
+        is-deleted? (:is_deleted list-info)]
+    [:div.item-row {:class (class-set {"high-priority" (> priority 0)
+                                       "low-priority" (< priority 0)
+                                       "deleted-item" is-deleted?})}
+     [:div.item-control
+      (render-list-star-control list-id priority)]
+     [:div.item-control
+      (render-list-arrow-control list-id priority)]
+     [:div.item-description
+      [:a {:href (shref "/list/" (encode-list-id list-id) "/details")}
+       (hiccup.util/escape-html desc)
+       [:span.pill item-count]]
+      (sidebar/render-list-visibility-flag list-info)]]))
+
+(defn render-list-manager-page [ params ]
+  (let [include-deleted (= (:deleted params) "yes")]
+    (render-page
+     {:title "Manage Todo Lists"}
+     (scroll-column
+      "todo-list-list-scroller"
+      (render-new-list-form)
+      [:div.toplevel-list.list-list
+       (map render-list-manager-entry
+            (data/get-todo-lists-by-user (auth/current-user-id) include-deleted))]
+      (render-list-manager-query-settings)))))

@@ -515,20 +515,18 @@ select:hover {
     }
 }
 
-
 .query-settings {
     margin: 6px 0px 6px 0px;
     padding: 6px;
 
     right: 0px;
 
-    text-align: center;
     border: 1px solid #f0f0f0;
     background: #f7f7f7;
 
     display: flex;
     flex-direction: row;
-    align-items: center;
+    justify-content: center;
 }
 
 .query-settings .control-segment {

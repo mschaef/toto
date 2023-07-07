@@ -109,8 +109,9 @@
        (query/get-todo-list-ids-by-user { :user_id user-id }
                                         { :connection (current-db-connection) })))
 
-(defn get-todo-lists-by-user [ user-id ]
-  (query/get-todo-lists-by-user { :user_id user-id }
+(defn get-todo-lists-by-user [ user-id include-deleted ]
+  (query/get-todo-lists-by-user { :user_id user-id
+                                  :include_deleted include-deleted }
                                 { :connection (current-db-connection) }))
 
 (defn get-todo-lists-with-item-age-limit [ ]
@@ -118,7 +119,7 @@
                                             { :connection (current-db-connection) }))
 
 (defn get-user-list-count [ user-id ]
-  (count (get-todo-lists-by-user user-id)))
+  (count (get-todo-lists-by-user user-id false)))
 
 (defn add-user [ friendly-name email-addr password ]
   (:user_id (first
@@ -258,6 +259,11 @@
 (defn delete-list [ todo-list-id ]
   (jdbc/update! (current-db-connection) :todo_list
                 {:is_deleted true}
+                ["todo_list_id=?" todo-list-id]))
+
+(defn restore-list [ todo-list-id ]
+  (jdbc/update! (current-db-connection) :todo_list
+                {:is_deleted false}
                 ["todo_list_id=?" todo-list-id]))
 
 (defn update-list-description [ list-id list-description ]

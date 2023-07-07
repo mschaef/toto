@@ -49,23 +49,29 @@
 (defn- render-list-delete-panel [ list-id ]
   [:div.config-panel
    [:h1 "Delete List"]
-   (cond
-     (<= (data/get-user-list-count (auth/current-user-id)) 1)
+   (if (<= (data/get-user-list-count (auth/current-user-id)) 1)
      [:span.warning "Your last list cannot be deleted."]
+     [:form {:method "POST"}
+      (when (not (data/empty-list? list-id))
+        [:span.warning
+         "This list still has active items. If you delete the list, they "
+         "will no longer be visible."])
+      [:input.dangerous {:type "submit" :value "Delete List"
+                         :formaction (shref "/list/" (encode-list-id list-id) "/delete")}]])])
 
-     (not (data/empty-list? list-id))
-     [:span.warning "To delete this list, remove all items first."]
-
-     :else
-     (list
-      [:form {:method "POST"}
-       [:input.dangerous {:type "submit" :value "Delete List"
-                          :formaction (shref "/list/" (encode-list-id list-id) "/delete")}]
-       [:span.warning "Warning, this cannot be undone."]]))])
+(defn- render-list-restore-panel [ list-id ]
+  [:div.config-panel
+    [:p
+     "This list is deleted and it must be restored to update "
+     "settings or view contents."]
+   [:h1 "Restore List"]
+   [:form {:method "POST"}
+    [:input {:type "submit" :value "Restore List"
+             :formaction (shref "/list/" (encode-list-id list-id) "/restore")}]]])
 
 (defn- render-todo-list-view-editor [ view-id ]
   (let [user-id (auth/current-user-id)
-        todo-lists (data/get-todo-lists-by-user user-id)
+        todo-lists (data/get-todo-lists-by-user user-id false)
         view-sublist-ids (map :sublist_id (data/get-view-sublists user-id view-id))]
     [:div.config-panel
      [:h1 "Component Lists"]
@@ -103,18 +109,21 @@
       [:h3
        [:a { :href (str "/list/" list-id ) } img-back-arrow]
        "List Details: " (hiccup-util/escape-html list-name)]
-      (hiccup-form/form-to
-       {:class "details"}
-       [:post (shref "/list/" (encode-list-id list-id) "/details")]
-       [:div.config-panel
-        [:h1 (str list-type " Name:")]
-        (hiccup-form/text-field { :maxlength "32" } "list-name" list-name)]
-       (if is-view
-         (render-todo-list-view-editor list-id)
-         (render-item-sunset-panel max-item-age))
-       [:div.config-panel
-        [:div
-         [:input {:type "submit" :value "Update List Details"}]]])
-      (when (not is-view)
-        (render-sort-list-panel list-id))
-      (render-list-delete-panel list-id)))))
+      (if (:is_deleted list-details)
+        (render-list-restore-panel list-id)
+        (list
+         (hiccup-form/form-to
+          {:class "details"}
+          [:post (shref "/list/" (encode-list-id list-id) "/details")]
+          [:div.config-panel
+           [:h1 (str list-type " Name:")]
+           (hiccup-form/text-field { :maxlength "32" } "list-name" list-name)]
+          (if is-view
+            (render-todo-list-view-editor list-id)
+            (render-item-sunset-panel max-item-age))
+          [:div.config-panel
+           [:div
+            [:input {:type "submit" :value "Update List Details"}]]])
+         (when (not is-view)
+           (render-sort-list-panel list-id))
+         (render-list-delete-panel list-id)))))))

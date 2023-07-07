@@ -45,7 +45,7 @@
           #(or
             (:is_view %)
             (= excluded-list-id (:todo_list_id %)))
-          (data/get-todo-lists-by-user (auth/current-user-id)))))])
+          (data/get-todo-lists-by-user (auth/current-user-id) false))))])
 
 (defn render-update-from-modal [ params list-id ]
   (render-modal

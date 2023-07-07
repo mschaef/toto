@@ -76,7 +76,7 @@
                     list-item-count)])]))
           (remove #(and (< (:priority %) min-list-priority)
                         (not (= (Integer. selected-list-id) (:todo_list_id %))))
-                  (data/get-todo-lists-by-user (auth/current-user-id))))
+                  (data/get-todo-lists-by-user (auth/current-user-id) false)))
 
      [:div.control-row
       (if (< min-list-priority 0)
