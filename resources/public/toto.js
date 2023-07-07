@@ -511,6 +511,22 @@ document.addEventListener("turbo:before-visit", function(event) {
     saveScrolls();
 });
 
+function isDisplayingAllLists() {
+    let params = (new URL(document.location)).searchParams;
+    let minListPriority = params.get("min-list-priority");
+
+    return minListPriority && minListPriority == "-1";
+}
+
+var prevDisplaysAllLists = isDisplayingAllLists();
+
+function displaySidebarOnChangingListQuery() {
+    const displaysAllLists = isDisplayingAllLists();
+
+    sidebarVisible = displaysAllLists != prevDisplaysAllLists;
+    prevDisplaysAllLists = displaysAllLists;
+}
+
 document.addEventListener("turbo:render", function(event) {
     setupSidebar();
 
@@ -519,6 +535,8 @@ document.addEventListener("turbo:render", function(event) {
     if (autofocusedElements.length) {
         autofocusedElements[0].focus();
     }
+
+    displaySidebarOnChangingListQuery();
 
     restoreScrolls();
     updateSidebarVisibility(false);
