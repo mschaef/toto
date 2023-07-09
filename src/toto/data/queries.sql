@@ -26,6 +26,7 @@ SELECT todo_view_sublist.sublist_id, todo_list.desc
        todo_list
  WHERE todo_view_sublist.todo_list_id = :todo_list_id
    AND todo_list.todo_list_id = todo_view_sublist.sublist_id
+   AND NOT todo_list.is_deleted
  ORDER BY todo_list.desc
 
 -- name: get-views-with-sublist
