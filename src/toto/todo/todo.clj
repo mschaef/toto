@@ -130,14 +130,14 @@
                                      (selected-sublist-ids-from-params params))]
     (data/set-view-sublist-ids user-id list-id selected-sublist-ids)
     (update-list-description list-id (string-leftmost (:list-name params) 32))
-    (ring/redirect  (shref "/list/" (encode-list-id list-id) "/details")))  )
+    (ring/redirect  (shref "/list/" (encode-list-id list-id) without-modal))))
 
 (defn- update-list-details [ list-id params ]
   (update-list-description list-id (string-leftmost (:list-name params) 32))
   (if-let [ max-item-age (try-parse-integer (:max-item-age params)) ]
     (data/set-list-max-item-age list-id max-item-age)
     (data/clear-list-max-item-age list-id))
-  (ring/redirect (shref "/list/" (encode-list-id list-id) "/details")))
+  (ring/redirect (shref "/list/" (encode-list-id list-id) without-modal)))
 
 (defn- update-list-or-view-details [ list-id params ]
   (if (:is_view (data/get-todo-list-by-id list-id))
@@ -259,10 +259,6 @@
 
     (POST "/" { params :params }
       (add-item list-id params))
-
-    (GET "/details" { params :params }
-      (todo-list-details/render-todo-list-details-page
-       list-id (or (try-parse-integer (:min-list-priority params)) 0)))
 
     (POST "/details" { params :params }
       (update-list-or-view-details list-id params))

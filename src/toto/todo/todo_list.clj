@@ -34,7 +34,8 @@
             [toto.view.auth :as auth]
             [toto.todo.modals :as modals]
             [toto.todo.sidebar :as sidebar]
-            [toto.todo.todo-item :as todo-item]))
+            [toto.todo.todo-item :as todo-item]
+            [toto.todo.todo-list-details :as todo-list-details]))
 
 (defn- render-new-item-form [ list-id editing-item? last-item-list-id ]
   (let [ sublists (data/get-view-sublists (auth/current-user-id) list-id)]
@@ -74,7 +75,7 @@
                     [:a {:href (shref "/list/" (encode-list-id list-id) {:modal "share-with"})}
                      "[share list]"]])
                  [:div.control-segment
-                  [:a {:href (shref "/list/" (encode-list-id list-id) "/details")}
+                  [:a {:href (shref "/list/" (encode-list-id list-id) {:modal "details"})}
                    "[list details]"]]
                  [:div.control-segment
                   [:a {:href (str "/list/" (encode-list-id list-id))}
@@ -283,7 +284,8 @@
                   :sidebar (sidebar/render-sidebar selected-list-id min-list-priority snoozed-for-days)
                   :modals {"snoozing" #(modals/render-snooze-modal params selected-list-id)
                            "update-from" #(modals/render-update-from-modal params selected-list-id)
-                           "share-with" #(modals/render-share-with-modal params selected-list-id)}}
+                           "share-with" #(modals/render-share-with-modal params selected-list-id)
+                           "details" #(todo-list-details/render-todo-list-details-modal selected-list-id)}}
                  (render-todo-list selected-list-id edit-item-id true completed-within-days snoozed-for-days last-item-list-id))))
 
 (defn render-todo-list-public-page [ params ]

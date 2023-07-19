@@ -95,35 +95,29 @@
      "this number of days will automatically be deleted."]
     (render-duration-select "max-item-age" max-item-age [7 14 30 90] false)]])
 
-(defn render-todo-list-details-page [ list-id min-list-priority & { :keys [ error-message ]}]
+(defn render-todo-list-details-modal [ list-id ]
   (let [list-details (data/get-todo-list-by-id list-id)
         list-name (:desc list-details)
         is-view (:is_view list-details)
         list-type (if is-view "View" "List")
         max-item-age (:max_item_age list-details)]
-    (render-page
-     {:title (str list-type " Details: " (hiccup-util/escape-html list-name))
-      :sidebar (sidebar/render-sidebar list-id min-list-priority 0)}
-     (scroll-column
-      "todo-list-details-column"
-      [:h3
-       [:a { :href (str "/list/" list-id ) } img-back-arrow]
-       "List Details: " (hiccup-util/escape-html list-name)]
-      (if (:is_deleted list-details)
-        (render-list-restore-panel list-id)
-        (list
-         (hiccup-form/form-to
-          {:class "details"}
-          [:post (shref "/list/" (encode-list-id list-id) "/details")]
-          [:div.config-panel
-           [:h1 (str list-type " Name:")]
-           (hiccup-form/text-field { :maxlength "32" } "list-name" list-name)]
-          (if is-view
-            (render-todo-list-view-editor list-id)
-            (render-item-sunset-panel max-item-age))
-          [:div.config-panel
-           [:div
-            [:input {:type "submit" :value "Update List Details"}]]])
-         (when (not is-view)
-           (render-sort-list-panel list-id))
-         (render-list-delete-panel list-id)))))))
+    (render-modal
+     {:title (str "List Details: " (hiccup-util/escape-html list-name))}
+     (if (:is_deleted list-details)
+       (render-list-restore-panel list-id)
+       (list
+        (hiccup-form/form-to
+         {:class "details"}
+         [:post (shref "/list/" (encode-list-id list-id) "/details")]
+         [:div.config-panel
+          [:h1 (str list-type " Name:")]
+          (hiccup-form/text-field { :maxlength "32" } "list-name" list-name)]
+         (if is-view
+           (render-todo-list-view-editor list-id)
+           (render-item-sunset-panel max-item-age))
+         [:div.config-panel
+          [:div
+           [:input {:type "submit" :value "Update List Details"}]]])
+        (when (not is-view)
+          (render-sort-list-panel list-id))
+        (render-list-delete-panel list-id))))))
