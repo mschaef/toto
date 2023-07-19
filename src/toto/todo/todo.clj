@@ -65,7 +65,7 @@
    (ring/redirect (shref "/list/" (encode-list-id list-id) params))))
 
 (defn redirect-to-home-list []
-  (redirect-to-list (current-todo-list-id)))
+  (redirect-to-list (current-todo-list-id) without-modal))
 
 (defn redirect-to-lists []
   (ring/redirect "/lists"))
@@ -95,7 +95,7 @@
       "created-on" (data/order-list-items-by-updated-on! list-id)
       "updated-on" (data/order-list-items-by-created-on! list-id)
       "snoozed-until" (data/order-list-items-by-snoozed-until! list-id))
-    (redirect-to-list list-id)))
+    (redirect-to-list list-id without-modal)))
 
 (defn- copy-list [ list-id params ]
   (let [ copy-from-list-id (accept-authorized-list-id (:copy-from-list-id params)) ]
@@ -130,14 +130,14 @@
                                      (selected-sublist-ids-from-params params))]
     (data/set-view-sublist-ids user-id list-id selected-sublist-ids)
     (update-list-description list-id (string-leftmost (:list-name params) 32))
-    (ring/redirect  (shref "/list/" (encode-list-id list-id) without-modal))))
+    (redirect-to-list list-id without-modal)))
 
 (defn- update-list-details [ list-id params ]
   (update-list-description list-id (string-leftmost (:list-name params) 32))
   (if-let [ max-item-age (try-parse-integer (:max-item-age params)) ]
     (data/set-list-max-item-age list-id max-item-age)
     (data/clear-list-max-item-age list-id))
-  (ring/redirect (shref "/list/" (encode-list-id list-id) without-modal)))
+    (redirect-to-list list-id without-modal))
 
 (defn- update-list-or-view-details [ list-id params ]
   (if (:is_view (data/get-todo-list-by-id list-id))
@@ -158,7 +158,7 @@
                                    (conj selected-user-ids share-with-email-id)
                                    selected-user-ids))
         (data/set-list-public list-id (boolean (:is-public params)))
-        (ring/redirect (shref "/list/" (encode-list-id list-id) without-modal))))))
+        (redirect-to-list list-id without-modal)))))
 
 (defn- update-list-or-view-sharing [ list-id params ]
   (if (:is_view (data/get-todo-list-by-id list-id))
@@ -253,6 +253,9 @@
   (when-let-route [list-id (accept-authorized-list-id list-id)]
     (GET "/" { params :params }
       (todo-list/render-todo-list-page list-id params))
+
+    (GET "/deleted" { params :params }
+      (todo-list/render-deleted-todo-list-page list-id params))
 
     (GET "/completions" { params :params }
       (todo-list/render-todo-list-completions-page list-id params))

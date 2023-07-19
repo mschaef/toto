@@ -675,7 +675,7 @@ select:hover {
     color: black;
 }
 
-.toplevel-list .empty-list {
+.empty-list {
     text-align: center;
     margin: 20px;
 }
@@ -686,7 +686,7 @@ h1 {
     margin-bottom: 2px;
 }
 
-.toplevel-list .empty-list p {
+.empty-list p {
     font-size: 14px;
     font-style: italic;
     margin: 8px;
@@ -973,9 +973,6 @@ p.new-user {
 /*** List Configuration Controls ***/
 
 .config-panel  {
-    display: flex;
-    flex-direction: column;
-
     padding-bottom: 0px;
 
     margin-left: 20px;

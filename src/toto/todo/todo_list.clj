@@ -71,9 +71,15 @@
                   [:a {:href (shref "/list/" (encode-list-id list-id) "/completions")}
                    "[recently completed]"]]
                  (when (not (:is_view (data/get-todo-list-by-id list-id)))
+                   (list
+                    [:div.control-segment
+                     [:a {:href (shref "/list/" (encode-list-id list-id)
+                                       {:modal "share-with"})}
+                      "[share list]"]]
                    [:div.control-segment
-                    [:a {:href (shref "/list/" (encode-list-id list-id) {:modal "share-with"})}
-                     "[share list]"]])
+                    [:a {:href (shref "/list/" (encode-list-id list-id)
+                                      {:modal "sort-list"})}
+                     "[sort list]"]]))
                  [:div.control-segment
                   [:a {:href (shref "/list/" (encode-list-id list-id) {:modal "details"})}
                    "[list details]"]]
@@ -257,6 +263,19 @@
                 img-star-yellow))]]])
        completed-items))))
 
+(defn render-deleted-todo-list-page [ list-id params ]
+  (let [min-list-priority (or (try-parse-integer (:min-list-priority params)) 0)]
+    (render-page {:title ((data/get-todo-list-by-id list-id) :desc)
+                  :sidebar (sidebar/render-sidebar list-id min-list-priority 0)}
+                 [:div.empty-list
+                  [:h1
+                   "This list has been deleted!"]
+                  [:p
+                   "To view its contents, you must first restore it."]
+                  (hiccup-form/form-to
+                   [:post (shref "/list/" (encode-list-id list-id) "/restore")]
+                   [:input {:type "submit" :value "Restore List"}])])))
+
 (defn render-todo-list-completions-page [ list-id params ]
   (let [min-list-priority (or (try-parse-integer (:min-list-priority params)) 0)
         completed-within-days (or (try-parse-integer (:clwithin params)) 1)]
@@ -285,7 +304,10 @@
                   :modals {"snoozing" #(modals/render-snooze-modal params selected-list-id)
                            "update-from" #(modals/render-update-from-modal params selected-list-id)
                            "share-with" #(modals/render-share-with-modal params selected-list-id)
-                           "details" #(todo-list-details/render-todo-list-details-modal selected-list-id)}}
+                           "details" #(todo-list-details/render-todo-list-details-modal selected-list-id)
+                           "delete-list" #(modals/render-list-delete-modal selected-list-id)
+                           "sort-list" #(modals/render-list-sort-modal selected-list-id)
+                           }}
                  (render-todo-list selected-list-id edit-item-id true completed-within-days snoozed-for-days last-item-list-id))))
 
 (defn render-todo-list-public-page [ params ]

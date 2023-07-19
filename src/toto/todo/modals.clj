@@ -98,3 +98,30 @@
    (render-todo-list-permissions list-id nil)
    [:div.modal-controls
     [:input {:type "submit" :value "Share"}]]))
+
+(defn render-list-delete-modal [ list-id ]
+  (render-modal
+   {:title "Delete List"
+    :form-post-to (shref "/list/" (encode-list-id list-id) "/delete")}
+   (if (<= (data/get-user-list-count (auth/current-user-id)) 1)
+     [:span.warning "Your last list cannot be deleted."]
+     (list
+      (when (not (data/empty-list? list-id))
+        [:span.warning
+         "This list still has active items. If you delete the list, they "
+         "will no longer be visible."])
+      [:div.modal-controls
+       [:input.dangerous {:type "submit" :value "Delete List"}]]))))
+
+(defn render-list-sort-modal [ list-id ]
+  (render-modal
+   {:title "Sort List"
+    :form-post-to (shref "/list/" (encode-list-id list-id) "/sort")}
+   "Sort this list in order by:"
+   [:select {:id "sort-by" :name "sort-by"}
+    (hiccup-form/select-options [["Description" "desc"]
+                                 ["Created Date" "created-on"]
+                                 ["Updated Date" "updated-on"]
+                                 ["Snoozed Until" "snoozed-until"]])]
+   [:div.modal-controls
+    [:input {:type "submit" :value "Sort List"}]]))
