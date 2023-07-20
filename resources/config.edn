@@ -5,4 +5,5 @@
       :backup-cron "0 2 * * *"
       :subname "toto"}
  :smtp {:enabled false}
- :admin-mails []}
+ :admin-mails []
+ :url-target-length 60}

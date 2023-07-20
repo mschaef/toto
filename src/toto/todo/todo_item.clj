@@ -51,7 +51,7 @@
 (def url-regex #"(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
 
 (defn- render-url [ config url-text ]
-  (let [target-length 60
+  (let [target-length (:url-target-length config)
         url (java.net.URL. url-text)
         base (str (.getProtocol url)
                   ":"
