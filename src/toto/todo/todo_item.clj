@@ -56,7 +56,7 @@
         base (str (.getProtocol url)
                   ":"
                   (if-let [authority (.getAuthority url)]
-                    (str "//" authority "/")))
+                    (str "//" authority)))
         is-self-link? (= base (:base-url config))
         url-text (-> (hiccup-util/escape-html
                       (str base

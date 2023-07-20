@@ -2,7 +2,7 @@
  :development-mode true
  :http-port 8080
 
- :base-url "http://localhost:8080/"
+ :base-url "http://localhost:8080"
  :db {:subname "./local-db/toto"
       :backup-path "./local-db"
       :backup-cron "0 */1 * * *"}

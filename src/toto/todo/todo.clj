@@ -26,7 +26,8 @@
         toto.view.common
         toto.view.query
         toto.view.page
-        toto.todo.ids)
+        toto.todo.ids
+        toto.todo.util)
   (:require [taoensso.timbre :as log]
             [ring.util.response :as ring]
             [compojure.handler :as handler]
@@ -38,40 +39,6 @@
             [toto.todo.todo-list :as todo-list]
             [toto.todo.todo-list-details :as todo-list-details]
             [toto.todo.todo-list-manager :as todo-list-manager]))
-
-(defn- current-todo-list-id []
-  (auth/authorize-expected-roles
-   (first (data/get-todo-list-ids-by-user (auth/current-user-id)))))
-
-(defn- accept-authorized-list-id [ list-id ]
-  (aand (decode-list-id list-id)
-        (auth/authorize-expected-roles
-         (if (data/list-owned-by-user-id? it (auth/current-user-id))
-           it
-           (auth/report-unauthorized)))))
-
-(defn- accept-authorized-item-id [ item-id ]
-  (aand (decode-item-id item-id)
-        (auth/authorize-expected-roles
-         (if (data/item-owned-by-user-id? it (auth/current-user-id))
-           it
-           (auth/report-unauthorized)))))
-
-(defn redirect-to-list
-  ([ list-id ]
-   (redirect-to-list list-id {}))
-
-  ([ list-id params ]
-   (ring/redirect (shref "/list/" (encode-list-id list-id) params))))
-
-(defn redirect-to-home-list []
-  (redirect-to-list (current-todo-list-id) without-modal))
-
-(defn redirect-to-lists []
-  (ring/redirect "/lists"))
-
-(defn success []
-  (ring/response "ok"))
 
 (defn- update-list-description [ list-id list-description ]
   (when (not (string-empty? list-description))
