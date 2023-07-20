@@ -247,12 +247,12 @@
      (redirect-to-list list-id))
 
    (GET "/list/:list-id" { params :params }
-     (todo-list/render-todo-list-public-page params))))
+     (todo-list/render-todo-list-public-page config params))))
 
-(defn- list-routes [ list-id ]
+(defn- list-routes [ config list-id ]
   (when-let-route [list-id (accept-authorized-list-id list-id)]
     (GET "/" { params :params }
-      (todo-list/render-todo-list-page list-id params))
+      (todo-list/render-todo-list-page config list-id params))
 
     (GET "/deleted" { params :params }
       (todo-list/render-deleted-todo-list-page list-id params))
@@ -319,7 +319,7 @@
      (todo-list-manager/render-list-manager-page params))
 
    (context "/list/:list-id" [ list-id ]
-     (list-routes list-id))
+     (list-routes config list-id))
 
    (context "/item/:item-id" [ item-id ]
      (item-routes item-id))))

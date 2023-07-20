@@ -48,29 +48,30 @@
 (defn- ensure-string-breaks [ string at ]
   (clojure.string/replace string at (str at html-breakpoint)))
 
-(defn- shorten-url-text [ url-text target-length ]
-  (let [url (java.net.URL. url-text)
+(def url-regex #"(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
+
+(defn- render-url [ config url-text ]
+  (let [target-length 60
+        url (java.net.URL. url-text)
         base (str (.getProtocol url)
                   ":"
                   (if-let [authority (.getAuthority url)]
-                    (str "//" authority)))]
-    (-> (hiccup-util/escape-html
-         (str base
-              (string-leftmost (.getPath url)
-                               (max 0 (- (- target-length 3) (.length base)))
-                               "...")))
-        (ensure-string-breaks "/")
-        (ensure-string-breaks "."))))
-
-(def url-regex #"(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
-
-(defn- render-url [ [ url ] ]
-  [:a.item-link { :href url :target "_blank" } (shorten-url-text url 60)])
+                    (str "//" authority "/")))
+        is-self-link? (= base (:base-url config))
+        url-text (-> (hiccup-util/escape-html
+                      (str base
+                           (string-leftmost (.getPath url)
+                                            (max 0 (- (- target-length 3) (.length base)))
+                                            "...")))
+                     (ensure-string-breaks "/")
+                     (ensure-string-breaks "."))]
+    [:a.item-link (cond-> { :href url }
+                    (not is-self-link?) (merge {:target "_blank"} ))
+     url-text]))
 
 (defn- render-item-text-segment [ item-text-segment ]
   (clojure.string/join " " (map #(ensure-string-breakpoints % 15)
                                 (clojure.string/split item-text-segment #"\s"))))
-
 
 ;;;; The full item view, including controls
 
@@ -79,10 +80,10 @@
 (defn format-date [ date ]
   (.format pill-date-format date))
 
-(defn render-item-text [ item-text ]
+(defn render-item-text [ config item-text ]
   (interleave (conj (vec (map #(str " " (render-item-text-segment (.trim %)) " ")
                               (clojure.string/split item-text url-regex))) "")
-              (conj (vec (map render-url (re-seq url-regex item-text))) "")))
+              (conj (vec (map #(render-url config %) (map first (re-seq url-regex item-text)))) "")))
 
 
 (defn- complete-item-button [ item-info ]
@@ -135,7 +136,7 @@
 (defn- drop-target [ item-ordinal ]
   [:div.order-drop-target {:ordinal item-ordinal :priority "0"} "&nbsp;"])
 
-(defn render-todo-item [ view-list-id list-id item-info writable? editing? max-item-age ]
+(defn render-todo-item [ config view-list-id list-id item-info writable? editing? max-item-age ]
   (let [{item-id :item_id
          is-complete? :is_complete
          is-deleted? :is_deleted
@@ -182,7 +183,7 @@
           [:div {:id (str "item_" item-id)
                  :class (class-set {"deleted-item" is-deleted?
                                     "completed-item" is-complete?})}
-           (render-item-text desc)
+           (render-item-text config desc)
            (snooze-item-button item-info
                                (if (> (:sunset_age_in_days item-info) (- max-item-age 3))
                                  img-sunset
