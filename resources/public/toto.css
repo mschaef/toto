@@ -729,6 +729,12 @@ h1 {
     padding: 2px;
 }
 
+.item-description textarea {
+    width: 100%;
+    font-size: 14px;
+    height: 50px;
+}
+
 /* Sidebar Styling */
 
 .sidebar .list-list .list-row {

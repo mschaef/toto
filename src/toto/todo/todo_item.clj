@@ -188,13 +188,15 @@
       (render-item-priority-control item-id priority writable?)]
      [:div.item-description {:itemid item-id}
       (if editing?
-         [:input (cond-> {:value (item-info :desc)
-                          :type "text"
-                          :name "description"
-                          :item-id item-id
-                          :view-href (shref "/list/" (encode-list-id view-list-id) without-modal)
-                          :onkeydown "window._toto.onItemEditKeydown(event)"}
-                   editing? (assoc "autofocus" "on"))]
+        [:textarea (cond-> {:maxlength 1024
+                            :name "description"
+                            :item-id item-id
+                            :view-href (shref "/list/" (encode-list-id view-list-id) without-modal)
+                            :onkeydown "window._toto.onItemEditKeydown(event)"}
+                     editing? (assoc "autofocus" "on"))
+         (item-info :desc)
+
+         ]
         (let [desc (item-info :desc)]
           [:div {:id (str "item_" item-id)
                  :class (class-set {"deleted-item" is-deleted?
