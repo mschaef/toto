@@ -29,7 +29,8 @@
         toto.todo.ids)
   (:require [taoensso.timbre :as log]
             [hiccup.util :as hiccup-util]
-            [toto.view.auth :as auth]))
+            [toto.view.auth :as auth]
+            [toto.data.data :as data]))
 
 (defn valentines-day? []
   (let [now (current-time)]
@@ -50,6 +51,18 @@
 
 (def url-regex #"(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
 
+(def link-list-prefix "/list/")
+
+(defn render-self-link [ url-path ]
+  [:span.self-link
+   "To Do: "
+   (if-let [ list-id (aand (.startsWith url-path link-list-prefix)
+                           (decode-list-id (.substring url-path (.length link-list-prefix)))
+                           (data/list-owned-by-user-id? it (auth/current-user-id))
+                           it)]
+     (:desc (data/get-todo-list-by-id list-id))
+     url-path)])
+
 (defn- render-url [ config url-text ]
   (let [target-length (:url-target-length config)
         url (java.net.URL. url-text)
@@ -58,13 +71,16 @@
                   (if-let [authority (.getAuthority url)]
                     (str "//" authority)))
         is-self-link? (= base (:base-url config))
-        url-text (-> (hiccup-util/escape-html
-                      (str base
-                           (string-leftmost (.getPath url)
-                                            (max 0 (- (- target-length 3) (.length base)))
-                                            "...")))
-                     (ensure-string-breaks "/")
-                     (ensure-string-breaks "."))]
+        url-text (if is-self-link?
+                   (render-self-link (.getPath url))
+
+                   (-> (hiccup-util/escape-html
+                        (str base
+                             (string-leftmost (.getPath url)
+                                              (max 0 (- (- target-length 3) (.length base)))
+                                              "...")))
+                       (ensure-string-breaks "/")
+                       (ensure-string-breaks ".")))]
     [:a.item-link (cond-> { :href url }
                     (not is-self-link?) (merge {:target "_blank"} ))
      url-text]))

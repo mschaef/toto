@@ -48,5 +48,4 @@
 (def img-window-close [:i {:class "fa fa-window-close-o icon-gray"}])
 
 (def img-sunset [:img {:src (resource "icon-sunset.svg")
-                       :width 24
-                       }])
+                       :width 24}])
