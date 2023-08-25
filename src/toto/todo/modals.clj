@@ -91,11 +91,14 @@
            [:div.error-message
             error-message])])])))
 
-(defn render-share-with-modal [ params list-id ]
+(defn render-share-with-modal [ config params list-id ]
   (render-modal
    {:title "Share With"
     :form-post-to (shref "/list/" (encode-list-id list-id) "/sharing" without-modal)}
    (render-todo-list-permissions list-id nil)
+   [:div.config-panel
+    [:h1 "Sharing Link"]
+    (copyable-text (str (:base-url config) "/list/" (encode-list-id list-id)))]
    [:div.modal-controls
     [:input {:type "submit" :value "Share"}]]))
 

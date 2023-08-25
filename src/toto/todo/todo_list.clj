@@ -303,7 +303,7 @@
                   :sidebar (sidebar/render-sidebar selected-list-id min-list-priority snoozed-for-days)
                   :modals {"snoozing" #(modals/render-snooze-modal params selected-list-id)
                            "update-from" #(modals/render-update-from-modal params selected-list-id)
-                           "share-with" #(modals/render-share-with-modal params selected-list-id)
+                           "share-with" #(modals/render-share-with-modal config params selected-list-id)
                            "details" #(todo-list-details/render-todo-list-details-modal selected-list-id)
                            "delete-list" #(modals/render-list-delete-modal selected-list-id)
                            "sort-list" #(modals/render-list-sort-modal selected-list-id)}}

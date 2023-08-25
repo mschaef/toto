@@ -49,3 +49,4 @@
 
 (def img-sunset [:img {:src (resource "icon-sunset.svg")
                        :width 24}])
+

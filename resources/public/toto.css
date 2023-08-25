@@ -1134,3 +1134,16 @@ form.details {
     background: #fffec2;
 }
 
+.copyable-text {
+    display: flex;
+    align-items: baseline;
+}
+
+.copyable-text input {
+    margin: 4px;
+}
+
+.copyable-text .clickable {
+    padding: 4px;
+    border: 1px solid #c0c0c0;
+}

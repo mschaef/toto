@@ -77,3 +77,13 @@
                                (if (nil? current-value)
                                  "-"
                                  (str current-value)))])
+
+(defn copyable-text [ text ]
+  [:div.copyable-text
+   [:input {:type "text"
+            :readonly true
+            :value text}]
+   [:span.clickable
+    {:onclick (str "window._toto.doCopy(event)")}
+    "Copy"]])
+

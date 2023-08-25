@@ -543,6 +543,19 @@ document.addEventListener("turbo:render", function(event) {
     setupScrollListeners();
 });
 
+// Copy
+
+function doCopy(event) {
+    let copyButtonEl = event.target;
+
+    let copyText = copyButtonEl.parentElement.querySelector('input').value;
+
+    navigator.clipboard.writeText(copyText)
+        .then(() => {
+            copyButtonEl.textContent = "Copied";
+        });
+}
+
 // startup
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -555,6 +568,7 @@ document.addEventListener("click", onDocumentClick);
 
 window._toto = {
     doPost,
+    doCopy,
     onItemEditKeydown,
     onNewItemInputKeydown,
     submitHighPriority
