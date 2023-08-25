@@ -58,8 +58,9 @@
    "To Do: "
    (if-let [ list-id (aand (.startsWith url-path link-list-prefix)
                            (decode-list-id (.substring url-path (.length link-list-prefix)))
-                           (data/list-owned-by-user-id? it (auth/current-user-id))
-                           it)]
+                           (and
+                            (data/list-owned-by-user-id? it (auth/current-user-id))
+                            it))]
      (:desc (data/get-todo-list-by-id list-id))
      url-path)])
 
