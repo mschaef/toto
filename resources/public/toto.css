@@ -983,6 +983,11 @@ p.new-user {
 
 /*** List Configuration Controls ***/
 
+.auth-form .config-panel {
+    display: flex;
+    flex-direction: column;
+}
+
 .config-panel  {
     padding-bottom: 0px;
 
@@ -990,7 +995,6 @@ p.new-user {
 
     margin-bottom: 15px;
 }
-
 
 .config-panel h1 {
     font-size: 14px;
