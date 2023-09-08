@@ -3,7 +3,7 @@
 
  :http-port 8088
 
- :base-url "http://todo.mschaef.com"
+ :base-url "https://todo.mschaef.com"
  :db {:backup-path "/var/lib/toto"
       :backup-cron "0 2 * * *"}
  :smtp {:enabled true
