@@ -214,13 +214,13 @@
      (redirect-to-list list-id))
 
    (GET "/list/:list-id" { params :params }
-     (todo-list/render-todo-list-public-page params))
+     (todo-list/render-todo-list-public-page config params))
 
    (GET "/stocking/:list-id" { { list-id :list-id } :params }
      (todo-list/render-stocking-page list-id nil))
 
    (GET "/stocking/:list-id/:item-id" { { list-id :list-id item-id :item-id } :params }
-     (todo-list/render-stocking-page list-id (parsable-integer? item-id)))))
+     (todo-list/render-stocking-page list-id (try-parse-integer item-id)))))
 
 (defn- list-routes [ config list-id ]
   (when-let-route [list-id (accept-authorized-list-id list-id)]
