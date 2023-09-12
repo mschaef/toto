@@ -26,16 +26,17 @@
         toto.view.icons
         toto.view.components
         toto.view.query
-        toto.view.page)
+        toto.view.page
+        toto.todo.ids)
   (:require [taoensso.timbre :as log]
             [hiccup.form :as hiccup-form]
             [hiccup.util :as hiccup-util]
             [toto.data.data :as data]
             [toto.view.auth :as auth]
-            [toto.todo.sidebar-view :as sidebar-view]))
+            [toto.todo.sidebar :as sidebar]))
 
 (defn- list-priority-button [ list-id new-priority image-spec ]
-  (post-button {:target (shref "/list/" list-id "/priority")
+  (post-button {:target (shref "/list/" (encode-list-id list-id) "/priority")
                 :args {:new-priority new-priority}
                 :desc "Set List Priority"}
                image-spec))
@@ -62,148 +63,44 @@
     (hiccup-form/check-box "is-view" false "Y")
     [:label {:for "is-view"} "View"]]))
 
-(defn render-list-list-page []
-  (render-page
-   {:title "Manage Todo Lists"}
-   (scroll-column
-    "todo-list-list-scroller"
-    (render-new-list-form)
-    [:div.toplevel-list.list-list
-     (map (fn [ list ]
-            (let [list-id (:todo_list_id list)
-                  priority (:priority list)]
-              [:div.item-row {:class (class-set {"high-priority" (> priority 0)
-                                                 "low-priority" (< priority 0)})}
-               [:div.item-control
-                (render-list-star-control list-id priority)]
-               [:div.item-control
-                (render-list-arrow-control list-id priority)]
-               [:div.item-description
-                [:a {:href (shref "/list/" list-id "/details")}
-                 (hiccup.util/escape-html (:desc list))
-                 [:span.pill (:item_count list)]]
-                (sidebar-view/render-list-visibility-flag list)]]))
-          (data/get-todo-lists-by-user (auth/current-user-id)))])))
+(defn- render-list-manager-query-settings []
+  [:div.query-settings
+   [:div.control-segment
+    [:a {:href (shref "/lists" {:deleted "yes"})}
+     "[include deleted]" ]]
+   [:div.control-segment
+    [:a {:href (str "/lists")}
+     " [default view]"]]])
 
-(defn- render-sort-list-panel [ list-id ]
-  [:div.config-panel
-   [:h1 "Sort List"]
-   (hiccup-form/form-to {} [:post (shref "/list/" list-id "/sort")]
-    [:input {:type "submit" :value "Sort By"}]
-    [:select {:id "sort-by" :name "sort-by"}
-     (hiccup-form/select-options [["Description" "desc"]
-                                  ["Created Date" "created-on"]
-                                  ["Updated Date" "updated-on"]
-                                  ["Snoozed Until" "snoozed-until"]])])])
+(defn- render-list-manager-entry [ list-info ]
+  (let [list-id (:todo_list_id list-info)
+        priority (:priority list-info)
+        desc (:desc list-info)
+        item-count (:item_count list-info)
+        is-deleted? (:is_deleted list-info)]
+    [:div.item-row {:class (class-set {"high-priority" (> priority 0)
+                                       "low-priority" (< priority 0)
+                                       "deleted-item" is-deleted?})}
+     [:div.item-control
+      (render-list-star-control list-id priority)]
+     [:div.item-control
+      (render-list-arrow-control list-id priority)]
+     [:div.item-description
+      [:a {:href (if is-deleted?
+                   (shref "/list/" (encode-list-id list-id) "/deleted" without-modal)
+                   (shref "/list/" (encode-list-id list-id) {:modal "details"}))}
+       (hiccup.util/escape-html desc)
+       [:span.pill item-count]]
+      (sidebar/render-list-visibility-flag list-info)]]))
 
-
-(defn- render-list-delete-panel [ list-id ]
-  [:div.config-panel
-   [:h1 "Delete List"]
-   (cond
-     (<= (data/get-user-list-count (auth/current-user-id)) 1)
-     [:span.warning "Your last list cannot be deleted."]
-
-     (not (data/empty-list? list-id))
-     [:span.warning "To delete this list, remove all items first."]
-
-     :else
-     (list
-      [:div
-       [:input.dangerous {:type "submit" :value "Delete List" :formaction (shref "/list/" list-id "/delete")}]
-       [:span.warning "Warning, this cannot be undone."]]))])
-
-(defn- render-todo-list-permissions [ list-id error-message ]
-  (let [list-details (data/get-todo-list-by-id list-id)]
-    (list
-     [:div.config-panel
-      [:h1  "List Permissions:"]
-      [:div
-       (hiccup-form/check-box "is-public" (:is_public list-details))
-       [:label {:for "is-public"} "List publically visible?"]]]
-     [:div.config-panel
-      [:h1  "List Owners:"]
-      (let [list-owners (data/get-todo-list-owners-by-list-id list-id) ]
-        [:div.list-owners
-         (map (fn [ { user-id :user_id user-email-addr :email_addr } ]
-                (let [ user-parameter-name (str "user_" user-id)]
-                  [:div.list-owner
-                   (if (= (auth/current-user-id) user-id)
-                     [:div.self-owner
-                      "&nbsp;"
-                      (hiccup-form/hidden-field user-parameter-name "on")]
-                     (hiccup-form/check-box user-parameter-name (in? list-owners user-id)))
-                   [:label {:for user-parameter-name}
-                    user-email-addr
-                    (when (= (auth/current-user-id) user-id)
-                      [:span.pill "you"])]]))
-              (data/get-friendly-users-by-id (auth/current-user-id)))
-         [:div.list-owner
-          [:div.self-owner "&nbsp;"]
-          [:input {:id "share-with-email"
-                   :name "share-with-email"
-                   :type "text"
-                   :placeholder "Share Mail Address"}]]
-         (when error-message
-           [:div.error-message
-            error-message])])])))
-
-(defn- render-todo-list-view-editor [ view-id ]
-  (let [user-id (auth/current-user-id)
-        todo-lists (data/get-todo-lists-by-user user-id)
-        view-sublist-ids (map :sublist_id (data/get-view-sublists user-id view-id))]
-    [:div.config-panel
-     [:h1 "Component Lists"]
-     [:div.component-lists
-      (map (fn [ todo-list ]
-             (let [ list-id (:todo_list_id todo-list) ]
-               [:div
-                (hiccup-form/check-box (str "list_" list-id)
-                                       (in? view-sublist-ids list-id))
-                [:a {:href (shref "/list/" list-id "/details")}
-                 (hiccup-util/escape-html
-                  (:desc todo-list))]]))
-           (remove #(:is_view %) todo-lists))]]))
-
-(defn- render-item-sunset-panel [ max-item-age ]
-  [:div.config-panel
-   [:h1 "Item Age Limit"]
-   [:div
-    [:p
-     "The maximum age for an item on this list. If this is set, items older than "
-     "this number of days will automatically be deleted."]
-    (render-duration-select "max-item-age" max-item-age [7 14 30 90] false)]])
-
-(defn render-todo-list-details-page [ list-id min-list-priority & { :keys [ error-message ]}]
-  (let [list-details (data/get-todo-list-by-id list-id)
-        list-name (:desc list-details)
-        is-view (:is_view list-details)
-        list-type (if is-view "View" "List")
-        max-item-age (:max_item_age list-details)]
+(defn render-list-manager-page [ params ]
+  (let [include-deleted (= (:deleted params) "yes")]
     (render-page
-     {:title (str list-type " Details: " (hiccup-util/escape-html list-name))
-      :sidebar (sidebar-view/render-sidebar-list-list list-id min-list-priority 0)}
+     {:title "Manage Todo Lists"}
      (scroll-column
-      "todo-list-details-column"
-      [:h3
-       [:a { :href (str "/list/" list-id ) } img-back-arrow]
-       "List Details: " (hiccup-util/escape-html list-name)]
-      (hiccup-form/form-to
-       {:class "details"}
-       [:post (shref "/list/" list-id "/details")]
-       [:div.config-panel
-        [:h1 (str list-type " Name:")]
-        (hiccup-form/text-field { :maxlength "32" } "list-name" list-name)]
-       (if is-view
-         (render-todo-list-view-editor list-id)
-         (render-todo-list-permissions list-id error-message))
-       (if (not is-view)
-         (render-item-sunset-panel max-item-age))
-       [:div.config-panel
-        [:div
-         [:input {:type "submit" :value "Update List Details"}]]])
-      (when (not is-view)
-        (render-sort-list-panel list-id))
-      (render-list-delete-panel list-id)))))
-
-
+      "todo-list-list-scroller"
+      (render-new-list-form)
+      [:div.toplevel-list.list-list
+       (map render-list-manager-entry
+            (data/get-todo-lists-by-user (auth/current-user-id) include-deleted))]
+      (render-list-manager-query-settings)))))

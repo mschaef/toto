@@ -37,21 +37,21 @@
             [ring.util.response :as ring-responsed]
             [compojure.handler :as handler]
             [toto.core.session :as store]
+            [toto.core.gdpr :as gdpr]
             [toto.view.common :as view-common]
             [toto.view.query :as view-query]
-            [toto.view.request-date :as view-request-date]
             [toto.site.user :as user]))
 
 (defn- wrap-request-logging [ app development-mode? ]
   (fn [req]
     (if development-mode?
-      (log/debug 'REQUEST (:request-method req) (:uri req) (:params req) (:headers req))
+      (log/debug 'REQUEST (dissoc req :body))
       (log/debug 'REQUEST (:request-method req) (:uri req)))
 
     (let [resp (app req)]
       (if development-mode?
-        (log/trace 'RESPONSE (dissoc resp :body))
-        (log/trace 'RESPONSE (:status resp)))
+        (log/debug 'RESPONSE (dissoc resp :body))
+        (log/debug 'RESPONSE (:status resp)))
       resp)))
 
 (defn get-client-ip [req]
@@ -85,12 +85,12 @@
       (extend-session-duration 30)
       (include-requesting-ip)
       (view-query/wrap-remember-query)
-      (view-request-date/wrap-remember-request-date)
-      (wrap-dev-support (:development-mode config))
+      (gdpr/wrap-gdpr-filter)
       (handler/site {:session {:store (store/session-store (:db-conn-pool config))}})
       (wrap-db-connection (:db-conn-pool config))
       (wrap-request-thread-naming)
-      (view-common/wrap-config config)))
+      (view-common/wrap-config config)
+      (wrap-dev-support (:development-mode config))))
 
 (defn start-site [ config routes ]
   (let [ { http-port :http-port } config ]

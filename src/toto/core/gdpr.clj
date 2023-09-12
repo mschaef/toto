@@ -19,21 +19,20 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns toto.view.request-date
+
+(ns toto.core.gdpr
+  (:gen-class :main true)
   (:use playbook.core)
   (:require [taoensso.timbre :as log]))
 
- ;;; Persistent Query
+(def ^:dynamic *gdpr-consent* nil)
 
-(def ^:dynamic *request-date* nil)
-
-(defn wrap-remember-request-date [ app ]
+(defn wrap-gdpr-filter [ app ]
   (fn [ req ]
-    (binding [ *request-date* (current-time) ]
-      (app req))))
+    (binding [ *gdpr-consent* (get-in req [:headers "cookie"] )]
+      (let [ resp (app req) ]
+        (if  (or *gdpr-consent*
+                 (= (:uri req) "/user/gdpr-consent"))
+          resp
+          (dissoc resp :session))))))
 
-(defn valentines-day? []
-  (and *request-date*
-       (= 1 (.getMonth *request-date*))
-       (let [day (.getDate *request-date*)]
-         (or (= day 14) (= day 15)))))

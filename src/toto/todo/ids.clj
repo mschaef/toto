@@ -19,21 +19,20 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns toto.main
-  (:gen-class :main true)
+(ns toto.todo.ids
   (:use playbook.core)
-  (:require [playbook.logging :as logging]
-            [playbook.config :as config]
-            [taoensso.timbre :as log]
-            [toto.site.main :as main]))
+  (:require [playbook.hashid :as hashid]))
 
-(defn -main [& args]
-  (let [config (-> (config/load-config)
+(defn encode-item-id [ list-id ]
+  (hashid/encode :ti list-id))
 
-                   (assoc :log-levels [[#{"hsqldb.*" "com.zaxxer.hikari.*"} :warn]]))]
-    (logging/setup-logging config)
-    (log/info "Starting App" (:app config))
-    (when (:development-mode config)
-      (log/warn "=== DEVELOPMENT MODE ==="))
-    (main/app-start config)
-    (log/info "end run.")))
+(defn decode-item-id [ list-id ]
+  (or (try-parse-integer list-id)
+      (hashid/decode :ti list-id)))
+
+(defn encode-list-id [ list-id ]
+  (hashid/encode :tl list-id))
+
+(defn decode-list-id [ list-id ]
+  (or (try-parse-integer list-id)
+      (hashid/decode :tl list-id)))

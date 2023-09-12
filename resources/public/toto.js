@@ -99,10 +99,15 @@ function onToggleSidebar(evt) {
 function doToggleSidebar(evt) {
     evt.preventDefault();
 
-    var menu = elem('sidebar');
-
     sidebarVisible = !sidebarVisible;
 
+    updateSidebarVisibility(true);
+}
+
+function updateSidebarVisibility(animated) {
+    const menu = elem('sidebar');
+
+    menu.classList.toggle('animated', animated);
     menu.classList.toggle('menu-visible', sidebarVisible);
 
     if(sidebarVisible) {
@@ -293,7 +298,7 @@ function setupItemDragging() {
         });
     });
 
-    foreach_elem('.list-list .list-row', function(el) {
+    foreach_elem('.list-list .list-drop-target', function(el) {
         makeDropTarget(el, function(ev) {
             ev.preventDefault();
 
@@ -377,13 +382,15 @@ function dismissQueryIfPresent() {
 function dismissModalIfPresent() {
     var modal = elemOptional('modal');
 
-    var nextUrl;
-
-    if (modal) {
-        nextUrl = modal.getAttribute('data-escape-url');
+    if (!modal) {
+        return;
     }
 
-    visitPage(nextUrl);
+    var nextUrl = modal.getAttribute('data-escape-url');
+
+    if (nextUrl) {
+        visitPage(nextUrl);
+    }
 }
 
 function checkModalShortcutBindings(event) {
@@ -504,6 +511,22 @@ document.addEventListener("turbo:before-visit", function(event) {
     saveScrolls();
 });
 
+function isDisplayingAllLists() {
+    let params = (new URL(document.location)).searchParams;
+    let minListPriority = params.get("min-list-priority");
+
+    return minListPriority && minListPriority == "-1";
+}
+
+var prevDisplaysAllLists = isDisplayingAllLists();
+
+function displaySidebarOnChangingListQuery() {
+    const displaysAllLists = isDisplayingAllLists();
+
+    sidebarVisible = displaysAllLists != prevDisplaysAllLists;
+    prevDisplaysAllLists = displaysAllLists;
+}
+
 document.addEventListener("turbo:render", function(event) {
     setupSidebar();
 
@@ -513,9 +536,25 @@ document.addEventListener("turbo:render", function(event) {
         autofocusedElements[0].focus();
     }
 
+    displaySidebarOnChangingListQuery();
+
     restoreScrolls();
+    updateSidebarVisibility(false);
     setupScrollListeners();
 });
+
+// Copy
+
+function doCopy(event) {
+    let copyButtonEl = event.target;
+
+    let copyText = copyButtonEl.parentElement.querySelector('input').value;
+
+    navigator.clipboard.writeText(copyText)
+        .then(() => {
+            copyButtonEl.textContent = "Copied";
+        });
+}
 
 // startup
 
@@ -529,6 +568,7 @@ document.addEventListener("click", onDocumentClick);
 
 window._toto = {
     doPost,
+    doCopy,
     onItemEditKeydown,
     onNewItemInputKeydown,
     submitHighPriority

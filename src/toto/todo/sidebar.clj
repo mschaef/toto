@@ -19,11 +19,12 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns toto.todo.sidebar-view
+(ns toto.todo.sidebar
   (:use playbook.core
         toto.view.common
         toto.view.icons
-        toto.view.query)
+        toto.view.query
+        toto.todo.ids)
   (:require [taoensso.timbre :as log]
             [toto.data.data :as data]
             [toto.view.auth :as auth]))
@@ -44,7 +45,7 @@
       (> list-owner-count 1)
       [:span.list-visibility-flag img-group])))
 
-(defn render-sidebar-list-list [ selected-list-id min-list-priority snoozed-for-days ]
+(defn render-sidebar [ selected-list-id min-list-priority snoozed-for-days ]
   (let [include-low-priority (< min-list-priority 0)]
     [:div.list-list
      (map (fn [ list ]
@@ -58,11 +59,12 @@
                    priority :priority}
                   list ]
               [:div.list-row {:class (class-set {"selected" (= list-id (Integer. selected-list-id))
+                                                 "list-drop-target" (not is-view)
                                                  "view" is-view
                                                  "high-priority" (and include-low-priority (> priority 0))
                                                  "low-priority" (and include-low-priority (< priority 0))})
                               :listid list-id}
-               [:a.item {:href (shref "/list/" list-id)}
+               [:a.item {:href (shref "/list/" (encode-list-id list-id))}
                 (hiccup.util/escape-html list-desc)
                 (render-list-visibility-flag list)]
                (if (not is-view)
@@ -74,7 +76,7 @@
                     list-item-count)])]))
           (remove #(and (< (:priority %) min-list-priority)
                         (not (= (Integer. selected-list-id) (:todo_list_id %))))
-                  (data/get-todo-lists-by-user (auth/current-user-id))))
+                  (data/get-todo-lists-by-user (auth/current-user-id) false)))
 
      [:div.control-row
       (if (< min-list-priority 0)

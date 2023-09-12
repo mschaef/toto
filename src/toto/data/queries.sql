@@ -26,6 +26,7 @@ SELECT todo_view_sublist.sublist_id, todo_list.desc
        todo_list
  WHERE todo_view_sublist.todo_list_id = :todo_list_id
    AND todo_list.todo_list_id = todo_view_sublist.sublist_id
+   AND NOT todo_list.is_deleted
  ORDER BY todo_list.desc
 
 -- name: get-views-with-sublist
@@ -68,6 +69,7 @@ SELECT DISTINCT todo_list.todo_list_id,
                 todo_list.desc,
                 todo_list.is_public,
                 todo_list.is_view,
+                todo_list.is_deleted,
                 todo_list_owners.priority,
                 (SELECT count(item.item_id)
                    FROM todo_item item
@@ -86,7 +88,8 @@ SELECT DISTINCT todo_list.todo_list_id,
                    FROM todo_list_owners list_owners
                   WHERE list_owners.todo_list_id = todo_list.todo_list_id) AS list_owner_count
   FROM todo_list, todo_list_owners
- WHERE NOT(todo_list.is_deleted)
+ WHERE (:include_deleted
+        OR NOT(todo_list.is_deleted))
    AND todo_list.todo_list_id=todo_list_owners.todo_list_id
    AND todo_list_owners.user_id = :user_id
  ORDER BY todo_list.is_view DESC,

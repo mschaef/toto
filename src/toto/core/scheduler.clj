@@ -31,10 +31,9 @@
            (.start))))
 
 (defn schedule-job [ config desc cron job-fn ]
-  (let [scheduler (:scheduler config)
-        job-lock (java.util.concurrent.locks.ReentrantLock.)]
+  (let [job-lock (java.util.concurrent.locks.ReentrantLock.)]
     (log/info "Background job scheduled (cron:" cron  "):" desc )
-    (.schedule scheduler cron
+    (.schedule (:scheduler config) cron
                #(if (.tryLock job-lock)
                   (try
                     (with-exception-barrier (str "scheduled job:" desc)
@@ -45,4 +44,3 @@
                       (.unlock job-lock)))
                   (log/info "Cannot run scheduled job reentrantly:" desc)))
     config))
-

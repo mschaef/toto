@@ -1,4 +1,4 @@
-(defproject toto "1.4.25-SNAPSHOT"
+(defproject toto "1.4.31-SNAPSHOT"
   :description "Toto To-Do List Manager"
   :license { :name "Copyright East Coast Toolworks (c) 2012-2023"}
 
@@ -17,7 +17,7 @@
                  [joda-time/joda-time "2.12.5"]
                  [com.draines/postal "2.0.5"]
                  [it.sauronsoftware.cron4j/cron4j "2.2.5"]
-                 [com.mschaef/playbook "0.0.7"]]
+                 [com.mschaef/playbook "0.0.10"]]
 
   :plugins [[lein-tar "3.3.0"]]
 

@@ -69,6 +69,7 @@ dialog .modal-controls {
 }
 
 dialog .modal-controls input {
+    margin-left: 8px;
     margin-right: 0px;
 }
 
@@ -167,7 +168,20 @@ dialog p {
     box-shadow: 2px 1px 1px #e0e0e0;
 
     transform: translate3d( 0, 0, 0 );
+}
+
+.sidebar.animated {
     transition: transform 0.25s ease-in-out;
+}
+
+.sidebar.menu-visible {
+    transform: translate3d( 320px, 0, 0 );
+}
+
+@media only screen and (min-device-width : 640px) {
+    .sidebar.menu-visible {
+        transform: none;
+    }
 }
 
 .sidebar::-webkit-scrollbar {
@@ -501,20 +515,18 @@ select:hover {
     }
 }
 
-
 .query-settings {
     margin: 6px 0px 6px 0px;
     padding: 6px;
 
     right: 0px;
 
-    text-align: center;
     border: 1px solid #f0f0f0;
     background: #f7f7f7;
 
     display: flex;
     flex-direction: row;
-    align-items: center;
+    justify-content: center;
 }
 
 .query-settings .control-segment {
@@ -663,7 +675,7 @@ select:hover {
     color: black;
 }
 
-.toplevel-list .empty-list {
+.empty-list {
     text-align: center;
     margin: 20px;
 }
@@ -674,7 +686,7 @@ h1 {
     margin-bottom: 2px;
 }
 
-.toplevel-list .empty-list p {
+.empty-list p {
     font-size: 14px;
     font-style: italic;
     margin: 8px;
@@ -710,6 +722,17 @@ h1 {
 
 .snoozed-item-warning A {
     color: blue;
+}
+
+.self-link {
+    border: 1px solid #c0c0c0;
+    padding: 2px;
+}
+
+.item-description textarea {
+    width: 100%;
+    font-size: 14px;
+    height: 50px;
 }
 
 /* Sidebar Styling */
@@ -782,10 +805,6 @@ h1 {
 
 .sidebar .list-list .control-row {
     text-align: center;
-}
-
-.sidebar.menu-visible {
-    transform: translate3d( 320px, 0, 0 );
 }
 
 .sidebar .copyright {
@@ -964,17 +983,18 @@ p.new-user {
 
 /*** List Configuration Controls ***/
 
-.config-panel  {
+.auth-form .config-panel {
     display: flex;
     flex-direction: column;
+}
 
+.config-panel  {
     padding-bottom: 0px;
 
     margin-left: 20px;
 
     margin-bottom: 15px;
 }
-
 
 .config-panel h1 {
     font-size: 14px;
@@ -1102,7 +1122,6 @@ form.details {
 }
 
 
-
 .stocking-item {
     border: 1px solid red;
 }
@@ -1118,19 +1137,33 @@ form.details {
     padding: 20px;
 }
 
-div.banner {
+.banner {
     border: 3px solid white;
     margin: 4px;
     padding: 8px;
     text-align: center;
 }
 
-div.banner.valentines-day {
+.banner.valentines-day {
     border: 3px solid red;
     color: red;
 }
 
-div.banner.sunset {
+.banner.sunset {
     border: 3px solid #fffec2;
     background: #fffec2;
+}
+
+.copyable-text {
+    display: flex;
+    align-items: baseline;
+}
+
+.copyable-text input {
+    margin: 4px;
+}
+
+.copyable-text .clickable {
+    padding: 4px;
+    border: 1px solid #c0c0c0;
 }
