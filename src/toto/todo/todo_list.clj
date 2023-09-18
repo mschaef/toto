@@ -245,7 +245,7 @@
                        (data/get-view-sublists (auth/current-user-id) list-id)
                        [ { :sublist_id list-id :desc (:desc list-info)}])))))
 
-(defn- render-completed-item-list [ list-id completed-within-days ]
+(defn- render-completed-item-list [ config list-id completed-within-days ]
   (let [ completed-items (completed-items list-id completed-within-days)]
     (if (= (count completed-items) 0)
       (render-empty-completion-list list-id)
@@ -255,7 +255,7 @@
                                  {"high-priority" (> (:priority todo-item) 0)})}
           [:div.item-description
            [:div
-            (todo-item/render-item-text (:desc todo-item))
+            (todo-item/render-item-text config (:desc todo-item))
             [:span.pill (:sublist_desc todo-item)]
             (when (> (:priority todo-item) 0)
               (if (todo-item/valentines-day?)
@@ -276,7 +276,7 @@
                    [:post (shref "/list/" (encode-list-id list-id) "/restore")]
                    [:input {:type "submit" :value "Restore List"}])])))
 
-(defn render-todo-list-completions-page [ list-id params ]
+(defn render-todo-list-completions-page [ config list-id params ]
   (let [min-list-priority (or (try-parse-integer (:min-list-priority params)) 0)
         completed-within-days (or (try-parse-integer (:clwithin params)) 1)]
     (render-page {:title ((data/get-todo-list-by-id list-id) :desc)
@@ -289,7 +289,7 @@
                     img-back-arrow]
                    "Items Completed Since: " (todo-item/format-date (add-days (current-time) (- completed-within-days)))]
                   [:div.toplevel-list
-                   (render-completed-item-list list-id completed-within-days)
+                   (render-completed-item-list config list-id completed-within-days)
                    (render-todo-list-completion-query-settings list-id completed-within-days)]))))
 
 (defn render-todo-list-page [ config selected-list-id params ]
