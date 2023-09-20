@@ -301,7 +301,7 @@
     (render-page {:title ((data/get-todo-list-by-id selected-list-id) :desc)
                   :page-data-class "todo-list"
                   :sidebar (sidebar/render-sidebar selected-list-id min-list-priority snoozed-for-days)
-                  :modals {"snoozing" #(modals/render-snooze-modal params selected-list-id)
+                  :modals {"snoozing" #(modals/render-snooze-modal config params selected-list-id)
                            "update-from" #(modals/render-update-from-modal params selected-list-id)
                            "share-with" #(modals/render-share-with-modal config params selected-list-id)
                            "details" #(todo-list-details/render-todo-list-details-modal selected-list-id)

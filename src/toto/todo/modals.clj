@@ -10,10 +10,12 @@
             [hiccup.form :as hiccup-form]
             [hiccup.util :as hiccup-util]
             [toto.data.data :as data]
-            [toto.view.auth :as auth]))
+            [toto.view.auth :as auth]
+            [toto.todo.todo-item :as todo-item]))
 
-(defn render-snooze-modal [ params list-id ]
-  (let [ snoozing-item-id (decode-item-id  (:snoozing-item-id params))]
+(defn render-snooze-modal [ config params list-id ]
+  (let [snoozing-item-id (decode-item-id  (:snoozing-item-id params))
+        item-info (data/get-item-by-id snoozing-item-id)]
     (defn render-snooze-choice [ label snooze-days shortcut-key ]
       (post-button {:desc (str label " (" shortcut-key ")")
                     :target (str "/item/" (encode-item-id snoozing-item-id) "/snooze")
@@ -23,6 +25,8 @@
                    (str label " (" shortcut-key ")")))
     (render-modal
      {:title "Snooze item until later"}
+     [:div.config-panel
+      (todo-item/render-item-text config (:desc item-info))]
      [:div.snooze-choices
       (map (fn [ [ label snooze-days shortcut-key] ]
                (render-snooze-choice label snooze-days shortcut-key))
@@ -30,7 +34,7 @@
             ["In Three Days" 3 "2"]
             ["Next Week"  7 "3"]
             ["Next Month" 30 "4"]])]
-     (when (:currently_snoozed (data/get-item-by-id snoozing-item-id))
+     (when (:currently_snoozed item-info)
        [:div.snooze-choices
         [:hr]
         (render-snooze-choice "Unsnooze" 0 "0")]))))
