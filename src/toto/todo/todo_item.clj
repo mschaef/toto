@@ -153,27 +153,34 @@
 (defn- drop-target [ item-ordinal ]
   [:div.order-drop-target {:ordinal item-ordinal :priority "0"} "&nbsp;"])
 
+(defn- render-item-snooze-button [ item-info max-item-age ]
+  (snooze-item-button item-info
+                      (if (> (:sunset_age_in_days item-info) (- max-item-age 3))
+                        img-sunset
+                        [:span.pill
+                         (render-age (:age_in_days item-info))
+                         (when (:currently_snoozed item-info)
+                           (list
+                            ", snoozed: " (format-date (:snoozed_until item-info))))])))
+
+(defn- render-item-creator-indication [ item-info ]
+  (when (not (= (:created_by_id item-info) (auth/current-user-id)))
+    [:span.pill { :title (:created_by_email item-info) }
+     (hiccup-util/escape-html
+      (:created_by_name item-info))]))
+
 (defn render-todo-item [ config view-list-id list-id item-info writable? editing? max-item-age ]
-  (let [{item-id :item_id
-         is-complete? :is_complete
-         is-deleted? :is_deleted
-         priority :priority
-         snoozed-until :snoozed_until
-         currently-snoozed :currently_snoozed
-         created-by-id :created_by_id
-         created-by-email :created_by_email
-         created-by-name :created_by_name}
-        item-info]
+  (let [{item-id :item_id } item-info]
     [:div.item-row.order-drop-target
-     (cond-> {:id (str "item_row_" item-id)
+     (cond-> {:id (str "item_row_" (:item_id item-info))
               :itemid item-id
               :listid list-id
               :ordinal (:item_ordinal item-info)
-              :priority priority
+              :priority (:priority item-info)
               :class (class-set {"editing" editing?
                                  "display" (not editing?)
-                                 "high-priority" (> priority 0)
-                                 "snoozed" currently-snoozed})}
+                                 "high-priority" (> (:priority item-info) 0)
+                                 "snoozed" (:currently_snoozed item-info)})}
        writable? (assoc :edit-href (shref "/list/" (encode-list-id view-list-id)
                                           { :edit-item-id (encode-item-id item-id) })))
      (when writable?
@@ -182,11 +189,11 @@
         [:div.item-control.complete {:id (str "item_control_" item-id)}
          (if editing?
            (delete-item-button item-info list-id)
-           (if (or is-complete? is-deleted?)
+           (if (or (:is_complete item-info) (:is_deleted item-info))
              (restore-item-button item-info)
              (complete-item-button item-info)))]))
      [:div.item-control.priority.left
-      (render-item-priority-control item-id priority writable?)]
+      (render-item-priority-control item-id (:priority item-info) writable?)]
      [:div.item-description {:itemid item-id}
       (if editing?
         [:textarea (cond-> {:maxlength 1024
@@ -196,23 +203,12 @@
                             :onkeydown "window._toto.onItemEditKeydown(event)"}
                      editing? (assoc "autofocus" "on"))
          (item-info :desc)]
-        (let [desc (item-info :desc)]
-          [:div {:id (str "item_" item-id)
-                 :class (class-set {"deleted-item" is-deleted?
-                                    "completed-item" is-complete?})}
-           (render-item-text config desc)
-           (snooze-item-button item-info
-                               (if (> (:sunset_age_in_days item-info) (- max-item-age 3))
-                                 img-sunset
-                                 [:span.pill
-                                  (render-age (:age_in_days item-info))
-                                  (when currently-snoozed
-                                    (list
-                                     ", snoozed: " (format-date snoozed-until)))]))
-           (when (not (= created-by-id (auth/current-user-id)))
-             [:span.pill { :title created-by-email }
-              (hiccup-util/escape-html
-               created-by-name)])]))]
+        [:div {:id (str "item_" item-id)
+               :class (class-set {"deleted-item" (:is_deleted item-info)
+                                  "completed-item" (:is_complete item-info)})}
+         (render-item-text config (item-info :desc))
+         (render-item-snooze-button item-info max-item-age)
+         (render-item-creator-indication item-info)])]
      [:div.item-control.priority.right
-      (render-item-priority-control item-id priority writable?)]
+      (render-item-priority-control item-id (:priority item-info) writable?)]
      (item-drag-handle "right" item-info)]))
