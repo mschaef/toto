@@ -29,57 +29,73 @@
             [clojure.edn :as edn])
   (:import [java.util UUID]))
 
-(defn- get-session-value [ db-conn session-key ]
-  (if-let [ value-text (query-scalar (current-db-connection)
-                               [(str "SELECT session_value"
-                                     "  FROM web_session"
-                                     " WHERE session_key = ?")
-                                session-key])]
-    (edn/read-string value-text)))
+(def access-date-stale-threshold
+  (* 2 60 60 1000))
 
-(defn write-session-value [ db-conn key value ]
-  (if (get-session-value db-conn key)
+(defn- update-sql-session-access-date [ db-conn session-key ]
+  (log/debug :update-sql-session-access-date session-key)
+  (let [ accessed-on (current-time)]
+    (jdbc/update! db-conn
+                  :web_session
+                  {:accessed_on_day accessed-on}
+                  ["session_key=?" session-key])
+    accessed-on))
+
+(defn- query-sql-session [ db-conn session-key ]
+  (query-first db-conn
+               [(str "SELECT session_value, accessed_on_day"
+                     "  FROM web_session"
+                     " WHERE session_key = ?")
+                session-key]))
+
+(defn- session-stale? [ session ]
+  (> (- (.getTime (current-time))
+        (.getTime (:accessed_on_day session)))
+     access-date-stale-threshold))
+
+(defn- get-sql-session [ db-conn session-key ]
+  (log/debug :get-sql-session session-key)
+  (when-let [ session (query-sql-session db-conn session-key)]
+    (assoc (edn/read-string (:session_value session))
+           :accessed_on_day (if (session-stale? session)
+                              (update-sql-session-access-date db-conn session-key)
+                              (:accessed_on_day session)))))
+
+(defn- write-sql-session [ db-conn session-key value ]
+  (log/debug :write-sql-session session-key value)
+  (if (get-sql-session db-conn session-key)
     (jdbc/update! db-conn
                   :web_session
                   {:session_value (str value)
                    :updated_on (current-time)
                    :accessed_on_day (current-time)}
-                  ["session_key=?" key])
-
+                  ["session_key=?" session-key])
     (jdbc/insert! db-conn
                   :web_session
-                  {:session_key key
+                  {:session_key session-key
                    :session_value (str value)
                    :updated_on (current-time)
                    :accessed_on_day (current-time)})))
 
-(defn- delete-session-value [db-conn session-key]
+(defn- delete-sql-session [db-conn session-key]
+  (log/debug :delete-sql-session session-key)
   (jdbc/delete! (current-db-connection)
                 :web_session ["session_key=?" session-key]))
 
-(deftype SQLStore [ db-conn cache ]
+(deftype SQLStore [ db-conn ]
   store/SessionStore
 
-  (read-session [_ key]
-    (log/debug :read-session key)
-    (or (@cache key)
-        (let [db-value (get-session-value db-conn key)]
-          (swap! cache assoc key db-value)
-          db-value)))
+  (read-session [_ session-key]
+    (get-sql-session db-conn session-key))
 
-  (write-session [_ key value]
-    (log/debug :write-session key value)
-    (let [key (or key (str (UUID/randomUUID)))]
-      (swap! cache assoc key value)
-      (write-session-value db-conn key value)
-      key))
+  (write-session [_ session-key value]
+    (let [session-key (or session-key (str (UUID/randomUUID)))]
+      (write-sql-session db-conn session-key value)
+      session-key))
 
-  (delete-session [_ key]
-    (log/debug :delete-session key)
-    (swap! cache dissoc key)
-    (delete-session-value db-conn key)
+  (delete-session [_ session-key]
+    (delete-sql-session db-conn session-key)
     nil))
 
 (defn session-store [ db-conn ]
-  (SQLStore. db-conn (atom {})))
-
+  (SQLStore. db-conn))

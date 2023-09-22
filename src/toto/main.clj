@@ -29,7 +29,6 @@
 
 (defn -main [& args]
   (let [config (-> (config/load-config)
-
                    (assoc :log-levels [[#{"hsqldb.*" "com.zaxxer.hikari.*"} :warn]]))]
     (logging/setup-logging config)
     (log/info "Starting App" (:app config))

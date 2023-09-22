@@ -59,7 +59,7 @@
    :schema-path [ "sql/" ]
    :schemas [[ "toto" 11 ]]})
 
-(defn app-start [ config  ]
+(defn app-start [ config ]
   (sql-file/with-pool [db-conn (db-conn-spec config)]
     (-> config
         (assoc :db-conn-pool db-conn)
