@@ -97,5 +97,25 @@
     (delete-sql-session db-conn session-key)
     nil))
 
+(deftype StoreMemoryCache [ underlying cache ]
+  store/SessionStore
+
+  (read-session [_ session-key]
+    (let [ session (or (aand (@cache session-key)
+                             (if (session-stale? it)
+                               (.read-session underlying session-key)
+                               it))
+                       (.read-session underlying session-key))]
+      (swap! cache assoc session-key session)
+      session))
+
+  (write-session [_ session-key value]
+    (swap! cache dissoc session-key)
+    (.write-session underlying session-key value))
+
+  (delete-session [_ session-key]
+    (swap! cache dissoc session-key)
+    (.delete-session underlying session-key)))
+
 (defn session-store [ db-conn ]
-  (SQLStore. db-conn))
+  (StoreMemoryCache. (SQLStore. db-conn) (atom {})))
