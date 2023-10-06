@@ -36,7 +36,6 @@
             [ring.middleware.resource :as ring-resource]
             [ring.util.response :as ring-responsed]
             [compojure.handler :as handler]
-            [toto.core.session :as session]
             [toto.core.gdpr :as gdpr]
             [toto.view.common :as view-common]
             [toto.view.query :as view-query]
@@ -86,7 +85,7 @@
       (include-requesting-ip)
       (view-query/wrap-remember-query)
       (gdpr/wrap-gdpr-filter)
-      (handler/site {:session {:store (session/session-store (:db-conn-pool config))}})
+      (handler/site {:session {:store (:session-store config)}})
       (wrap-db-connection (:db-conn-pool config))
       (wrap-request-thread-naming)
       (view-common/wrap-config config)

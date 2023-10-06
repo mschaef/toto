@@ -119,3 +119,15 @@
 
 (defn session-store [ db-conn ]
   (StoreMemoryCache. (SQLStore. db-conn) (atom {})))
+
+(defn- get-stale-sessions []
+  (query-all (current-db-connection)
+             [(str "SELECT session_key"
+                   "  FROM web_session"
+                   " WHERE accessed_on_day < DATEADD('month', -1, CURRENT_TIMESTAMP)")]))
+
+(defn delete-old-web-sessions [ session-store ]
+  (let [ stale-sessions (get-stale-sessions) ]
+    (log/info (count stale-sessions) "stale web session(s) to be deleted.")
+    (doseq [ session stale-sessions ]
+      (.delete-session session-store (:session_key session)))))

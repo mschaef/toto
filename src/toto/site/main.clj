@@ -27,6 +27,7 @@
             [sql-file.core :as sql-file]
             [toto.core.scheduler :as scheduler]
             [toto.core.backup :as backup]
+            [toto.core.session :as session]
             [toto.core.web :as web]
             [toto.data.data :as data]
             [toto.todo.sunset :as sunset]
@@ -35,7 +36,7 @@
 
 (defn- schedule-web-session-cull [ config ]
   (scheduler/schedule-job config :web-session-cull "19 */1 * * *"
-                          #(data/delete-old-web-sessions)))
+                          #(session/delete-old-web-sessions (:session-store config))))
 
 (defn- schedule-item-sunset-job [ config ]
   (scheduler/schedule-job config :item-sunset "13 */1 * * *"
@@ -62,6 +63,7 @@
 (defn app-start [ config ]
   (sql-file/with-pool [db-conn (db-conn-spec config)]
     (-> config
+        (assoc :session-store (session/session-store db-conn))
         (assoc :db-conn-pool db-conn)
         (start-scheduled-jobs)
         (web/start-site (routes/all-routes config (todo/all-routes config))))))
