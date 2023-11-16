@@ -86,7 +86,7 @@ var sidebarVisible = false;
 
 function onToggleSidebar(evt) {
     evt.preventDefault();
-
+v
     var menu = elem('sidebar');
 
     if (menu.contains(evt.target)) {
@@ -363,6 +363,9 @@ function onItemEditKeydown(event) {
     var input = event.target;
 
     if (event.keyCode == 13) {
+        event.preventDefault();
+        event.stopPropagation();
+
         doUpdateItem(input.getAttribute('item-id'),
                      input.value,
                      input.getAttribute('view-href'));
