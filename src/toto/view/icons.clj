@@ -45,7 +45,7 @@
 (def img-heart-red [:i {:class "fa fa-lg fa-heart icon-red"}])
 
 (def img-trash [:i {:class "fa fa-trash-o icon-black"}])
-(def img-window-close [:i {:class "fa fa-window-close-o icon-gray"}])
+(def img-window-close [:i {:class "fa fa-window-close icon-gray"}])
 
 (def img-sunset [:img {:src (resource "icon-sunset.svg")
                        :width 24}])

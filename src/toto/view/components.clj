@@ -30,7 +30,8 @@
 
 (defelem scroll-column [ id title & contents ]
   [:div.scroll-column
-   [:div.fixed title]
+   (when title
+     [:div.fixed title])
    [:div.scrollable { :id id :data-preserve-scroll "true" }
     contents]])
 
