@@ -87,9 +87,9 @@ var sidebarVisible = false;
 function onToggleSidebar(evt) {
     evt.preventDefault();
 
-    var menu = elem('sidebar');
+    var menu = elemOptional('sidebar');
 
-    if (menu.contains(evt.target)) {
+    if (!menu || menu.contains(evt.target)) {
         return;
     }
 
@@ -105,7 +105,11 @@ function doToggleSidebar(evt) {
 }
 
 function updateSidebarVisibility(animated) {
-    const menu = elem('sidebar');
+    const menu = elemOptional('sidebar');
+
+    if (!menu) {
+        return;
+    }
 
     menu.classList.toggle('animated', animated);
     menu.classList.toggle('menu-visible', sidebarVisible);
