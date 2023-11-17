@@ -86,7 +86,7 @@ var sidebarVisible = false;
 
 function onToggleSidebar(evt) {
     evt.preventDefault();
-v
+
     var menu = elem('sidebar');
 
     if (menu.contains(evt.target)) {
@@ -496,16 +496,17 @@ function restoreScrolls() {
     }
 }
 
-function updateScrollState(elem, scrollTop) {
-    elem.classList.toggle('scrolled', scrollTop > 0);
+function updateScrollState(elem) {
+    elem.classList.toggle('scrolled', elem.scrollTop > 0);
+    elem.classList.toggle('additional-content', elem.scrollHeight - elem.scrollTop > elem.clientHeight);
 }
 
 function setupScrollListeners() {
     foreach_elem(".scroll-column .scrollable", function(elem) {
-        updateScrollState(elem, elem.scrollTop);
+        updateScrollState(elem);
 
         elem.addEventListener('scroll', (event) => {
-            updateScrollState(event.target, event.target.scrollTop);
+            updateScrollState(event.target);
         });
     });
 }

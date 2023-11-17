@@ -41,16 +41,17 @@
         view-sublist-ids (map :sublist_id (data/get-view-sublists user-id view-id))]
     [:div.config-panel
      [:h1 "Component Lists"]
-     [:div.component-lists
+     (scroll-column
+      "component-lists"
+      nil
       (map (fn [ todo-list ]
              (let [ list-id (:todo_list_id todo-list) ]
                [:div
                 (hiccup-form/check-box (str "list_" list-id)
                                        (in? view-sublist-ids list-id))
-                [:a {:href (shref "/list/" (encode-list-id list-id) "/details")}
-                 (hiccup-util/escape-html
-                  (:desc todo-list))]]))
-           (remove #(:is_view %) todo-lists))]]))
+                (hiccup-util/escape-html
+                 (:desc todo-list))]))
+           (remove #(:is_view %) todo-lists)))]))
 
 (defn- render-item-sunset-panel [ max-item-age ]
   [:div.config-panel
