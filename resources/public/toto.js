@@ -168,6 +168,7 @@ function doPost(baseUrl, args, nextUrl) {
 
     var url = baseUrl;
 
+    // TODO: Properly handle case where baseUrl has args already
     if (queryArgs.length) {
         url += ('?' + queryArgs.join('&'));
     }

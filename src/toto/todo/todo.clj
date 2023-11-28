@@ -236,8 +236,8 @@
     (POST "/sharing" { params :params }
       (update-list-or-view-sharing list-id params))
 
-    (POST "/priority" { { new-priority :new-priority } :params }
-      (update-list-priority list-id new-priority))
+    (POST "/priority" { params :params }
+      (update-list-priority list-id (:new-priority params)))
 
     (POST "/delete" []
       (delete-list list-id))

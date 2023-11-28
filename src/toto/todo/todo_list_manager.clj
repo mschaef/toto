@@ -36,7 +36,7 @@
             [toto.todo.sidebar :as sidebar]))
 
 (defn- list-priority-button [ list-id new-priority image-spec ]
-  (post-button {:target (shref "/list/" (encode-list-id list-id) "/priority")
+  (post-button {:target (str "/list/" (encode-list-id list-id) "/priority")
                 :args {:new-priority new-priority}
                 :desc "Set List Priority"}
                image-spec))
