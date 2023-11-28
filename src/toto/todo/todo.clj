@@ -221,9 +221,6 @@
     (GET "/" { params :params }
       (todo-list/render-todo-list-page config list-id params))
 
-    (GET "/deleted" { params :params }
-      (todo-list/render-deleted-todo-list-page list-id params))
-
     (GET "/completions" { params :params }
       (todo-list/render-todo-list-completions-page config list-id params))
 

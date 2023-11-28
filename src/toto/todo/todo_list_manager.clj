@@ -86,9 +86,7 @@
      [:div.item-control
       (render-list-arrow-control list-id priority)]
      [:div.item-description
-      [:a {:href (if is-deleted?
-                   (shref "/list/" (encode-list-id list-id) "/deleted" without-modal)
-                   (shref "/list/" (encode-list-id list-id) {:modal "details"}))}
+      [:a {:href (shref "/list/" (encode-list-id list-id) without-modal)}
        (hiccup.util/escape-html desc)
        [:span.pill item-count]]
       (sidebar/render-list-visibility-flag list-info)]]))
