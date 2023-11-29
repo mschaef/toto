@@ -46,11 +46,6 @@
     (list-priority-button list-id 1 img-star-gray)
     (list-priority-button list-id 0 img-star-yellow)))
 
-(defn render-list-arrow-control [ list-id priority ]
-  (if (>= priority 0)
-    (list-priority-button list-id -1 img-arrow-gray)
-    (list-priority-button list-id 0 img-arrow-blue)))
-
 (defn render-new-list-form [ ]
   (hiccup-form/form-to
    {:class "new-item-form"}
@@ -83,13 +78,20 @@
                                        "deleted-item" is-deleted?})}
      [:div.item-control
       (render-list-star-control list-id priority)]
-     [:div.item-control
-      (render-list-arrow-control list-id priority)]
      [:div.item-description
       [:a {:href (shref "/list/" (encode-list-id list-id) without-modal)}
        (hiccup.util/escape-html desc)
        [:span.pill item-count]]
-      (sidebar/render-list-visibility-flag list-info)]]))
+      (sidebar/render-list-visibility-flag list-info)]
+     (if (< priority 0)
+       (list-priority-button list-id 0 "Unhide")
+       (list-priority-button list-id -1 "Hide"))
+     [:a.details-link {:href (shref "/list/" (encode-list-id list-id)
+                                    {:modal "details"})}
+      "Details"]
+     [:a.details-link {:href (shref "/list/" (encode-list-id list-id)
+                                    {:modal "share-with"})}
+      "Sharing"]]))
 
 (defn render-list-manager-page [ params ]
   (let [include-deleted (= (:deleted params) "yes")]

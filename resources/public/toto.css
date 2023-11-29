@@ -131,7 +131,6 @@ dialog p {
 @media only screen and (max-device-width : 640px) {
     .contents {
         margin-bottom: 30px;
-        border: 2px solid red;
     }
 }
 
@@ -683,10 +682,6 @@ select:hover {
     }
 }
 
-.toplevel-list.list-list A {
-    color: black;
-}
-
 .empty-list {
     text-align: center;
     margin: 20px;
@@ -710,6 +705,7 @@ h1 {
     box-sizing: border-box;
     display: flex;
     min-height: 24px;
+    align-items: center;
 }
 
 .toplevel-list .item-description input {
@@ -745,6 +741,17 @@ h1 {
     width: 100%;
     font-size: 14px;
     height: 50px;
+}
+
+/* List manager styling */
+
+.toplevel-list.list-list A {
+    color: black;
+}
+
+.toplevel-list.list-list A.details-link {
+    padding-left: 4px;
+    padding-right: 4px;
 }
 
 /* Sidebar Styling */
@@ -929,12 +936,13 @@ A .pill {
     padding-right: 0px;
 }
 
+.item-row .item-description {
+    flex: 1;
+}
 
 @media only screen and (min-device-width : 640px) {
     .item-row {
-        padding-left: 0px;
         padding-bottom: 4px;
-        padding-right: 0px;
     }
 }
 
