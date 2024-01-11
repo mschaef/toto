@@ -25,6 +25,7 @@
         compojure.core)
   (:require [taoensso.timbre :as log]
             [sql-file.core :as sql-file]
+            [playbook.config :as config]
             [toto.core.scheduler :as scheduler]
             [toto.core.backup :as backup]
             [toto.core.web :as web]
@@ -54,7 +55,7 @@
       (schedule-item-sunset-job)))
 
 (defn- db-conn-spec [ config ]
-  {:name (or (config-property "db.subname")
+  {:name (or (config/property "db.subname")
              (get-in config [:db :subname] "toto"))
    :schema-path [ "sql/" ]
    :schemas [[ "toto" 11 ]]})
