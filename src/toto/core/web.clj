@@ -36,6 +36,7 @@
             [ring.middleware.resource :as ring-resource]
             [ring.util.response :as ring-responsed]
             [compojure.handler :as handler]
+            [playbook.config :as config]
             [toto.core.session :as session]
             [toto.core.gdpr :as gdpr]
             [toto.view.common :as view-common]
@@ -76,26 +77,26 @@
   (fn [ req ]
     (call-with-thread-name #(app req) (str "http: " (:request-method req) " " (:uri req)))))
 
-(defn handler [ config routes ]
+(defn handler [ db-conn-pool routes ]
   (-> routes
       (wrap-content-type)
       (wrap-browser-caching {"text/javascript" 360000
                              "text/css" 360000})
-      (user/wrap-authenticate config)
+      (user/wrap-authenticate)
       (extend-session-duration 30)
       (include-requesting-ip)
       (view-query/wrap-remember-query)
       (gdpr/wrap-gdpr-filter)
-      (handler/site {:session {:store (session/session-store (:db-conn-pool config))}})
-      (wrap-db-connection (:db-conn-pool config))
+      (handler/site {:session {:store (session/session-store db-conn-pool)}})
+      (wrap-db-connection db-conn-pool)
       (wrap-request-thread-naming)
-      (view-common/wrap-config config)
-      (wrap-dev-support (:development-mode config))))
+      (config/wrap-config)
+      (wrap-dev-support (config/cval :development-mode))))
 
-(defn start-site [ config routes ]
-  (let [ { http-port :http-port } config ]
+(defn start-site [ db-conn-pool routes ]
+  (let [ http-port (config/cval :http-port) ]
     (log/info "Starting Webserver on port" http-port)
-    (let [server (jetty/run-jetty (handler config routes)
+    (let [server (jetty/run-jetty (handler db-conn-pool routes)
                                   { :port http-port :join? false })]
       (add-shutdown-hook
        (fn []

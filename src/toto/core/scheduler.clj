@@ -24,23 +24,22 @@
         sql-file.middleware)
   (:require [taoensso.timbre :as log]))
 
-(defn start [ config ]
-  (assoc config :scheduler
-         (doto (it.sauronsoftware.cron4j.Scheduler.)
-           (.setDaemon true)
-           (.start))))
+(defn start [ ]
+  (doto (it.sauronsoftware.cron4j.Scheduler.)
+    (.setDaemon true)
+    (.start)))
 
-(defn schedule-job [ config desc cron job-fn ]
+(defn schedule-job [ scheduler db-conn-pool desc cron job-fn ]
   (let [job-lock (java.util.concurrent.locks.ReentrantLock.)]
     (log/info "Background job scheduled (cron:" cron  "):" desc )
-    (.schedule (:scheduler config) cron
+    (.schedule scheduler cron
                #(if (.tryLock job-lock)
                   (try
                     (with-exception-barrier (str "scheduled job:" desc)
                       (log/info "Scheduled job:" desc)
-                      (with-db-connection (:db-conn-pool config)
+                      (with-db-connection db-conn-pool
                         (job-fn)))
                     (finally
                       (.unlock job-lock)))
                   (log/info "Cannot run scheduled job reentrantly:" desc)))
-    config))
+    scheduler))

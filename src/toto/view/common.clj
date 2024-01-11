@@ -23,17 +23,6 @@
   (:use playbook.core)
   (:require [toto.util :as util]))
 
-;;; Development Mode
-
-(def ^:dynamic *config* {})
-(def ^:dynamic *dev-mode* false)
-
-(defn wrap-config [ app config ]
-  (fn [ req ]
-    (binding [*config* config
-              *dev-mode* (:development-mode config)]
-      (app req))))
-
 ;;; Ring Responses
 
 (defn unprocessable-entity [ body ]

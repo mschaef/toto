@@ -27,11 +27,11 @@
             [toto.util :as util]
             [toto.site.user :as user]))
 
-(defn all-routes [ config app-routes ]
+(defn all-routes [ app-routes ]
   (let [ resources-path (str "/" (util/get-version)) ]
     (log/info "Resources on path: " resources-path )
     (routes
      (route/resources resources-path)
-     (user/all-routes config)
+     user/all-routes
      app-routes
      (route/not-found "Resource Not Found"))))

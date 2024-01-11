@@ -9,11 +9,12 @@
   (:require [taoensso.timbre :as log]
             [hiccup.form :as hiccup-form]
             [hiccup.util :as hiccup-util]
+            [playbook.config :as config]
             [toto.data.data :as data]
             [toto.view.auth :as auth]
             [toto.todo.todo-item :as todo-item]))
 
-(defn render-snooze-modal [ config params list-id ]
+(defn render-snooze-modal [ params list-id ]
   (let [snoozing-item-id (decode-item-id  (:snoozing-item-id params))
         item-info (data/get-item-by-id snoozing-item-id)]
     (defn render-snooze-choice [ label snooze-days shortcut-key ]
@@ -26,7 +27,7 @@
     (render-modal
      {:title "Snooze item until later"}
      [:div.config-panel
-      (todo-item/render-item-text config (:desc item-info))]
+      (todo-item/render-item-text (:desc item-info))]
      [:div.snooze-choices
       (map (fn [ [ label snooze-days shortcut-key] ]
                (render-snooze-choice label snooze-days shortcut-key))
@@ -98,14 +99,14 @@
             [:div.error-message
              error-message])]))])))
 
-(defn render-share-with-modal [ config params list-id ]
+(defn render-share-with-modal [ params list-id ]
   (render-modal
    {:title "Share With"
     :form-post-to (shref "/list/" (encode-list-id list-id) "/sharing" without-modal)}
    (render-todo-list-permissions list-id nil)
    [:div.config-panel
     [:h1 "Sharing Link"]
-    (copyable-text (str (:base-url config) "/list/" (encode-list-id list-id)))]
+    (copyable-text (str (config/cval :base-url) "/list/" (encode-list-id list-id)))]
    [:div.modal-controls
     [:input {:type "submit" :value "Share"}]]))
 

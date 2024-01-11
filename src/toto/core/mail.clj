@@ -24,7 +24,8 @@
   (:require [taoensso.timbre :as log]
             [postal.core :as postal]
             [hiccup.core :as hiccup]
-            [hiccup.util :as hiccup-util]))
+            [hiccup.util :as hiccup-util]
+            [playbook.config :as config]))
 
 (defn- escape-email-params [ params ]
   (map-values #(if (string? %)
@@ -32,13 +33,13 @@
                  "")
               params))
 
-(defn send-email [config message-info]
-  (let [smtp (:smtp config)
+(defn send-email [ message-info ]
+  (let [smtp (config/cval :smtp)
         {:keys [ to subject content params ]} message-info
         html-content (hiccup/html
                       [:html
                        (content (escape-email-params
-                                 (merge {:base-url (:base-url config)}
+                                 (merge {:base-url (config/cval :base-url)}
                                         (or params {}))))])]
 
     (log/info "Sending mail to " to " with subject: " subject)

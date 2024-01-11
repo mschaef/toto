@@ -204,28 +204,16 @@
     (redirect-to-home-list)
     (landing-page/render-landing-page params)))
 
-(defn- public-routes [ config ]
-  (routes
-   (GET "/" { params :params }
-     (render-launch-page params))
-
-   (GET "/list/:list-id/public" { { list-id :list-id } :params }
-     ;; Retain backward compatibility with older public list URL scheme
-     (redirect-to-list list-id))
-
-   (GET "/list/:list-id" { params :params }
-     (todo-list/render-todo-list-public-page config params))))
-
-(defn- list-routes [ config list-id ]
+(defn- list-routes [ list-id ]
   (when-let-route [list-id (accept-authorized-list-id list-id)]
     (GET "/" { params :params }
-      (todo-list/render-todo-list-page config list-id params))
+      (todo-list/render-todo-list-page list-id params))
 
     (GET "/deleted" { params :params }
       (todo-list/render-deleted-todo-list-page list-id params))
 
     (GET "/completions" { params :params }
-      (todo-list/render-todo-list-completions-page config list-id params))
+      (todo-list/render-todo-list-completions-page list-id params))
 
     (POST "/" { params :params }
       (add-item list-id params))
@@ -277,21 +265,31 @@
     (POST "/ordinal" { params :params }
       (update-item-ordinal item-id params))))
 
-(defn- private-routes [ config ]
+(defroutes private-routes
+  (POST "/list" { params :params }
+    (add-list params))
+
+  (GET "/lists" { params :params }
+    (todo-list-manager/render-list-manager-page params))
+
+  (context "/list/:list-id" [ list-id ]
+    (list-routes list-id))
+
+  (context "/item/:item-id" [ item-id ]
+    (item-routes item-id)))
+
+(defroutes public-routes
+  (GET "/" { params :params }
+    (render-launch-page params))
+
+  (GET "/list/:list-id/public" { { list-id :list-id } :params }
+    ;; Retain backward compatibility with older public list URL scheme
+    (redirect-to-list list-id))
+
+  (GET "/list/:list-id" { params :params }
+    (todo-list/render-todo-list-public-page params)))
+
+(defn all-routes [ ]
   (routes
-   (POST "/list" { params :params }
-     (add-list params))
-
-   (GET "/lists" { params :params }
-     (todo-list-manager/render-list-manager-page params))
-
-   (context "/list/:list-id" [ list-id ]
-     (list-routes config list-id))
-
-   (context "/item/:item-id" [ item-id ]
-     (item-routes item-id))))
-
-(defn all-routes [ config ]
-  (routes
-   (public-routes config)
-   (auth/authorize-toto-valid-user (private-routes config))))
+   public-routes
+   (auth/authorize-toto-valid-user private-routes)))

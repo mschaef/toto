@@ -24,7 +24,8 @@
         sql-file.middleware)
   (:require [taoensso.timbre :as log]
             [sql-file.core :as sql-file]
-            [toto.core.scheduler :as scheduler]))
+            [toto.core.scheduler :as scheduler]
+            [playbook.config :as config]))
 
 ;;; backup
 
@@ -42,13 +43,13 @@
     (log/info "Backing database up to" output-path)
     (sql-file/backup-to-file-online (current-db-connection) output-path)))
 
-(defn schedule-backup [ config ]
-  (if-let [backup-cron (get-in config [:db :backup-cron])]
-    (if-let [backup-path (get-in config [:db :backup-path] false)]
+(defn schedule-backup [ scheduler db-conn-pool ]
+  (if-let [backup-cron (config/cval :db :backup-cron)]
+    (if-let [backup-path (config/cval :db :backup-path)]
       (do
         (log/info "Database backup configured with path: " backup-path)
-        (scheduler/schedule-job config :db-backup backup-cron
+        (scheduler/schedule-job scheduler db-conn-pool :db-backup backup-cron
                                 #(backup-database backup-path)))
       (log/warn "NO BACKUP PATH. AUTOMATIC BACKUP DISABLED!!!"))
     (log/warn "NO BACKUP CRON STRING. AUTOMATIC BACKUP DISABLED!!!"))
-  config)
+  scheduler)

@@ -30,6 +30,7 @@
             [hiccup.page :as hiccup-page]
             [hiccup.form :as hiccup-form]
             [hiccup.util :as hiccup-util]
+            [playbook.config :as config]
             [toto.core.gdpr :as gdpr]
             [toto.view.auth :as auth]))
 
@@ -103,7 +104,10 @@
    [:meta {:name "viewport"
            ;; user-scalable=no fails to work on iOS n where n > 10
            :content "width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0"}]
-   [:title (when *dev-mode* "DEV - ") (:name (:app *config*)) (when title (str " - " title))]
+   [:title
+    (when (config/cval :development-mode) "DEV - ")
+    (config/cval :app :title)
+    (when title (str " - " title))]
    [:link { :rel "shortcut icon" :href (resource "favicon.ico")}]
    (hiccup-page/include-css (resource "toto.css")
                             (resource "font-awesome.min.css"))
@@ -116,10 +120,10 @@
      (when show-menu?
        [:span.toggle-menu img-show-list "&nbsp;"])
      [:span.app-name
-      [:a { :href "/" } (:name (:app *config*))] " "]
+      [:a { :href "/" } (config/cval :app :title)] " "]
      (when page-title
       (str "- " (hiccup-util/escape-html page-title)))
-     (when *dev-mode*
+     (when (config/cval :development-mode)
        [:span.pill.dev "DEV"])
      (session-controls)]))
 

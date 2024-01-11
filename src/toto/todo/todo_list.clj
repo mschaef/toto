@@ -116,7 +116,7 @@
    n-snoozed-items " more item" (if (= n-snoozed-items 1) "" "s" ) " snoozed for later. "
    "Click " [:a {:href (shref "" {:sfor "99999"})} "here"] " to show."])
 
-(defn- todo-list-details [ config view-list-id list-id edit-item-id writable? completed-within-days snoozed-for-days ]
+(defn- todo-list-details [ view-list-id list-id edit-item-id writable? completed-within-days snoozed-for-days ]
   (let [max-item-age (or (:max_item_age (data/get-todo-list-by-id list-id))
                          Integer/MAX_VALUE)
         pending-items (data/get-pending-items list-id completed-within-days snoozed-for-days)
@@ -128,15 +128,15 @@
      :n-snoozed-items n-snoozed-items
 
      :high-priority
-     (map #(todo-item/render-todo-item config view-list-id list-id % writable? (= edit-item-id (:item_id %)) max-item-age)
+     (map #(todo-item/render-todo-item view-list-id list-id % writable? (= edit-item-id (:item_id %)) max-item-age)
           (filter #(> (:priority %) 0) display-items))
 
      :normal-priority
-     (map #(todo-item/render-todo-item config view-list-id list-id % writable? (= edit-item-id (:item_id %)) max-item-age)
+     (map #(todo-item/render-todo-item view-list-id list-id % writable? (= edit-item-id (:item_id %)) max-item-age)
           (filter #(<= (:priority %) 0) display-items))}))
 
-(defn- render-single-todo-list [ config view-list-id list-id edit-item-id writable? completed-within-days snoozed-for-days ]
-  (let [details (todo-list-details config view-list-id list-id edit-item-id writable? completed-within-days snoozed-for-days)]
+(defn- render-single-todo-list [ view-list-id list-id edit-item-id writable? completed-within-days snoozed-for-days ]
+  (let [details (todo-list-details view-list-id list-id edit-item-id writable? completed-within-days snoozed-for-days)]
     (list
      [:div.toplevel-list
       (if (:is-empty? details)
@@ -172,8 +172,8 @@
              (str " (" other-count " other" (when (not= other-count 1) "s") ")")]))]
        items])))
 
-(defn- render-todo-list-view [ config list-id edit-item-id writable? completed-within-days snoozed-for-days ]
-  (let [ sublists (map #(merge % (todo-list-details config list-id (:sublist_id %) edit-item-id writable? completed-within-days snoozed-for-days))
+(defn- render-todo-list-view [ list-id edit-item-id writable? completed-within-days snoozed-for-days ]
+  (let [ sublists (map #(merge % (todo-list-details list-id (:sublist_id %) edit-item-id writable? completed-within-days snoozed-for-days))
                        (data/get-view-sublists (auth/current-user-id) list-id))]
     [:div.toplevel-list
      (cond
@@ -211,7 +211,7 @@
      "This list automatically sunsets items older than " max-item-age
      " day" (if (not (= max-item-age 1)) "s") "."]))
 
-(defn- render-todo-list [ config list-id edit-item-id writable? completed-within-days snoozed-for-days last-item-list-id ]
+(defn- render-todo-list [ list-id edit-item-id writable? completed-within-days snoozed-for-days last-item-list-id ]
   (scroll-column
    (str "todo-list-scroller-" list-id)
    (when writable?
@@ -220,8 +220,8 @@
    (list
     (render-valentines-day-banner)
     (if (:is_view (data/get-todo-list-by-id list-id))
-      (render-todo-list-view config list-id edit-item-id writable? completed-within-days snoozed-for-days )
-      (render-single-todo-list config list-id list-id edit-item-id writable? completed-within-days snoozed-for-days))
+      (render-todo-list-view list-id edit-item-id writable? completed-within-days snoozed-for-days )
+      (render-single-todo-list list-id list-id edit-item-id writable? completed-within-days snoozed-for-days))
     (when writable?
       (render-todo-list-query-settings list-id completed-within-days snoozed-for-days)))))
 
@@ -245,7 +245,7 @@
                        (data/get-view-sublists (auth/current-user-id) list-id)
                        [ { :sublist_id list-id :desc (:desc list-info)}])))))
 
-(defn- render-completed-item-list [ config list-id completed-within-days ]
+(defn- render-completed-item-list [ list-id completed-within-days ]
   (let [ completed-items (completed-items list-id completed-within-days)]
     (if (= (count completed-items) 0)
       (render-empty-completion-list list-id)
@@ -255,7 +255,7 @@
                                  {"high-priority" (> (:priority todo-item) 0)})}
           [:div.item-description
            [:div
-            (todo-item/render-item-text config (:desc todo-item))
+            (todo-item/render-item-text (:desc todo-item))
             [:span.pill (:sublist_desc todo-item)]
             (when (> (:priority todo-item) 0)
               (if (todo-item/valentines-day?)
@@ -276,7 +276,7 @@
                    [:post (shref "/list/" (encode-list-id list-id) "/restore")]
                    [:input {:type "submit" :value "Restore List"}])])))
 
-(defn render-todo-list-completions-page [ config list-id params ]
+(defn render-todo-list-completions-page [ list-id params ]
   (let [min-list-priority (or (try-parse-integer (:min-list-priority params)) 0)
         completed-within-days (or (try-parse-integer (:clwithin params)) 1)]
     (render-page {:title ((data/get-todo-list-by-id list-id) :desc)
@@ -289,10 +289,10 @@
                     img-back-arrow]
                    "Items Completed Since: " (todo-item/format-date (add-days (current-time) (- completed-within-days)))]
                   [:div.toplevel-list
-                   (render-completed-item-list config list-id completed-within-days)
+                   (render-completed-item-list list-id completed-within-days)
                    (render-todo-list-completion-query-settings list-id completed-within-days)]))))
 
-(defn render-todo-list-page [ config selected-list-id params ]
+(defn render-todo-list-page [ selected-list-id params ]
   (let [edit-item-id (:edit-item-id params)
         min-list-priority (or (try-parse-integer (:min-list-priority params)) 0)
         completed-within-days (or (try-parse-integer (:cwithin params)) 0)
@@ -301,18 +301,18 @@
     (render-page {:title ((data/get-todo-list-by-id selected-list-id) :desc)
                   :page-data-class "todo-list"
                   :sidebar (sidebar/render-sidebar selected-list-id min-list-priority snoozed-for-days)
-                  :modals {"snoozing" #(modals/render-snooze-modal config params selected-list-id)
+                  :modals {"snoozing" #(modals/render-snooze-modal params selected-list-id)
                            "update-from" #(modals/render-update-from-modal params selected-list-id)
-                           "share-with" #(modals/render-share-with-modal config params selected-list-id)
+                           "share-with" #(modals/render-share-with-modal params selected-list-id)
                            "details" #(todo-list-details/render-todo-list-details-modal selected-list-id)
                            "delete-list" #(modals/render-list-delete-modal selected-list-id)
                            "sort-list" #(modals/render-list-sort-modal selected-list-id)}}
-                 (render-todo-list config selected-list-id edit-item-id true completed-within-days snoozed-for-days last-item-list-id))))
+                 (render-todo-list selected-list-id edit-item-id true completed-within-days snoozed-for-days last-item-list-id))))
 
-(defn render-todo-list-public-page [ config params ]
+(defn render-todo-list-public-page [ params ]
   (let [ list-id (decode-list-id (:list-id params)) ]
     (when (and (data/list-public? list-id)
                (not (data/list-owned-by-user-id? list-id (auth/current-user-id))))
       (render-page {:title ((data/get-todo-list-by-id list-id) :desc)
                     :page-data-class "todo-list"}
-                   (render-todo-list config list-id nil false 0 0 false)))))
+                   (render-todo-list list-id nil false 0 0 false)))))

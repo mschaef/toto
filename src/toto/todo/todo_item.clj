@@ -29,6 +29,7 @@
         toto.todo.ids)
   (:require [taoensso.timbre :as log]
             [hiccup.util :as hiccup-util]
+            [playbook.config :as config]
             [toto.view.auth :as auth]
             [toto.data.data :as data]))
 
@@ -64,14 +65,14 @@
      (:desc (data/get-todo-list-by-id list-id))
      url-path)])
 
-(defn- render-url [ config url-text ]
-  (let [target-length (:url-target-length config)
+(defn- render-url [ url-text ]
+  (let [target-length (config/cval :url-target-length)
         url (java.net.URL. url-text)
         base (str (.getProtocol url)
                   ":"
                   (if-let [authority (.getAuthority url)]
                     (str "//" authority)))
-        is-self-link? (= base (:base-url config))
+        is-self-link? (= base (config/cval :base-url))
         url-text (if is-self-link?
                    (render-self-link (.getPath url))
 
@@ -97,10 +98,10 @@
 (defn format-date [ date ]
   (.format pill-date-format date))
 
-(defn render-item-text [ config item-text ]
+(defn render-item-text [ item-text ]
   (interleave (conj (vec (map #(str " " (render-item-text-segment (.trim %)) " ")
                               (clojure.string/split item-text url-regex))) "")
-              (conj (vec (map #(render-url config %) (map first (re-seq url-regex item-text)))) "")))
+              (conj (vec (map render-url (map first (re-seq url-regex item-text)))) "")))
 
 
 (defn- complete-item-button [ item-info ]
@@ -169,7 +170,7 @@
      (hiccup-util/escape-html
       (:created_by_name item-info))]))
 
-(defn render-todo-item [ config view-list-id list-id item-info writable? editing? max-item-age ]
+(defn render-todo-item [ view-list-id list-id item-info writable? editing? max-item-age ]
   (let [{item-id :item_id } item-info]
     [:div.item-row.order-drop-target
      (cond-> {:id (str "item_row_" (:item_id item-info))
@@ -206,7 +207,7 @@
         [:div {:id (str "item_" item-id)
                :class (class-set {"deleted-item" (:is_deleted item-info)
                                   "completed-item" (:is_complete item-info)})}
-         (render-item-text config (item-info :desc))
+         (render-item-text (item-info :desc))
          (render-item-snooze-button item-info max-item-age)
          (render-item-creator-indication item-info)])]
      [:div.item-control.priority.right

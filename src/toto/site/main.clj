@@ -34,25 +34,15 @@
             [toto.site.routes :as routes]
             [toto.todo.todo :as todo]))
 
-(defn- schedule-web-session-cull [ config ]
-  (scheduler/schedule-job config :web-session-cull "19 */1 * * *"
-                          #(data/delete-old-web-sessions)))
-
-(defn- schedule-item-sunset-job [ config ]
-  (scheduler/schedule-job config :item-sunset "13 */1 * * *"
-                          #(sunset/item-sunset-job)))
-
-(defn- schedule-verification-link-cull [ config ]
-  (scheduler/schedule-job config :verification-link-cull "*/15 * * * *"
-                          #(data/delete-old-verification-links)))
-
-(defn- start-scheduled-jobs [ config ]
-  (-> config
-      (scheduler/start)
-      (backup/schedule-backup)
-      (schedule-verification-link-cull)
-      (schedule-web-session-cull)
-      (schedule-item-sunset-job)))
+(defn- start-scheduled-jobs [ db-conn-pool ]
+  (-> (scheduler/start)
+      (backup/schedule-backup db-conn-pool)
+      (scheduler/schedule-job db-conn-pool :web-session-cull "19 */1 * * *"
+                              data/delete-old-web-sessions)
+      (scheduler/schedule-job db-conn-pool :item-sunset "13 */1 * * *"
+                              sunset/item-sunset-job)
+      (scheduler/schedule-job db-conn-pool :verification-link-cull "*/15 * * * *"
+                              data/delete-old-verification-links)))
 
 (defn- db-conn-spec [ config ]
   {:name (or (config/property "db.subname")
@@ -62,7 +52,6 @@
 
 (defn app-start [ config ]
   (sql-file/with-pool [db-conn (db-conn-spec config)]
-    (-> config
-        (assoc :db-conn-pool db-conn)
-        (start-scheduled-jobs)
-        (web/start-site (routes/all-routes config (todo/all-routes config))))))
+    (log/spy :info db-conn)
+    (start-scheduled-jobs db-conn)
+    (web/start-site db-conn (routes/all-routes (todo/all-routes)))))
