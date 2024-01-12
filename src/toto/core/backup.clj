@@ -44,12 +44,11 @@
     (sql-file/backup-to-file-online (current-db-connection) output-path)))
 
 (defn schedule-backup [ scheduler db-conn-pool ]
-  (if-let [backup-cron (config/cval :db :backup-cron)]
-    (if-let [backup-path (config/cval :db :backup-path)]
-      (do
-        (log/info "Database backup configured with path: " backup-path)
-        (scheduler/schedule-job scheduler db-conn-pool :db-backup backup-cron
-                                #(backup-database backup-path)))
-      (log/warn "NO BACKUP PATH. AUTOMATIC BACKUP DISABLED!!!"))
-    (log/warn "NO BACKUP CRON STRING. AUTOMATIC BACKUP DISABLED!!!"))
+  (if-let [backup-path (config/cval :db :backup-path)]
+    (do
+      (log/info "Database backup configured with path: " backup-path)
+      (scheduler/schedule-job scheduler :db-backup
+                              #(with-db-connection db-conn-pool
+                                 (backup-database backup-path))))
+    (log/warn "NO BACKUP PATH. AUTOMATIC BACKUP DISABLED!!!"))
   scheduler)

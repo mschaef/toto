@@ -22,24 +22,26 @@
 (ns toto.core.scheduler
   (:use playbook.core
         sql-file.middleware)
-  (:require [taoensso.timbre :as log]))
+  (:require [taoensso.timbre :as log]
+            [playbook.config :as config]))
 
 (defn start [ ]
   (doto (it.sauronsoftware.cron4j.Scheduler.)
     (.setDaemon true)
     (.start)))
 
-(defn schedule-job [ scheduler db-conn-pool desc cron job-fn ]
-  (let [job-lock (java.util.concurrent.locks.ReentrantLock.)]
-    (log/info "Background job scheduled (cron:" cron  "):" desc )
-    (.schedule scheduler cron
-               #(if (.tryLock job-lock)
-                  (try
-                    (with-exception-barrier (str "scheduled job:" desc)
-                      (log/info "Scheduled job:" desc)
-                      (with-db-connection db-conn-pool
-                        (job-fn)))
-                    (finally
-                      (.unlock job-lock)))
-                  (log/info "Cannot run scheduled job reentrantly:" desc)))
-    scheduler))
+(defn schedule-job [ scheduler job-name job-fn ]
+  (if-let [ cron (config/cval :job-schedule job-name)]
+    (let [job-lock (java.util.concurrent.locks.ReentrantLock.)]
+      (log/info "Background job scheduled (cron:" cron  "):" job-name )
+      (.schedule scheduler cron
+                 #(if (.tryLock job-lock)
+                    (try
+                      (with-exception-barrier (str "scheduled job:" job-name)
+                        (log/info "Scheduled job:" job-name)
+                        (job-fn))
+                      (finally
+                        (.unlock job-lock)))
+                    (log/info "Cannot run scheduled job reentrantly:" job-name))))
+    (log/warn "Background job not scheduled, no job-schedule entry:" job-name))
+  scheduler)

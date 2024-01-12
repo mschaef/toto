@@ -22,7 +22,8 @@
 (ns toto.site.main
   (:gen-class :main true)
   (:use playbook.core
-        compojure.core)
+        compojure.core
+        sql-file.middleware)
   (:require [taoensso.timbre :as log]
             [sql-file.core :as sql-file]
             [playbook.config :as config]
@@ -37,12 +38,15 @@
 (defn- start-scheduled-jobs [ db-conn-pool ]
   (-> (scheduler/start)
       (backup/schedule-backup db-conn-pool)
-      (scheduler/schedule-job db-conn-pool :web-session-cull "19 */1 * * *"
-                              data/delete-old-web-sessions)
-      (scheduler/schedule-job db-conn-pool :item-sunset "13 */1 * * *"
-                              sunset/item-sunset-job)
-      (scheduler/schedule-job db-conn-pool :verification-link-cull "*/15 * * * *"
-                              data/delete-old-verification-links)))
+      (scheduler/schedule-job :web-session-cull
+                              #(with-db-connection db-conn-pool
+                                 (data/delete-old-web-sessions)))
+      (scheduler/schedule-job :item-sunset
+                              #(with-db-connection db-conn-pool
+                                 (sunset/item-sunset-job)))
+      (scheduler/schedule-job :verification-link-cull
+                              #(with-db-connection db-conn-pool
+                                 (data/delete-old-verification-links)))))
 
 (defn- db-conn-spec [ config ]
   {:name (or (config/property "db.subname")

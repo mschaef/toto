@@ -3,8 +3,12 @@
  :http-port 8080
  :development-mode false
  :db {:backup-path false
-      :backup-cron "0 2 * * *"
       :subname "toto"}
  :smtp {:enabled false}
  :admin-mails []
- :url-target-length 60}
+ :url-target-length 60
+
+ :job-schedule {:web-session-cull "19 */1 * * *"
+                :item-sunset "13 */1 * * *"
+                :verification-link-cull "*/15 * * * *"
+                :db-backup "0 2 * * *"}}

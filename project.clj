@@ -3,7 +3,7 @@
   :license { :name "Copyright East Coast Toolworks (c) 2012-2023"}
 
   :dependencies [[org.clojure/clojure "1.11.1"]
-                 [com.mschaef/sql-file "0.4.8"]
+                 [com.mschaef/sql-file "0.4.11-SNAPSHOT"]
                  [cprop "0.1.19"]
                  [yesql "0.5.3"]
                  [org.clojure/data.json "2.4.0"]
