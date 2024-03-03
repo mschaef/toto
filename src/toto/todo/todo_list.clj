@@ -263,18 +263,15 @@
                 img-star-yellow))]]])
        completed-items))))
 
-(defn render-deleted-todo-list-page [ list-id params ]
-  (let [min-list-priority (or (try-parse-integer (:min-list-priority params)) 0)]
-    (render-page {:title ((data/get-todo-list-by-id list-id) :desc)
-                  :sidebar (sidebar/render-sidebar list-id min-list-priority 0)}
-                 [:div.empty-list
-                  [:h1
-                   "This list has been deleted!"]
-                  [:p
-                   "To view its contents, you must first restore it."]
-                  (hiccup-form/form-to
-                   [:post (shref "/list/" (encode-list-id list-id) "/restore")]
-                   [:input {:type "submit" :value "Restore List"}])])))
+(defn render-deleted-todo-list [ list-id  ]
+  [:div.empty-list
+   [:h1
+    "This list has been deleted!"]
+   [:p
+    "To view its contents, you must first restore it."]
+   (hiccup-form/form-to
+    [:post (shref "/list/" (encode-list-id list-id) "/restore")]
+    [:input {:type "submit" :value "Restore List"}])])
 
 (defn render-todo-list-completions-page [ list-id params ]
   (let [min-list-priority (or (try-parse-integer (:min-list-priority params)) 0)
@@ -297,8 +294,9 @@
         min-list-priority (or (try-parse-integer (:min-list-priority params)) 0)
         completed-within-days (or (try-parse-integer (:cwithin params)) 0)
         snoozed-for-days (or (try-parse-integer (:sfor params)) 0)
-        last-item-list-id  (:last-item-list-id params)]
-    (render-page {:title ((data/get-todo-list-by-id selected-list-id) :desc)
+        last-item-list-id  (:last-item-list-id params)
+        list-info (data/get-todo-list-by-id selected-list-id)]
+    (render-page {:title (:desc list-info)
                   :page-data-class "todo-list"
                   :sidebar (sidebar/render-sidebar selected-list-id min-list-priority snoozed-for-days)
                   :modals {"snoozing" #(modals/render-snooze-modal params selected-list-id)
@@ -307,7 +305,9 @@
                            "details" #(todo-list-details/render-todo-list-details-modal selected-list-id)
                            "delete-list" #(modals/render-list-delete-modal selected-list-id)
                            "sort-list" #(modals/render-list-sort-modal selected-list-id)}}
-                 (render-todo-list selected-list-id edit-item-id true completed-within-days snoozed-for-days last-item-list-id))))
+                 (if (:is_deleted list-info)
+                   (render-deleted-todo-list selected-list-id)
+                   (render-todo-list selected-list-id edit-item-id true completed-within-days snoozed-for-days last-item-list-id)))))
 
 (defn render-todo-list-public-page [ params ]
   (let [ list-id (decode-list-id (:list-id params)) ]
