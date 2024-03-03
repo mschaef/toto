@@ -97,5 +97,37 @@
     (delete-sql-session db-conn session-key)
     nil))
 
+(deftype StoreMemoryCache [ underlying cache ]
+  store/SessionStore
+
+  (read-session [_ session-key]
+    (let [ session (or (aand (@cache session-key)
+                             (if (session-stale? it)
+                               (.read-session underlying session-key)
+                               it))
+                       (.read-session underlying session-key))]
+      (swap! cache assoc session-key session)
+      session))
+
+  (write-session [_ session-key value]
+    (swap! cache dissoc session-key)
+    (.write-session underlying session-key value))
+
+  (delete-session [_ session-key]
+    (swap! cache dissoc session-key)
+    (.delete-session underlying session-key)))
+
 (defn session-store [ db-conn ]
-  (SQLStore. db-conn))
+  (StoreMemoryCache. (SQLStore. db-conn) (atom {})))
+
+(defn- get-stale-sessions []
+  (query-all (current-db-connection)
+             [(str "SELECT session_key"
+                   "  FROM web_session"
+                   " WHERE accessed_on_day < DATEADD('month', -1, CURRENT_TIMESTAMP)")]))
+
+(defn delete-old-web-sessions [ session-store ]
+  (let [ stale-sessions (get-stale-sessions) ]
+    (log/info (count stale-sessions) "stale web session(s) to be deleted.")
+    (doseq [ session stale-sessions ]
+      (.delete-session session-store (:session_key session)))))

@@ -29,6 +29,7 @@
             [playbook.config :as config]
             [toto.core.scheduler :as scheduler]
             [toto.core.backup :as backup]
+            [toto.core.session :as session]
             [toto.core.web :as web]
             [toto.data.data :as data]
             [toto.todo.sunset :as sunset]

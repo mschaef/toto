@@ -185,11 +185,6 @@
                           " WHERE link_uuid=?")
                      link-uuid]))
 
-(defn delete-old-web-sessions []
-  (jdbc/delete! (current-db-connection)
-                :web_session
-                ["accessed_on_day < DATEADD('month', -1, CURRENT_TIMESTAMP)"]))
-
 (defn delete-old-verification-links []
   (jdbc/delete! (current-db-connection)
                 :verification_link
