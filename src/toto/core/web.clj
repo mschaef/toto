@@ -77,7 +77,7 @@
   (fn [ req ]
     (call-with-thread-name #(app req) (str "http: " (:request-method req) " " (:uri req)))))
 
-(defn handler [ db-conn-pool routes ]
+(defn handler [ db-conn-pool session-store routes ]
   (-> routes
       (wrap-content-type)
       (wrap-browser-caching {"text/javascript" 360000
@@ -87,16 +87,16 @@
       (include-requesting-ip)
       (view-query/wrap-remember-query)
       (gdpr/wrap-gdpr-filter)
-      (handler/site {:session {:store (session/session-store db-conn-pool)}})
+      (handler/site {:session {:store session-store}})
       (wrap-db-connection db-conn-pool)
       (wrap-request-thread-naming)
       (config/wrap-config)
       (wrap-dev-support (config/cval :development-mode))))
 
-(defn start-site [ db-conn-pool routes ]
+(defn start-site [ db-conn-pool session-store routes ]
   (let [ http-port (config/cval :http-port) ]
     (log/info "Starting Webserver on port" http-port)
-    (let [server (jetty/run-jetty (handler db-conn-pool routes)
+    (let [server (jetty/run-jetty (handler db-conn-pool session-store routes)
                                   { :port http-port :join? false })]
       (add-shutdown-hook
        (fn []

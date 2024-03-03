@@ -8,7 +8,7 @@
  :admin-mails []
  :url-target-length 60
 
- :job-schedule {:web-session-cull "19 */1 * * *"
+ :job-schedule {:web-session-cull "32 */1 * * *"
                 :item-sunset "13 */1 * * *"
                 :verification-link-cull "*/15 * * * *"
                 :db-backup "0 2 * * *"}}

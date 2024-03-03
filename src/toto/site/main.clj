@@ -36,12 +36,12 @@
             [toto.site.routes :as routes]
             [toto.todo.todo :as todo]))
 
-(defn- start-scheduled-jobs [ db-conn-pool ]
+(defn- start-scheduled-jobs [ db-conn-pool session-store ]
   (-> (scheduler/start)
       (backup/schedule-backup db-conn-pool)
       (scheduler/schedule-job :web-session-cull
                               #(with-db-connection db-conn-pool
-                                 (data/delete-old-web-sessions)))
+                                 (session/delete-old-web-sessions session-store)))
       (scheduler/schedule-job :item-sunset
                               #(with-db-connection db-conn-pool
                                  (sunset/item-sunset-job)))
@@ -57,6 +57,6 @@
 
 (defn app-start [ config ]
   (sql-file/with-pool [db-conn (db-conn-spec config)]
-    (log/spy :info db-conn)
-    (start-scheduled-jobs db-conn)
-    (web/start-site db-conn (routes/all-routes (todo/all-routes)))))
+    (let [ session-store (session/session-store db-conn)]
+      (start-scheduled-jobs db-conn session-store)
+      (web/start-site db-conn session-store (routes/all-routes (todo/all-routes))))))
