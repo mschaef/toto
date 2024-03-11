@@ -79,12 +79,19 @@
                                  "-"
                                  (str current-value)))])
 
-(defn copyable-text [ text ]
+(defn- copyable-text-base [ text label-text input-attrs ]
   [:div.copyable-text
-   [:input {:type "text"
-            :readonly true
-            :value text}]
+   [:input (merge input-attrs {:value text})]
    [:span.clickable
     {:onclick (str "window._toto.doCopy(event)")}
-    "Copy"]])
+    label-text]])
 
+(defn copyable-text
+  ([ text label-text ]
+   (copyable-text-base text label-text {:type "text" :readonly true}))
+
+  ([ text ]
+   (copyable-text text "Copy"))  )
+
+(defn copy-button [ text label-text ]
+  (copyable-text-base text label-text {:type "hidden"}))

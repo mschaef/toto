@@ -65,33 +65,36 @@
 (def query-durations [1 7 30 90 365 730])
 
 (defn- render-todo-list-query-settings [ list-id completed-within-days snoozed-for-days ]
-  [:div.query-settings
-   (hiccup-form/form-to { :class "embedded "} [:get (shref "/list/" (encode-list-id list-id))]
-                 [:div.control-segment
-                  [:a {:href (shref "/list/" (encode-list-id list-id) "/completions")}
-                   "[recently completed]"]]
-                 (when (not (:is_view (data/get-todo-list-by-id list-id)))
-                   (list
-                    [:div.control-segment
-                     [:a {:href (shref "/list/" (encode-list-id list-id)
-                                       {:modal "share-with"})}
-                      "[share list]"]]
-                   [:div.control-segment
-                    [:a {:href (shref "/list/" (encode-list-id list-id)
-                                      {:modal "sort-list"})}
-                     "[sort list]"]]))
-                 [:div.control-segment
-                  [:a {:href (shref "/list/" (encode-list-id list-id) {:modal "details"})}
-                   "[list details]"]]
-                 [:div.control-segment
-                  [:a {:href (str "/list/" (encode-list-id list-id))}
-                   " [default view]"]]
-                 [:div.control-segment
-                  [:label {:for "cwithin"}
-                   "Completed within: "]
-                  (render-duration-select "cwithin" completed-within-days query-durations true)]
-                 [:div.control-segment
-                  [:a { :href (shref "/list/" (encode-list-id list-id) {:modal "update-from"} ) } "[copy from]"]])])
+  (let [is-view (:is_view (data/get-todo-list-by-id list-id))]
+    [:div.query-settings
+     (hiccup-form/form-to { :class "embedded "} [:get (shref "/list/" (encode-list-id list-id))]
+                          [:div.control-segment
+                           [:a {:href (str "/list/" (encode-list-id list-id))}
+                            " [default view]"]]
+                          [:div.control-segment
+                           [:label {:for "cwithin"}
+                            "Completed within: "]
+                           (render-duration-select "cwithin" completed-within-days query-durations true)]
+                          [:div.control-segment
+                           [:a {:href (shref "/list/" (encode-list-id list-id) {:modal "details"})}
+                            "[list details]"]]
+                          [:div.control-segment
+                           [:a {:href (shref "/list/" (encode-list-id list-id) "/completions")}
+                            "[recently completed]"]]
+                          (when (not is-view)
+                             [:div.control-segment
+                              [:a {:href (shref "/list/" (encode-list-id list-id)
+                                                {:modal "share-with"})}
+                               "[share list]"]])
+                          (when (not is-view)
+                            [:div.control-segment
+                             [:a {:href (shref "/list/" (encode-list-id list-id)
+                                               {:modal "sort-list"})}
+                              "[sort list]"]])
+                          [:div.control-segment
+                           [:a { :href (shref "/list/" (encode-list-id list-id) {:modal "update-from"} ) } "[copy from]"]]
+                          [:div.control-segment
+                           (copy-button (todo-list-link list-id) "Copy Link")])]))
 
 (defn- render-todo-list-completion-query-settings [ list-id completed-within-days ]
   [:div.query-settings

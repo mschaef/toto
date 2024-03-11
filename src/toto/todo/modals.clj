@@ -107,7 +107,7 @@
    (render-todo-list-permissions list-id nil)
    [:div.config-panel
     [:h1 "Sharing Link"]
-    (copyable-text (str (config/cval :base-url) "/list/" (encode-list-id list-id)))]
+    (copyable-text (todo-list-link list-id))]
    [:div.modal-controls
     [:input {:type "submit" :value "Share"}]]))
 
