@@ -20,15 +20,31 @@
 
 (ns toto.site.error-handling
   (:use playbook.core
-        compojure.core)
+        compojure.core
+        toto.view.components
+        toto.view.page)
   (:require [taoensso.timbre :as log]
             [compojure.route :as route]
             [playbook.config :as config]
             [toto.util :as util]))
 
+(defn error-page [ & { :keys [ uuid  ]}]
+  (render-page { :title "Unexpected Error"}
+               [:div.page-message
+                [:h1 "Unexpected Error"]
+                [:p
+                 "Please accept our apologies. There has been an unexpected error "
+                 "while processing your request. Please return to the home page "
+                 [:a {:href "/"} "here"] " and try again."]
+                [:br]
+                (when uuid
+                  [:p
+                   "Error reference code: " [:code uuid]
+                   (copy-button uuid "Copy Code")])]))
+
 (defroutes all-routes
-  (GET "/error" []
-    "An error has occurred")
+  (GET "/error" { params :params }
+    (error-page params))
 
   (GET "/induce-error" []
     (when (config/cval :development-mode)
