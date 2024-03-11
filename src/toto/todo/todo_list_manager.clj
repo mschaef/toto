@@ -79,19 +79,26 @@
      [:div.item-control
       (render-list-star-control list-id priority)]
      [:div.item-description
-      [:a {:href (shref "/list/" (encode-list-id list-id) without-modal)}
+      [:a.list-link {:href (shref "/list/" (encode-list-id list-id) without-modal)}
        (hiccup.util/escape-html desc)
        [:span.pill item-count]]
-      (sidebar/render-list-visibility-flag list-info)]
-     (if (< priority 0)
-       (list-priority-button list-id 0 "Unhide")
-       (list-priority-button list-id -1 "Hide"))
+      (if (< priority 0)
+        (list-priority-button list-id 0 "Unhide List")
+        (list-priority-button list-id -1 "Hide List"))
+            (sidebar/render-list-visibility-flag list-info)
+]
+
      [:a.details-link {:href (shref "/list/" (encode-list-id list-id)
                                     {:modal "details"})}
       "Details"]
+     [:a.details-link {:href (shref "/list/" (encode-list-id list-id) "/completions")}
+      "Completed"]
      [:a.details-link {:href (shref "/list/" (encode-list-id list-id)
                                     {:modal "share-with"})}
       "Sharing"]]))
+
+
+
 
 (defn render-list-manager-page [ params ]
   (let [include-deleted (= (:deleted params) "yes")]

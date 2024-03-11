@@ -78,9 +78,6 @@
                           [:div.control-segment
                            [:a {:href (shref "/list/" (encode-list-id list-id) {:modal "details"})}
                             "[list details]"]]
-                          [:div.control-segment
-                           [:a {:href (shref "/list/" (encode-list-id list-id) "/completions")}
-                            "[recently completed]"]]
                           (when (not is-view)
                              [:div.control-segment
                               [:a {:href (shref "/list/" (encode-list-id list-id)

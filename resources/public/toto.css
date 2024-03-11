@@ -751,13 +751,13 @@ h1 {
 
 /* List manager styling */
 
-.toplevel-list.list-list A {
-    color: black;
-}
-
 .toplevel-list.list-list A.details-link {
     padding-left: 4px;
     padding-right: 4px;
+}
+
+.toplevel-list.list-list A.list-link {
+    color: black;
 }
 
 /* Sidebar Styling */
@@ -1064,7 +1064,7 @@ p.new-user {
     max-height: 40vh;
 }
 
-.config-panel A, .query-settings A, A.item-link {
+.config-panel A, .query-settings A, A.item-link, A.details-link {
     color: blue;
 }
 
