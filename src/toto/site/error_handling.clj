@@ -1,4 +1,3 @@
-;; Copyright (c) 2015-2023 Michael Schaeffer (dba East Coast Toolworks)
 ;;
 ;; Licensed as below.
 ;;
@@ -19,22 +18,18 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns toto.site.routes
+(ns toto.site.error-handling
   (:use playbook.core
         compojure.core)
   (:require [taoensso.timbre :as log]
             [compojure.route :as route]
             [playbook.config :as config]
-            [toto.util :as util]
-            [toto.site.user :as user]
-            [toto.site.error-handling :as error-handling]))
+            [toto.util :as util]))
 
-(defn all-routes [ app-routes ]
-  (let [ resources-path (str "/" (util/get-version)) ]
-    (log/info "Resources on path: " resources-path )
-    (routes
-     (route/resources resources-path)
-     user/all-routes
-     app-routes
-     error-handling/all-routes
-     (route/not-found "Resource Not Found"))))
+(defroutes all-routes
+  (GET "/error" []
+    "An error has occurred")
+
+  (GET "/induce-error" []
+    (when (config/cval :development-mode)
+      (throw (Exception. "Induced Error")))))

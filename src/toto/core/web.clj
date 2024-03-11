@@ -34,7 +34,7 @@
             [ring.middleware.reload :as ring-reload]
             [ring.middleware.file-info :as ring-file-info]
             [ring.middleware.resource :as ring-resource]
-            [ring.util.response :as ring-responsed]
+            [ring.util.response :as ring-response]
             [compojure.handler :as handler]
             [playbook.config :as config]
             [toto.core.session :as session]
@@ -69,13 +69,25 @@
     (assoc (app req) :session-cookie-attrs
            {:max-age (* duration-in-days 24 3600)})))
 
-(defn- wrap-dev-support [ handler dev-mode ]
-  (cond-> (wrap-request-logging handler dev-mode)
+(defn- wrap-dev-support [ app dev-mode ]
+  (cond-> (wrap-request-logging app dev-mode)
     dev-mode (ring-reload/wrap-reload)))
 
 (defn wrap-request-thread-naming [ app ]
   (fn [ req ]
     (call-with-thread-name #(app req) (str "http: " (:request-method req) " " (:uri req)))))
+
+(defn wrap-exception-handling [ app ]
+  (fn [ req ]
+    (try
+      (app req)
+      (catch Exception ex
+        (let [ ex-uuid (.toString (java.util.UUID/randomUUID)) ]
+          (log/error ex (str "Unhandled exception while processing " (:request-method req)
+                             " request to: " (:uri req) " (uuid: " ex-uuid ")"))
+          (if (= (:uri req) "/error")
+            (throw (Exception. "Double fault while processing uncaught exception." ex))
+            (ring-response/redirect (str "/error?uuid=" ex-uuid))))))))
 
 (defn handler [ db-conn-pool session-store routes ]
   (-> routes
@@ -91,7 +103,8 @@
       (wrap-db-connection db-conn-pool)
       (wrap-request-thread-naming)
       (config/wrap-config)
-      (wrap-dev-support (config/cval :development-mode))))
+      (wrap-dev-support (config/cval :development-mode))
+      (wrap-exception-handling)))
 
 (defn start-site [ db-conn-pool session-store routes ]
   (let [ http-port (config/cval :http-port) ]
