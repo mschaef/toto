@@ -27,7 +27,8 @@
     (render-modal
      {:title "Snooze item until later"}
      [:div.config-panel
-      (todo-item/render-item-text (:desc item-info))]
+      [:p.snooze-item-text
+       (todo-item/render-item-text (:desc item-info))]]
      [:div.snooze-choices
       (map (fn [ [ label snooze-days shortcut-key] ]
                (render-snooze-choice label snooze-days shortcut-key))

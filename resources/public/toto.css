@@ -91,6 +91,12 @@ dialog p {
     width: 120px;
 }
 
+.snooze-item-text {
+    border: 1px solid #c0c0c0;
+    max-height: 10vh;
+    overflow-y: scroll;
+    padding: 8px;
+}
 
 .snooze-choices .post-button {
     display: block;
