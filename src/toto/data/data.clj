@@ -295,25 +295,27 @@
      0))
 
 (defn get-next-list-ordinal [ todo-list-id ]
-  (- (scalar-result (query/get-min-ordinal-by-list { :list_id todo-list-id }
-                                            { :connection (current-db-connection)})
-             0)
-     1))
+  (-  (or (scalar-result
+           (query/get-min-ordinal-by-list { :list_id todo-list-id }
+                                          { :connection (current-db-connection)})
+           0)
+          0)
+      1))
 
 (defn add-todo-item [ user-id todo-list-id desc priority ]
   (:item_id (first
              (jdbc/insert! (current-db-connection)
-              :todo_item
-              {:todo_list_id todo-list-id
-               :desc desc
-               :created_on (current-time)
-               :created_by user-id
-               :priority priority
-               :updated_by user-id
-               :updated_on (current-time)
-               :is_deleted false
-               :is_complete false
-               :item_ordinal (get-next-list-ordinal todo-list-id)}))))
+                           :todo_item
+                           {:todo_list_id todo-list-id
+                            :desc desc
+                            :created_on (current-time)
+                            :created_by user-id
+                            :priority priority
+                            :updated_by user-id
+                            :updated_on (current-time)
+                            :is_deleted false
+                            :is_complete false
+                            :item_ordinal (get-next-list-ordinal todo-list-id)}))))
 
 (defn get-item-count [ list-id ]
   (scalar-result
