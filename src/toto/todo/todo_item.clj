@@ -171,7 +171,9 @@
       (:created_by_name item-info))]))
 
 (defn render-todo-item [ view-list-id list-id item-info writable? editing? max-item-age ]
-  (let [{item-id :item_id } item-info]
+  (let [{item-id :item_id
+         is-complete :is_complete
+         is-deleted :is_deleted} item-info]
     [:div.item-row.order-drop-target
      (cond-> {:id (str "item_row_" (:item_id item-info))
               :itemid item-id
@@ -188,15 +190,16 @@
        (list
         (item-drag-handle "left" item-info)
         [:div.item-control.complete {:id (str "item_control_" item-id)}
-         (if editing?
-           (delete-item-button item-info list-id)
-           (if (or (:is_complete item-info) (:is_deleted item-info))
-             (restore-item-button item-info)
+         (if (or is-complete is-deleted)
+           (restore-item-button item-info)
+           (if editing?
+             (delete-item-button item-info list-id)
              (complete-item-button item-info)))]))
      [:div.item-control.priority.left
       (render-item-priority-control item-id (:priority item-info) writable?)]
      [:div.item-description {:itemid item-id}
-      (if editing?
+      (if (and editing?
+               (not (or is-complete is-deleted)))
         [:textarea (cond-> {:maxlength 1024
                             :name "description"
                             :item-id item-id
@@ -205,8 +208,8 @@
                      editing? (assoc "autofocus" "on"))
          (item-info :desc)]
         [:div {:id (str "item_" item-id)
-               :class (class-set {"deleted-item" (:is_deleted item-info)
-                                  "completed-item" (:is_complete item-info)})}
+               :class (class-set {"deleted-item" is-deleted
+                                  "completed-item" is-complete})}
          (render-item-text (item-info :desc))
          (render-item-snooze-button item-info max-item-age)
          (render-item-creator-indication item-info)])]
