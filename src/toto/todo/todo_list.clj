@@ -155,7 +155,8 @@
     "This is a todo list view, where it is possible to see the contents of"
     " more than one list on a single page. To make this work, you need to "
     " add a few lists to the view, which can be done "
-    [:a {:href (shref "/list/" (encode-list-id list-id) "/details")} "here"] "."]])
+    [:a {:href (shref "/list/" (encode-list-id list-id) {:modal "details"})}
+     "here"] "."]])
 
 (defn- render-todo-list-view-section [ sublist-details key other-key]
   (let [ items (key sublist-details ) ]
