@@ -51,12 +51,12 @@
    {:class "new-item-form"}
    [:post (shref "/list")]
    (hiccup-form/text-field {:maxlength "32"
-                     :placeholder "New List Name"
-                     :autofocus "autofocus"}
-                    "list-description")
-   [:div
-    (hiccup-form/check-box "is-view" false "Y")
-    [:label {:for "is-view"} "View"]]))
+                            :placeholder "New List Name"
+                            :autofocus "autofocus"}
+                           "list-description")
+   [:select {:id "list-type" :name "list-type"}
+    (hiccup-form/select-options [["List" "list"]
+                                 ["View" "view"]])]))
 
 (defn- render-list-manager-query-settings []
   [:div.query-settings

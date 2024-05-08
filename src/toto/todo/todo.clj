@@ -71,9 +71,9 @@
 
 (defn- add-list [ params ]
   (let [{list-description :list-description
-         is-view :is-view} params
+         list-type :list-type} params
         list-description (string-leftmost list-description 32)
-        is-view (= is-view "Y")]
+        is-view (= list-type "view")]
     (if (string-empty? list-description)
       (redirect-to-home-list)
       (let [ list-id (data/add-list list-description is-view) ]
