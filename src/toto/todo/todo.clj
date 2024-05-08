@@ -212,6 +212,9 @@
     (GET "/completions" { params :params }
       (todo-list/render-todo-list-completions-page list-id params))
 
+    (GET "/delayed" []
+      (todo-list/render-todo-list-delayed-page list-id))
+
     (POST "/" { params :params }
       (add-item list-id params))
 

@@ -99,20 +99,26 @@
 (defn contact-support-button [ ]
   [:a {:href (shref "" {:modal "contact-support" })} "Contact Support"])
 
-(defn- render-standard-header [ title ]
-  [:head
-   [:meta {:name "viewport"
-           ;; user-scalable=no fails to work on iOS n where n > 10
-           :content "width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0"}]
-   [:title
-    (when (config/cval :development-mode) "DEV - ")
-    (config/cval :app :title)
-    (when title (str " - " title))]
-   [:link { :rel "shortcut icon" :href (resource "favicon.ico")}]
-   (hiccup-page/include-css (resource "toto.css")
-                            (resource "font-awesome.min.css"))
-   [:script {:type "module" :src (resource "toto.js")}]
-   (hiccup-page/include-js (resource "DragDropTouch.js"))])
+(defn- render-standard-header [ attrs ]
+  (let [title (:title attrs)
+        client-redirect-time (:client-redirect-time attrs)
+        client-redirect (:client-redirect attrs)]
+    [:head
+     [:meta {:name "viewport"
+             ;; user-scalable=no fails to work on iOS n where n > 10
+             :content "width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0"}]
+     (when client-redirect
+       [:meta {:http-equiv "refresh"
+               :content (str (or client-redirect-time 2) "; url=" client-redirect)}])
+     [:title
+      (when (config/cval :development-mode) "DEV - ")
+      (config/cval :app :title)
+      (when title (str " - " title))]
+     [:link { :rel "shortcut icon" :href (resource "favicon.ico")}]
+     (hiccup-page/include-css (resource "toto.css")
+                              (resource "font-awesome.min.css"))
+     [:script {:type "module" :src (resource "toto.js")}]
+     (hiccup-page/include-js (resource "DragDropTouch.js"))]))
 
 (defn- render-header [ page-title show-menu? ]
   (let [ username (auth/current-identity)]
@@ -183,5 +189,5 @@
 (defn render-page [ attrs & contents]
   (hiccup-page/html5
    [:html
-    (render-standard-header (:title attrs))
+    (render-standard-header attrs)
     (render-page-body attrs contents)]))
