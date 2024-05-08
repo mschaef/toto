@@ -516,7 +516,7 @@ function setupScrollListeners() {
     });
 }
 
-document.addEventListener("turbo:before-visit", function(event) {
+document.addEventListener("turbo:before-render", function(event) {
     saveScrolls();
 });
 
