@@ -143,6 +143,7 @@ SELECT item.item_id,
    AND (NOT(item.is_deleted OR item.is_complete)
         OR item.updated_on >
                DATEADD('day', :completed_within_days, CURRENT_TIMESTAMP))
+   AND item.priority >= :min_item_priority
    ORDER BY item.priority DESC,
             item.item_ordinal,
             item.created_on

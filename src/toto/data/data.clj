@@ -322,10 +322,11 @@
    (query/get-item-count {:list_id list-id }
                          { :connection (current-db-connection) })))
 
-(defn get-pending-items [ list-id completed-within-days snoozed-within-days ]
+(defn get-pending-items [ list-id completed-within-days snoozed-within-days min-item-priority ]
   (query/get-pending-items {:list_id list-id
                             :completed_within_days (- completed-within-days)
-                            :snoozed_within_days snoozed-within-days}
+                            :snoozed_within_days snoozed-within-days
+                            :min_item_priority min-item-priority}
                            { :connection (current-db-connection) }))
 
 (defn get-completed-items [ list-id completed-within-days ]
