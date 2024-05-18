@@ -36,5 +36,4 @@
      (route/resources resources-path)
      user/all-routes
      app-routes
-     error-handling/all-routes
-     (route/not-found "Resource Not Found"))))
+     error-handling/all-routes)))

@@ -28,7 +28,7 @@
             [playbook.config :as config]
             [toto.util :as util]))
 
-(defn error-page [ & { :keys [ uuid  ]}]
+(defn error-page [ & { :keys [ uuid ]}]
   (render-page { :title "Unexpected Error"}
                [:div.page-message
                 [:h1 "Unexpected Error"]
@@ -42,10 +42,22 @@
                    "Error reference code: " [:code uuid]
                    (copy-button uuid "Copy Code")])]))
 
+(defn page-not-found [ req ]
+  (log/warn "Page not found:" (:uri req))
+  (render-page { :title "Page Not Found"}
+               [:div.page-message
+                [:h1 "Page Not Found"]
+                [:p
+                 "We can't find the page you're looking for. Please"
+                 " return to the home page " [:a {:href "/"} "here"]
+                 " and try again."]]))
+
 (defroutes all-routes
   (GET "/error" { params :params }
     (error-page params))
 
   (GET "/induce-error" []
     (when (config/cval :development-mode)
-      (throw (Exception. "Induced Error")))))
+      (throw (Exception. "Induced Error"))))
+
+  (route/not-found page-not-found))
