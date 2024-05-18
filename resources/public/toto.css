@@ -1100,7 +1100,7 @@ form.details {
         display: none;
     }
 
-    .logout-control {
+    .session-controls {
         display: none;
     }
 
@@ -1111,6 +1111,10 @@ form.details {
 
     .item-control.complete {
         display: none;
+    }
+
+    .app-name {
+        display: inline;
     }
 
     .priority.left {
@@ -1137,7 +1141,7 @@ form.details {
         display: none;
     }
 
-    .item-row.item-drag-handle {
+    .item-row .item-drag-handle {
         display: none;
     }
 }
