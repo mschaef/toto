@@ -33,6 +33,7 @@
             [hiccup.form :as form]
             [playbook.config :as config]
             [toto.core.mail :as mail]
+            [toto.data.base :as base]
             [toto.data.data :as data]
             [toto.view.auth :as auth]))
 
@@ -171,7 +172,7 @@
        (form/submit-button {} "Register")])))
 
 (defn get-verification-link-by-user-id [ link-type user-id ]
-  (let [verification-link (data/get-verification-link-by-user-id user-id)]
+  (let [verification-link (base/get-verification-link-by-user-id user-id)]
     (str (config/cval :base-url) "user/" link-type "/" user-id "/"
          (:link_uuid verification-link))))
 
@@ -189,7 +190,7 @@
     " e-mail, and we won't send anything else."]])
 
 (defn- send-verification-link [ user-id ]
-  (let [user (data/get-user-by-id user-id)
+  (let [user (base/get-user-by-id user-id)
         link-url (get-verification-link-by-user-id "verify" user-id)]
     (mail/send-email {:to [ (:email_addr user) ]
                       :subject "Todo - Verify Account"
@@ -206,7 +207,7 @@
     "to-do list manager."]])
 
 (defn- send-unlock-link [ user-id ]
-  (let [user (data/get-user-by-id user-id)
+  (let [user (base/get-user-by-id user-id)
         link-url (get-verification-link-by-user-id "unlock" user-id)]
     (mail/send-email {:to [ (:email_addr user) ]
                       :subject "Todo - Unlock Account"
@@ -223,7 +224,7 @@
     ", the family to-do list manager."]])
 
 (defn- send-reset-link [ user-id ]
-  (let [user (data/get-user-by-id user-id)
+  (let [user (base/get-user-by-id user-id)
         link-url (get-verification-link-by-user-id "reset" user-id)]
     (mail/send-email {:to [ (:email_addr user) ]
                       :subject "Todo - Reset Account Password"
@@ -245,7 +246,7 @@
       (not (= password password-2))
       (render-new-user-form :error-message "Passwords do not match.")
 
-      (data/user-email-exists? email-addr)
+      (base/user-email-exists? email-addr)
       (render-new-user-form :error-message "User with this e-mail address already exists.")
 
       :else
@@ -256,7 +257,7 @@
 (def date-format (java.text.SimpleDateFormat. "yyyy-MM-dd hh:mm aa"))
 
 (defn render-user-info-form [ & { :keys [ error-message ]}]
-  (let [user (data/get-user-by-email (auth/current-identity))]
+  (let [user (base/get-user-by-email (auth/current-identity))]
     (render-page { :title "User Information" }
                  (form/form-to
                   [:post "/user/info"]
@@ -294,12 +295,12 @@
 (defn update-user-info [ name ]
   (if-let [name (validate-name name)]
     (do
-      (data/set-user-name (auth/current-identity) name)
+      (base/set-user-name (auth/current-identity) name)
       (ring/redirect "/user/info"))
     (render-user-info-form :error-message "Invalid Name")))
 
 (defn render-change-password-form  [ & { :keys [ error-message ]}]
-  (let [user (data/get-user-by-email (auth/current-identity))]
+  (let [user (base/get-user-by-email (auth/current-identity))]
     (render-page { :title "Change Password" }
                  (form/form-to {:class "auth-form"
                                 :data-turbo "false"}
@@ -361,9 +362,9 @@
                    "your lists" [:a {:href "/"} " here"] "."]])  )
 
 (defn- get-link-verified-user [ link-user-id link-uuid ]
-  (when-let [ user-id (:verifies_user_id (data/get-verification-link-by-uuid link-uuid)) ]
+  (when-let [ user-id (:verifies_user_id (base/get-verification-link-by-uuid link-uuid)) ]
     (when (= link-user-id user-id)
-      (data/get-user-by-id user-id))))
+      (base/get-user-by-id user-id))))
 
 (defn render-password-reset-form [ link-user-id link-uuid error-message ]
   (when-let [ user (get-link-verified-user link-user-id link-uuid)]
@@ -398,26 +399,26 @@
         (auth/set-user-password (:email_addr user) new-password)
         ;; Resetting the password via a link also serves to
         ;; unlock the account.
-        (data/reset-login-failures (:user_id user))
+        (base/reset-login-failures (:user_id user))
         (ring/redirect "/user/password-reset-success")))))
 
 (defn- ensure-verification-link [ user-id ]
-  (unless (data/get-verification-link-by-user-id user-id)
-    (data/create-verification-link user-id)))
+  (unless (base/get-verification-link-by-user-id user-id)
+    (base/create-verification-link user-id)))
 
 (defn- development-verification-form [ user-id ]
   [:div.dev-tool
-   (let [ link-uuid (:link_uuid (data/get-verification-link-by-user-id user-id))]
+   (let [ link-uuid (:link_uuid (base/get-verification-link-by-user-id user-id))]
      [:a {:href (str "/user/verify/" user-id "/" link-uuid)} "Verify"])])
 
 (defn- development-unlock-form [ user-id ]
   [:div.dev-tool
-   (let [ link-uuid (:link_uuid (data/get-verification-link-by-user-id user-id))]
+   (let [ link-uuid (:link_uuid (base/get-verification-link-by-user-id user-id))]
      [:a {:href (str "/user/unlock/" user-id "/" link-uuid)} "Unlock"])])
 
 (defn- development-reset-form [ user-id ]
   [:div.dev-tool
-   (let [ link-uuid (:link_uuid (data/get-verification-link-by-user-id user-id))]
+   (let [ link-uuid (:link_uuid (base/get-verification-link-by-user-id user-id))]
      [:a {:href (str "/user/reset/" user-id "/" link-uuid)} "Reset"])])
 
 (defn- development-no-user-form []
@@ -425,7 +426,7 @@
    "No user with this e-mail address exists"])
 
 (defn enter-verify-workflow [ user-id ]
-  (let [ user (data/get-user-by-id user-id) ]
+  (let [ user (base/get-user-by-id user-id) ]
     (ensure-verification-link user-id)
     (send-verification-link user-id)
     (render-page { :title "e-Mail Address Verification" }
@@ -441,7 +442,7 @@
 
 (defn verify-user [ link-user-id link-uuid ]
   (when-let [ user (get-link-verified-user link-user-id link-uuid ) ]
-    (data/add-user-roles (:user_id user) #{:toto.role/verified})
+    (base/add-user-roles (:user_id user) #{:toto.role/verified})
     (render-page { :title "e-Mail Address Verified" }
                  [:div.page-message
                   [:h1 "e-Mail Address Verified"]
@@ -451,7 +452,7 @@
                   [:a {:href "/"} "Login"]])))
 
 (defn enter-unlock-workflow [ user-id ]
-  (let [user (data/get-user-by-email (auth/current-identity))]
+  (let [user (base/get-user-by-email (auth/current-identity))]
     (ensure-verification-link user-id)
     (send-unlock-link user-id)
     (render-page { :title "Unlock Account" }
@@ -466,7 +467,7 @@
 
 (defn unlock-user [ link-user-id link-uuid ]
   (when-let [ user (get-link-verified-user link-user-id link-uuid ) ]
-    (data/reset-login-failures (:user_id user))
+    (base/reset-login-failures (:user_id user))
     (render-page { :title "Account Unlocked" }
                  [:div.page-message
                   [:h1 "Account Unlocked"]
@@ -476,7 +477,7 @@
                   [:a {:href "/"} "Login"]])))
 
 (defn enter-password-reset-workflow [ email-addr ]
-  (let [user (data/get-user-by-email email-addr)
+  (let [user (base/get-user-by-email email-addr)
         user-id (and user (:user_id user))]
     (when user-id
       (ensure-verification-link user-id)
