@@ -23,7 +23,7 @@
   (:gen-class :main true)
   (:use playbook.main)
   (:require [playbook.config :as config]
-            [toto.site.main :as main]))
+            [toto.core.site.main :as main]))
 
 (defmain [ & args ]
   (main/app-start (config/cval)))

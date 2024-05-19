@@ -18,7 +18,7 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns toto.site.error-handling
+(ns toto.core.site.error-handling
   (:use playbook.core
         compojure.core
         toto.view.components

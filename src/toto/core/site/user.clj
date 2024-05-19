@@ -19,7 +19,7 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns toto.site.user
+(ns toto.core.site.user
   (:use playbook.core
         compojure.core
         hiccup.core

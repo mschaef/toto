@@ -19,15 +19,15 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns toto.site.routes
+(ns toto.core.site.routes
   (:use playbook.core
         compojure.core)
   (:require [taoensso.timbre :as log]
             [compojure.route :as route]
             [playbook.config :as config]
             [toto.util :as util]
-            [toto.site.user :as user]
-            [toto.site.error-handling :as error-handling]))
+            [toto.core.site.user :as user]
+            [toto.core.site.error-handling :as error-handling]))
 
 (defn all-routes [ app-routes ]
   (let [ resources-path (str "/" (util/get-version)) ]

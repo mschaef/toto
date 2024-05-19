@@ -65,8 +65,6 @@
            (+ (or (try-parse-integer verify-n-1) -1)
               (or (try-parse-integer verify-n-2) -1))))))
 
-
-
 (defn render-duration-select [ id current-value query-durations autosubmit? ]
   [:select (cond-> { :id id :name id }
              autosubmit? (merge {:onchange "this.form.submit()"}))

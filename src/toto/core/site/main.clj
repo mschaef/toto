@@ -19,7 +19,7 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns toto.site.main
+(ns toto.core.site.main
   (:gen-class :main true)
   (:use playbook.core
         compojure.core
@@ -34,7 +34,7 @@
             [toto.core.data.data :as core-data]
             [toto.data.data :as data]
             [toto.todo.sunset :as sunset]
-            [toto.site.routes :as routes]
+            [toto.core.site.routes :as routes]
             [toto.todo.todo :as todo]))
 
 (defn- start-scheduled-jobs [ db-conn-pool session-store ]

@@ -41,7 +41,7 @@
             [toto.core.gdpr :as gdpr]
             [toto.view.common :as view-common]
             [toto.view.query :as view-query]
-            [toto.site.user :as user]))
+            [toto.core.site.user :as user]))
 
 (defn- wrap-request-logging [ app development-mode? ]
   (fn [req]
