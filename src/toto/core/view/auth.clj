@@ -19,7 +19,7 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns toto.view.auth
+(ns toto.core.view.auth
   (:use playbook.core
         compojure.core)
   (:require [taoensso.timbre :as log]

@@ -21,8 +21,8 @@
 (ns toto.core.site.error-handling
   (:use playbook.core
         compojure.core
-        toto.view.components
-        toto.view.page)
+        toto.core.view.components
+        toto.core.view.page)
   (:require [taoensso.timbre :as log]
             [compojure.route :as route]
             [playbook.config :as config]

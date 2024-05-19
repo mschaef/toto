@@ -19,8 +19,8 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns toto.view.icons
-  (:use toto.view.common))
+(ns toto.core.view.icons
+  (:use toto.core.view.common))
 
 (def img-drag-handle [:img {:class "icon-drag-handle"
                             :src (resource "drag-vertical.svg")}])

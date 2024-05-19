@@ -21,13 +21,13 @@
 
 (ns toto.todo.sidebar
   (:use playbook.core
-        toto.view.common
-        toto.view.icons
-        toto.view.query
+        toto.core.view.common
+        toto.core.view.icons
+        toto.core.view.query
         toto.todo.ids)
   (:require [taoensso.timbre :as log]
             [toto.data.data :as data]
-            [toto.view.auth :as auth]))
+            [toto.core.view.auth :as auth]))
 
 (defn render-list-visibility-flag [ list ]
   (let [{is-public :is_public

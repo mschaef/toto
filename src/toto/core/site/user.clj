@@ -23,10 +23,10 @@
   (:use playbook.core
         compojure.core
         hiccup.core
-        toto.view.common
-        toto.view.components
-        toto.view.query
-        toto.view.page)
+        toto.core.view.common
+        toto.core.view.components
+        toto.core.view.query
+        toto.core.view.page)
   (:require [taoensso.timbre :as log]
             [ring.util.response :as ring]
             [cemerick.friend :as friend]
@@ -35,7 +35,7 @@
             [toto.core.mail :as mail]
             [toto.core.data.data :as core-data]
             [toto.data.data :as data]
-            [toto.view.auth :as auth]))
+            [toto.core.view.auth :as auth]))
 
 (defn user-unauthorized [ request ]
   (render-page { :title "Access Denied"}

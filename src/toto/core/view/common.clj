@@ -19,7 +19,7 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns toto.view.common
+(ns toto.core.view.common
   (:use playbook.core)
   (:require [toto.util :as util]))
 

@@ -1,17 +1,17 @@
 (ns toto.todo.modals
   (:use playbook.core
-        toto.view.common
-        toto.view.icons
-        toto.view.components
-        toto.view.query
-        toto.view.page
+        toto.core.view.common
+        toto.core.view.icons
+        toto.core.view.components
+        toto.core.view.query
+        toto.core.view.page
         toto.todo.ids)
   (:require [taoensso.timbre :as log]
             [hiccup.form :as hiccup-form]
             [hiccup.util :as hiccup-util]
             [playbook.config :as config]
             [toto.data.data :as data]
-            [toto.view.auth :as auth]
+            [toto.core.view.auth :as auth]
             [toto.todo.todo-item :as todo-item]))
 
 (defn render-snooze-modal [ params list-id ]

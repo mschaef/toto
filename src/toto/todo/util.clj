@@ -21,13 +21,13 @@
 
 (ns toto.todo.util
   (:use playbook.core
-        toto.view.query
-        toto.view.page
+        toto.core.view.query
+        toto.core.view.page
         toto.todo.ids)
   (:require [taoensso.timbre :as log]
             [ring.util.response :as ring]
             [toto.data.data :as data]
-            [toto.view.auth :as auth]))
+            [toto.core.view.auth :as auth]))
 
 (defn current-todo-list-id []
   (auth/authorize-expected-roles

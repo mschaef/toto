@@ -39,8 +39,8 @@
             [playbook.config :as config]
             [toto.core.session :as session]
             [toto.core.gdpr :as gdpr]
-            [toto.view.common :as view-common]
-            [toto.view.query :as view-query]
+            [toto.core.view.common :as view-common]
+            [toto.core.view.query :as view-query]
             [toto.core.site.user :as user]))
 
 (defn- wrap-request-logging [ app development-mode? ]

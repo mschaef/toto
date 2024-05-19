@@ -21,16 +21,16 @@
 
 (ns toto.todo.todo-item
   (:use playbook.core
-        toto.view.common
-        toto.view.icons
-        toto.view.components
-        toto.view.query
-        toto.view.page
+        toto.core.view.common
+        toto.core.view.icons
+        toto.core.view.components
+        toto.core.view.query
+        toto.core.view.page
         toto.todo.ids)
   (:require [taoensso.timbre :as log]
             [hiccup.util :as hiccup-util]
             [playbook.config :as config]
-            [toto.view.auth :as auth]
+            [toto.core.view.auth :as auth]
             [toto.data.data :as data]))
 
 (defn valentines-day? []
