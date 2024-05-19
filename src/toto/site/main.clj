@@ -31,7 +31,7 @@
             [toto.core.backup :as backup]
             [toto.core.session :as session]
             [toto.core.web :as web]
-            [toto.data.base :as base]
+            [toto.core.data.data :as core-data]
             [toto.data.data :as data]
             [toto.todo.sunset :as sunset]
             [toto.site.routes :as routes]
@@ -48,7 +48,7 @@
                                  (sunset/item-sunset-job)))
       (scheduler/schedule-job :verification-link-cull
                               #(with-db-connection db-conn-pool
-                                 (base/delete-old-verification-links)))))
+                                 (core-data/delete-old-verification-links)))))
 
 (defn- db-conn-spec [ config ]
   {:name (or (config/property "db.subname")

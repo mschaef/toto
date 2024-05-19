@@ -27,7 +27,7 @@
             [clojure.java.jdbc :as jdbc]
             [sql-file.core :as sql-file]
             [toto.data.queries :as query]
-            [toto.data.base :as base]))
+            [toto.core.data.data :as core-data]))
 
 (defn get-todo-list-by-id [ list-id ]
   (first
@@ -309,7 +309,7 @@
   (update-item-by-id! user-id item-id {:is_deleted true}))
 
 (defn get-system-user-id []
-  (:user_id (base/get-user-by-email "toto@mschaef.com")))
+  (:user_id (core-data/get-user-by-email "toto@mschaef.com")))
 
 (defn get-sunset-items-by-id [ list-id age-limit ]
   (query/get-sunset-items-by-id {:todo_list_id list-id

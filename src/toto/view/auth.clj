@@ -27,13 +27,13 @@
             [cemerick.friend :as friend]
             [cemerick.friend.workflows :as workflows]
             [playbook.config :as config]
-            [toto.data.base :as base]
+            [toto.core.data.data :as core-data]
             [toto.data.data :as data]
             [toto.core.mail :as mail]))
 
 
 (defn get-user-id-by-email [ email ]
-  (if-let [ user-info (base/get-user-by-email email) ]
+  (if-let [ user-info (core-data/get-user-by-email email) ]
     (user-info :user_id)
     nil))
 
@@ -77,10 +77,10 @@
 
         :else
         (clojure.set/union
-         #{:toto.role/user} (base/get-user-roles (:user_id user-record)))))
+         #{:toto.role/user} (core-data/get-user-roles (:user_id user-record)))))
 
 (defn get-auth-map-by-email [ email ]
-  (if-let [user-record (base/get-user-by-email email)]
+  (if-let [user-record (core-data/get-user-by-email email)]
     {:identity email
      :user-record user-record
      :user-id (user-record :user_id)
@@ -95,12 +95,12 @@
     (cond
       (credentials/bcrypt-verify (creds :password) (get-in auth-map [:user-record :password]))
       (do
-        (base/record-user-login (creds :username) *request-ip*)
+        (core-data/record-user-login (creds :username) *request-ip*)
         (update-in auth-map [:user-record] dissoc :password))
 
       :else
       (do
-        (base/record-user-login-failure (:user-id auth-map) *request-ip*)
+        (core-data/record-user-login-failure (:user-id auth-map) *request-ip*)
         nil))
     nil))
 
@@ -128,11 +128,11 @@
 
 (defn set-user-password [ username password ]
   (log/info "Changing password for user:" username)
-  (base/set-user-password username (credentials/hash-bcrypt password))
+  (core-data/set-user-password username (credentials/hash-bcrypt password))
   (send-password-change-message username))
 
 (defn create-user [ friendly-name email-addr password ]
-  (base/add-user friendly-name email-addr (credentials/hash-bcrypt password)))
+  (core-data/add-user friendly-name email-addr (credentials/hash-bcrypt password)))
 
 (defn password-change-workflow [ ]
   (fn [{:keys [uri request-method params]}]

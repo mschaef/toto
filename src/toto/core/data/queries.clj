@@ -19,7 +19,7 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns toto.data.base-queries
+(ns toto.core.data.queries
   (:require [ yesql.core :refer [ defqueries ]]))
 
-(defqueries "toto/data/base_queries.sql")
+(defqueries "toto/core/data/queries.sql")
