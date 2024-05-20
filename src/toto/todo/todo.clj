@@ -204,7 +204,7 @@
     (redirect-to-home-list)
     (landing-page/render-landing-page params)))
 
-(defn- list-routes [ config list-id ]
+(defn- list-routes [ list-id ]
   (when-let-route [list-id (accept-authorized-list-id list-id)]
     (GET "/" { params :params }
       (todo-list/render-todo-list-page list-id params))
