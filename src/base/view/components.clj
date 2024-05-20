@@ -19,14 +19,14 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns toto.core.view.components
+(ns base.view.components
   (:use playbook.core
-        toto.core.view.query
+        base.view.query
         hiccup.def)
   (:require [clojure.data.json :as json]
             [taoensso.timbre :as log]
             [hiccup.form :as hiccup-form]
-            [toto.core.view.auth :as auth]))
+            [base.view.auth :as auth]))
 
 (defelem scroll-column [ id title & contents ]
   [:div.scroll-column

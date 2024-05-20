@@ -19,7 +19,7 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns toto.core.view.query
+(ns base.view.query
   (:require [taoensso.timbre :as log]))
 
 ;;; Persistent Query

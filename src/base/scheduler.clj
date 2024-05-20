@@ -19,7 +19,7 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns toto.core.scheduler
+(ns base.scheduler
   (:use playbook.core
         sql-file.middleware)
   (:require [taoensso.timbre :as log]

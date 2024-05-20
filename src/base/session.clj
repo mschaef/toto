@@ -19,7 +19,7 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns toto.core.session
+(ns base.session
   (:use playbook.core
         sql-file.sql-util
         sql-file.middleware)

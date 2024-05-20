@@ -22,17 +22,17 @@
 (ns toto.todo.todo-list-manager
   (:use playbook.core
         compojure.core
-        toto.core.view.common
-        toto.core.view.icons
-        toto.core.view.components
-        toto.core.view.query
-        toto.core.view.page
+        base.view.common
+        base.view.icons
+        base.view.components
+        base.view.query
+        base.view.page
         toto.todo.ids)
   (:require [taoensso.timbre :as log]
             [hiccup.form :as hiccup-form]
             [hiccup.util :as hiccup-util]
             [toto.data.data :as data]
-            [toto.core.view.auth :as auth]
+            [base.view.auth :as auth]
             [toto.todo.sidebar :as sidebar]))
 
 (defn- list-priority-button [ list-id new-priority image-spec ]

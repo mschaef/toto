@@ -19,12 +19,12 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns toto.core.backup
+(ns base.backup
   (:use playbook.core
         sql-file.middleware)
   (:require [taoensso.timbre :as log]
             [sql-file.core :as sql-file]
-            [toto.core.scheduler :as scheduler]
+            [base.scheduler :as scheduler]
             [playbook.config :as config]))
 
 ;;; backup

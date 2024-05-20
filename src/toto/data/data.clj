@@ -27,7 +27,7 @@
             [clojure.java.jdbc :as jdbc]
             [sql-file.core :as sql-file]
             [toto.data.queries :as query]
-            [toto.core.data.data :as core-data]))
+            [base.data.data :as core-data]))
 
 (defn get-todo-list-by-id [ list-id ]
   (first

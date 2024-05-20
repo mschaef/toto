@@ -19,14 +19,14 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns toto.core.data.data
+(ns base.data.data
   (:use playbook.core
         sql-file.sql-util
         sql-file.middleware)
   (:require [taoensso.timbre :as log]
             [clojure.java.jdbc :as jdbc]
             [sql-file.core :as sql-file]
-            [toto.core.data.queries :as query]))
+            [base.data.queries :as query]))
 
 (defn get-user-roles [ user-id ]
   (set

@@ -21,11 +21,11 @@
 
 (ns toto.todo.landing-page
   (:use playbook.core
-        toto.core.view.common
-        toto.core.view.icons
-        toto.core.view.components
-        toto.core.view.query
-        toto.core.view.page)
+        base.view.common
+        base.view.icons
+        base.view.components
+        base.view.query
+        base.view.page)
   (:require [taoensso.timbre :as log]
             [hiccup.form :as form]))
 

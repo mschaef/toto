@@ -20,7 +20,7 @@
 ;; You must not remove this notice, or any other, from this software.
 
 
-(ns toto.core.web
+(ns base.web
   (:gen-class :main true)
   (:use playbook.core
         compojure.core
@@ -37,11 +37,11 @@
             [ring.util.response :as ring-response]
             [compojure.handler :as handler]
             [playbook.config :as config]
-            [toto.core.session :as session]
-            [toto.core.gdpr :as gdpr]
-            [toto.core.view.common :as view-common]
-            [toto.core.view.query :as view-query]
-            [toto.core.site.user :as user]))
+            [base.session :as session]
+            [base.gdpr :as gdpr]
+            [base.view.common :as view-common]
+            [base.view.query :as view-query]
+            [base.site.user :as user]))
 
 (defn- wrap-request-logging [ app development-mode? ]
   (fn [req]

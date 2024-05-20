@@ -19,7 +19,7 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns toto.core.mail
+(ns base.mail
   (:use playbook.core)
   (:require [taoensso.timbre :as log]
             [postal.core :as postal]
