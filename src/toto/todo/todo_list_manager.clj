@@ -22,21 +22,21 @@
 (ns toto.todo.todo-list-manager
   (:use playbook.core
         compojure.core
-        toto.view.common
-        toto.view.icons
-        toto.view.components
-        toto.view.query
-        toto.view.page
+        base.view.common
+        base.view.icons
+        base.view.components
+        base.view.query
+        base.view.page
         toto.todo.ids)
   (:require [taoensso.timbre :as log]
             [hiccup.form :as hiccup-form]
             [hiccup.util :as hiccup-util]
             [toto.data.data :as data]
-            [toto.view.auth :as auth]
+            [base.view.auth :as auth]
             [toto.todo.sidebar :as sidebar]))
 
 (defn- list-priority-button [ list-id new-priority image-spec ]
-  (post-button {:target (shref "/list/" (encode-list-id list-id) "/priority")
+  (post-button {:target (str "/list/" (encode-list-id list-id) "/priority")
                 :args {:new-priority new-priority}
                 :desc "Set List Priority"}
                image-spec))
@@ -46,22 +46,17 @@
     (list-priority-button list-id 1 img-star-gray)
     (list-priority-button list-id 0 img-star-yellow)))
 
-(defn render-list-arrow-control [ list-id priority ]
-  (if (>= priority 0)
-    (list-priority-button list-id -1 img-arrow-gray)
-    (list-priority-button list-id 0 img-arrow-blue)))
-
 (defn render-new-list-form [ ]
   (hiccup-form/form-to
    {:class "new-item-form"}
    [:post (shref "/list")]
    (hiccup-form/text-field {:maxlength "32"
-                     :placeholder "New List Name"
-                     :autofocus "autofocus"}
-                    "list-description")
-   [:div
-    (hiccup-form/check-box "is-view" false "Y")
-    [:label {:for "is-view"} "View"]]))
+                            :placeholder "New List Name"
+                            :autofocus "autofocus"}
+                           "list-description")
+   [:select {:id "list-type" :name "list-type"}
+    (hiccup-form/select-options [["List" "list"]
+                                 ["View" "view"]])]))
 
 (defn- render-list-manager-query-settings []
   [:div.query-settings
@@ -83,15 +78,27 @@
                                        "deleted-item" is-deleted?})}
      [:div.item-control
       (render-list-star-control list-id priority)]
-     [:div.item-control
-      (render-list-arrow-control list-id priority)]
      [:div.item-description
-      [:a {:href (if is-deleted?
-                   (shref "/list/" (encode-list-id list-id) "/deleted" without-modal)
-                   (shref "/list/" (encode-list-id list-id) {:modal "details"}))}
+      [:a.list-link {:href (shref "/list/" (encode-list-id list-id) without-modal)}
        (hiccup.util/escape-html desc)
        [:span.pill item-count]]
-      (sidebar/render-list-visibility-flag list-info)]]))
+      (if (< priority 0)
+        (list-priority-button list-id 0 "Unhide List")
+        (list-priority-button list-id -1 "Hide List"))
+            (sidebar/render-list-visibility-flag list-info)
+]
+
+     [:a.details-link {:href (shref "/list/" (encode-list-id list-id)
+                                    {:modal "details"})}
+      "Details"]
+     [:a.details-link {:href (shref "/list/" (encode-list-id list-id) "/completions")}
+      "Completed"]
+     [:a.details-link {:href (shref "/list/" (encode-list-id list-id)
+                                    {:modal "share-with"})}
+      "Sharing"]]))
+
+
+
 
 (defn render-list-manager-page [ params ]
   (let [include-deleted (= (:deleted params) "yes")]

@@ -4,8 +4,9 @@
 
  :base-url "http://localhost:8080"
  :db {:subname "./local-db/toto"
-      :backup-path "./local-db"
-      :backup-cron "0 */1 * * *"}
+      :backup-path "./local-db"}
  :smtp {:enabled false
         :from "mike@mschaef.com"}
- :admin-mails ["mike@mschaef.com"]}
+ :admin-mails ["mike@mschaef.com"]
+
+ :job-schedule {:db-backup "0 */1 * * *"}}

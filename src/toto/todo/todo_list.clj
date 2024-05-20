@@ -21,17 +21,17 @@
 
 (ns toto.todo.todo-list
   (:use playbook.core
-        toto.view.common
-        toto.view.icons
-        toto.view.components
-        toto.view.query
-        toto.view.page
+        base.view.common
+        base.view.icons
+        base.view.components
+        base.view.query
+        base.view.page
         toto.todo.ids)
   (:require [taoensso.timbre :as log]
             [hiccup.form :as hiccup-form]
             [hiccup.util :as hiccup-util]
             [toto.data.data :as data]
-            [toto.view.auth :as auth]
+            [base.view.auth :as auth]
             [toto.todo.modals :as modals]
             [toto.todo.sidebar :as sidebar]
             [toto.todo.todo-item :as todo-item]
@@ -65,33 +65,40 @@
 (def query-durations [1 7 30 90 365 730])
 
 (defn- render-todo-list-query-settings [ list-id completed-within-days snoozed-for-days ]
-  [:div.query-settings
-   (hiccup-form/form-to { :class "embedded "} [:get (shref "/list/" (encode-list-id list-id))]
-                 [:div.control-segment
-                  [:a {:href (shref "/list/" (encode-list-id list-id) "/completions")}
-                   "[recently completed]"]]
-                 (when (not (:is_view (data/get-todo-list-by-id list-id)))
-                   (list
-                    [:div.control-segment
-                     [:a {:href (shref "/list/" (encode-list-id list-id)
-                                       {:modal "share-with"})}
-                      "[share list]"]]
-                   [:div.control-segment
-                    [:a {:href (shref "/list/" (encode-list-id list-id)
-                                      {:modal "sort-list"})}
-                     "[sort list]"]]))
-                 [:div.control-segment
-                  [:a {:href (shref "/list/" (encode-list-id list-id) {:modal "details"})}
-                   "[list details]"]]
-                 [:div.control-segment
-                  [:a {:href (str "/list/" (encode-list-id list-id))}
-                   " [default view]"]]
-                 [:div.control-segment
-                  [:label {:for "cwithin"}
-                   "Completed within: "]
-                  (render-duration-select "cwithin" completed-within-days query-durations true)]
-                 [:div.control-segment
-                  [:a { :href (shref "/list/" (encode-list-id list-id) {:modal "update-from"} ) } "[copy from]"]])])
+  (let [is-view (:is_view (data/get-todo-list-by-id list-id))]
+    [:div.query-settings
+     (hiccup-form/form-to {:class "embedded"} [:get (shref "/list/" (encode-list-id list-id))]
+                          [:div.control-segment
+                           [:a {:href (str "/list/" (encode-list-id list-id))}
+                            "[default view]"]]
+                          [:div.control-segment
+                           [:a {:href (shref "/list/" (encode-list-id list-id)
+                                             {:min-item-priority 1})}
+                            "[only starred]"]]
+                          [:div.control-segment
+                           [:label {:for "cwithin"}
+                            "Completed within: "]
+                           (render-duration-select "cwithin" completed-within-days query-durations true)]
+                          [:div.control-segment
+                           [:a {:href (shref "/list/" (encode-list-id list-id)
+                                             {:modal "details"})}
+                            "[list details]"]]
+                          (when (not is-view)
+                            [:div.control-segment
+                             [:a {:href (shref "/list/" (encode-list-id list-id)
+                                               {:modal "share-with"})}
+                              "[share list]"]])
+                          (when (not is-view)
+                            [:div.control-segment
+                             [:a {:href (shref "/list/" (encode-list-id list-id)
+                                               {:modal "sort-list"})}
+                              "[sort list]"]])
+                          [:div.control-segment
+                           [:a { :href (shref "/list/" (encode-list-id list-id)
+                                              {:modal "update-from"} ) }
+                            "[copy from]"]]
+                          [:div.control-segment
+                           (copy-button (todo-list-link list-id) "Copy Link")])]))
 
 (defn- render-todo-list-completion-query-settings [ list-id completed-within-days ]
   [:div.query-settings
@@ -116,10 +123,10 @@
    n-snoozed-items " more item" (if (= n-snoozed-items 1) "" "s" ) " snoozed for later. "
    "Click " [:a {:href (shref "" {:sfor "99999"})} "here"] " to show."])
 
-(defn- todo-list-details [ config view-list-id list-id edit-item-id writable? completed-within-days snoozed-for-days ]
+(defn- todo-list-details [ view-list-id list-id edit-item-id writable? completed-within-days snoozed-for-days min-item-priority ]
   (let [max-item-age (or (:max_item_age (data/get-todo-list-by-id list-id))
                          Integer/MAX_VALUE)
-        pending-items (data/get-pending-items list-id completed-within-days snoozed-for-days)
+        pending-items (data/get-pending-items list-id completed-within-days snoozed-for-days min-item-priority)
         n-snoozed-items (count (filter :visibly_snoozed pending-items))
         display-items (remove :visibly_snoozed pending-items)
         edit-item-id (if edit-item-id (decode-item-id edit-item-id))]
@@ -128,15 +135,15 @@
      :n-snoozed-items n-snoozed-items
 
      :high-priority
-     (map #(todo-item/render-todo-item config view-list-id list-id % writable? (= edit-item-id (:item_id %)) max-item-age)
+     (map #(todo-item/render-todo-item view-list-id list-id % writable? (= edit-item-id (:item_id %)) max-item-age)
           (filter #(> (:priority %) 0) display-items))
 
      :normal-priority
-     (map #(todo-item/render-todo-item config view-list-id list-id % writable? (= edit-item-id (:item_id %)) max-item-age)
+     (map #(todo-item/render-todo-item view-list-id list-id % writable? (= edit-item-id (:item_id %)) max-item-age)
           (filter #(<= (:priority %) 0) display-items))}))
 
-(defn- render-single-todo-list [ config view-list-id list-id edit-item-id writable? completed-within-days snoozed-for-days ]
-  (let [details (todo-list-details config view-list-id list-id edit-item-id writable? completed-within-days snoozed-for-days)]
+(defn- render-single-todo-list [ view-list-id list-id edit-item-id writable? completed-within-days snoozed-for-days min-item-priority ]
+  (let [details (todo-list-details view-list-id list-id edit-item-id writable? completed-within-days snoozed-for-days min-item-priority)]
     (list
      [:div.toplevel-list
       (if (:is-empty? details)
@@ -155,7 +162,8 @@
     "This is a todo list view, where it is possible to see the contents of"
     " more than one list on a single page. To make this work, you need to "
     " add a few lists to the view, which can be done "
-    [:a {:href (shref "/list/" (encode-list-id list-id) "/details")} "here"] "."]])
+    [:a {:href (shref "/list/" (encode-list-id list-id) {:modal "details"})}
+     "here"] "."]])
 
 (defn- render-todo-list-view-section [ sublist-details key other-key]
   (let [ items (key sublist-details ) ]
@@ -172,8 +180,8 @@
              (str " (" other-count " other" (when (not= other-count 1) "s") ")")]))]
        items])))
 
-(defn- render-todo-list-view [ config list-id edit-item-id writable? completed-within-days snoozed-for-days ]
-  (let [ sublists (map #(merge % (todo-list-details config list-id (:sublist_id %) edit-item-id writable? completed-within-days snoozed-for-days))
+(defn- render-todo-list-view [ list-id edit-item-id writable? completed-within-days snoozed-for-days min-item-priority ]
+  (let [ sublists (map #(merge % (todo-list-details list-id (:sublist_id %) edit-item-id writable? completed-within-days snoozed-for-days min-item-priority))
                        (data/get-view-sublists (auth/current-user-id) list-id))]
     [:div.toplevel-list
      (cond
@@ -211,7 +219,7 @@
      "This list automatically sunsets items older than " max-item-age
      " day" (if (not (= max-item-age 1)) "s") "."]))
 
-(defn- render-todo-list [ config list-id edit-item-id writable? completed-within-days snoozed-for-days last-item-list-id ]
+(defn- render-todo-list [ list-id edit-item-id writable? completed-within-days snoozed-for-days last-item-list-id min-item-priority ]
   (scroll-column
    (str "todo-list-scroller-" list-id)
    (when writable?
@@ -220,8 +228,8 @@
    (list
     (render-valentines-day-banner)
     (if (:is_view (data/get-todo-list-by-id list-id))
-      (render-todo-list-view config list-id edit-item-id writable? completed-within-days snoozed-for-days )
-      (render-single-todo-list config list-id list-id edit-item-id writable? completed-within-days snoozed-for-days))
+      (render-todo-list-view list-id edit-item-id writable? completed-within-days snoozed-for-days min-item-priority)
+      (render-single-todo-list list-id list-id edit-item-id writable? completed-within-days snoozed-for-days min-item-priority))
     (when writable?
       (render-todo-list-query-settings list-id completed-within-days snoozed-for-days)))))
 
@@ -263,18 +271,28 @@
                 img-star-yellow))]]])
        completed-items))))
 
-(defn render-deleted-todo-list-page [ list-id params ]
-  (let [min-list-priority (or (try-parse-integer (:min-list-priority params)) 0)]
+(defn render-deleted-todo-list [ list-id  ]
+  [:div.empty-list
+   [:h1
+    "This list has been deleted!"]
+   [:p
+    "To view its contents, you must first restore it."]
+   (hiccup-form/form-to
+    [:post (shref "/list/" (encode-list-id list-id) "/restore")]
+    [:input {:type "submit" :value "Restore List"}])])
+
+(defn render-todo-list-delayed-page [ list-id ]
+  (let [list-href (str "/list/" (encode-list-id list-id))]
     (render-page {:title ((data/get-todo-list-by-id list-id) :desc)
-                  :sidebar (sidebar/render-sidebar list-id min-list-priority 0)}
+                  :client-redirect-time 4
+                  :client-redirect list-href
+                  :page-data-class "todo-list-delayed"}
                  [:div.empty-list
                   [:h1
-                   "This list has been deleted!"]
+                   "Waiting to display list."]
                   [:p
-                   "To view its contents, you must first restore it."]
-                  (hiccup-form/form-to
-                   [:post (shref "/list/" (encode-list-id list-id) "/restore")]
-                   [:input {:type "submit" :value "Restore List"}])])))
+                   "Please wait for the contents of this list. Or click "
+                   [:a {:href list-href} "here"] " to display now."]]))  )
 
 (defn render-todo-list-completions-page [ list-id params ]
   (let [min-list-priority (or (try-parse-integer (:min-list-priority params)) 0)
@@ -292,24 +310,28 @@
                    (render-completed-item-list list-id completed-within-days)
                    (render-todo-list-completion-query-settings list-id completed-within-days)]))))
 
-(defn render-todo-list-page [ config selected-list-id params ]
+(defn render-todo-list-page [ selected-list-id params ]
   (let [edit-item-id (:edit-item-id params)
         min-list-priority (or (try-parse-integer (:min-list-priority params)) 0)
+        min-item-priority (or (try-parse-integer (:min-item-priority params)) 0)
         completed-within-days (or (try-parse-integer (:cwithin params)) 0)
         snoozed-for-days (or (try-parse-integer (:sfor params)) 0)
-        last-item-list-id  (:last-item-list-id params)]
-    (render-page {:title ((data/get-todo-list-by-id selected-list-id) :desc)
+        last-item-list-id  (:last-item-list-id params)
+        list-info (data/get-todo-list-by-id selected-list-id)]
+    (render-page {:title (:desc list-info)
                   :page-data-class "todo-list"
                   :sidebar (sidebar/render-sidebar selected-list-id min-list-priority snoozed-for-days)
                   :modals {"snoozing" #(modals/render-snooze-modal params selected-list-id)
                            "update-from" #(modals/render-update-from-modal params selected-list-id)
-                           "share-with" #(modals/render-share-with-modal config params selected-list-id)
+                           "share-with" #(modals/render-share-with-modal params selected-list-id)
                            "details" #(todo-list-details/render-todo-list-details-modal selected-list-id)
                            "delete-list" #(modals/render-list-delete-modal selected-list-id)
                            "sort-list" #(modals/render-list-sort-modal selected-list-id)}}
-                 (render-todo-list config selected-list-id edit-item-id true completed-within-days snoozed-for-days last-item-list-id))))
+                 (if (:is_deleted list-info)
+                   (render-deleted-todo-list selected-list-id)
+                   (render-todo-list selected-list-id edit-item-id true completed-within-days snoozed-for-days last-item-list-id min-item-priority)))))
 
-(defn render-todo-list-public-page [ config params ]
+(defn render-todo-list-public-page [ params ]
   (let [ list-id (decode-list-id (:list-id params)) ]
     (when (and (data/list-public? list-id)
                (not (data/list-owned-by-user-id? list-id (auth/current-user-id))))

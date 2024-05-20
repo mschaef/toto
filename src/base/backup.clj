@@ -19,12 +19,13 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns toto.core.backup
+(ns base.backup
   (:use playbook.core
         sql-file.middleware)
   (:require [taoensso.timbre :as log]
             [sql-file.core :as sql-file]
-            [toto.core.scheduler :as scheduler]))
+            [base.scheduler :as scheduler]
+            [playbook.config :as config]))
 
 ;;; backup
 
@@ -42,13 +43,12 @@
     (log/info "Backing database up to" output-path)
     (sql-file/backup-to-file-online (current-db-connection) output-path)))
 
-(defn schedule-backup [ config ]
-  (if-let [backup-cron (get-in config [:db :backup-cron])]
-    (if-let [backup-path (get-in config [:db :backup-path] false)]
-      (do
-        (log/info "Database backup configured with path: " backup-path)
-        (scheduler/schedule-job config :db-backup backup-cron
-                                #(backup-database backup-path)))
-      (log/warn "NO BACKUP PATH. AUTOMATIC BACKUP DISABLED!!!"))
-    (log/warn "NO BACKUP CRON STRING. AUTOMATIC BACKUP DISABLED!!!"))
-  config)
+(defn schedule-backup [ scheduler db-conn-pool ]
+  (if-let [backup-path (config/cval :db :backup-path)]
+    (do
+      (log/info "Database backup configured with path: " backup-path)
+      (scheduler/schedule-job scheduler :db-backup
+                              #(with-db-connection db-conn-pool
+                                 (backup-database backup-path))))
+    (log/warn "NO BACKUP PATH. AUTOMATIC BACKUP DISABLED!!!"))
+  scheduler)

@@ -19,19 +19,21 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns toto.view.auth
+(ns base.view.auth
   (:use playbook.core
         compojure.core)
   (:require [taoensso.timbre :as log]
             [cemerick.friend.credentials :as credentials]
             [cemerick.friend :as friend]
             [cemerick.friend.workflows :as workflows]
+            [playbook.config :as config]
+            [base.data.data :as core-data]
             [toto.data.data :as data]
-            [toto.core.mail :as mail]))
+            [base.mail :as mail]))
 
 
 (defn get-user-id-by-email [ email ]
-  (if-let [ user-info (data/get-user-by-email email) ]
+  (if-let [ user-info (core-data/get-user-by-email email) ]
     (user-info :user_id)
     nil))
 
@@ -75,10 +77,10 @@
 
         :else
         (clojure.set/union
-         #{:toto.role/user} (data/get-user-roles (:user_id user-record)))))
+         #{:toto.role/user} (core-data/get-user-roles (:user_id user-record)))))
 
 (defn get-auth-map-by-email [ email ]
-  (if-let [user-record (data/get-user-by-email email)]
+  (if-let [user-record (core-data/get-user-by-email email)]
     {:identity email
      :user-record user-record
      :user-id (user-record :user_id)
@@ -93,12 +95,12 @@
     (cond
       (credentials/bcrypt-verify (creds :password) (get-in auth-map [:user-record :password]))
       (do
-        (data/record-user-login (creds :username) *request-ip*)
+        (core-data/record-user-login (creds :username) *request-ip*)
         (update-in auth-map [:user-record] dissoc :password))
 
       :else
       (do
-        (data/record-user-login-failure (:user-id auth-map) *request-ip*)
+        (core-data/record-user-login-failure (:user-id auth-map) *request-ip*)
         nil))
     nil))
 
@@ -118,22 +120,21 @@
       "If this isn't something you've requested, please contact us"
       " immediately at " [:a {:href (str "mailto:" from-mail)} from-mail] "."]]))
 
-(defn send-password-change-message [ config username ]
-  (mail/send-email config
-                   {:to [ username ]
+(defn send-password-change-message [ username ]
+  (mail/send-email {:to [ username ]
                     :subject "Todo - Password Changed"
                     :content password-change-message
-                    :params { :from-mail (get-in config [:smtp :from]) }}))
+                    :params { :from-mail (config/cval :smtp :from) }}))
 
-(defn set-user-password [ config username password ]
+(defn set-user-password [ username password ]
   (log/info "Changing password for user:" username)
-  (data/set-user-password username (credentials/hash-bcrypt password))
-  (send-password-change-message config username))
+  (core-data/set-user-password username (credentials/hash-bcrypt password))
+  (send-password-change-message username))
 
 (defn create-user [ friendly-name email-addr password ]
-  (data/add-user friendly-name email-addr (credentials/hash-bcrypt password)))
+  (core-data/add-user friendly-name email-addr (credentials/hash-bcrypt password)))
 
-(defn password-change-workflow [ config ]
+(defn password-change-workflow [ ]
   (fn [{:keys [uri request-method params]}]
     (let [{:keys [ :password :new-password :new-password-2 :username]} params]
       (when (and (= uri "/user/password")
@@ -141,7 +142,7 @@
                  (get-user-by-credentials params)
                  (not (= password new-password))
                  (= new-password new-password-2))
-        (set-user-password config username new-password)
+        (set-user-password username new-password)
         (workflows/make-auth (get-auth-map-by-email username)
                              {::friend/redirect-on-auth? "/user/password-changed"})))))
 
@@ -150,10 +151,10 @@
     (binding [*request-ip* (:request-ip req)]
       (workflow req))))
 
-(defn wrap-authenticate [ app config unauthorized-handler ]
+(defn wrap-authenticate [ app unauthorized-handler ]
   (friend/authenticate app
                        {:credential-fn get-user-by-credentials
-                        :workflows [(password-change-workflow config)
+                        :workflows [(password-change-workflow)
                                     (wrap-workflow-request-ip
                                      (workflows/interactive-form))]
                         :unauthorized-handler unauthorized-handler}))

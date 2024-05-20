@@ -26,7 +26,7 @@ body {
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgba(0,0,0,0.1);
+    background-color: rgba(0,0,0,0.2);
 }
 
 dialog {
@@ -91,6 +91,12 @@ dialog p {
     width: 120px;
 }
 
+.snooze-item-text {
+    border: 1px solid #c0c0c0;
+    max-height: 10vh;
+    overflow-y: scroll;
+    padding: 8px;
+}
 
 .snooze-choices .post-button {
     display: block;
@@ -126,6 +132,12 @@ dialog p {
 
     display: flex;
     flex-direction: column;
+}
+
+@media only screen and (max-device-width : 640px) {
+    .contents {
+        margin-bottom: 30px;
+    }
 }
 
 .contents::-webkit-scrollbar {
@@ -168,6 +180,10 @@ dialog p {
     box-shadow: 2px 1px 1px #e0e0e0;
 
     transform: translate3d( 0, 0, 0 );
+}
+
+.sidebar .scrollable {
+    padding-bottom: 90px;
 }
 
 .sidebar.animated {
@@ -406,17 +422,18 @@ select:hover {
 .scroll-column .scrollable {
     flex: 1;
     overflow-y: auto;
-    padding-bottom: 30px;
 }
 
 .scroll-column .scrollable.scrolled {
-    box-shadow: inset 0 7px 9px -7px rgb(0 0 0 / 40%)
+    box-shadow: inset 0 7px 9px -7px rgb(0 0 0 / 20%);
 }
 
-@media only screen and (max-device-width : 640px) {
-    .scrollable {
-        padding-bottom: 120px;
-    }
+.scroll-column .scrollable.additional-content {
+    box-shadow: inset 0 -7px 9px -7px rgb(0 0 0 / 20%);
+}
+
+.scroll-column .scrollable.scrolled.additional-content {
+    box-shadow: inset 0 7px 9px -7px rgb(0 0 0 / 20%), inset 0 -7px 9px -7px rgb(0 0 0 / 20%);
 }
 
 /*** New Item Form ***/
@@ -671,10 +688,6 @@ select:hover {
     }
 }
 
-.toplevel-list.list-list A {
-    color: black;
-}
-
 .empty-list {
     text-align: center;
     margin: 20px;
@@ -698,6 +711,7 @@ h1 {
     box-sizing: border-box;
     display: flex;
     min-height: 24px;
+    align-items: center;
 }
 
 .toplevel-list .item-description input {
@@ -733,6 +747,17 @@ h1 {
     width: 100%;
     font-size: 14px;
     height: 50px;
+}
+
+/* List manager styling */
+
+.toplevel-list.list-list A.details-link {
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+.toplevel-list.list-list A.list-link {
+    color: black;
 }
 
 /* Sidebar Styling */
@@ -917,12 +942,13 @@ A .pill {
     padding-right: 0px;
 }
 
+.item-row .item-description {
+    flex: 1;
+}
 
 @media only screen and (min-device-width : 640px) {
     .item-row {
-        padding-left: 0px;
         padding-bottom: 4px;
-        padding-right: 0px;
     }
 }
 
@@ -1034,16 +1060,11 @@ p.new-user {
     width: 32px;
 }
 
-.config-panel .component-lists {
+.config-panel .scroll-column {
     max-height: 40vh;
-    overflow-y: auto;
 }
 
-.config-panel .component-lists A {
-    color: black;
-}
-
-.config-panel A, .query-settings A, A.item-link {
+.config-panel A, .query-settings A, A.item-link, A.details-link {
     color: blue;
 }
 
@@ -1079,7 +1100,7 @@ form.details {
         display: none;
     }
 
-    .logout-control {
+    .session-controls {
         display: none;
     }
 
@@ -1090,6 +1111,10 @@ form.details {
 
     .item-control.complete {
         display: none;
+    }
+
+    .app-name {
+        display: inline;
     }
 
     .priority.left {
@@ -1116,7 +1141,7 @@ form.details {
         display: none;
     }
 
-    .item-row.item-drag-handle {
+    .item-row .item-drag-handle {
         display: none;
     }
 }

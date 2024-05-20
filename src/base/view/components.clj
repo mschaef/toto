@@ -19,18 +19,19 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns toto.view.components
+(ns base.view.components
   (:use playbook.core
-        toto.view.query
+        base.view.query
         hiccup.def)
   (:require [clojure.data.json :as json]
             [taoensso.timbre :as log]
             [hiccup.form :as hiccup-form]
-            [toto.view.auth :as auth]))
+            [base.view.auth :as auth]))
 
 (defelem scroll-column [ id title & contents ]
   [:div.scroll-column
-   [:div.fixed title]
+   (when title
+     [:div.fixed title])
    [:div.scrollable { :id id :data-preserve-scroll "true" }
     contents]])
 
@@ -64,8 +65,6 @@
            (+ (or (try-parse-integer verify-n-1) -1)
               (or (try-parse-integer verify-n-2) -1))))))
 
-
-
 (defn render-duration-select [ id current-value query-durations autosubmit? ]
   [:select (cond-> { :id id :name id }
              autosubmit? (merge {:onchange "this.form.submit()"}))
@@ -78,12 +77,19 @@
                                  "-"
                                  (str current-value)))])
 
-(defn copyable-text [ text ]
+(defn- copyable-text-base [ text label-text input-attrs ]
   [:div.copyable-text
-   [:input {:type "text"
-            :readonly true
-            :value text}]
+   [:input (merge input-attrs {:value text})]
    [:span.clickable
     {:onclick (str "window._toto.doCopy(event)")}
-    "Copy"]])
+    label-text]])
 
+(defn copyable-text
+  ([ text label-text ]
+   (copyable-text-base text label-text {:type "text" :readonly true}))
+
+  ([ text ]
+   (copyable-text text "Copy"))  )
+
+(defn copy-button [ text label-text ]
+  (copyable-text-base text label-text {:type "hidden"}))

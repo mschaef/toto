@@ -19,11 +19,20 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns toto.main
-  (:gen-class :main true)
-  (:use playbook.main)
-  (:require [playbook.config :as config]
-            [base.site.main :as main]))
 
-(defmain [ & args ]
-  (main/app-start (config/cval)))
+(ns base.gdpr
+  (:gen-class :main true)
+  (:use playbook.core)
+  (:require [taoensso.timbre :as log]))
+
+(def ^:dynamic *gdpr-consent* nil)
+
+(defn wrap-gdpr-filter [ app ]
+  (fn [ req ]
+    (binding [ *gdpr-consent* (get-in req [:headers "cookie"] )]
+      (let [ resp (app req) ]
+        (if  (or *gdpr-consent*
+                 (= (:uri req) "/user/gdpr-consent"))
+          resp
+          (dissoc resp :session))))))
+

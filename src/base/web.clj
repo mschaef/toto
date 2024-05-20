@@ -20,7 +20,7 @@
 ;; You must not remove this notice, or any other, from this software.
 
 
-(ns toto.core.web
+(ns base.web
   (:gen-class :main true)
   (:use playbook.core
         compojure.core
@@ -34,13 +34,14 @@
             [ring.middleware.reload :as ring-reload]
             [ring.middleware.file-info :as ring-file-info]
             [ring.middleware.resource :as ring-resource]
-            [ring.util.response :as ring-responsed]
+            [ring.util.response :as ring-response]
             [compojure.handler :as handler]
-            [toto.core.session :as store]
-            [toto.core.gdpr :as gdpr]
-            [toto.view.common :as view-common]
-            [toto.view.query :as view-query]
-            [toto.site.user :as user]))
+            [playbook.config :as config]
+            [base.session :as session]
+            [base.gdpr :as gdpr]
+            [base.view.common :as view-common]
+            [base.view.query :as view-query]
+            [base.site.user :as user]))
 
 (defn- wrap-request-logging [ app development-mode? ]
   (fn [req]
@@ -68,34 +69,48 @@
     (assoc (app req) :session-cookie-attrs
            {:max-age (* duration-in-days 24 3600)})))
 
-(defn- wrap-dev-support [ handler dev-mode ]
-  (cond-> (wrap-request-logging handler dev-mode)
+(defn- wrap-dev-support [ app dev-mode ]
+  (cond-> (wrap-request-logging app dev-mode)
     dev-mode (ring-reload/wrap-reload)))
 
 (defn wrap-request-thread-naming [ app ]
   (fn [ req ]
     (call-with-thread-name #(app req) (str "http: " (:request-method req) " " (:uri req)))))
 
-(defn handler [ config routes ]
+(defn wrap-exception-handling [ app ]
+  (fn [ req ]
+    (try
+      (app req)
+      (catch Exception ex
+        (let [ ex-uuid (.toString (java.util.UUID/randomUUID)) ]
+          (log/error ex (str "Unhandled exception while processing " (:request-method req)
+                             " request to: " (:uri req) " (uuid: " ex-uuid ")"))
+          (if (= (:uri req) "/error")
+            (throw (Exception. "Double fault while processing uncaught exception." ex))
+            (ring-response/redirect (str "/error?uuid=" ex-uuid))))))))
+
+(defn handler [ db-conn-pool session-store routes ]
   (-> routes
       (wrap-content-type)
       (wrap-browser-caching {"text/javascript" 360000
                              "text/css" 360000})
-      (user/wrap-authenticate config)
+      (user/wrap-authenticate)
       (extend-session-duration 30)
       (include-requesting-ip)
       (view-query/wrap-remember-query)
       (gdpr/wrap-gdpr-filter)
-      (handler/site {:session {:store (store/session-store (:db-conn-pool config))}})
-      (wrap-db-connection (:db-conn-pool config))
+      (handler/site {:session {:store session-store}})
+      (wrap-db-connection db-conn-pool)
       (wrap-request-thread-naming)
-      (view-common/wrap-config config)
-      (wrap-dev-support (:development-mode config))))
+      (config/wrap-config)
+      (wrap-dev-support (config/cval :development-mode))
+      (wrap-exception-handling)))
 
-(defn start-site [ config routes ]
-  (let [ { http-port :http-port } config ]
+(defn start-site [ db-conn-pool session-store routes ]
+  (let [ http-port (config/cval :http-port) ]
     (log/info "Starting Webserver on port" http-port)
-    (let [server (jetty/run-jetty (handler config routes ) { :port http-port :join? false })]
+    (let [server (jetty/run-jetty (handler db-conn-pool session-store routes)
+                                  { :port http-port :join? false })]
       (add-shutdown-hook
        (fn []
          (log/info "Shutting down webserver")

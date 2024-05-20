@@ -23,9 +23,9 @@
   (:use playbook.core
         playbook.web
         compojure.core
-        toto.view.common
-        toto.view.query
-        toto.view.page
+        base.view.common
+        base.view.query
+        base.view.page
         toto.todo.ids
         toto.todo.util)
   (:require [taoensso.timbre :as log]
@@ -34,7 +34,7 @@
             [cemerick.friend :as friend]
             [playbook.hashid :as hashid]
             [toto.data.data :as data]
-            [toto.view.auth :as auth]
+            [base.view.auth :as auth]
             [toto.todo.landing-page :as landing-page]
             [toto.todo.todo-list :as todo-list]
             [toto.todo.todo-list-details :as todo-list-details]
@@ -71,9 +71,9 @@
 
 (defn- add-list [ params ]
   (let [{list-description :list-description
-         is-view :is-view} params
+         list-type :list-type} params
         list-description (string-leftmost list-description 32)
-        is-view (= is-view "Y")]
+        is-view (= list-type "view")]
     (if (string-empty? list-description)
       (redirect-to-home-list)
       (let [ list-id (data/add-list list-description is-view) ]
@@ -204,34 +204,16 @@
     (redirect-to-home-list)
     (landing-page/render-landing-page params)))
 
-(defn- public-routes [ config ]
-  (routes
-   (GET "/" { params :params }
-     (render-launch-page params))
-
-   (GET "/list/:list-id/public" { { list-id :list-id } :params }
-     ;; Retain backward compatibility with older public list URL scheme
-     (redirect-to-list list-id))
-
-   (GET "/list/:list-id" { params :params }
-     (todo-list/render-todo-list-public-page config params))
-
-   (GET "/stocking/:list-id" { { list-id :list-id } :params }
-     (todo-list/render-stocking-page list-id nil))
-
-   (GET "/stocking/:list-id/:item-id" { { list-id :list-id item-id :item-id } :params }
-     (todo-list/render-stocking-page list-id (try-parse-integer item-id)))))
-
 (defn- list-routes [ config list-id ]
   (when-let-route [list-id (accept-authorized-list-id list-id)]
     (GET "/" { params :params }
-      (todo-list/render-todo-list-page config list-id params))
-
-    (GET "/deleted" { params :params }
-      (todo-list/render-deleted-todo-list-page list-id params))
+      (todo-list/render-todo-list-page list-id params))
 
     (GET "/completions" { params :params }
       (todo-list/render-todo-list-completions-page list-id params))
+
+    (GET "/delayed" []
+      (todo-list/render-todo-list-delayed-page list-id))
 
     (POST "/" { params :params }
       (add-item list-id params))
@@ -242,8 +224,8 @@
     (POST "/sharing" { params :params }
       (update-list-or-view-sharing list-id params))
 
-    (POST "/priority" { { new-priority :new-priority } :params }
-      (update-list-priority list-id new-priority))
+    (POST "/priority" { params :params }
+      (update-list-priority list-id (:new-priority params)))
 
     (POST "/delete" []
       (delete-list list-id))
@@ -283,21 +265,31 @@
     (POST "/ordinal" { params :params }
       (update-item-ordinal item-id params))))
 
-(defn- private-routes [ config ]
+(defroutes private-routes
+  (POST "/list" { params :params }
+    (add-list params))
+
+  (GET "/lists" { params :params }
+    (todo-list-manager/render-list-manager-page params))
+
+  (context "/list/:list-id" [ list-id ]
+    (list-routes list-id))
+
+  (context "/item/:item-id" [ item-id ]
+    (item-routes item-id)))
+
+(defroutes public-routes
+  (GET "/" { params :params }
+    (render-launch-page params))
+
+  (GET "/list/:list-id/public" { { list-id :list-id } :params }
+    ;; Retain backward compatibility with older public list URL scheme
+    (redirect-to-list list-id))
+
+  (GET "/list/:list-id" { params :params }
+    (todo-list/render-todo-list-public-page params)))
+
+(defn all-routes [ ]
   (routes
-   (POST "/list" { params :params }
-     (add-list params))
-
-   (GET "/lists" { params :params }
-     (todo-list-manager/render-list-manager-page params))
-
-   (context "/list/:list-id" [ list-id ]
-     (list-routes config list-id))
-
-   (context "/item/:item-id" [ item-id ]
-     (item-routes item-id))))
-
-(defn all-routes [ config ]
-  (routes
-   (public-routes config)
-   (auth/authorize-toto-valid-user (private-routes config))))
+   public-routes
+   (auth/authorize-toto-valid-user private-routes)))

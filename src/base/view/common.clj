@@ -19,19 +19,24 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns toto.site.routes
-  (:use playbook.core
-        compojure.core)
-  (:require [taoensso.timbre :as log]
-            [compojure.route :as route]
-            [toto.util :as util]
-            [toto.site.user :as user]))
+(ns base.view.common
+  (:use playbook.core)
+  (:require [toto.util :as util]))
 
-(defn all-routes [ config app-routes ]
-  (let [ resources-path (str "/" (util/get-version)) ]
-    (log/info "Resources on path: " resources-path )
-    (routes
-     (route/resources resources-path)
-     (user/all-routes config)
-     app-routes
-     (route/not-found "Resource Not Found"))))
+;;; Ring Responses
+
+(defn unprocessable-entity [ body ]
+  {:status  422
+   :headers {}
+   :body    body})
+
+;;; HTML Utilities
+
+(defn class-set [ classes ]
+  (clojure.string/join " " (map str (filter #(classes %)
+                                            (keys classes)))))
+
+;;; Resource Paths
+
+(defn resource [ path ]
+  (str "/" (util/get-version) "/" path))

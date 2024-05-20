@@ -19,35 +19,7 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns toto.view.common
-  (:use playbook.core)
-  (:require [toto.util :as util]))
+(ns base.data.queries
+  (:require [ yesql.core :refer [ defqueries ]]))
 
-;;; Development Mode
-
-(def ^:dynamic *config* {})
-(def ^:dynamic *dev-mode* false)
-
-(defn wrap-config [ app config ]
-  (fn [ req ]
-    (binding [*config* config
-              *dev-mode* (:development-mode config)]
-      (app req))))
-
-;;; Ring Responses
-
-(defn unprocessable-entity [ body ]
-  {:status  422
-   :headers {}
-   :body    body})
-
-;;; HTML Utilities
-
-(defn class-set [ classes ]
-  (clojure.string/join " " (map str (filter #(classes %)
-                                            (keys classes)))))
-
-;;; Resource Paths
-
-(defn resource [ path ]
-  (str "/" (util/get-version) "/" path))
+(defqueries "base/data/queries.sql")

@@ -21,7 +21,8 @@
 
 (ns toto.todo.ids
   (:use playbook.core)
-  (:require [playbook.hashid :as hashid]))
+  (:require [playbook.hashid :as hashid]
+            [playbook.config :as config]))
 
 (defn encode-item-id [ list-id ]
   (hashid/encode :ti list-id))
@@ -36,3 +37,7 @@
 (defn decode-list-id [ list-id ]
   (or (try-parse-integer list-id)
       (hashid/decode :tl list-id)))
+
+(defn todo-list-link [ list-id ]
+  (str (config/cval :base-url) "/list/" (encode-list-id list-id)))
+

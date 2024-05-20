@@ -87,9 +87,9 @@ var sidebarVisible = false;
 function onToggleSidebar(evt) {
     evt.preventDefault();
 
-    var menu = elem('sidebar');
+    var menu = elemOptional('sidebar');
 
-    if (menu.contains(evt.target)) {
+    if (!menu || menu.contains(evt.target)) {
         return;
     }
 
@@ -105,7 +105,11 @@ function doToggleSidebar(evt) {
 }
 
 function updateSidebarVisibility(animated) {
-    const menu = elem('sidebar');
+    const menu = elemOptional('sidebar');
+
+    if (!menu) {
+        return;
+    }
 
     menu.classList.toggle('animated', animated);
     menu.classList.toggle('menu-visible', sidebarVisible);
@@ -164,6 +168,7 @@ function doPost(baseUrl, args, nextUrl) {
 
     var url = baseUrl;
 
+    // TODO: Properly handle case where baseUrl has args already
     if (queryArgs.length) {
         url += ('?' + queryArgs.join('&'));
     }
@@ -363,6 +368,9 @@ function onItemEditKeydown(event) {
     var input = event.target;
 
     if (event.keyCode == 13) {
+        event.preventDefault();
+        event.stopPropagation();
+
         doUpdateItem(input.getAttribute('item-id'),
                      input.value,
                      input.getAttribute('view-href'));
@@ -493,21 +501,22 @@ function restoreScrolls() {
     }
 }
 
-function updateScrollState(elem, scrollTop) {
-    elem.classList.toggle('scrolled', scrollTop > 0);
+function updateScrollState(elem) {
+    elem.classList.toggle('scrolled', elem.scrollTop > 0);
+    elem.classList.toggle('additional-content', elem.scrollHeight - elem.scrollTop > elem.clientHeight);
 }
 
 function setupScrollListeners() {
     foreach_elem(".scroll-column .scrollable", function(elem) {
-        updateScrollState(elem, elem.scrollTop);
+        updateScrollState(elem);
 
         elem.addEventListener('scroll', (event) => {
-            updateScrollState(event.target, event.target.scrollTop);
+            updateScrollState(event.target);
         });
     });
 }
 
-document.addEventListener("turbo:before-visit", function(event) {
+document.addEventListener("turbo:before-render", function(event) {
     saveScrolls();
 });
 

@@ -22,17 +22,17 @@
 (ns toto.todo.todo-list-details
   (:use playbook.core
         compojure.core
-        toto.view.common
-        toto.view.icons
-        toto.view.components
-        toto.view.query
-        toto.view.page
+        base.view.common
+        base.view.icons
+        base.view.components
+        base.view.query
+        base.view.page
         toto.todo.ids)
   (:require [taoensso.timbre :as log]
             [hiccup.form :as hiccup-form]
             [hiccup.util :as hiccup-util]
             [toto.data.data :as data]
-            [toto.view.auth :as auth]
+            [base.view.auth :as auth]
             [toto.todo.sidebar :as sidebar]))
 
 (defn- render-todo-list-view-editor [ view-id ]
@@ -41,16 +41,17 @@
         view-sublist-ids (map :sublist_id (data/get-view-sublists user-id view-id))]
     [:div.config-panel
      [:h1 "Component Lists"]
-     [:div.component-lists
+     (scroll-column
+      "component-lists"
+      nil
       (map (fn [ todo-list ]
              (let [ list-id (:todo_list_id todo-list) ]
                [:div
                 (hiccup-form/check-box (str "list_" list-id)
                                        (in? view-sublist-ids list-id))
-                [:a {:href (shref "/list/" (encode-list-id list-id) "/details")}
-                 (hiccup-util/escape-html
-                  (:desc todo-list))]]))
-           (remove #(:is_view %) todo-lists))]]))
+                (hiccup-util/escape-html
+                 (:desc todo-list))]))
+           (remove #(:is_view %) todo-lists)))]))
 
 (defn- render-item-sunset-panel [ max-item-age ]
   [:div.config-panel

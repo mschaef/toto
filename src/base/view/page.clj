@@ -19,19 +19,20 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns toto.view.page
+(ns base.view.page
   (:use playbook.core
-        toto.view.common
-        toto.view.components
-        toto.view.icons
-        toto.view.query
-        toto.view.components)
+        base.view.common
+        base.view.components
+        base.view.icons
+        base.view.query
+        base.view.components)
   (:require [taoensso.timbre :as log]
             [hiccup.page :as hiccup-page]
             [hiccup.form :as hiccup-form]
             [hiccup.util :as hiccup-util]
-            [toto.core.gdpr :as gdpr]
-            [toto.view.auth :as auth]))
+            [playbook.config :as config]
+            [base.gdpr :as gdpr]
+            [base.view.auth :as auth]))
 
 (defn session-controls []
   (if-let [ username (auth/current-identity) ]
@@ -49,14 +50,12 @@
                     :snoozing-item-id :remove})
 
 (defn render-modal [ attrs & contents ]
-  (let [ escape-url (or (:escape-url attrs)
-                     (shref without-modal))]
+  (let [ escape-url (shref without-modal)]
     [:div.dialog-background
      [:dialog {:class "modal" :open "true" :data-escape-url escape-url}
       [:h3 (:title attrs)]
-      (when (:escape-url attrs)
-        [:div.cancel
-         [:a {:href escape-url} img-window-close]])
+      [:div.cancel
+       [:a {:href escape-url} img-window-close]]
       (if-let [ form-post-to (:form-post-to attrs)]
         (hiccup-form/form-to
          (if (:data-turbo attrs)
@@ -100,17 +99,26 @@
 (defn contact-support-button [ ]
   [:a {:href (shref "" {:modal "contact-support" })} "Contact Support"])
 
-(defn- render-standard-header [ title ]
-  [:head
-   [:meta {:name "viewport"
-           ;; user-scalable=no fails to work on iOS n where n > 10
-           :content "width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0"}]
-   [:title (when *dev-mode* "DEV - ") (:name (:app *config*)) (when title (str " - " title))]
-   [:link { :rel "shortcut icon" :href (resource "favicon.ico")}]
-   (hiccup-page/include-css (resource "toto.css")
-                            (resource "font-awesome.min.css"))
-   [:script {:type "module" :src (resource "toto.js")}]
-   (hiccup-page/include-js (resource "DragDropTouch.js"))])
+(defn- render-standard-header [ attrs ]
+  (let [title (:title attrs)
+        client-redirect-time (:client-redirect-time attrs)
+        client-redirect (:client-redirect attrs)]
+    [:head
+     [:meta {:name "viewport"
+             ;; user-scalable=no fails to work on iOS n where n > 10
+             :content "width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0"}]
+     (when client-redirect
+       [:meta {:http-equiv "refresh"
+               :content (str (or client-redirect-time 2) "; url=" client-redirect)}])
+     [:title
+      (when (config/cval :development-mode) "DEV - ")
+      (config/cval :app :title)
+      (when title (str " - " title))]
+     [:link { :rel "shortcut icon" :href (resource "favicon.ico")}]
+     (hiccup-page/include-css (resource "toto.css")
+                              (resource "font-awesome.min.css"))
+     [:script {:type "module" :src (resource "toto.js")}]
+     (hiccup-page/include-js (resource "DragDropTouch.js"))]))
 
 (defn- render-header [ page-title show-menu? ]
   (let [ username (auth/current-identity)]
@@ -118,10 +126,10 @@
      (when show-menu?
        [:span.toggle-menu img-show-list "&nbsp;"])
      [:span.app-name
-      [:a { :href "/" } (:name (:app *config*))] " "]
+      [:a { :href "/" } (config/cval :app :title)] " "]
      (when page-title
       (str "- " (hiccup-util/escape-html page-title)))
-     (when *dev-mode*
+     (when (config/cval :development-mode)
        [:span.pill.dev "DEV"])
      (session-controls)]))
 
@@ -181,5 +189,5 @@
 (defn render-page [ attrs & contents]
   (hiccup-page/html5
    [:html
-    (render-standard-header (:title attrs))
+    (render-standard-header attrs)
     (render-page-body attrs contents)]))
