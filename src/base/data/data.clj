@@ -30,7 +30,7 @@
 
 (defn get-user-roles [ user-id ]
   (set
-   (map #(keyword "toto.role" (:role_name %))
+   (map #(keyword "role" (:role_name %))
         (query-all (current-db-connection)
                    [(str "SELECT role_name"
                          "  FROM user u, role r, user_role ur"

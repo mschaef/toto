@@ -76,13 +76,13 @@
   (let [roles (auth/current-roles)]
     {:status 403
      :body ((cond
-              (:toto.role/unverified roles)
+              (:role/unverified roles)
               user-unverified
 
-              (:toto.role/expired-password roles)
+              (:role/expired-password roles)
               user-password-expired
 
-              (:toto.role/locked-account roles)
+              (:role/locked-account roles)
               user-account-locked
 
               :else
@@ -442,7 +442,7 @@
 
 (defn verify-user [ link-user-id link-uuid ]
   (when-let [ user (get-link-verified-user link-user-id link-uuid ) ]
-    (core-data/add-user-roles (:user_id user) #{:toto.role/verified})
+    (core-data/add-user-roles (:user_id user) #{:role/verified})
     (render-page { :title "e-Mail Address Verified" }
                  [:div.page-message
                   [:h1 "e-Mail Address Verified"]
@@ -630,4 +630,4 @@
    (ANY "/logout" [] (ring/redirect "/")))
 
   ;; Secure Links
-  (wrap-routes private-routes friend/wrap-authorize #{:toto.role/verified}))
+  (wrap-routes private-routes friend/wrap-authorize #{:role/verified}))

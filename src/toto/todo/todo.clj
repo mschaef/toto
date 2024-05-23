@@ -292,4 +292,4 @@
 (defn all-routes [ ]
   (routes
    public-routes
-   (auth/authorize-toto-valid-user private-routes)))
+   (auth/authorize-valid-user private-routes)))
