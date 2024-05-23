@@ -25,8 +25,7 @@
         base.view.page)
   (:require [taoensso.timbre :as log]
             [compojure.route :as route]
-            [playbook.config :as config]
-            [toto.util :as util]))
+            [playbook.config :as config]))
 
 (defn error-page [ & { :keys [ uuid ]}]
   (render-page { :title "Unexpected Error"}

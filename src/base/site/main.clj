@@ -32,10 +32,10 @@
             [base.session :as session]
             [base.web :as web]
             [base.data.data :as core-data]
-            [toto.data.data :as data]
-            [toto.todo.sunset :as sunset]
             [base.site.routes :as routes]
-            [toto.todo.todo :as todo]))
+
+            [toto.data.data :as data]
+            [toto.todo.sunset :as sunset]))
 
 (defn- start-scheduled-jobs [ db-conn-pool session-store ]
   (-> (scheduler/start)
@@ -56,8 +56,9 @@
    :schema-path [ "sql/" ]
    :schemas [[ "toto" 11 ]]})
 
-(defn app-start [ config ]
-  (sql-file/with-pool [db-conn (db-conn-spec config)]
-    (let [ session-store (session/session-store db-conn)]
-      (start-scheduled-jobs db-conn session-store)
-      (web/start-site db-conn session-store (routes/all-routes (todo/all-routes))))))
+(defn app-start [ app-routes ]
+  (let [config (config/cval)]
+    (sql-file/with-pool [db-conn (db-conn-spec config)]
+      (let [ session-store (session/session-store db-conn)]
+        (start-scheduled-jobs db-conn session-store)
+        (web/start-site db-conn session-store (routes/all-routes app-routes))))))

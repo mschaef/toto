@@ -28,7 +28,6 @@
             [cemerick.friend.workflows :as workflows]
             [playbook.config :as config]
             [base.data.data :as core-data]
-            [toto.data.data :as data]
             [base.mail :as mail]))
 
 
