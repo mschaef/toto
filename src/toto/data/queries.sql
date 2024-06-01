@@ -61,14 +61,20 @@ SELECT DISTINCT todo_list.todo_list_id,
                 todo_list_owners.priority,
                 (SELECT count(item.item_id)
                    FROM todo_item item
-                  WHERE item.todo_list_id=todo_list.todo_list_id
+                  WHERE (item.todo_list_id=todo_list.todo_list_id
+                         OR item.todo_list_id in (SELECT todo_view_sublist.sublist_id
+                                                    FROM todo_view_sublist
+                                                   WHERE todo_view_sublist.todo_list_id=todo_list.todo_list_id))
                     AND NOT item.is_deleted
                     AND NOT item.is_complete
                     AND CURRENT_TIMESTAMP >= NVL(item.snoozed_until, CURRENT_TIMESTAMP))
                    AS item_count,
                 (SELECT count(item.item_id)
                    FROM todo_item item
-                  WHERE item.todo_list_id=todo_list.todo_list_id
+                  WHERE (item.todo_list_id=todo_list.todo_list_id
+                         OR item.todo_list_id in (SELECT todo_view_sublist.sublist_id
+                                                    FROM todo_view_sublist
+                                                   WHERE todo_view_sublist.todo_list_id=todo_list.todo_list_id))
                     AND NOT item.is_deleted
                     AND NOT item.is_complete)
                    AS total_item_count,

@@ -67,13 +67,12 @@
                [:a.item {:href (shref "/list/" (encode-list-id list-id))}
                 (hiccup.util/escape-html list-desc)
                 (render-list-visibility-flag list)]
-               (if (not is-view)
-                 [:span.pill {:class (class-set {"highlight" (and (> snoozed-for-days 0)
-                                                                  (not (= list-item-count list-total-item-count)))
-                                                 "emphasize" (not (= list-item-count list-total-item-count))})}
-                  (if (> snoozed-for-days 0)
-                    list-total-item-count
-                    list-item-count)])]))
+               [:span.pill {:class (class-set {"highlight" (and (> snoozed-for-days 0)
+                                                                (not (= list-item-count list-total-item-count)))
+                                               "emphasize" (not (= list-item-count list-total-item-count))})}
+                (if (> snoozed-for-days 0)
+                  list-total-item-count
+                  list-item-count)]]))
           (remove #(and (< (:priority %) min-list-priority)
                         (not (= (Integer. selected-list-id) (:todo_list_id %))))
                   (data/get-todo-lists-by-user (auth/current-user-id) false)))
