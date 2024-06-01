@@ -166,8 +166,9 @@
      "here"] "."]])
 
 (defn- render-todo-list-view-section [ sublist-details key other-key]
-  (let [ items (key sublist-details ) ]
-    (when (> (count items) 0)
+  (let [items (key sublist-details)
+        section-count (count items)]
+    (when (> section-count 0)
       [:div.list-view-section
        [:h2
         [:a
@@ -175,9 +176,12 @@
          (hiccup-util/escape-html
           (:desc sublist-details))]
         (let [other-count (count (get sublist-details other-key []))]
-          (when (> other-count 0)
-            [:span.other-item-count
-             (str " (" other-count " other" (when (not= other-count 1) "s") ")")]))]
+          [:span.other-item-count
+           " ("
+           (str section-count " item" (when (not= section-count 1) "s"))
+           (when (> other-count 0)
+             (str ", " other-count " other" (when (not= other-count 1) "s")))
+           ")"])]
        items])))
 
 (defn- render-todo-list-view [ list-id edit-item-id writable? completed-within-days snoozed-for-days min-item-priority ]
