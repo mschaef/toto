@@ -61,7 +61,7 @@ SELECT count(item.item_id)
                                   WHERE todo_view_sublist.todo_list_id=:todo_list_id))
     AND NOT item.is_deleted
     AND NOT item.is_complete
-    AND (CURRENT_TIMESTAMP >= NVL(item.snoozed_until, CURRENT_TIMESTAMP))
+    AND (:include_snoozed OR (CURRENT_TIMESTAMP >= NVL(item.snoozed_until, CURRENT_TIMESTAMP)))
 
 -- name: get-todo-lists-by-user
 SELECT todo_list.todo_list_id,

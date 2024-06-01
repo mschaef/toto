@@ -59,9 +59,10 @@
        (query/get-todo-list-ids-by-user { :user_id user-id }
                                         { :connection (current-db-connection) })))
 
-(defn get-todo-list-item-count [ todo-list-id ]
+(defn get-todo-list-item-count [ todo-list-id include-snoozed ]
   (scalar-result
-   (query/get-todo-list-item-count { :todo_list_id todo-list-id }
+   (query/get-todo-list-item-count {:todo_list_id todo-list-id
+                                    :include_snoozed include-snoozed}
                                    { :connection (current-db-connection) })))
 
 (defn get-todo-lists-by-user [ user-id include-deleted ]
