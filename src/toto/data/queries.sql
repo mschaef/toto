@@ -52,35 +52,27 @@ SELECT DISTINCT todo_list_owners.todo_list_id
    AND todo_list.todo_list_id=todo_list_owners.todo_list_id
    AND user_id = :user_id
 
+-- name: get-todo-list-item-count
+SELECT count(item.item_id)
+  FROM todo_item item
+ WHERE (item.todo_list_id=:todo_list_id
+        OR item.todo_list_id in (SELECT todo_view_sublist.sublist_id
+                                   FROM todo_view_sublist
+                                  WHERE todo_view_sublist.todo_list_id=:todo_list_id))
+    AND NOT item.is_deleted
+    AND NOT item.is_complete
+    AND (CURRENT_TIMESTAMP >= NVL(item.snoozed_until, CURRENT_TIMESTAMP))
+
 -- name: get-todo-lists-by-user
-SELECT DISTINCT todo_list.todo_list_id,
-                todo_list.desc,
-                todo_list.is_public,
-                todo_list.is_view,
-                todo_list.is_deleted,
-                todo_list_owners.priority,
-                (SELECT count(item.item_id)
-                   FROM todo_item item
-                  WHERE (item.todo_list_id=todo_list.todo_list_id
-                         OR item.todo_list_id in (SELECT todo_view_sublist.sublist_id
-                                                    FROM todo_view_sublist
-                                                   WHERE todo_view_sublist.todo_list_id=todo_list.todo_list_id))
-                    AND NOT item.is_deleted
-                    AND NOT item.is_complete
-                    AND CURRENT_TIMESTAMP >= NVL(item.snoozed_until, CURRENT_TIMESTAMP))
-                   AS item_count,
-                (SELECT count(item.item_id)
-                   FROM todo_item item
-                  WHERE (item.todo_list_id=todo_list.todo_list_id
-                         OR item.todo_list_id in (SELECT todo_view_sublist.sublist_id
-                                                    FROM todo_view_sublist
-                                                   WHERE todo_view_sublist.todo_list_id=todo_list.todo_list_id))
-                    AND NOT item.is_deleted
-                    AND NOT item.is_complete)
-                   AS total_item_count,
-                (SELECT count(list_owners.user_id)
-                   FROM todo_list_owners list_owners
-                  WHERE list_owners.todo_list_id = todo_list.todo_list_id) AS list_owner_count
+SELECT todo_list.todo_list_id,
+       todo_list.desc,
+       todo_list.is_public,
+       todo_list.is_view,
+       todo_list.is_deleted,
+       todo_list_owners.priority,
+       (SELECT count(list_owners.user_id)
+          FROM todo_list_owners list_owners
+         WHERE list_owners.todo_list_id = todo_list.todo_list_id) AS list_owner_count
   FROM todo_list, todo_list_owners
  WHERE (:include_deleted
         OR NOT(todo_list.is_deleted))

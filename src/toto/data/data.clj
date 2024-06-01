@@ -59,9 +59,14 @@
        (query/get-todo-list-ids-by-user { :user_id user-id }
                                         { :connection (current-db-connection) })))
 
+(defn get-todo-list-item-count [ todo-list-id ]
+  (scalar-result
+   (query/get-todo-list-item-count { :todo_list_id todo-list-id }
+                                   { :connection (current-db-connection) })))
+
 (defn get-todo-lists-by-user [ user-id include-deleted ]
   (query/get-todo-lists-by-user { :user_id user-id
-                                  :include_deleted include-deleted }
+                                 :include_deleted include-deleted }
                                 { :connection (current-db-connection) }))
 
 (defn get-todo-lists-with-item-age-limit [ ]
