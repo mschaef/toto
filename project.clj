@@ -6,7 +6,7 @@
                  [commons-io "2.18.0"]
                  [com.mschaef/sql-file "0.4.12"]
                  [cprop "0.1.20"]
-                 [yesql "0.5.4"]
+                 [yesql "0.6.0-alpha1"]
                  [org.clojure/data.json "2.5.0"]
                  [clj-http "3.13.0"]
                  [hiccup "1.0.5"]

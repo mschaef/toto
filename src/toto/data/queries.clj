@@ -20,6 +20,9 @@
 ;; You must not remove this notice, or any other, from this software.
 
 (ns toto.data.queries
-  (:require [ yesql.core :refer [ defqueries ]]))
+  (:require [taoensso.timbre :as log]
+            [yesql.core :refer [ defqueries ]]
+            [base.data.queries :as queries]))
 
-(defqueries "toto/data/queries.sql")
+(defqueries "toto/data/queries.sql"
+    {:middleware queries/log-query-middleware})

@@ -20,6 +20,19 @@
 ;; You must not remove this notice, or any other, from this software.
 
 (ns base.data.queries
-  (:require [ yesql.core :refer [ defqueries ]]))
+  (:require [taoensso.timbre :as log]
+            [ yesql.core :refer [ defqueries ]]))
 
-(defqueries "base/data/queries.sql")
+
+(def log-query-middleware
+  (fn [ query-fn ]
+    (fn [args call-options]
+      (let [begin-t (System/currentTimeMillis)
+            query-name (get-in call-options [:query :name])]
+        (log/info [ :begin query-name args ])
+        (let [ result (query-fn args call-options) ]
+          (log/info [ :end query-name (- (System/currentTimeMillis) begin-t)])
+          result)))))
+
+(defqueries "base/data/queries.sql"
+  {:middleware log-query-middleware})
