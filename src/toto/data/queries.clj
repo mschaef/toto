@@ -25,4 +25,6 @@
             [base.data.queries :as queries]))
 
 (defqueries "toto/data/queries.sql"
-    {:middleware queries/log-query-middleware})
+  {:middleware #(-> %
+                    (queries/log-query-bounds "1")
+                    (queries/log-query-bounds "2"))})
