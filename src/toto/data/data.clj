@@ -31,44 +31,36 @@
 
 (defn get-todo-list-by-id [ list-id ]
   (first
-   (query/get-todo-list-by-id { :todo_list_id list-id }
-                              { :connection (current-db-connection) })))
+   (query/get-todo-list-by-id { :todo_list_id list-id })))
 
 (defn get-view-sublists [ user-id list-id ]
   (query/get-view-sublists { :user_id user-id
-                             :todo_list_id list-id }
-                           { :connection (current-db-connection) }))
+                             :todo_list_id list-id }))
 
 (defn list-public? [ list-id ]
   (scalar-result
-   (query/get-todo-list-is-public-by-id { :todo_list_id list-id }
-                                        { :connection (current-db-connection) })))
+   (query/get-todo-list-is-public-by-id { :todo_list_id list-id })))
 
 (defn get-friendly-users-by-id [ user-id ]
-  (query/get-friendly-users-by-id { :user_id user-id }
-                                  { :connection (current-db-connection) }))
+  (query/get-friendly-users-by-id { :user_id user-id }))
 
 (defn get-todo-list-owners-by-list-id [ list-id ]
   (map :user_id
-       (query/get-todo-list-owners-by-list-id { :todo_list_id list-id }
-                                              { :connection (current-db-connection) })))
+       (query/get-todo-list-owners-by-list-id { :todo_list_id list-id })))
 
 
 (defn get-todo-list-ids-by-user [ user-id ]
   (map :todo_list_id
-       (query/get-todo-list-ids-by-user { :user_id user-id }
-                                        { :connection (current-db-connection) })))
+       (query/get-todo-list-ids-by-user { :user_id user-id })))
 
 (defn get-todo-list-item-count [ todo-list-id include-snoozed ]
   (scalar-result
    (query/get-todo-list-item-count {:todo_list_id todo-list-id
-                                    :include_snoozed include-snoozed}
-                                   { :connection (current-db-connection) })))
+                                    :include_snoozed include-snoozed})))
 
 (defn get-todo-lists-by-user [ user-id include-deleted ]
   (query/get-todo-lists-by-user { :user_id user-id
-                                 :include_deleted include-deleted }
-                                { :connection (current-db-connection) }))
+                                 :include_deleted include-deleted }))
 
 (defn get-todo-lists-by-user-alphabetical [ user-id include-deleted ]
   (query/get-todo-lists-by-user-alphabetical { :user_id user-id
@@ -76,8 +68,7 @@
                                              { :connection (current-db-connection) }))
 
 (defn get-todo-lists-with-item-age-limit [ ]
-  (query/get-todo-lists-with-item-age-limit { }
-                                            { :connection (current-db-connection) }))
+  (query/get-todo-lists-with-item-age-limit { }))
 
 (defn get-user-list-count [ user-id ]
   (count (get-todo-lists-by-user user-id false)))
@@ -107,8 +98,7 @@
 
 (defn- get-views-with-sublist [ user-id sublist-id ]
   (map :todo_list_id
-       (query/get-views-with-sublist { :user_id user-id :sublist_id sublist-id}
-                                     { :connection (current-db-connection) })))
+       (query/get-views-with-sublist { :user_id user-id :sublist_id sublist-id})))
 
 (defn- delete-sublist-from-users-views [ trans user-id sublist-id ]
   (doseq [ containing-todo-list-id (get-views-with-sublist user-id sublist-id)]
@@ -176,20 +166,17 @@
 
 (defn list-owned-by-user-id? [ list-id user-id ]
   (> (scalar-result
-      (query/list-owned-by-user-id? { :list_id list-id :user_id user-id }
-                                    { :connection (current-db-connection) }))
+      (query/list-owned-by-user-id? { :list_id list-id :user_id user-id }))
      0))
 
 (defn item-owned-by-user-id? [ item-id user-id ]
   (> (scalar-result
-      (query/item-owned-by-user-id? { :item_id item-id :user_id user-id }
-                                    { :connection (current-db-connection) }))
+      (query/item-owned-by-user-id? { :item_id item-id :user_id user-id }))
      0))
 
 (defn get-next-list-ordinal [ todo-list-id ]
   (-  (or (scalar-result
-           (query/get-min-ordinal-by-list { :list_id todo-list-id }
-                                          { :connection (current-db-connection)})
+           (query/get-min-ordinal-by-list { :list_id todo-list-id })
            0)
           0)
       1))
@@ -211,8 +198,7 @@
 
 (defn get-item-count [ list-id ]
   (scalar-result
-   (query/get-item-count {:list_id list-id}
-                         { :connection (current-db-connection) })))
+   (query/get-item-count {:list_id list-id })))
 
 (defn get-total-active-item-count []
   (scalar-result
@@ -230,43 +216,35 @@
   (query/get-pending-items {:list_id list-id
                             :completed_within_days (- completed-within-days)
                             :snoozed_within_days snoozed-within-days
-                            :min_item_priority min-item-priority}
-                           { :connection (current-db-connection) }))
+                            :min_item_priority min-item-priority}))
 
 (defn get-completed-items [ list-id completed-within-days ]
   (query/get-completed-items {:list_id list-id
-                              :completed_within_days (- completed-within-days)}
-                           { :connection (current-db-connection) }))
+                              :completed_within_days (- completed-within-days)}))
 
 (defn get-pending-item-order-by-description [ list-id ]
-  (query/get-pending-item-order-by-description {:list_id list-id}
-                                               { :connection (current-db-connection) }))
+  (query/get-pending-item-order-by-description {:list_id list-id}))
 
 (defn get-pending-item-order-by-created-on [ list-id ]
-  (query/get-pending-item-order-by-created-on {:list_id list-id}
-                                               { :connection (current-db-connection) }))
+  (query/get-pending-item-order-by-created-on {:list_id list-id}))
 
 (defn get-pending-item-order-by-updated-on [ list-id ]
-  (query/get-pending-item-order-by-updated-on {:list_id list-id}
-                                               { :connection (current-db-connection) }))
+  (query/get-pending-item-order-by-updated-on {:list_id list-id}))
 
 (defn get-pending-item-order-by-snoozed-until [ list-id ]
-  (query/get-pending-item-order-by-snoozed-until {:list_id list-id}
-                                               { :connection (current-db-connection) }))
+  (query/get-pending-item-order-by-snoozed-until {:list_id list-id}))
 
 
 (defn get-pending-item-count [ list-id ]
   (scalar-result
-   (query/get-pending-item-count { :list_id list-id }
-                                 { :connection (current-db-connection) })))
+   (query/get-pending-item-count { :list_id list-id })))
 
 (defn empty-list? [ list-id ]
   (<= (get-pending-item-count list-id) 0))
 
 (defn get-item-by-id [ item-id ]
   (first
-   (query/get-item-by-id { :item_id item-id }
-                         { :connection (current-db-connection) })))
+   (query/get-item-by-id { :item_id item-id })))
 
 
 (defn update-item-ordinal! [ item-id new-ordinal ]
@@ -278,8 +256,7 @@
 
 (defn shift-list-items! [ todo-list-id begin-ordinal ]
   (doseq [item (query/list-items-tail {:todo_list_id todo-list-id
-                                       :begin_ordinal begin-ordinal}
-                                      { :connection (current-db-connection) })]
+                                       :begin_ordinal begin-ordinal})]
     (update-item-ordinal! (:item_id item) (+ 1 (:item_ordinal item)))))
 
 (defn set-items-order! [ item-ids ]
@@ -336,8 +313,7 @@
 
 (defn get-sunset-items-by-id [ list-id age-limit ]
   (query/get-sunset-items-by-id {:todo_list_id list-id
-                                 :age_limit age-limit}
-                                { :connection (current-db-connection) }))
+                                 :age_limit age-limit}))
 
 (defn restore-item [ user-id item-id ]
   (update-item-by-id! user-id item-id
@@ -366,5 +342,4 @@
 
 (defn get-list-id-by-item-id [ item-id ]
   (scalar-result
-   (query/get-list-id-by-item-id { :item_id item-id }
-                                 { :connection (current-db-connection) })))
+   (query/get-list-id-by-item-id { :item_id item-id })))
