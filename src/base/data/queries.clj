@@ -20,8 +20,10 @@
 ;; You must not remove this notice, or any other, from this software.
 
 (ns base.data.queries
+    (:use sql-file.middleware)
   (:require [taoensso.timbre :as log]
-            [ yesql.core :refer [ defqueries ]]))
+            [yesql.core :refer [ defqueries ]]
+            [yesql.middleware :as middleware]))
 
 (defn log-query-middleware [ query-fn ]
   (log/spy :info query-fn)
@@ -33,14 +35,8 @@
         (log/info [ :end query-name (- (System/currentTimeMillis) begin-t)])
         result))))
 
-(defn log-query-bounds [ query-fn label ]
-    (log/spy :warn query-fn)
-    (fn [args call-options]
-      (log/spy :info call-options)
-      (log/warn "Begin" label)
-      (let [result (query-fn args call-options)]
-        (log/warn "End" label)
-        result)))
+(def query-middleware (comp (middleware/set-connection current-db-connection)
+                            log-query-middleware))
 
 (defqueries "base/data/queries.sql"
-  {:middleware log-query-middleware})
+  {:middleware query-middleware})
