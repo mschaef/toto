@@ -187,10 +187,11 @@ function doPost(baseUrl, args, nextUrl) {
     }).then(doRefresh);
 }
 
-function doUpdateItem(itemId, newDescription, thenUrl) {
+function doUpdateItem(itemId, newDescription, action, thenUrl) {
     var formData = new FormData();
 
     formData.append("description", newDescription);
+    formData.append("action", action);
 
     fetch("/item/" + itemId, {
         body: formData,
@@ -371,8 +372,14 @@ function onItemEditKeydown(event) {
         event.preventDefault();
         event.stopPropagation();
 
+        var action = "update";
+        if (event.ctrlKey) {
+            action = event.shiftKey ? "delete" : "complete";
+        }
+
         doUpdateItem(input.getAttribute('item-id'),
                      input.value,
+                     action,
                      input.getAttribute('view-href'));
     } else if (event.keyCode == 27) {
         visitPage(input.getAttribute('view-href'));
