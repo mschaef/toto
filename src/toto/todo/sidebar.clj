@@ -45,6 +45,11 @@
       (> list-owner-count 1)
       [:span.list-visibility-flag img-group])))
 
+(defn- get-view-primary-sublist [ view-id ]
+  (let [ sublists (data/get-view-sublists (auth/current-user-id) view-id) ]
+    (and (> (count sublists) 0)
+         (:sublist_id (first sublists)))))
+
 (defn render-sidebar [ selected-list-id min-list-priority snoozed-for-days ]
   (let [include-low-priority (< min-list-priority 0)]
     [:div.list-list
@@ -56,14 +61,16 @@
                    is-public :is_public
                    is-view :is_view
                    list-owner-count :list_owner_count
-                   priority :priority}
-                  list ]
+                   priority :priority} list
+                  drop-target-list-id (if is-view
+                                        (get-view-primary-sublist list-id)
+                                        list-id)]
               [:div.list-row {:class (class-set {"selected" (= list-id (Integer. selected-list-id))
-                                                 "list-drop-target" (not is-view)
+                                                 "list-drop-target" drop-target-list-id
                                                  "view" is-view
                                                  "high-priority" (and include-low-priority (> priority 0))
                                                  "low-priority" (and include-low-priority (< priority 0))})
-                              :listid list-id}
+                              :listid drop-target-list-id}
                [:a.item {:href (shref "/list/" (encode-list-id list-id))}
                 (hiccup.util/escape-html list-desc)
                 (render-list-visibility-flag list)]
