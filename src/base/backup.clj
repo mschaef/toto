@@ -31,25 +31,24 @@
 
 (def date-format (java.text.SimpleDateFormat. "yyyyMMdd-hhmm"))
 
-(defn- get-backup-filename [ backup-path app-name ]
+(defn- get-backup-filename [ ]
   (format "%s/%s-backup-%s.tgz"
-          backup-path
-          app-name
+          (config/cval :db :backup-path)
+          (config/cval :app :name)
           (.format date-format (current-time))))
 
-(defn backup-database [ backup-path app-name ]
-  (let [ output-path (get-backup-filename backup-path app-name)]
+(defn backup-database [ ]
+  (let [ output-path (get-backup-filename)]
     (log/info "Backing database up to" output-path)
     (sql-file/backup-to-file-online (current-db-connection) output-path)
     (log/info "Database backup complete" output-path)))
 
 (defn schedule-backup [ scheduler db-conn-pool ]
-  (let [ app-name (config/cval :app :name) ]
-    (if-let [backup-path (config/cval :db :backup-path)]
-      (do
-        (log/info "Database backup configured with path: " backup-path)
-        (scheduler/schedule-job scheduler :db-backup
-                                #(with-db-connection db-conn-pool
-                                   (backup-database backup-path app-name))))
-      (log/warn "NO BACKUP PATH. AUTOMATIC BACKUP DISABLED!!!")))
+  (if-let [backup-path (config/cval :db :backup-path)]
+    (do
+      (log/info "Database backup configured with path: " backup-path)
+      (scheduler/schedule-job scheduler :db-backup
+                              #(with-db-connection db-conn-pool
+                                 (backup-database))))
+    (log/warn "NO BACKUP PATH. AUTOMATIC BACKUP DISABLED!!!"))
   scheduler)
