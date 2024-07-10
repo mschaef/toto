@@ -1,3 +1,29 @@
+-- name: add-list<!
+INSERT INTO todo_list(desc, is_view)
+  VALUES(:desc, :is_view)
+
+-- name: add-item<!
+INSERT INTO todo_item(todo_list_id,
+                      desc,
+                      created_on,
+                      created_by,
+                      priority,
+                      updated_by,
+                      updated_on,
+                      is_deleted,
+                      is_complete,
+                      item_ordinal)
+   VALUES(:todo_list_id,
+          :desc,
+          :created_on,
+          :created_by,
+          :priority,
+          :updated_by,
+          :updated_on,
+          :is_deleted,
+          :is_complete,
+          :item_ordinal)
+
 -- name: get-list-id-by-item-id
 SELECT todo_list_id
   FROM todo_item
@@ -8,6 +34,11 @@ SELECT *
   FROM todo_list
  WHERE todo_list_id = :todo_list_id
 
+-- name: get-todo-item-by-id
+SELECT *
+  FROM todo_item
+ WHERE item_id = :item_id
+
 -- name: get-view-sublists
 SELECT todo_view_sublist.sublist_id, todo_list.desc
   FROM todo_view_sublist,
@@ -16,6 +47,15 @@ SELECT todo_view_sublist.sublist_id, todo_list.desc
    AND todo_list.todo_list_id = todo_view_sublist.sublist_id
    AND NOT todo_list.is_deleted
  ORDER BY todo_list.desc
+
+-- name: delete-view-sublist!
+DELETE FROM todo_view_sublist
+  WHERE todo_list_id = :todo_list_id
+    AND sublist_id = :sublist_id
+
+-- name: insert-view-sublist!
+INSERT INTO todo_view_sublist(todo_list_id, sublist_id)
+   VALUES(:todo_list_id, :sublist_id)
 
 -- name: get-views-with-sublist
 SELECT todo_list.todo_list_id
@@ -44,6 +84,41 @@ ORDER BY u.email_addr
 SELECT user_id
   FROM todo_list_owners
  WHERE todo_list_id = :todo_list_id
+
+-- name: set-list-deleted!
+UPDATE todo_list
+   SET is_deleted = :is_deleted
+ WHERE todo_list_id = :todo_list_id
+
+-- name: set-list-description!
+UPDATE todo_list
+   SET desc = :desc
+ WHERE todo_list_id = :todo_list_id
+
+-- name: set-list-public!
+UPDATE todo_list
+   SET is_public = :is_public
+ WHERE todo_list_id = :todo_list_id
+
+-- name: set-list-max-item-age!
+UPDATE todo_list
+   SET max_item_age = :max_item_age
+ WHERE todo_list_id = :todo_list_id
+
+-- name: set-list-priority!
+UPDATE todo_list_owners
+   SET priority = :priority
+ WHERE todo_list_id = :todo_list_id
+   AND user_id = :user_id
+
+-- name: delete-list-owner!
+DELETE FROM todo_list_owners
+ WHERE todo_list_id = :todo_list_id
+   AND user_id = :user_id
+
+-- name: insert-list-owner!
+INSERT INTO todo_list_owners(user_id, todo_list_id)
+  VALUES(:user_id, :todo_list_id)
 
 -- name: get-todo-list-ids-by-user
 SELECT DISTINCT todo_list_owners.todo_list_id
@@ -113,15 +188,15 @@ SELECT COUNT(*)
 
 -- name: item-owned-by-user-id?
 SELECT COUNT(*)
- FROM todo_list_owners lo, todo_item item
-WHERE item.item_id = :item_id
-  AND lo.todo_list_id=item.todo_list_id
-  AND lo.user_id = :user_id
+  FROM todo_list_owners lo, todo_item item
+ WHERE item.item_id = :item_id
+   AND lo.todo_list_id=item.todo_list_id
+   AND lo.user_id = :user_id
 
 -- name: get-item-count
 SELECT count(item.item_id)
-   FROM todo_item item
-   WHERE item.todo_list_id = :list_id
+  FROM todo_item item
+ WHERE item.todo_list_id = :list_id
 
 -- name: get-total-active-item-count
 SELECT COUNT(*)
@@ -278,3 +353,8 @@ MERGE INTO todo_item_completion
       UPDATE SET todo_item_completion.is_delete = vals.is_delete
    WHEN NOT MATCHED THEN
       INSERT VALUES :item_id, :user_id, :completed_on, :is_delete
+
+-- name: set-item-ordinal!
+UPDATE todo_item
+   SET item_ordinal = :item_ordinal
+ WHERE item_id = :item_id

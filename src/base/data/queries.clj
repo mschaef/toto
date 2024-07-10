@@ -26,7 +26,6 @@
             [yesql.middleware :as middleware]))
 
 (defn log-query-middleware [ query-fn ]
-  (log/spy :info query-fn)
   (fn [args call-options]
     (let [begin-t (System/currentTimeMillis)
           query-name (get-in call-options [:query :name])]

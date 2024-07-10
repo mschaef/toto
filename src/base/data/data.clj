@@ -31,24 +31,14 @@
 (defn get-user-roles [ user-id ]
   (set
    (map #(keyword "role" (:role_name %))
-        (query-all (current-db-connection)
-                   [(str "SELECT role_name"
-                         "  FROM user u, role r, user_role ur"
-                         "  WHERE u.user_id = ur.user_id"
-                         "    AND ur.role_id = r.role_id"
-                         "    AND u.user_id = ?")
-                    user-id]))))
+        (query/get-user-roles {:user_id user-id}))))
 
 (defn- get-role-id [ role-name ]
-  (query-scalar (current-db-connection)
-                [(str "SELECT role_id"
-                      "  FROM role"
-                      " WHERE role_name = ?")
-                 (name role-name)]))
+  (scalar-result
+   (query/get-role-id {:role_name (name role-name)})))
 
 (defn delete-user-roles [ user-id ]
   (jdbc/delete! (current-db-connection) :user_role ["user_id=?" user-id]))
-
 
 (defn set-user-roles [ user-id role-set ]
   (jdbc/with-db-transaction [ trans (current-db-connection) ]
@@ -122,24 +112,16 @@
                    :created_on (current-time)}))))
 
 (defn get-verification-link-by-user-id [ user-id ]
-  (query-first (current-db-connection) [(str "SELECT *"
-                          "  FROM verification_link"
-                          " WHERE verifies_user_id=?")
-                     user-id]))
+  (first
+   (query/get-verification-link-by-user-id {:user_id user-id})))
 
 (defn get-verification-link-by-id [ link-id ]
-  (query-first (current-db-connection) [(str "SELECT *"
-                          "  FROM verification_link"
-                          " WHERE verification_link_id=?")
-                     link-id]))
+  (first
+   (query/get-verification-link-by-id {:link_id link-id})))
 
 (defn get-verification-link-by-uuid [ link-uuid ]
-  (query-first (current-db-connection) [(str "SELECT *"
-                          "  FROM verification_link"
-                          " WHERE link_uuid=?")
-                     link-uuid]))
+  (first
+   (query/get-verification-link-by-uuid {:link_uuid link-uuid})))
 
 (defn delete-old-verification-links []
-  (jdbc/delete! (current-db-connection)
-                :verification_link
-                ["created_on < DATEADD('hour', -1, CURRENT_TIMESTAMP)"]))
+  (query/delete-old-verification-links!))
