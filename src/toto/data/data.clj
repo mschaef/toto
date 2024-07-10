@@ -59,7 +59,7 @@
                                     :include_snoozed include-snoozed})))
 
 (defn get-todo-lists-by-user [ user-id include-deleted ]
-  (query/get-todo-lists-by-user { :user_id user-id
+  (query/get-todo-lists-by-user {:user_id user-id
                                  :include_deleted include-deleted }))
 
 (defn get-todo-lists-by-user-alphabetical [ user-id include-deleted ]
@@ -74,27 +74,21 @@
   (count (get-todo-lists-by-user user-id false)))
 
 (defn add-list [ desc is-view ]
-  (:todo_list_id (first
-                  (jdbc/insert! (current-db-connection)
-                   :todo_list
-                   {:desc desc
-                    :is_view is-view}))))
+  (:todo_list_id (query/add-list<! {:desc desc
+                                    :is_view is-view})))
 
 (defn set-view-sublist-ids [ user-id todo-list-id sublist-ids ]
-  (jdbc/with-db-transaction [ trans (current-db-connection) ]
+  (with-db-transaction
     (let [next-sublists (set sublist-ids)
           current-sublists (set (map :sublist_id (get-view-sublists user-id todo-list-id)))
-          add-ids (clojure.set/difference next-sublists current-sublists)
-          remove-ids (clojure.set/difference current-sublists next-sublists)]
-      (doseq [ list-id remove-ids ]
-        (jdbc/delete! trans
-                      :todo_view_sublist
-                      ["todo_list_id=? and sublist_id=?" todo-list-id list-id]))
-      (doseq [ list-id add-ids ]
-        (jdbc/insert! trans
-                      :todo_view_sublist
-                      {:todo_list_id todo-list-id
-                       :sublist_id list-id})))))
+          add-sublist-ids (clojure.set/difference next-sublists current-sublists)
+          remove-sublist-ids (clojure.set/difference current-sublists next-sublists)]
+      (doseq [ sublist-id remove-sublist-ids ]
+        (query/delete-view-sublist! {:todo_list_id todo-list-id
+                                     :sublist_id sublist-id} ))
+      (doseq [ sublist-id add-sublist-ids ]
+        (query/insert-view-sublist! {:todo_list_id todo-list-id
+                                     :sublist_id sublist-id})))))
 
 (defn- get-views-with-sublist [ user-id sublist-id ]
   (map :todo_list_id
@@ -102,9 +96,8 @@
 
 (defn- delete-sublist-from-users-views [ trans user-id sublist-id ]
   (doseq [ containing-todo-list-id (get-views-with-sublist user-id sublist-id)]
-    (jdbc/delete! trans
-                  :todo_view_sublist
-                  ["todo_list_id=? and sublist_id=?" containing-todo-list-id sublist-id])))
+    (query/delete-view-sublist! {:todo_list_id containing-todo-list-id
+                                 :sublist_id sublist-id})))
 
 (defn set-list-ownership [ todo-list-id user-ids ]
   (jdbc/with-db-transaction [ trans (current-db-connection) ]
@@ -114,55 +107,40 @@
           remove-user-ids (clojure.set/difference current-owners next-owners)]
       (doseq [ user-id remove-user-ids ]
         (delete-sublist-from-users-views trans user-id todo-list-id)
-        (jdbc/delete! trans
-                      :todo_list_owners
-                      ["todo_list_id=? and user_id=?" todo-list-id user-id]))
-
+        (query/delete-list-owner! {:todo_list_id todo-list-id
+                                   :user_id user-id}))
       (doseq [ user-id add-user-ids ]
-        (jdbc/insert! trans
-                      :todo_list_owners
-                      {:user_id user-id
-                       :todo_list_id todo-list-id})))))
+        (query/insert-list-owner! {:user_id user-id
+                                   :todo_list_id todo-list-id})))))
 
 (defn set-list-priority [ todo-list-id user-id list-priority ]
-  (jdbc/update! (current-db-connection) :todo_list_owners
-                {:priority list-priority}
-                ["todo_list_id=? and user_id=?" todo-list-id user-id]))
-
-(defn remove-list-owner [ todo-list-id user-id ]
-  (jdbc/delete! (current-db-connection) :todo_list_owners
-                ["todo_list_id=? and user_id=?" todo-list-id user-id]))
+  (query/set-list-priority! {:todo_list_id todo-list-id
+                             :user_id user-id
+                             :priority list-priority}))
 
 (defn delete-list [ todo-list-id ]
-  (jdbc/update! (current-db-connection) :todo_list
-                {:is_deleted true}
-                ["todo_list_id=?" todo-list-id]))
+  (query/set-list-deleted! {:todo_list_id todo-list-id
+                            :is_deleted true}))
 
 (defn restore-list [ todo-list-id ]
-  (jdbc/update! (current-db-connection) :todo_list
-                {:is_deleted false}
-                ["todo_list_id=?" todo-list-id]))
+  (query/set-list-deleted! {:todo_list_id todo-list-id
+                            :is_deleted false}))
 
-(defn update-list-description [ list-id list-description ]
-  (jdbc/update! (current-db-connection)
-   :todo_list
-   {:desc list-description}
-   ["todo_list_id=?" list-id]))
+(defn update-list-description [ todo-list-id description ]
+  (query/set-list-description! {:todo_list_id todo-list-id
+                                :desc description}))
 
-(defn set-list-public [ list-id public? ]
-  (jdbc/update! (current-db-connection) :todo_list
-                {:is_public public?}
-                ["todo_list_id=?" list-id]))
+(defn set-list-public [ todo-list-id is-public? ]
+  (query/set-list-public! {:todo_list_id todo-list-id
+                           :is_public is-public?}))
 
-(defn set-list-max-item-age [ list-id max-item-age ]
-  (jdbc/update! (current-db-connection) :todo_list
-                {:max_item_age max-item-age}
-                ["todo_list_id=?" list-id]))
+(defn set-list-max-item-age [ todo-list-id max-item-age ]
+  (query/set-list-max-item-age! {:todo_list_id todo-list-id
+                                 :max_item_age max-item-age}))
 
-(defn clear-list-max-item-age [ list-id ]
-  (jdbc/update! (current-db-connection) :todo_list
-                {:max_item_age nil}
-                ["todo_list_id=?" list-id]))
+(defn clear-list-max-item-age [ todo-list-id ]
+  (query/set-list-max-item-age! {:todo_list_id todo-list-id
+                                 :max_item_age nil}))
 
 (defn list-owned-by-user-id? [ list-id user-id ]
   (> (scalar-result
@@ -175,26 +153,23 @@
      0))
 
 (defn get-next-list-ordinal [ todo-list-id ]
-  (-  (or (scalar-result
-           (query/get-min-ordinal-by-list { :list_id todo-list-id })
-           0)
+  (- (or (scalar-result
+          (query/get-min-ordinal-by-list { :list_id todo-list-id })
           0)
-      1))
+         0)
+     1))
 
 (defn add-todo-item [ user-id todo-list-id desc priority ]
-  (:item_id (first
-             (jdbc/insert! (current-db-connection)
-                           :todo_item
-                           {:todo_list_id todo-list-id
-                            :desc desc
-                            :created_on (current-time)
-                            :created_by user-id
-                            :priority priority
-                            :updated_by user-id
-                            :updated_on (current-time)
-                            :is_deleted false
-                            :is_complete false
-                            :item_ordinal (get-next-list-ordinal todo-list-id)}))))
+  (:item_id (query/add-item<! {:todo_list_id todo-list-id
+                               :desc desc
+                               :created_on (current-time)
+                               :created_by user-id
+                               :priority priority
+                               :updated_by user-id
+                               :updated_on (current-time)
+                               :is_deleted false
+                               :is_complete false
+                               :item_ordinal (get-next-list-ordinal todo-list-id)})))
 
 (defn get-item-count [ list-id ]
   (scalar-result
@@ -246,13 +221,10 @@
   (first
    (query/get-item-by-id { :item_id item-id })))
 
-
 (defn update-item-ordinal! [ item-id new-ordinal ]
   ;; Ordinal changes not audited on the theory they happen so often
-  (jdbc/update! (current-db-connection)
-                :todo_item
-                {:item_ordinal new-ordinal}
-                ["item_id=?" item-id]))
+  (query/set-item-ordinal! {:item_ordinal new-ordinal
+                            :item_id item-id}))
 
 (defn shift-list-items! [ todo-list-id begin-ordinal ]
   (doseq [item (query/list-items-tail {:todo_list_id todo-list-id
@@ -290,10 +262,9 @@
 (defn update-item-by-id! [ user-id item-id values ]
   (jdbc/with-db-transaction [ trans (current-db-connection) ]
     (jdbc/insert! trans :todo_item_history
-                  (query-first (current-db-connection) [(str "SELECT *"
-                                          "  FROM todo_item"
-                                          " WHERE item_id=?")
-                                     item-id]))
+                  (first
+                   (query/get-todo-item-by-id {:item_id item-id}
+                                              {:connection trans})))
     (jdbc/update! trans
                   :todo_item
                   (merge
