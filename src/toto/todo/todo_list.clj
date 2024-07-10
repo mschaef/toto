@@ -288,7 +288,7 @@
 (defn render-todo-list-delayed-page [ list-id ]
   (let [list-href (str "/list/" (encode-list-id list-id))]
     (render-page {:title ((data/get-todo-list-by-id list-id) :desc)
-                  :client-redirect-time 4
+                  :client-redirect-time 5
                   :client-redirect list-href
                   :page-data-class "todo-list-delayed"}
                  [:div.empty-list
@@ -296,7 +296,9 @@
                    "Waiting to display list."]
                   [:p
                    "Please wait for the contents of this list. Or click "
-                   [:a {:href list-href} "here"] " to display now."]]))  )
+                   [:a {:href list-href :data-shortcut-key "0"}
+                    "here"]
+                   " to display now."]]))  )
 
 (defn render-todo-list-completions-page [ list-id params ]
   (let [min-list-priority (or (try-parse-integer (:min-list-priority params)) 0)

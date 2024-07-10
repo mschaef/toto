@@ -157,6 +157,20 @@
       (data/update-item-priority-by-id (auth/current-user-id) item-id new-priority)))
   (success))
 
+
+(defn complete-item [ item-id ]
+  (data/complete-item-by-id (auth/current-user-id) item-id)
+  (success))
+
+(defn delete-item [ item-id ]
+  (let [ list-id (data/get-list-id-by-item-id item-id)]
+    (data/delete-item-by-id (auth/current-user-id) item-id)
+    (redirect-to-list list-id)))
+
+(defn restore-item [ item-id ]
+  (data/restore-item (auth/current-user-id) item-id)
+  (success))
+
 (defn- update-item-desc [ item-id params ]
   (let [{description :description
          action :action} params
@@ -191,19 +205,6 @@
   (let [ { new-priority :new-priority } params]
     (data/update-item-priority-by-id (auth/current-user-id) item-id new-priority)
     (success)))
-
-(defn complete-item [ item-id ]
-  (data/complete-item-by-id (auth/current-user-id) item-id)
-  (success))
-
-(defn delete-item [ item-id ]
-  (let [ list-id (data/get-list-id-by-item-id item-id)]
-    (data/delete-item-by-id (auth/current-user-id) item-id)
-    (redirect-to-list list-id)))
-
-(defn restore-item [ item-id ]
-  (data/restore-item (auth/current-user-id) item-id)
-  (success))
 
 (defn- render-launch-page [ params ]
   (if (auth/current-identity)

@@ -408,28 +408,34 @@ function dismissModalIfPresent() {
     }
 }
 
-function checkModalShortcutBindings(event) {
-    var modal = elemOptional('modal');
-
-    if (!modal) {
-        return;
-    }
-
-    var shortcuts = modal.querySelectorAll('span[data-shortcut-key]');
-
+function checkShortcutBindings(event, elem) {
+    var shortcuts = elem.querySelectorAll('*[data-shortcut-key]');
     for(let shortcut of shortcuts) {
         if (event.key === shortcut.getAttribute('data-shortcut-key')) {
             event.preventDefault();
-            shortcut.onclick();
+            shortcut.click();
+            return true;
         }
     }
+
+    return false;
+}
+
+function checkModalShortcutBindings(event) {
+    var modal = elemOptional('modal');
+
+    return modal && checkShortcutBindings(event, modal);
+}
+
+function checkDocumentShortcutBindings(event) {
+    return checkShortcutBindings(event, document);
 }
 
 function onDocumentKeydown(event) {
     if (event.keyCode == 27) {
         dismissQueryIfPresent();
-    } else {
-        checkModalShortcutBindings(event);
+    } else if (!checkModalShortcutBindings(event)) {
+        checkDocumentShortcutBindings(event);
     }
 }
 
