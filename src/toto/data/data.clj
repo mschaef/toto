@@ -286,8 +286,8 @@
    (map :item_id (get-pending-item-order-by-snoozed-until list-id))))
 
 (defn copy-list [ user-id list-id copy-from-list-id ]
-  (let [current-items (set (map :desc  (get-pending-items list-id 0 0)))
-        from-items (get-pending-items copy-from-list-id 0 0)]
+  (let [current-items (set (map :desc  (get-pending-items list-id 0 0 -99999)))
+        from-items (get-pending-items copy-from-list-id 0 0 -99999)]
     (doseq [ new-item (remove
         #(current-items (:desc %))
         from-items)]
