@@ -127,7 +127,7 @@
   (let [max-item-age (or (:max_item_age (data/get-todo-list-by-id list-id))
                          Integer/MAX_VALUE)
         pending-items (data/get-pending-items list-id completed-within-days snoozed-for-days min-item-priority)
-        n-snoozed-items (count (filter :visibly_snoozed pending-items))
+        n-snoozed-items (count (filter :currently_snoozed pending-items))
         display-items (remove :visibly_snoozed pending-items)
         edit-item-id (if edit-item-id (decode-item-id edit-item-id))]
 
@@ -167,7 +167,8 @@
 
 (defn- render-todo-list-view-section [ sublist-details key other-key]
   (let [items (key sublist-details)
-        section-count (count items)]
+        section-count (count items)
+        snoozed-item-count (:n-snoozed-items sublist-details)]
     (when (> section-count 0)
       [:div.list-view-section
        [:h2
@@ -178,9 +179,11 @@
         (let [other-count (count (get sublist-details other-key []))]
           [:span.other-item-count
            " ("
-           (str section-count " item" (when (not= section-count 1) "s"))
+           (str section-count " starred")
            (when (> other-count 0)
              (str ", " other-count " other" (when (not= other-count 1) "s")))
+           (when (> snoozed-item-count 0)
+             (str ", " snoozed-item-count " snoozed"))
            ")"])]
        items])))
 
@@ -201,7 +204,7 @@
         (map #(render-todo-list-view-section % :normal-priority false) sublists)
 
         (let [ total-snoozed-items (apply + (map :n-snoozed-items sublists))]
-          (when (and writable? (> total-snoozed-items 0))
+          (when (and writable? (> total-snoozed-items 0) (<= snoozed-for-days 0))
             (render-snoozed-item-warning total-snoozed-items)))))]))
 
 (defn- message-recepient? []

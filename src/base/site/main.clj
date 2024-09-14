@@ -33,7 +33,6 @@
             [base.web :as web]
             [base.data.data :as core-data]
             [base.site.routes :as routes]
-
             [toto.data.data :as data]
             [toto.todo.sunset :as sunset]))
 
