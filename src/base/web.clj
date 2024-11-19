@@ -31,6 +31,7 @@
          browser-caching])
   (:require [taoensso.timbre :as log]
             [ring.adapter.jetty :as jetty]
+            [ring.middleware.json :as ring-json]
             [ring.middleware.reload :as ring-reload]
             [ring.middleware.file-info :as ring-file-info]
             [ring.middleware.resource :as ring-resource]
@@ -104,6 +105,7 @@
       (wrap-request-thread-naming)
       (config/wrap-config)
       (wrap-dev-support (config/cval :development-mode))
+      (ring-json/wrap-json-response)
       (wrap-exception-handling)))
 
 (defn start-site [ db-conn-pool session-store routes ]

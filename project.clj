@@ -12,6 +12,7 @@
                  [hiccup "1.0.5"]
                  [ring/ring-jetty-adapter "1.11.0"]
                  [ring/ring-devel "1.11.0"]
+                 [ring/ring-json "0.5.1"]
                  [slester/ring-browser-caching "0.1.1"]
                  [com.cemerick/friend "0.2.3"]
                  [compojure "1.7.1"]
