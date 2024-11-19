@@ -49,33 +49,34 @@
 
 (def date-format (java.text.SimpleDateFormat. "yyyyMMdd-hhmm"))
 
-(defn- get-backup-filename [ ]
+(defn- get-backup-filename [ backup-path ]
   (format "%s/%s-backup-%s.tgz"
-          (config/cval :db :backup-path)
+          backup-path
           (config/cval :app :name)
           (.format date-format (current-time))))
 
-(defn- backup-database [ backup-file-name ]
-  (log/info "Backing database up to" backup-file-name)
-  (sql-file/backup-to-file-online (current-db-connection) backup-file-name)
-  (log/info "Database backup complete" backup-file-name))
-
-(defn- archive-backup-file [ backup-file-name ]
+(defn- archive-backup-file [ backup-filename ]
   (when-let [ archive-config (config/cval :db :backup-archive )]
-    (let [ file (java.io.File. backup-file-name) ]
-      (log/info "Archiving backup file" backup-file-name)
+    (let [ file (java.io.File. backup-filename) ]
+      (log/info "Archiving database backup file")
       (put-object archive-config file)
-      (log/info "File archive complete, deleting file" backup-file-name)
-      (.delete file))))
+      (log/info "Database backup archive complete, deleting backup file")
+      (.delete file)
+      (log/info "Database backup file archived and deleted"))))
+
+(defn- backup-database [ db-conn-pool backup-path ]
+  (let [ backup-filename (get-backup-filename backup-path) ]
+    (log/info "Backing database up to: " backup-filename)
+    (with-db-connection db-conn-pool
+      (sql-file/backup-to-file-online (current-db-connection) backup-filename))
+    (archive-backup-file backup-filename)
+    (log/info "Database backup complete")))
 
 (defn schedule-backup [ scheduler db-conn-pool ]
   (if-let [backup-path (config/cval :db :backup-path)]
     (do
       (log/info "Database backup configured with path: " backup-path)
       (scheduler/schedule-job scheduler :db-backup
-                              #(let [ backup-path (get-backup-filename) ]
-                                 (with-db-connection db-conn-pool
-                                   (backup-database backup-path))
-                                 (archive-backup-file backup-path))))
+                              #(backup-database db-conn-pool backup-path)))
     (log/warn "NO BACKUP PATH. AUTOMATIC BACKUP DISABLED!!!"))
   scheduler)
