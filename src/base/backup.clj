@@ -66,11 +66,11 @@
 
 (defn- backup-database [ db-conn-pool backup-path ]
   (let [ backup-filename (get-backup-filename backup-path) ]
-    (log/info "Backing database up to: " backup-filename)
+    (log/report "Backing database up to: " backup-filename)
     (with-db-connection db-conn-pool
       (sql-file/backup-to-file-online (current-db-connection) backup-filename))
     (archive-backup-file backup-filename)
-    (log/info "Database backup complete")))
+    (log/report "Database backup complete")))
 
 (defn schedule-backup [ scheduler db-conn-pool ]
   (if-let [backup-path (config/cval :db :backup-path)]
