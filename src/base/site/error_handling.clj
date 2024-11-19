@@ -42,7 +42,7 @@
                    (copy-button uuid "Copy Code")])]))
 
 (defn page-not-found [ req ]
-  (log/warn "Page not found:" (:uri req))
+  (log/info "Page not found:" (:uri req))
   (render-page { :title "Page Not Found"}
                [:div.page-message
                 [:h1 "Page Not Found"]
