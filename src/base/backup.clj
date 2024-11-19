@@ -24,8 +24,8 @@
         sql-file.middleware)
   (:require [taoensso.timbre :as log]
             [sql-file.core :as sql-file]
-            [base.scheduler :as scheduler]
-            [playbook.config :as config]))
+            [playbook.config :as config]
+            [playbook.scheduler :as scheduler]))
 
 (defn- s3-client [ archive-config ]
   (-> (software.amazon.awssdk.services.s3.S3Client/builder)

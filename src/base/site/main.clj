@@ -27,7 +27,7 @@
   (:require [taoensso.timbre :as log]
             [sql-file.core :as sql-file]
             [playbook.config :as config]
-            [base.scheduler :as scheduler]
+            [playbook.scheduler :as scheduler]
             [base.backup :as backup]
             [base.session :as session]
             [base.web :as web]
