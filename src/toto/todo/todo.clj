@@ -211,6 +211,11 @@
     (redirect-to-home-list)
     (landing-page/render-landing-page params)))
 
+(defn- render-item-counts []
+  {:body {:total-active-item-count (data/get-total-active-item-count)
+          :total-item-history-count (data/get-total-item-history-count)
+          :user-count (data/get-user-count)}})
+
 (defn- list-routes [ list-id ]
   (when-let-route [list-id (accept-authorized-list-id list-id)]
     (GET "/" { params :params }
@@ -288,6 +293,9 @@
 (defroutes public-routes
   (GET "/" { params :params }
     (render-launch-page params))
+
+  (GET "/item-counts" []
+    (render-item-counts))
 
   (GET "/list/:list-id/public" { { list-id :list-id } :params }
     ;; Retain backward compatibility with older public list URL scheme

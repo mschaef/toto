@@ -211,8 +211,20 @@
 
 (defn get-item-count [ list-id ]
   (scalar-result
-   (query/get-item-count {:list_id list-id }
+   (query/get-item-count {:list_id list-id}
                          { :connection (current-db-connection) })))
+
+(defn get-total-active-item-count []
+  (scalar-result
+   (query/get-total-active-item-count {} {:connection (current-db-connection)})))
+
+(defn get-total-item-history-count []
+  (scalar-result
+   (query/get-total-item-history-count {} {:connection (current-db-connection)})))
+
+(defn get-user-count []
+  (scalar-result
+   (query/get-user-count {} {:connection (current-db-connection)})))
 
 (defn get-pending-items [ list-id completed-within-days snoozed-within-days min-item-priority ]
   (query/get-pending-items {:list_id list-id

@@ -123,6 +123,19 @@ SELECT count(item.item_id)
    FROM todo_item item
    WHERE item.todo_list_id = :list_id
 
+-- name: get-total-active-item-count
+SELECT COUNT(*)
+  FROM todo_item
+ WHERE NOT (is_deleted OR is_complete)
+
+-- name: get-total-item-history-count
+SELECT count(*)
+  FROM todo_item_history
+
+-- name: get-user-count
+SELECT count(*)
+  FROM user;
+
 -- name: get-pending-items
 SELECT item.item_id,
        item.todo_list_id,
