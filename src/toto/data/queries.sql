@@ -82,6 +82,24 @@ SELECT todo_list.todo_list_id,
           todo_list_owners.priority DESC,
           todo_list.desc
 
+
+-- name: get-todo-lists-by-user-alphabetical
+SELECT todo_list.todo_list_id,
+       todo_list.desc,
+       todo_list.is_public,
+       todo_list.is_view,
+       todo_list.is_deleted,
+       todo_list_owners.priority,
+       (SELECT count(list_owners.user_id)
+          FROM todo_list_owners list_owners
+         WHERE list_owners.todo_list_id = todo_list.todo_list_id) AS list_owner_count
+  FROM todo_list, todo_list_owners
+ WHERE (:include_deleted
+        OR NOT(todo_list.is_deleted))
+   AND todo_list.todo_list_id=todo_list_owners.todo_list_id
+   AND todo_list_owners.user_id = :user_id
+ ORDER BY todo_list.desc
+
 -- name: get-todo-lists-with-item-age-limit
 SELECT todo_list.todo_list_id, todo_list.max_item_age
   FROM todo_list

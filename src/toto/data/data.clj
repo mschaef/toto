@@ -70,6 +70,11 @@
                                  :include_deleted include-deleted }
                                 { :connection (current-db-connection) }))
 
+(defn get-todo-lists-by-user-alphabetical [ user-id include-deleted ]
+  (query/get-todo-lists-by-user-alphabetical { :user_id user-id
+                                              :include_deleted include-deleted }
+                                             { :connection (current-db-connection) }))
+
 (defn get-todo-lists-with-item-age-limit [ ]
   (query/get-todo-lists-with-item-age-limit { }
                                             { :connection (current-db-connection) }))
