@@ -50,7 +50,7 @@
 (defn- ensure-string-breaks [ string at ]
   (clojure.string/replace string at (str at html-breakpoint)))
 
-(def url-regex #"(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
+(def url-regex #"(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;\(\)]*[-a-zA-Z0-9\(\)+&@#/%=~_|]")
 
 (def link-list-prefix "/list/")
 
