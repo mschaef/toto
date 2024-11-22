@@ -3,10 +3,10 @@
   :license { :name "Copyright East Coast Toolworks (c) 2012-2023"}
 
   :dependencies [[org.clojure/clojure "1.12.0"]
-                 [commons-io "2.17.0"]
-                 [com.mschaef/sql-file "0.4.11"]
+                 [commons-io "2.18.0"]
+                 [com.mschaef/sql-file "0.4.12"]
                  [cprop "0.1.20"]
-                 [yesql "0.5.3"]
+                 [yesql "0.5.4"]
                  [org.clojure/data.json "2.5.0"]
                  [clj-http "3.13.0"]
                  [hiccup "1.0.5"]
@@ -19,8 +19,8 @@
                  [joda-time/joda-time "2.13.0"]
                  [com.draines/postal "2.0.5"]
                  [it.sauronsoftware.cron4j/cron4j "2.2.5"]
-                 [com.mschaef/playbook "0.1.3"]
-                 [software.amazon.awssdk/s3  "2.29.16"]]
+                 [com.mschaef/playbook "0.1.4"]
+                 [software.amazon.awssdk/s3  "2.29.19"]]
 
   :plugins [[lein-tar "3.3.0"]]
 
