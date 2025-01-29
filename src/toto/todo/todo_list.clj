@@ -299,7 +299,8 @@
                    "Waiting to display list."]
                   [:p
                    "Please wait for the contents of this list. Or click "
-                   [:a {:href list-href :data-shortcut-key "0"}
+                   [:a {:href list-href :data-shortcut-key "0"
+                        :data-turbo "false"}
                     "here"]
                    " to display now."]]))  )
 

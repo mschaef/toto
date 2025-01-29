@@ -115,10 +115,12 @@
       (config/cval :app :title)
       (when title (str " - " title))]
      [:link { :rel "shortcut icon" :href (resource "favicon.ico")}]
-     (hiccup-page/include-css (resource "toto.css")
-                              (resource "font-awesome.min.css"))
+     (hiccup-page/include-css
+      (resource "toto.css")
+      (resource "font-awesome.min.css"))
      [:script {:type "module" :src (resource "toto.js")}]
-     (hiccup-page/include-js (resource "DragDropTouch.js"))]))
+     (hiccup-page/include-js
+      (resource "DragDropTouch.js"))]))
 
 (defn- render-header [ page-title show-menu? ]
   (let [ username (auth/current-identity)]
