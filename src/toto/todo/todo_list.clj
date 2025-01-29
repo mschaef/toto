@@ -111,17 +111,22 @@
                           "Completed within: "]
                          (render-duration-select "clwithin" completed-within-days query-durations true)])])
 
-(defn- render-empty-list []
+(defn- render-empty-list [ n-snoozed-items ]
   [:div.empty-list
    [:h1
     "Nothing to do right now!"]
-   [:p
-    "To get started, you can add new items in the box above."]])
+   (when (<= n-snoozed-items 0)
+     [:p
+      "To get started, you can add new items in the box above."])])
 
-(defn- render-snoozed-item-warning [ n-snoozed-items ]
-  [:div.snoozed-item-warning
-   n-snoozed-items " more item" (if (= n-snoozed-items 1) "" "s" ) " snoozed for later. "
-   "Click " [:a {:href (shref "" {:sfor "99999"})} "here"] " to show."])
+(defn- render-snoozed-item-query-settings [ n-snoozed-items snoozed-for-days ]
+  (when (> n-snoozed-items 0)
+    (if (> snoozed-for-days 0)
+      [:div.snoozed-item-query-settings
+       "Including snoozed items. Click " [:a {:href (shref "" {:sfor :remove})} "here"] " to hide."]
+      [:div.snoozed-item-query-settings
+       n-snoozed-items " more item" (if (= n-snoozed-items 1) "" "s" ) " snoozed for later. "
+       "Click " [:a {:href (shref "" {:sfor "99999"})} "here"] " to show."])))
 
 (defn- todo-list-details [ view-list-id list-id edit-item-id writable? completed-within-days snoozed-for-days min-item-priority ]
   (let [max-item-age (or (:max_item_age (data/get-todo-list-by-id list-id))
@@ -143,16 +148,17 @@
           (filter #(<= (:priority %) 0) display-items))}))
 
 (defn- render-single-todo-list [ view-list-id list-id edit-item-id writable? completed-within-days snoozed-for-days min-item-priority ]
-  (let [details (todo-list-details view-list-id list-id edit-item-id writable? completed-within-days snoozed-for-days min-item-priority)]
+  (let [details (todo-list-details view-list-id list-id edit-item-id writable? completed-within-days snoozed-for-days min-item-priority)
+        n-snoozed-items (:n-snoozed-items details)]
     (list
      [:div.toplevel-list
       (if (:is-empty? details)
-        (render-empty-list)
+        (render-empty-list n-snoozed-items)
         (concat
          (:high-priority details)
          (:normal-priority details)))]
-     (when (and writable? (> (:n-snoozed-items details) 0))
-       (render-snoozed-item-warning (:n-snoozed-items details))))))
+     (when writable?
+       (render-snoozed-item-query-settings n-snoozed-items snoozed-for-days)))))
 
 (defn- render-empty-view [ list-id ]
   [:div.empty-list
@@ -188,24 +194,23 @@
        items])))
 
 (defn- render-todo-list-view [ list-id edit-item-id writable? completed-within-days snoozed-for-days min-item-priority ]
-  (let [ sublists (map #(merge % (todo-list-details list-id (:sublist_id %) edit-item-id writable? completed-within-days snoozed-for-days min-item-priority))
-                       (data/get-view-sublists (auth/current-user-id) list-id))]
+  (let [sublists (map #(merge % (todo-list-details list-id (:sublist_id %) edit-item-id writable? completed-within-days snoozed-for-days min-item-priority))
+                      (data/get-view-sublists (auth/current-user-id) list-id))
+        total-snoozed-items (apply + (map :n-snoozed-items sublists))]
     [:div.toplevel-list
      (cond
        (= 0 (count sublists))
        (render-empty-view list-id)
 
        (every? true? (map :is-empty? sublists))
-       (render-empty-list)
+       (render-empty-list total-snoozed-items)
 
        :else
        (list
         (map #(render-todo-list-view-section % :high-priority :normal-priority) sublists)
         (map #(render-todo-list-view-section % :normal-priority false) sublists)
-
-        (let [ total-snoozed-items (apply + (map :n-snoozed-items sublists))]
-          (when (and writable? (> total-snoozed-items 0) (<= snoozed-for-days 0))
-            (render-snoozed-item-warning total-snoozed-items)))))]))
+        (when writable?
+          (render-snoozed-item-query-settings total-snoozed-items snoozed-for-days))))]))
 
 (defn- message-recepient? []
   (or (= 16 (auth/current-user-id))

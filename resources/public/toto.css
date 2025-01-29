@@ -722,7 +722,7 @@ h1 {
     background: #d0d0d0;
 }
 
-.snoozed-item-warning {
+.snoozed-item-query-settings {
     text-align: center;
 
     padding-left: 10px;
@@ -874,6 +874,10 @@ A .pill {
     background: #c0c0c0;
 }
 
+.snoozed .pill {
+    font-weight: bold;
+}
+
 .list-visibility-flag {
     padding-left: 6px;
 }
@@ -969,7 +973,6 @@ A .pill {
 }
 
 .snoozed {
-    background: #f0f0f0;
     font-style: italic;
 }
 
