@@ -41,7 +41,7 @@ dialog {
     width: 80%;
 }
 
-@media only screen and (min-device-width : 640px) {
+@media only screen and (min-width : 640px) {
     dialog {
         width: auto;
         max-width: 40%;
@@ -134,7 +134,7 @@ dialog p {
     flex-direction: column;
 }
 
-@media only screen and (max-device-width : 640px) {
+@media only screen and (max-width : 640px) {
     .contents {
         margin-bottom: 30px;
     }
@@ -144,7 +144,7 @@ dialog p {
     display: none;
 }
 
-@media only screen and (min-device-width : 640px) {
+@media only screen and (min-width : 640px) {
     .contents.with-sidebar {
         padding-left: 271px;
     }
@@ -194,7 +194,7 @@ dialog p {
     transform: translate3d( 320px, 0, 0 );
 }
 
-@media only screen and (min-device-width : 640px) {
+@media only screen and (min-width : 640px) {
     .sidebar.menu-visible {
         transform: none;
     }
@@ -204,7 +204,7 @@ dialog p {
     display: none;
 }
 
-@media only screen and (min-device-width : 640px) {
+@media only screen and (min-width : 640px) {
     .sidebar {
         padding-top: 40px;
         z-index: 1;
@@ -233,7 +233,7 @@ dialog p {
     line-height: 3em;
 }
 
-@media only screen and (min-device-width : 640px) {
+@media only screen and (min-width : 640px) {
     .sidebar-control {
         display: none;
     }
@@ -360,7 +360,7 @@ input[type=text], input[type=password] {
     border-radius: 4px;
 }
 
-@media only screen and (min-device-width : 640px) {
+@media only screen and (min-width : 640px) {
     input[type=text], input[type=password] {
         padding: 4px;
     }
@@ -459,7 +459,7 @@ select:hover {
     margin-right: 10px;
 }
 
-@media only screen and (max-device-width : 640px) {
+@media only screen and (max-width : 640px) {
     .new-item-form {
         flex-wrap: wrap;
     }
@@ -494,7 +494,7 @@ select:hover {
     width: auto;
 }
 
-@media only screen and (min-device-width : 640px) {
+@media only screen and (min-width : 640px) {
     .auth-form {
         width: 480px;
     }
@@ -526,7 +526,7 @@ select:hover {
     padding-right: 0.5em;
 }
 
-@media only screen and (min-device-width : 640px) {
+@media only screen and (min-width : 640px) {
     .header .login-controls {
         float: right;
     }
@@ -585,7 +585,8 @@ select:hover {
 }
 
 .app-name {
-    display: none;
+    display: inline-block;
+    margin-right: 3px;
 }
 
 .header .app-name A {
@@ -593,20 +594,13 @@ select:hover {
     font-weight: bold;
 }
 
-@media only screen and (min-device-width : 640px) {
-    .app-name {
-        display: inline-block;
-        margin-right: 3px;
-    }
-}
-
-@media only screen and (max-device-width : 640px) {
+@media only screen and (max-width : 640px) {
     .header .session-controls {
         display: none;
     }
 }
 
-@media only screen and (min-device-width : 640px) {
+@media only screen and (min-width : 640px) {
     .header .session-controls {
         float: right;
     }
@@ -618,7 +612,7 @@ select:hover {
     text-align: center;
 }
 
-@media only screen and (min-device-width : 640px) {
+@media only screen and (min-width : 640px) {
     .page-message .session-controls {
         display: none;
     }
@@ -642,10 +636,17 @@ select:hover {
 }
 
 .item-control {
-    width: 25px;
-    min-width: 25px;
+    width: 35px;
+    min-width: 35px;
     flex: 0;
     text-align: center;
+}
+
+@media only screen and (min-width : 640px) {
+    .item-control {
+        width: 25px;
+        min-width: 25px;
+    }
 }
 
 /*** Toplevel list styling ***/
@@ -681,7 +682,7 @@ select:hover {
     color: black;
 }
 
-@media only screen and (min-device-width : 640px) {
+@media only screen and (min-width : 640px) {
     .toplevel-list {
         padding-left: 0px;
         padding-right: 0px;
@@ -775,7 +776,7 @@ h1 {
     text-align: center;
 }
 
-@media only screen and (min-device-width : 640px) {
+@media only screen and (min-width : 640px) {
     .sidebar .list-list .list-row {
         padding-top: 0px;
         padding-bottom: 0px;
@@ -908,7 +909,7 @@ A .pill {
     display: flex;
 }
 
-@media only screen and (min-device-width : 640px) {
+@media only screen and (min-width : 640px) {
     .priority.left,.item-drag-handle.left {
         display: flex;
     }
@@ -950,7 +951,7 @@ A .pill {
     flex: 1;
 }
 
-@media only screen and (min-device-width : 640px) {
+@media only screen and (min-width : 640px) {
     .item-row {
         padding-bottom: 4px;
     }
@@ -961,7 +962,7 @@ A .pill {
     min-width: 25px;
 }
 
-@media only screen and (min-device-width : 640px) {
+@media only screen and (min-width : 640px) {
     .item-row.item-drag-handle {
         padding: 3px 6px 3px 3px;
         font-size: inherit;
