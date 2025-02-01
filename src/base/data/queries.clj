@@ -29,9 +29,9 @@
   (fn [args call-options]
     (let [begin-t (System/currentTimeMillis)
           query-name (get-in call-options [:query :name])]
-      (log/info [ :begin query-name  args ])
+      (log/debug [ :begin query-name args ])
       (let [ result (query-fn args call-options) ]
-        (log/info [ :end query-name (- (System/currentTimeMillis) begin-t)])
+        (log/debug [ :end query-name (- (System/currentTimeMillis) begin-t)])
         result))))
 
 (def query-middleware (comp (middleware/set-connection current-db-connection)
