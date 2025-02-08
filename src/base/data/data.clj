@@ -57,16 +57,14 @@
 
 (defn get-user-by-email [ email-addr ]
   (first
-   (query/get-user-by-email { :email_addr email-addr}
-                            { :connection (current-db-connection) })))
+   (query/get-user-by-email { :email_addr email-addr })))
 
 (defn user-email-exists? [ email-addr ]
   (not (nil? (get-user-by-email email-addr))))
 
 (defn get-user-by-id [ user-id ]
   (first
-   (query/get-user-by-id { :user_id user-id }
-                         { :connection (current-db-connection) })))
+   (query/get-user-by-id { :user_id user-id })))
 
 (defn add-user [ friendly-name email-addr password ]
   (let [ now (current-time)]
@@ -82,8 +80,8 @@
                              :email_addr email-addr}))
 
 (defn set-user-name [ email-addr name ]
-  (query/set-user-name! {:friendly_name name
-                         :password_created_on (current-time)}))
+  (query/set-user-name! {:email_addr email-addr
+                         :friendly_name name}))
 
 (defn record-user-login [ email-addr login-ip ]
   (query/record-user-login! {:last_login_on (current-time)

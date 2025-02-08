@@ -58,6 +58,6 @@
 (defn app-start [ app-routes ]
   (let [config (config/cval)]
     (sql-file/with-pool [db-conn (db-conn-spec config)]
-      (let [ session-store (session/session-store db-conn)]
+      (let [ session-store (session/session-store)]
         (start-scheduled-jobs db-conn session-store)
         (web/start-site db-conn session-store (routes/all-routes app-routes))))))

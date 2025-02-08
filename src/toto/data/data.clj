@@ -63,9 +63,8 @@
                                  :include_deleted include-deleted }))
 
 (defn get-todo-lists-by-user-alphabetical [ user-id include-deleted ]
-  (query/get-todo-lists-by-user-alphabetical { :user_id user-id
-                                              :include_deleted include-deleted }
-                                             { :connection (current-db-connection) }))
+  (query/get-todo-lists-by-user-alphabetical {:user_id user-id
+                                              :include_deleted include-deleted }))
 
 (defn get-todo-lists-with-item-age-limit [ ]
   (query/get-todo-lists-with-item-age-limit { }))
@@ -177,15 +176,15 @@
 
 (defn get-total-active-item-count []
   (scalar-result
-   (query/get-total-active-item-count {} {:connection (current-db-connection)})))
+   (query/get-total-active-item-count {})))
 
 (defn get-total-item-history-count []
   (scalar-result
-   (query/get-total-item-history-count {} {:connection (current-db-connection)})))
+   (query/get-total-item-history-count {})))
 
 (defn get-user-count []
   (scalar-result
-   (query/get-user-count {} {:connection (current-db-connection)})))
+   (query/get-user-count {})))
 
 (defn get-pending-items [ list-id completed-within-days snoozed-within-days min-item-priority ]
   (query/get-pending-items {:list_id list-id

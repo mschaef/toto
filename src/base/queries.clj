@@ -19,23 +19,12 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns base.data.queries
+(ns base.queries
   (:use sql-file.middleware)
   (:require [taoensso.timbre :as log]
             [yesql.core :refer [ defqueries ]]
-            [yesql.middleware :as middleware]))
+            [yesql.middleware :as middleware]
+            [base.data.queries :as queries]))
 
-(defn log-query-middleware [ query-fn ]
-  (fn [args call-options]
-    (let [begin-t (System/currentTimeMillis)
-          query-name (get-in call-options [:query :name])]
-      (log/debug [ :begin query-name args ])
-      (let [ result (query-fn args call-options) ]
-        (log/debug [ :end query-name (- (System/currentTimeMillis) begin-t)])
-        result))))
-
-(def query-middleware (comp (middleware/set-connection current-db-connection)
-                            log-query-middleware))
-
-(defqueries "base/data/queries.sql"
-  {:middleware query-middleware})
+(defqueries "base/queries.sql"
+  {:middleware queries/query-middleware})
