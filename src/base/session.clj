@@ -26,11 +26,9 @@
   (:require [taoensso.timbre :as log]
             [ring.middleware.session.store :as store]
             [clojure.edn :as edn]
+            [playbook.config :as config]
             [base.queries :as query])
   (:import [java.util UUID]))
-
-(def access-date-stale-threshold
-  (* 2 60 60 1000))
 
 (defn- update-sql-session-access-date [ session-key ]
   (let [ accessed-on (current-time)]
@@ -41,7 +39,7 @@
 (defn- session-stale? [ session ]
   (> (- (.getTime (current-time))
         (.getTime (:accessed_on_day session)))
-     access-date-stale-threshold))
+     (* (config/cval :web-session :stale-hours) 60 60 1000)))
 
 (defn- get-sql-session [ session-key ]
   (when-let [ session (first (query/query-sql-session {:session_key session-key}))]
@@ -98,7 +96,8 @@
   (StoreMemoryCache. (SQLStore.) (atom {})))
 
 (defn delete-old-web-sessions [ session-store ]
-  (let [ stale-sessions (query/get-stale-sessions) ]
+  (let [stale-sessions
+        (query/get-old-sessions {:max_session_age_hours (config/cval :web-session :max-age-hours)}) ]
     (log/info (count stale-sessions) "stale web session(s) to be deleted.")
     (doseq [ session stale-sessions ]
       (.delete-session session-store (:session_key session)))))

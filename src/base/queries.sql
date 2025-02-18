@@ -24,7 +24,7 @@ UPDATE web_session
   SET accessed_on_day = :accessed_on_day
  WHERE session_key = :session_key
 
--- name: get-stale-sessions
+-- name: get-old-sessions
 SELECT session_key
   FROM web_session
- WHERE accessed_on_day < DATEADD('month', -1, CURRENT_TIMESTAMP)
+ WHERE accessed_on_day < DATEADD('hour', -CAST(:max_session_age_hours as INTEGER), CURRENT_TIMESTAMP)
