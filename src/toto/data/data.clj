@@ -53,6 +53,11 @@
   (map :todo_list_id
        (query/get-todo-list-ids-by-user { :user_id user-id })))
 
+(defn get-todo-list-view-item-count [ todo-list-view-id include-snoozed ]
+  (scalar-result
+   (query/get-todo-list-view-item-count {:todo_list_view_id todo-list-view-id
+                                         :include_snoozed include-snoozed})))
+
 (defn get-todo-list-item-count [ todo-list-id include-snoozed ]
   (scalar-result
    (query/get-todo-list-item-count {:todo_list_id todo-list-id

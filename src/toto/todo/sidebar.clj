@@ -75,7 +75,9 @@
                 (hiccup.util/escape-html list-desc)
                 (render-list-visibility-flag list)]
                [:span.pill
-                (data/get-todo-list-item-count list-id (> snoozed-for-days 0))]]))
+                (if is-view
+                  (data/get-todo-list-view-item-count list-id (> snoozed-for-days 0))
+                  (data/get-todo-list-item-count list-id (> snoozed-for-days 0)))]]))
 
           (remove #(and (< (:priority %) min-list-priority)
                         (not (= (Integer. selected-list-id) (:todo_list_id %))))
