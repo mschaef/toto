@@ -19,21 +19,10 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns base.site.routes
-  (:use playbook.core
-        compojure.core)
+(ns toto.todo.data.queries
   (:require [taoensso.timbre :as log]
-            [compojure.route :as route]
-            [playbook.config :as config]
-            [toto.util :as util]
-            [base.site.user :as user]
-            [base.site.error-handling :as error-handling]))
+            [yesql.core :refer [ defqueries ]]
+            [toto.data.queries :as queries]))
 
-(defn all-routes [ app-routes ]
-  (let [ resources-path (str "/" (util/get-version)) ]
-    (log/info "Resources on path: " resources-path )
-    (routes
-     (route/resources resources-path)
-     user/all-routes
-     app-routes
-     error-handling/all-routes)))
+(defqueries "toto/todo/data/queries.sql"
+  {:middleware queries/query-middleware})

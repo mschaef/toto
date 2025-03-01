@@ -19,20 +19,21 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
+(ns toto.site.routes
+  (:use playbook.core
+        compojure.core)
+  (:require [taoensso.timbre :as log]
+            [compojure.route :as route]
+            [playbook.config :as config]
+            [toto.util :as util]
+            [toto.site.user :as user]
+            [toto.site.error-handling :as error-handling]))
 
-(ns base.gdpr
-  (:gen-class :main true)
-  (:use playbook.core)
-  (:require [taoensso.timbre :as log]))
-
-(def ^:dynamic *gdpr-consent* nil)
-
-(defn wrap-gdpr-filter [ app ]
-  (fn [ req ]
-    (binding [ *gdpr-consent* (get-in req [:headers "cookie"] )]
-      (let [ resp (app req) ]
-        (if  (or *gdpr-consent*
-                 (= (:uri req) "/user/gdpr-consent"))
-          resp
-          (dissoc resp :session))))))
-
+(defn all-routes [ app-routes ]
+  (let [ resources-path (str "/" (util/get-version)) ]
+    (log/info "Resources on path: " resources-path )
+    (routes
+     (route/resources resources-path)
+     user/all-routes
+     app-routes
+     error-handling/all-routes)))

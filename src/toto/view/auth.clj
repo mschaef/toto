@@ -19,7 +19,7 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns base.view.auth
+(ns toto.view.auth
   (:use playbook.core
         compojure.core)
   (:require [taoensso.timbre :as log]
@@ -27,8 +27,8 @@
             [cemerick.friend :as friend]
             [cemerick.friend.workflows :as workflows]
             [playbook.config :as config]
-            [base.data.data :as core-data]
-            [base.mail :as mail]))
+            [toto.data.data :as core-data]
+            [toto.site.mail :as mail]))
 
 
 (defn get-user-id-by-email [ email ]

@@ -19,23 +19,24 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns base.data.queries
-  (:use sql-file.middleware)
-  (:require [taoensso.timbre :as log]
-            [yesql.core :refer [ defqueries ]]
-            [yesql.middleware :as middleware]))
+(ns toto.view.common
+  (:use playbook.core)
+  (:require [toto.util :as util]))
 
-(defn log-query-middleware [ query-fn ]
-  (fn [args call-options]
-    (let [begin-t (System/currentTimeMillis)
-          query-name (get-in call-options [:query :name])]
-      (log/debug [ :begin query-name args ])
-      (let [ result (query-fn args call-options) ]
-        (log/debug [ :end query-name (- (System/currentTimeMillis) begin-t)])
-        result))))
+;;; Ring Responses
 
-(def query-middleware (comp (middleware/set-connection current-db-connection)
-                            log-query-middleware))
+(defn unprocessable-entity [ body ]
+  {:status  422
+   :headers {}
+   :body    body})
 
-(defqueries "base/data/queries.sql"
-  {:middleware query-middleware})
+;;; HTML Utilities
+
+(defn class-set [ classes ]
+  (clojure.string/join " " (map str (filter #(classes %)
+                                            (keys classes)))))
+
+;;; Resource Paths
+
+(defn resource [ path ]
+  (str "/" (util/get-version) "/" path))

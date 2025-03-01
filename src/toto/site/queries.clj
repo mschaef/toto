@@ -19,12 +19,11 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns base.queries
+(ns toto.site.queries
   (:use sql-file.middleware)
-  (:require [taoensso.timbre :as log]
-            [yesql.core :refer [ defqueries ]]
+  (:require [yesql.core :refer [ defqueries ]]
             [yesql.middleware :as middleware]
-            [base.data.queries :as queries]))
+            [toto.data.queries :as queries]))
 
-(defqueries "base/queries.sql"
+(defqueries "toto/site/queries.sql"
   {:middleware queries/query-middleware})
