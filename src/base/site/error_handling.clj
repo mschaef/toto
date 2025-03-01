@@ -25,8 +25,7 @@
         base.view.page)
   (:require [taoensso.timbre :as log]
             [compojure.route :as route]
-            [playbook.config :as config]
-            [toto.util :as util]))
+            [playbook.config :as config]))
 
 (defn error-page [ & { :keys [ uuid ]}]
   (render-page { :title "Unexpected Error"}
@@ -43,7 +42,7 @@
                    (copy-button uuid "Copy Code")])]))
 
 (defn page-not-found [ req ]
-  (log/warn "Page not found:" (:uri req))
+  (log/info "Page not found:" (:uri req))
   (render-page { :title "Page Not Found"}
                [:div.page-message
                 [:h1 "Page Not Found"]

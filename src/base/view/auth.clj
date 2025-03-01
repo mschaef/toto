@@ -28,7 +28,6 @@
             [cemerick.friend.workflows :as workflows]
             [playbook.config :as config]
             [base.data.data :as core-data]
-            [toto.data.data :as data]
             [base.mail :as mail]))
 
 
@@ -38,7 +37,7 @@
     nil))
 
 (defmacro authorize-expected-roles [ & body ]
-  `(friend/authorize #{:toto.role/user} ~@body))
+  `(friend/authorize #{:role/user} ~@body))
 
 (defn report-unauthorized []
   (friend/throw-unauthorized (friend/current-authentication) {}))
@@ -55,9 +54,8 @@
   (if-let [ cauth (friend/current-authentication) ]
     (:friendly_name (:user-record cauth))))
 
-(defn authorize-toto-valid-user [ routes ]
-  (-> routes
-      (wrap-routes friend/wrap-authorize #{:toto.role/user})))
+(defn authorize-valid-user [ routes ]
+  (wrap-routes routes friend/wrap-authorize #{:role/user}))
 
 (defn- password-current? [ user-record ]
   (if-let [expiry (:password_expires_on user-record)]
@@ -70,14 +68,14 @@
 
 (defn- get-user-roles [ user-record ]
   (cond (account-locked? user-record)
-        #{:toto.role/locked-account}
+        #{:role/locked-account}
 
         (not (password-current? user-record))
-        #{:toto.role/password-expired}
+        #{:role/password-expired}
 
         :else
         (clojure.set/union
-         #{:toto.role/user} (core-data/get-user-roles (:user_id user-record)))))
+         #{:role/user} (core-data/get-user-roles (:user_id user-record)))))
 
 (defn get-auth-map-by-email [ email ]
   (if-let [user-record (core-data/get-user-by-email email)]

@@ -1,3 +1,4 @@
+
 /* toto.js */
 
 import { clearCache, visit } from './turbo-7.1.0.js';
@@ -187,10 +188,11 @@ function doPost(baseUrl, args, nextUrl) {
     }).then(doRefresh);
 }
 
-function doUpdateItem(itemId, newDescription, thenUrl) {
+function doUpdateItem(itemId, newDescription, action, thenUrl) {
     var formData = new FormData();
 
     formData.append("description", newDescription);
+    formData.append("action", action);
 
     fetch("/item/" + itemId, {
         body: formData,
@@ -371,8 +373,14 @@ function onItemEditKeydown(event) {
         event.preventDefault();
         event.stopPropagation();
 
+        var action = "update";
+        if (event.ctrlKey) {
+            action = event.shiftKey ? "delete" : "complete";
+        }
+
         doUpdateItem(input.getAttribute('item-id'),
                      input.value,
+                     action,
                      input.getAttribute('view-href'));
     } else if (event.keyCode == 27) {
         visitPage(input.getAttribute('view-href'));
@@ -401,28 +409,34 @@ function dismissModalIfPresent() {
     }
 }
 
-function checkModalShortcutBindings(event) {
-    var modal = elemOptional('modal');
-
-    if (!modal) {
-        return;
-    }
-
-    var shortcuts = modal.querySelectorAll('span[data-shortcut-key]');
-
+function checkShortcutBindings(event, elem) {
+    var shortcuts = elem.querySelectorAll('*[data-shortcut-key]');
     for(let shortcut of shortcuts) {
         if (event.key === shortcut.getAttribute('data-shortcut-key')) {
             event.preventDefault();
-            shortcut.onclick();
+            shortcut.click();
+            return true;
         }
     }
+
+    return false;
+}
+
+function checkModalShortcutBindings(event) {
+    var modal = elemOptional('modal');
+
+    return modal && checkShortcutBindings(event, modal);
+}
+
+function checkDocumentShortcutBindings(event) {
+    return checkShortcutBindings(event, document);
 }
 
 function onDocumentKeydown(event) {
     if (event.keyCode == 27) {
         dismissQueryIfPresent();
-    } else {
-        checkModalShortcutBindings(event);
+    } else if (!checkModalShortcutBindings(event)) {
+        checkDocumentShortcutBindings(event);
     }
 }
 

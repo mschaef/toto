@@ -22,8 +22,8 @@
 (ns toto.main
   (:gen-class :main true)
   (:use playbook.main)
-  (:require [playbook.config :as config]
-            [base.site.main :as main]))
+  (:require [base.site.main :as main]
+            [toto.todo.todo :as todo]))
 
 (defmain [ & args ]
-  (main/app-start (config/cval)))
+  (main/app-start (todo/all-routes)))

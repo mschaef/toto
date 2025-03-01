@@ -157,11 +157,31 @@
       (data/update-item-priority-by-id (auth/current-user-id) item-id new-priority)))
   (success))
 
+
+(defn complete-item [ item-id ]
+  (data/complete-item-by-id (auth/current-user-id) item-id)
+  (success))
+
+(defn delete-item [ item-id ]
+  (let [ list-id (data/get-list-id-by-item-id item-id)]
+    (data/delete-item-by-id (auth/current-user-id) item-id)
+    (redirect-to-list list-id)))
+
+(defn restore-item [ item-id ]
+  (data/restore-item (auth/current-user-id) item-id)
+  (success))
+
 (defn- update-item-desc [ item-id params ]
-  (let [{description :description} params
+  (let [{description :description
+         action :action} params
         description (string-leftmost description 1024)]
     (when (not (string-empty? description))
-      (data/update-item-desc-by-id (auth/current-user-id) item-id description))
+      (data/update-item-desc-by-id (auth/current-user-id) item-id description)
+      (case action
+        "update" (log/debug "Updating item only, no action.")
+        "delete" (delete-item item-id)
+        "complete" (complete-item item-id)
+        (log/warn "Unknown action while updating item " item-id ": " action)))
     (success)))
 
 (defn- update-item-snooze-days [ item-id params ]
@@ -186,23 +206,15 @@
     (data/update-item-priority-by-id (auth/current-user-id) item-id new-priority)
     (success)))
 
-(defn complete-item [ item-id ]
-  (data/complete-item-by-id (auth/current-user-id) item-id)
-  (success))
-
-(defn delete-item [ item-id ]
-  (let [ list-id (data/get-list-id-by-item-id item-id)]
-    (data/delete-item-by-id (auth/current-user-id) item-id)
-    (redirect-to-list list-id)))
-
-(defn restore-item [ item-id ]
-  (data/restore-item (auth/current-user-id) item-id)
-  (success))
-
 (defn- render-launch-page [ params ]
   (if (auth/current-identity)
     (redirect-to-home-list)
     (landing-page/render-landing-page params)))
+
+(defn- render-item-counts []
+  {:body {:total-active-item-count (data/get-total-active-item-count)
+          :total-item-history-count (data/get-total-item-history-count)
+          :user-count (data/get-user-count)}})
 
 (defn- list-routes [ list-id ]
   (when-let-route [list-id (accept-authorized-list-id list-id)]
@@ -282,6 +294,9 @@
   (GET "/" { params :params }
     (render-launch-page params))
 
+  (GET "/item-counts" []
+    (render-item-counts))
+
   (GET "/list/:list-id/public" { { list-id :list-id } :params }
     ;; Retain backward compatibility with older public list URL scheme
     (redirect-to-list list-id))
@@ -292,4 +307,4 @@
 (defn all-routes [ ]
   (routes
    public-routes
-   (auth/authorize-toto-valid-user private-routes)))
+   (auth/authorize-valid-user private-routes)))

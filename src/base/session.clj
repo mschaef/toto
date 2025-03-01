@@ -25,76 +25,51 @@
         sql-file.middleware)
   (:require [taoensso.timbre :as log]
             [ring.middleware.session.store :as store]
-            [clojure.java.jdbc :as jdbc]
-            [clojure.edn :as edn])
+            [clojure.edn :as edn]
+            [playbook.config :as config]
+            [base.queries :as query])
   (:import [java.util UUID]))
 
-(def access-date-stale-threshold
-  (* 2 60 60 1000))
-
-(defn- update-sql-session-access-date [ db-conn session-key ]
-  (log/debug :update-sql-session-access-date session-key)
+(defn- update-sql-session-access-date [ session-key ]
   (let [ accessed-on (current-time)]
-    (jdbc/update! db-conn
-                  :web_session
-                  {:accessed_on_day accessed-on}
-                  ["session_key=?" session-key])
+    (query/set-session-accessed-on! {:accessed_on_day accessed-on
+                                     :session_key session-key})
     accessed-on))
-
-(defn- query-sql-session [ db-conn session-key ]
-  (query-first db-conn
-               [(str "SELECT session_value, accessed_on_day"
-                     "  FROM web_session"
-                     " WHERE session_key = ?")
-                session-key]))
 
 (defn- session-stale? [ session ]
   (> (- (.getTime (current-time))
         (.getTime (:accessed_on_day session)))
-     access-date-stale-threshold))
+     (* (config/cval :web-session :stale-hours) 60 60 1000)))
 
-(defn- get-sql-session [ db-conn session-key ]
-  (log/debug :get-sql-session session-key)
-  (when-let [ session (query-sql-session db-conn session-key)]
+(defn- get-sql-session [ session-key ]
+  (when-let [ session (first (query/query-sql-session {:session_key session-key}))]
     (assoc (edn/read-string (:session_value session))
            :accessed_on_day (if (session-stale? session)
-                              (update-sql-session-access-date db-conn session-key)
+                              (update-sql-session-access-date session-key)
                               (:accessed_on_day session)))))
 
-(defn- write-sql-session [ db-conn session-key value ]
-  (log/debug :write-sql-session session-key value)
-  (if (get-sql-session db-conn session-key)
-    (jdbc/update! db-conn
-                  :web_session
-                  {:session_value (str value)
-                   :updated_on (current-time)
-                   :accessed_on_day (current-time)}
-                  ["session_key=?" session-key])
-    (jdbc/insert! db-conn
-                  :web_session
-                  {:session_key session-key
-                   :session_value (str value)
-                   :updated_on (current-time)
-                   :accessed_on_day (current-time)})))
+(defn- write-sql-session [ session-key value ]
+  (let [ session-map {:session_key session-key
+                      :session_value (str value)
+                      :updated_on (current-time)
+                      :accessed_on_day (current-time)}]
+    (if (get-sql-session session-key)
+      (query/update-session! session-map)
+      (query/create-session! session-map))))
 
-(defn- delete-sql-session [db-conn session-key]
-  (log/debug :delete-sql-session session-key)
-  (jdbc/delete! (current-db-connection)
-                :web_session ["session_key=?" session-key]))
-
-(deftype SQLStore [ db-conn ]
+(deftype SQLStore [ ]
   store/SessionStore
 
   (read-session [_ session-key]
-    (get-sql-session db-conn session-key))
+    (get-sql-session session-key))
 
   (write-session [_ session-key value]
     (let [session-key (or session-key (str (UUID/randomUUID)))]
-      (write-sql-session db-conn session-key value)
+      (write-sql-session session-key value)
       session-key))
 
   (delete-session [_ session-key]
-    (delete-sql-session db-conn session-key)
+    (query/delete-session! {:session_key session-key})
     nil))
 
 (deftype StoreMemoryCache [ underlying cache ]
@@ -117,17 +92,12 @@
     (swap! cache dissoc session-key)
     (.delete-session underlying session-key)))
 
-(defn session-store [ db-conn ]
-  (StoreMemoryCache. (SQLStore. db-conn) (atom {})))
-
-(defn- get-stale-sessions []
-  (query-all (current-db-connection)
-             [(str "SELECT session_key"
-                   "  FROM web_session"
-                   " WHERE accessed_on_day < DATEADD('month', -1, CURRENT_TIMESTAMP)")]))
+(defn session-store [  ]
+  (StoreMemoryCache. (SQLStore.) (atom {})))
 
 (defn delete-old-web-sessions [ session-store ]
-  (let [ stale-sessions (get-stale-sessions) ]
+  (let [stale-sessions
+        (query/get-old-sessions {:max_session_age_hours (config/cval :web-session :max-age-hours)}) ]
     (log/info (count stale-sessions) "stale web session(s) to be deleted.")
     (doseq [ session stale-sessions ]
       (.delete-session session-store (:session_key session)))))

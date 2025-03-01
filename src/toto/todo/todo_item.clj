@@ -50,7 +50,7 @@
 (defn- ensure-string-breaks [ string at ]
   (clojure.string/replace string at (str at html-breakpoint)))
 
-(def url-regex #"(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
+(def url-regex #"(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;\(\)]*[-a-zA-Z0-9\(\)+&@#/%=~_|]")
 
 (def link-list-prefix "/list/")
 
@@ -170,10 +170,14 @@
      (hiccup-util/escape-html
       (:created_by_name item-info))]))
 
-(defn render-todo-item [ view-list-id list-id item-info writable? editing? max-item-age ]
-  (let [{item-id :item_id
+(defn render-todo-item [ view-list-id-num list-id-num item-info writable? editing? max-item-age ]
+  (let [{item-id-num :item_id
          is-complete :is_complete
-         is-deleted :is_deleted} item-info]
+         is-deleted :is_deleted} item-info
+        view-list-id (encode-list-id view-list-id-num)
+        list-id (encode-list-id list-id-num)
+        item-id (encode-item-id item-id-num)]
+
     [:div.item-row.order-drop-target
      (cond-> {:id (str "item_row_" (:item_id item-info))
               :itemid item-id
@@ -184,8 +188,7 @@
                                  "display" (not editing?)
                                  "high-priority" (> (:priority item-info) 0)
                                  "snoozed" (:currently_snoozed item-info)})}
-       writable? (assoc :edit-href (shref "/list/" (encode-list-id view-list-id)
-                                          { :edit-item-id (encode-item-id item-id) })))
+       writable? (assoc :edit-href (shref "/list/" view-list-id { :edit-item-id item-id})))
      (when writable?
        (list
         (item-drag-handle "left" item-info)
@@ -203,7 +206,7 @@
         [:textarea (cond-> {:maxlength 1024
                             :name "description"
                             :item-id item-id
-                            :view-href (shref "/list/" (encode-list-id view-list-id) without-modal)
+                            :view-href (shref "/list/" view-list-id without-modal)
                             :onkeydown "window._toto.onItemEditKeydown(event)"}
                      editing? (assoc "autofocus" "on"))
          (item-info :desc)]
