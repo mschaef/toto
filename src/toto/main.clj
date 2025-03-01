@@ -21,9 +21,46 @@
 
 (ns toto.main
   (:gen-class :main true)
-  (:use playbook.main)
-  (:require [base.site.main :as main]
-            [toto.todo.todo :as todo]))
+  (:use playbook.main
+        compojure.core
+        sql-file.middleware)
+  (:require [toto.todo.todo :as todo]
+            [sql-file.core :as sql-file]
+            [playbook.config :as config]
+            [playbook.scheduler :as scheduler]
+            [toto.site.backup :as backup]
+            [toto.site.session :as session]
+            [toto.site.web :as web]
+            [toto.data.data :as core-data]
+            [toto.site.routes :as routes]
+            [toto.todo.data.data :as data]
+            [toto.todo.sunset :as sunset]))
+
+(defn- start-scheduled-jobs [ db-conn-pool session-store ]
+  (-> (scheduler/start)
+      (backup/schedule-backup db-conn-pool)
+      (scheduler/schedule-job :web-session-cull
+                              #(with-db-connection db-conn-pool
+                                 (session/delete-old-web-sessions session-store)))
+      (scheduler/schedule-job :item-sunset
+                              #(with-db-connection db-conn-pool
+                                 (sunset/item-sunset-job)))
+      (scheduler/schedule-job :verification-link-cull
+                              #(with-db-connection db-conn-pool
+                                 (core-data/delete-old-verification-links)))))
+
+(defn- db-conn-spec [ config ]
+  {:name (or (config/property "db.subname")
+             (get-in config [:db :subname] "toto"))
+   :schema-path [ "sql/" ]
+   :schemas [[ "toto" 12 ]]})
+
+(defn- app-start [ app-routes ]
+  (let [config (config/cval)]
+    (sql-file/with-pool [db-conn (db-conn-spec config)]
+      (let [ session-store (session/session-store)]
+        (start-scheduled-jobs db-conn session-store)
+        (web/start-site db-conn session-store (routes/all-routes app-routes))))))
 
 (defmain [ & args ]
-  (main/app-start (todo/all-routes)))
+  (app-start (todo/all-routes)))

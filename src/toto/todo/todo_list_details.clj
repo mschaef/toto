@@ -22,17 +22,17 @@
 (ns toto.todo.todo-list-details
   (:use playbook.core
         compojure.core
-        base.view.common
-        base.view.icons
-        base.view.components
-        base.view.query
-        base.view.page
+        toto.view.common
+        toto.view.icons
+        toto.view.components
+        toto.view.query
+        toto.view.page
         toto.todo.ids)
   (:require [taoensso.timbre :as log]
             [hiccup.form :as hiccup-form]
             [hiccup.util :as hiccup-util]
-            [toto.data.data :as data]
-            [base.view.auth :as auth]
+            [toto.todo.data.data :as data]
+            [toto.view.auth :as auth]
             [toto.todo.sidebar :as sidebar]))
 
 (defn- render-todo-list-view-editor [ view-id ]

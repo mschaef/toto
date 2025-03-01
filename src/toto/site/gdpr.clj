@@ -19,24 +19,19 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns base.view.common
+(ns toto.site.gdpr
+  (:gen-class :main true)
   (:use playbook.core)
-  (:require [toto.util :as util]))
+  (:require [taoensso.timbre :as log]))
 
-;;; Ring Responses
+(def ^:dynamic *gdpr-consent* nil)
 
-(defn unprocessable-entity [ body ]
-  {:status  422
-   :headers {}
-   :body    body})
+(defn wrap-gdpr-filter [ app ]
+  (fn [ req ]
+    (binding [ *gdpr-consent* (get-in req [:headers "cookie"] )]
+      (let [ resp (app req) ]
+        (if  (or *gdpr-consent*
+                 (= (:uri req) "/user/gdpr-consent"))
+          resp
+          (dissoc resp :session))))))
 
-;;; HTML Utilities
-
-(defn class-set [ classes ]
-  (clojure.string/join " " (map str (filter #(classes %)
-                                            (keys classes)))))
-
-;;; Resource Paths
-
-(defn resource [ path ]
-  (str "/" (util/get-version) "/" path))

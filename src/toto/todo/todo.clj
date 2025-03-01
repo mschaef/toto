@@ -23,9 +23,9 @@
   (:use playbook.core
         playbook.web
         compojure.core
-        base.view.common
-        base.view.query
-        base.view.page
+        toto.view.common
+        toto.view.query
+        toto.view.page
         toto.todo.ids
         toto.todo.util)
   (:require [taoensso.timbre :as log]
@@ -33,8 +33,8 @@
             [compojure.handler :as handler]
             [cemerick.friend :as friend]
             [playbook.hashid :as hashid]
-            [toto.data.data :as data]
-            [base.view.auth :as auth]
+            [toto.todo.data.data :as data]
+            [toto.view.auth :as auth]
             [toto.todo.landing-page :as landing-page]
             [toto.todo.todo-list :as todo-list]
             [toto.todo.todo-list-details :as todo-list-details]

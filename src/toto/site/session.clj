@@ -19,7 +19,7 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns base.session
+(ns toto.site.session
   (:use playbook.core
         sql-file.sql-util
         sql-file.middleware)
@@ -27,7 +27,7 @@
             [ring.middleware.session.store :as store]
             [clojure.edn :as edn]
             [playbook.config :as config]
-            [base.queries :as query])
+            [toto.site.queries :as query])
   (:import [java.util UUID]))
 
 (defn- update-sql-session-access-date [ session-key ]

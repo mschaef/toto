@@ -23,7 +23,7 @@
   (:use playbook.core
         compojure.core)
   (:require [taoensso.timbre :as log]
-            [toto.data.data :as data]))
+            [toto.todo.data.data :as data]))
 
 (defn sunset-items-by-age [ list-id age-limit ]
   (let [ toto-user-id (data/get-system-user-id)]

@@ -18,11 +18,11 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns base.site.error-handling
+(ns toto.site.error-handling
   (:use playbook.core
         compojure.core
-        base.view.components
-        base.view.page)
+        toto.view.components
+        toto.view.page)
   (:require [taoensso.timbre :as log]
             [compojure.route :as route]
             [playbook.config :as config]))

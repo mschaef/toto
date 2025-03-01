@@ -19,23 +19,23 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns base.site.user
+(ns toto.site.user
   (:use playbook.core
         compojure.core
         hiccup.core
-        base.view.common
-        base.view.components
-        base.view.query
-        base.view.page)
+        toto.view.common
+        toto.view.components
+        toto.view.query
+        toto.view.page)
   (:require [taoensso.timbre :as log]
             [ring.util.response :as ring]
             [cemerick.friend :as friend]
             [hiccup.form :as form]
             [playbook.config :as config]
-            [base.mail :as mail]
-            [base.data.data :as core-data]
-            [toto.data.data :as data]
-            [base.view.auth :as auth]))
+            [toto.site.mail :as mail]
+            [toto.data.data :as core-data]
+            [toto.todo.data.data :as data]
+            [toto.view.auth :as auth]))
 
 (defn user-unauthorized [ request ]
   (render-page { :title "Access Denied"}

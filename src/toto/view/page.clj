@@ -19,20 +19,20 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns base.view.page
+(ns toto.view.page
   (:use playbook.core
-        base.view.common
-        base.view.components
-        base.view.icons
-        base.view.query
-        base.view.components)
+        toto.view.common
+        toto.view.components
+        toto.view.icons
+        toto.view.query
+        toto.view.components)
   (:require [taoensso.timbre :as log]
             [hiccup.page :as hiccup-page]
             [hiccup.form :as hiccup-form]
             [hiccup.util :as hiccup-util]
             [playbook.config :as config]
-            [base.gdpr :as gdpr]
-            [base.view.auth :as auth]))
+            [toto.site.gdpr :as gdpr]
+            [toto.view.auth :as auth]))
 
 (defn session-controls []
   (if-let [ username (auth/current-identity) ]
