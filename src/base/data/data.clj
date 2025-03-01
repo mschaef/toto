@@ -24,7 +24,6 @@
         sql-file.sql-util
         sql-file.middleware)
   (:require [taoensso.timbre :as log]
-            [clojure.java.jdbc :as jdbc]
             [sql-file.core :as sql-file]
             [base.data.queries :as query]))
 
@@ -45,8 +44,7 @@
                             :role_id role-id}))
 
 (defn set-user-roles [ user-id role-set ]
-  ;; TODO: fix
-  (jdbc/with-db-transaction [ trans (current-db-connection) ]
+  (with-db-transaction
     (delete-user-roles! user-id)
     (doseq [ role-id (map get-role-id role-set)]
       (insert-user-role! user-id role-id))))

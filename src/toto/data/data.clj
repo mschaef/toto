@@ -98,19 +98,19 @@
   (map :todo_list_id
        (query/get-views-with-sublist { :user_id user-id :sublist_id sublist-id})))
 
-(defn- delete-sublist-from-users-views [ trans user-id sublist-id ]
+(defn- delete-sublist-from-users-views [ user-id sublist-id ]
   (doseq [ containing-todo-list-id (get-views-with-sublist user-id sublist-id)]
     (query/delete-view-sublist! {:todo_list_id containing-todo-list-id
                                  :sublist_id sublist-id})))
 
 (defn set-list-ownership [ todo-list-id user-ids ]
-  (jdbc/with-db-transaction [ trans (current-db-connection) ]
+  (with-db-transaction
     (let [next-owners (set user-ids)
           current-owners (set (get-todo-list-owners-by-list-id todo-list-id))
           add-user-ids (clojure.set/difference next-owners current-owners)
           remove-user-ids (clojure.set/difference current-owners next-owners)]
       (doseq [ user-id remove-user-ids ]
-        (delete-sublist-from-users-views trans user-id todo-list-id)
+        (delete-sublist-from-users-views user-id todo-list-id)
         (query/delete-list-owner! {:todo_list_id todo-list-id
                                    :user_id user-id}))
       (doseq [ user-id add-user-ids ]
@@ -264,12 +264,12 @@
       (add-todo-item user-id list-id (:desc new-item) (:priority new-item)))))
 
 (defn update-item-by-id! [ user-id item-id values ]
-  (jdbc/with-db-transaction [ trans (current-db-connection) ]
-    (jdbc/insert! trans :todo_item_history
+  (with-db-transaction
+    (jdbc/insert! (current-db-connection)
+                  :todo_item_history
                   (first
-                   (query/get-todo-item-by-id {:item_id item-id}
-                                              {:connection trans})))
-    (jdbc/update! trans
+                   (query/get-todo-item-by-id {:item_id item-id})))
+    (jdbc/update! (current-db-connection)
                   :todo_item
                   (merge
                    values
