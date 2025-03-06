@@ -120,7 +120,7 @@
 
 (defn send-password-change-message [ username ]
   (mail/send-email {:to [ username ]
-                    :subject "Todo - Password Changed"
+                    :subject "Password Changed"
                     :content password-change-message
                     :params { :from-mail (config/cval :smtp :from) }}))
 
