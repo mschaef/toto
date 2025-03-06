@@ -1,4 +1,4 @@
-;; Copyright (c) 2015-2023 Michael Schaeffer (dba East Coast Toolworks)
+;; Copyright (c) 2015-2025 Michael Schaeffer (dba East Coast Toolworks)
 ;;
 ;; Licensed as below.
 ;;
@@ -33,9 +33,13 @@
                  "")
               params))
 
+(defn- email-subject [ subject ]
+  (str (config/cval :app :title) " - " subject))
+
 (defn send-email [ message-info ]
   (let [smtp (config/cval :smtp)
         {:keys [ to subject content params ]} message-info
+        subject (email-subject subject)
         html-content (hiccup/html
                       [:html
                        (content (escape-email-params

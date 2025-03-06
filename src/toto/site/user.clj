@@ -1,4 +1,4 @@
-;; Copyright (c) 2015-2023 Michael Schaeffer (dba East Coast Toolworks)
+;; Copyright (c) 2015-2025 Michael Schaeffer (dba East Coast Toolworks)
 ;;
 ;; Licensed as below.
 ;;
@@ -99,7 +99,7 @@
 (defn- send-user-create-notification [ email-addr ]
   (mail/send-email
    {:to (config/cval :admin-mails)
-    :subject "Todo - New User Account Created"
+    :subject "New User Account Created"
     :content user-create-notification-message
     :params { :email-addr email-addr }}))
 
@@ -127,7 +127,7 @@
     [:div.submit-panel
      (form/submit-button {} "Send Reset E-Mail")]))  )
 
-(defn render-login-page [ & { :keys [ email-addr login-failure?]}]
+(defn render-login-page [ & { :keys [ email-addr login-failure? ]}]
   (render-page { :title "Log In" }
    (form/form-to
     {:class "auth-form"
@@ -193,7 +193,7 @@
   (let [user (core-data/get-user-by-id user-id)
         link-url (get-verification-link-by-user-id "verify" user-id)]
     (mail/send-email {:to [ (:email_addr user) ]
-                      :subject "Todo - Verify Account"
+                      :subject "Verify Account"
                       :content verification-link-email-message
                       :params { :verify-link-url link-url }})))
 
@@ -210,7 +210,7 @@
   (let [user (core-data/get-user-by-id user-id)
         link-url (get-verification-link-by-user-id "unlock" user-id)]
     (mail/send-email {:to [ (:email_addr user) ]
-                      :subject "Todo - Unlock Account"
+                      :subject "Unlock Account"
                       :content unlock-link-email-message
                       :params { :verify-link-url link-url }})))
 
@@ -227,7 +227,7 @@
   (let [user (core-data/get-user-by-id user-id)
         link-url (get-verification-link-by-user-id "reset" user-id)]
     (mail/send-email {:to [ (:email_addr user) ]
-                      :subject "Todo - Reset Account Password"
+                      :subject "Reset Account Password"
                       :content reset-link-email-message
                       :params { :verify-link-url link-url }})))
 
@@ -522,7 +522,7 @@
     "E-Mail:" [:tt (:email-address params)]]])
 
 (defn- send-support-message [ params ]
-  (let [message  {:subject "Todo - Support Request"
+  (let [message  {:subject "Support Request"
                   :content support-message
                   :params params}]
     (log/info "Sending support message:" (:email-addr params)

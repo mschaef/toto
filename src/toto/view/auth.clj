@@ -1,4 +1,4 @@
-;; Copyright (c) 2015-2023 Michael Schaeffer (dba East Coast Toolworks)
+;; Copyright (c) 2015-2025 Michael Schaeffer (dba East Coast Toolworks)
 ;;
 ;; Licensed as below.
 ;;
@@ -120,7 +120,7 @@
 
 (defn send-password-change-message [ username ]
   (mail/send-email {:to [ username ]
-                    :subject "Todo - Password Changed"
+                    :subject "Password Changed"
                     :content password-change-message
                     :params { :from-mail (config/cval :smtp :from) }}))
 
