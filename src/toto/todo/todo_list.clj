@@ -353,27 +353,3 @@
       (render-page {:title ((data/get-todo-list-by-id list-id) :desc)
                     :page-data-class "todo-list"}
                    (render-todo-list list-id nil false 0 0)))))
-
-
-(defn render-stocking-page [ list-id item-id ]
-  (let [pending-items (vec (data/get-pending-items list-id 0 0))
-        current-item-index (if item-id
-                             (some
-                              #(and (= (:item_id (second %)) item-id)
-                                    (first %))
-                              (map-indexed vector pending-items))
-                             0)
-        current-item (get pending-items current-item-index)]
-    (render-page {:page-title "Stocking"}
-                 [:div.stocking-item
-                  [:div.description
-                   (:desc current-item)]
-                  [:div.controls
-                   [:div.nav-link
-                    (when (> current-item-index 0)
-                      [:a {:href (shref "/stocking/" list-id "/" (:item_id (get pending-items (- current-item-index 1))))}
-                       "Previous Item"])]
-                   [:div.nav-link
-                    (when (< current-item-index (- (count pending-items) 1))
-                      [:a {:href (shref "/stocking/" list-id "/" (:item_id (get pending-items (+ current-item-index 1))))}
-                       "Next Item"])]]])))
