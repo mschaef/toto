@@ -30,8 +30,8 @@
   (fn [ req ]
     (binding [ *gdpr-consent* (get-in req [:headers "cookie"] )]
       (let [ resp (app req) ]
-        (if  (or *gdpr-consent*
-                 (= (:uri req) "/user/gdpr-consent"))
+        (if (or *gdpr-consent*
+                (= (:uri req) "/user/gdpr-consent"))
           resp
           (dissoc resp :session))))))
 

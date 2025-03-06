@@ -127,7 +127,7 @@
     [:div.submit-panel
      (form/submit-button {} "Send Reset E-Mail")]))  )
 
-(defn render-login-page [ & { :keys [ email-addr login-failure?]}]
+(defn render-login-page [ & { :keys [ email-addr login-failure? ]}]
   (render-page { :title "Log In" }
    (form/form-to
     {:class "auth-form"
