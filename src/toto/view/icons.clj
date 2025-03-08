@@ -50,3 +50,4 @@
 (def img-sunset [:img {:src (resource "icon-sunset.svg")
                        :width 24}])
 
+(def img-plus [:i {:class "fa fa-plus"}])
