@@ -50,16 +50,17 @@
                     :snoozing-item-id :remove})
 
 (defn render-modal [ attrs & contents ]
-  (let [ escape-url (shref without-modal)]
+  (let [{:keys [ title form-post-to data-init-modal ]} attrs
+        escape-url (shref without-modal)]
     [:div.dialog-background
      [:dialog {:class "modal" :open "true" :data-escape-url escape-url}
-      [:h3 (:title attrs)]
+      [:h3 title]
       [:div.cancel
        [:a {:href escape-url} img-window-close]]
-      (if-let [ form-post-to (:form-post-to attrs)]
+      (if form-post-to
         (hiccup-form/form-to
-         (if (:data-turbo attrs)
-           {:data-turbo (:data-turbo attrs)}
+         (if data-init-modal
+           {:data-init-modal data-init-modal}
            {})
          [:post form-post-to]
          contents)
