@@ -29,9 +29,9 @@
             [toto.site.user :as user]
             [toto.site.error-handling :as error-handling]))
 
-(defn all-routes [ app-routes ]
-  (let [ resources-path (str "/" (util/get-version)) ]
-    (log/info "Resources on path: " resources-path )
+(defn all-routes [app-routes]
+  (let [resources-path (str "/" (util/get-version))]
+    (log/info "Resources on path: " resources-path)
     (routes
      (route/resources resources-path)
      user/all-routes

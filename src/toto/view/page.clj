@@ -35,22 +35,21 @@
             [toto.view.auth :as auth]))
 
 (defn session-controls []
-  (if-let [ username (auth/current-identity) ]
+  (if-let [username (auth/current-identity)]
     [:div.session-controls
      [:a {:href "/user/info"} username]
      " - "
-     [:a.warning { :href "/logout"} "Log Out"]]
+     [:a.warning {:href "/logout"} "Log Out"]]
     [:div.session-controls
      [:a {:href "/login"} "Sign In"]
      [:a.emphasize {:href "/user"} "Sign Up"]]))
-
 
 (def without-modal {:modal :remove
                     :edit-item-id :remove
                     :snoozing-item-id :remove})
 
-(defn render-modal [ attrs & contents ]
-  (let [{:keys [ title form-post-to data-init-modal ]} attrs
+(defn render-modal [attrs & contents]
+  (let [{:keys [title form-post-to data-init-modal]} attrs
         escape-url (shref without-modal)]
     [:div.dialog-background
      [:dialog {:class "modal" :open "true" :data-escape-url escape-url}
@@ -66,7 +65,7 @@
          contents)
         contents)]]))
 
-(defn- render-support-modal [ ]
+(defn- render-support-modal []
   (let [user-identity (auth/current-identity)
         friendly-name (auth/current-friendly-name)]
     (render-modal
@@ -74,10 +73,10 @@
       :form-post-to "/contact-support"}
      [:div.config-panel
       [:h1 "Contact Information"]
-      (hiccup-form/text-field (cond->{:maxlength "128"
-                                      :placeholder "Full Name"
-                                      :autocomplete "off"
-                                      :value friendly-name}
+      (hiccup-form/text-field (cond-> {:maxlength "128"
+                                       :placeholder "Full Name"
+                                       :autocomplete "off"
+                                       :value friendly-name}
                                 friendly-name (assoc :readonly "readonly"))
                               "full-name")
       (hiccup-form/text-field (cond-> {:maxlength "128"
@@ -97,10 +96,10 @@
      (hiccup-form/hidden-field "current-uri" (shref))
      [:input {:type "submit" :value "Send Message"}])))
 
-(defn contact-support-button [ ]
-  [:a {:href (shref "" {:modal "contact-support" })} "Contact Support"])
+(defn contact-support-button []
+  [:a {:href (shref "" {:modal "contact-support"})} "Contact Support"])
 
-(defn- render-standard-header [ attrs ]
+(defn- render-standard-header [attrs]
   (let [title (:title attrs)
         client-redirect-time (:client-redirect-time attrs)
         client-redirect (:client-redirect attrs)]
@@ -115,7 +114,7 @@
       (when (config/cval :development-mode) "DEV - ")
       (config/cval :app :title)
       (when title (str " - " title))]
-     [:link { :rel "shortcut icon" :href (resource "favicon.ico")}]
+     [:link {:rel "shortcut icon" :href (resource "favicon.ico")}]
      (hiccup-page/include-css
       (resource "toto.css")
       (resource "font-awesome.min.css"))
@@ -123,15 +122,15 @@
      (hiccup-page/include-js
       (resource "DragDropTouch.js"))]))
 
-(defn- render-header [ page-title show-menu? ]
-  (let [ username (auth/current-identity)]
+(defn- render-header [page-title show-menu?]
+  (let [username (auth/current-identity)]
     [:div.header
      (when show-menu?
        [:span.toggle-menu img-show-list "&nbsp;"])
      [:span.app-name
-      [:a { :href "/" } (config/cval :app :title)] " "]
+      [:a {:href "/"} (config/cval :app :title)] " "]
      (when page-title
-      (str "- " (hiccup-util/escape-html page-title)))
+       (str "- " (hiccup-util/escape-html page-title)))
      (when (config/cval :development-mode)
        [:span.pill.dev "DEV"])
      (session-controls)]))
@@ -142,7 +141,7 @@
     "&#9400; 2015-2025 East Coast Toolworks"]
    (contact-support-button)])
 
-(defn- render-sidebar [ sidebar ]
+(defn- render-sidebar [sidebar]
   [:div.sidebar
    (scroll-column
     "sidebar-scroller"
@@ -152,10 +151,10 @@
     sidebar
     (render-sidebar-footer))])
 
-(defn- render-page-modal [ attrs ]
-  (when-let [ modal-name (current-modal) ]
-    (let [ modal-defns (merge {"contact-support" render-support-modal }
-                              (or (:modals attrs) {})) ]
+(defn- render-page-modal [attrs]
+  (when-let [modal-name (current-modal)]
+    (let [modal-defns (merge {"contact-support" render-support-modal}
+                             (or (:modals attrs) {}))]
       (if-let [modal (modal-defns modal-name)]
         (modal)
         (log/error "Invalid modal for this page:" modal-name
@@ -173,23 +172,23 @@
       "or used for tracking or advertising purposes."]
      [:div.modal-controls
       [:a {:href "/user/gdpr-consent-decline"} "Decline"]
-      (hiccup-form/submit-button {} "Accept")]  )))
+      (hiccup-form/submit-button {} "Accept")])))
 
-(defn- render-page-body [ attrs contents ]
-  (let [{ :keys [ title page-data-class sidebar suppress-gdpr-consent ] } attrs ]
+(defn- render-page-body [attrs contents]
+  (let [{:keys [title page-data-class sidebar suppress-gdpr-consent]} attrs]
     [:body (if page-data-class
              {:data-class page-data-class})
      (render-header title (not (nil? sidebar)))
      (if sidebar
        (render-sidebar sidebar))
-     [:div.contents {:class (class-set { "with-sidebar" sidebar })}
+     [:div.contents {:class (class-set {"with-sidebar" sidebar})}
       (render-page-modal attrs)
       (when (not suppress-gdpr-consent)
         (render-gdpr-consent-banner))
 
       contents]]))
 
-(defn render-page [ attrs & contents]
+(defn render-page [attrs & contents]
   (hiccup-page/html5
    [:html
     (render-standard-header attrs)

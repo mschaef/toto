@@ -27,18 +27,18 @@
             [hiccup.util :as hiccup-util]
             [playbook.config :as config]))
 
-(defn- escape-email-params [ params ]
+(defn- escape-email-params [params]
   (map-values #(if (string? %)
                  (hiccup-util/escape-html %)
                  "")
               params))
 
-(defn- email-subject [ subject ]
+(defn- email-subject [subject]
   (str (config/cval :app :title) " - " subject))
 
-(defn send-email [ message-info ]
+(defn send-email [message-info]
   (let [smtp (config/cval :smtp)
-        {:keys [ to subject content params ]} message-info
+        {:keys [to subject content params]} message-info
         subject (email-subject subject)
         html-content (hiccup/html
                       [:html

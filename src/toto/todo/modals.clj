@@ -14,10 +14,10 @@
             [toto.view.auth :as auth]
             [toto.todo.todo-item :as todo-item]))
 
-(defn render-snooze-modal [ params list-id ]
+(defn render-snooze-modal [params list-id]
   (let [snoozing-item-id (decode-item-id  (:snoozing-item-id params))
         item-info (data/get-item-by-id snoozing-item-id)]
-    (defn render-snooze-choice [ label snooze-days shortcut-key ]
+    (defn render-snooze-choice [label snooze-days shortcut-key]
       (post-button {:desc (str label " (" shortcut-key ")")
                     :target (str "/item/" (encode-item-id snoozing-item-id) "/snooze")
                     :args {:snooze-days snooze-days}
@@ -30,8 +30,8 @@
       [:p.snooze-item-text
        (todo-item/render-item-text (:desc item-info))]]
      [:div.snooze-choices
-      (map (fn [ [ label snooze-days shortcut-key] ]
-               (render-snooze-choice label snooze-days shortcut-key))
+      (map (fn [[label snooze-days shortcut-key]]
+             (render-snooze-choice label snooze-days shortcut-key))
            [["Tomorrow" 1 "1"]
             ["In Three Days" 3 "2"]
             ["Next Week"  7 "3"]
@@ -41,10 +41,10 @@
         [:hr]
         (render-snooze-choice "Unsnooze" 0 "0")]))))
 
-(defn- render-list-select [ id excluded-list-id ]
-  [:select { :id id :name id }
+(defn- render-list-select [id excluded-list-id]
+  [:select {:id id :name id}
    (hiccup-form/select-options
-    (map (fn [ list-info ]
+    (map (fn [list-info]
            [(hiccup-util/escape-html (:desc list-info))
             (encode-list-id (:todo_list_id list-info))])
          (remove
@@ -53,16 +53,16 @@
             (= excluded-list-id (:todo_list_id %)))
           (data/get-todo-lists-by-user-alphabetical (auth/current-user-id) false))))])
 
-(defn render-update-from-modal [ params list-id ]
+(defn render-update-from-modal [params list-id]
   (render-modal
    {:title "Update From"
     :form-post-to (shref "/list/" (encode-list-id list-id) "/copy-from" without-modal)}
    "Source:"
-   (render-list-select "copy-from-list-id" list-id )
+   (render-list-select "copy-from-list-id" list-id)
    [:div.modal-controls
     [:input {:type "submit" :value "Copy List"}]]))
 
-(defn- render-todo-list-permissions [ list-id error-message ]
+(defn- render-todo-list-permissions [list-id error-message]
   (let [list-details (data/get-todo-list-by-id list-id)]
     (list
      [:div.config-panel
@@ -72,13 +72,13 @@
        [:label {:for "is-public"} "List publically visible?"]]]
      [:div.config-panel
       [:h1  "List Owners:"]
-      (let [list-owners (data/get-todo-list-owners-by-list-id list-id) ]
+      (let [list-owners (data/get-todo-list-owners-by-list-id list-id)]
         (scroll-column
          "list-owners"
          nil
          [:div.list-owners
-          (map (fn [ { user-id :user_id user-email-addr :email_addr } ]
-                 (let [ user-parameter-name (str "user_" user-id)]
+          (map (fn [{user-id :user_id user-email-addr :email_addr}]
+                 (let [user-parameter-name (str "user_" user-id)]
                    [:div.list-owner
                     (if (= (auth/current-user-id) user-id)
                       [:div.self-owner
@@ -100,7 +100,7 @@
             [:div.error-message
              error-message])]))])))
 
-(defn render-share-with-modal [ params list-id ]
+(defn render-share-with-modal [params list-id]
   (render-modal
    {:title "Share With"
     :form-post-to (shref "/list/" (encode-list-id list-id) "/sharing" without-modal)}
@@ -114,7 +114,7 @@
    [:div.modal-controls
     [:input {:type "submit" :value "Share"}]]))
 
-(defn render-list-delete-modal [ list-id ]
+(defn render-list-delete-modal [list-id]
   (render-modal
    {:title "Delete List"
     :form-post-to (shref "/list/" (encode-list-id list-id) "/delete")}
@@ -128,7 +128,7 @@
       [:div.modal-controls
        [:input.dangerous {:type "submit" :value "Delete List"}]]))))
 
-(defn render-list-sort-modal [ list-id ]
+(defn render-list-sort-modal [list-id]
   (render-modal
    {:title "Sort List"
     :form-post-to (shref "/list/" (encode-list-id list-id) "/sort")}

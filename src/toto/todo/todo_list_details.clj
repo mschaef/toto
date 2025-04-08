@@ -35,7 +35,7 @@
             [toto.view.auth :as auth]
             [toto.todo.sidebar :as sidebar]))
 
-(defn- render-todo-list-view-editor [ view-id ]
+(defn- render-todo-list-view-editor [view-id]
   (let [user-id (auth/current-user-id)
         todo-lists (data/get-todo-lists-by-user user-id false)
         view-sublist-ids (map :sublist_id (data/get-view-sublists user-id view-id))]
@@ -44,8 +44,8 @@
      (scroll-column
       "component-lists"
       nil
-      (map (fn [ todo-list ]
-             (let [ list-id (:todo_list_id todo-list) ]
+      (map (fn [todo-list]
+             (let [list-id (:todo_list_id todo-list)]
                [:div
                 (hiccup-form/check-box (str "list_" list-id)
                                        (in? view-sublist-ids list-id))
@@ -53,7 +53,7 @@
                  (:desc todo-list))]))
            (remove #(:is_view %) todo-lists)))]))
 
-(defn- render-item-sunset-panel [ max-item-age ]
+(defn- render-item-sunset-panel [max-item-age]
   [:div.config-panel
    [:h1 "Item Age Limit"]
    [:div
@@ -62,7 +62,7 @@
      "this number of days will automatically be deleted."]
     (render-duration-select "max-item-age" max-item-age [7 14 30 90] false)]])
 
-(defn render-todo-list-details-modal [ list-id ]
+(defn render-todo-list-details-modal [list-id]
   (let [list-details (data/get-todo-list-by-id list-id)
         list-name (:desc list-details)
         is-view (:is_view list-details)
@@ -73,7 +73,7 @@
       :form-post-to (shref "/list/" (encode-list-id list-id) "/details")}
      [:div.config-panel
       [:h1 (str list-type " Name:")]
-      (hiccup-form/text-field { :maxlength "32" } "list-name" list-name)]
+      (hiccup-form/text-field {:maxlength "32"} "list-name" list-name)]
      (if is-view
        (render-todo-list-view-editor list-id)
        (render-item-sunset-panel max-item-age))
@@ -82,9 +82,9 @@
       "This list may be deleted and archived "
       [:a {:href (shref {:modal "delete-list"})} "here"] "."]
      [:div.modal-controls
-       [:input {:type "submit" :value "Update List Details"}]])))
+      [:input {:type "submit" :value "Update List Details"}]])))
 
-(defn- render-list-delete-panel [ list-id ]
+(defn- render-list-delete-panel [list-id]
   [:div.config-panel
    [:h1 "Delete List"]
    (if (<= (data/get-user-list-count (auth/current-user-id)) 1)

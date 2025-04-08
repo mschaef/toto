@@ -29,7 +29,7 @@
             [toto.todo.data.data :as data]
             [toto.view.auth :as auth]))
 
-(defn render-list-visibility-flag [ list ]
+(defn render-list-visibility-flag [list]
   (let [{is-public :is_public
          list-owner-count :list_owner_count
          is-view :is_view}
@@ -45,15 +45,15 @@
       (> list-owner-count 1)
       [:span.list-visibility-flag img-group])))
 
-(defn- get-view-primary-sublist [ view-id ]
-  (let [ sublists (data/get-view-sublists (auth/current-user-id) view-id) ]
+(defn- get-view-primary-sublist [view-id]
+  (let [sublists (data/get-view-sublists (auth/current-user-id) view-id)]
     (and (> (count sublists) 0)
          (:sublist_id (first sublists)))))
 
-(defn render-sidebar [ selected-list-id min-list-priority snoozed-for-days ]
+(defn render-sidebar [selected-list-id min-list-priority snoozed-for-days]
   (let [include-low-priority (< min-list-priority 0)]
     [:div.list-list
-     (map (fn [ list ]
+     (map (fn [list]
             (let [{list-id :todo_list_id
                    list-desc :desc
                    list-item-count :item_count

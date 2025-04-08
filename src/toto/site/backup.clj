@@ -27,7 +27,7 @@
             [playbook.config :as config]
             [playbook.scheduler :as scheduler]))
 
-(defn- s3-client [ archive-config ]
+(defn- s3-client [archive-config]
   (-> (software.amazon.awssdk.services.s3.S3Client/builder)
       (.credentialsProvider
        (software.amazon.awssdk.auth.credentials.StaticCredentialsProvider/create
@@ -37,7 +37,7 @@
       (.region software.amazon.awssdk.regions.Region/US_EAST_1)
       (.build)))
 
-(defn- put-object [ archive-config file ]
+(defn- put-object [archive-config file]
   (let [s3 (s3-client archive-config)]
     (.putObject s3 (-> (software.amazon.awssdk.services.s3.model.PutObjectRequest/builder)
                        (.bucket (archive-config :s3-bucket))
@@ -49,30 +49,30 @@
 
 (def date-format (java.text.SimpleDateFormat. "yyyyMMdd-hhmm"))
 
-(defn- get-backup-filename [ backup-path ]
+(defn- get-backup-filename [backup-path]
   (format "%s/%s-backup-%s.tgz"
           backup-path
           (config/cval :app :name)
           (.format date-format (current-time))))
 
-(defn- archive-backup-file [ backup-filename ]
-  (when-let [ archive-config (config/cval :db :backup-archive )]
-    (let [ file (java.io.File. backup-filename) ]
+(defn- archive-backup-file [backup-filename]
+  (when-let [archive-config (config/cval :db :backup-archive)]
+    (let [file (java.io.File. backup-filename)]
       (log/info "Archiving database backup file")
       (put-object archive-config file)
       (log/info "Database backup archive complete, deleting backup file")
       (.delete file)
       (log/info "Database backup file archived and deleted"))))
 
-(defn- backup-database [ db-conn-pool backup-path ]
-  (let [ backup-filename (get-backup-filename backup-path) ]
+(defn- backup-database [db-conn-pool backup-path]
+  (let [backup-filename (get-backup-filename backup-path)]
     (log/report "Backing database up to: " backup-filename)
     (with-db-connection db-conn-pool
       (sql-file/backup-to-file-online (current-db-connection) backup-filename))
     (archive-backup-file backup-filename)
     (log/report "Database backup complete")))
 
-(defn schedule-backup [ scheduler db-conn-pool ]
+(defn schedule-backup [scheduler db-conn-pool]
   (if-let [backup-path (config/cval :db :backup-path)]
     (do
       (log/info "Database backup configured with path: " backup-path)

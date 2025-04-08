@@ -30,34 +30,34 @@
             [toto.site.queries :as query])
   (:import [java.util UUID]))
 
-(defn- update-sql-session-access-date [ session-key ]
-  (let [ accessed-on (current-time)]
+(defn- update-sql-session-access-date [session-key]
+  (let [accessed-on (current-time)]
     (query/set-session-accessed-on! {:accessed_on_day accessed-on
                                      :session_key session-key})
     accessed-on))
 
-(defn- session-stale? [ session ]
+(defn- session-stale? [session]
   (> (- (.getTime (current-time))
         (.getTime (:accessed_on_day session)))
      (* (config/cval :web-session :stale-hours) 60 60 1000)))
 
-(defn- get-sql-session [ session-key ]
-  (when-let [ session (first (query/query-sql-session {:session_key session-key}))]
+(defn- get-sql-session [session-key]
+  (when-let [session (first (query/query-sql-session {:session_key session-key}))]
     (assoc (edn/read-string (:session_value session))
            :accessed_on_day (if (session-stale? session)
                               (update-sql-session-access-date session-key)
                               (:accessed_on_day session)))))
 
-(defn- write-sql-session [ session-key value ]
-  (let [ session-map {:session_key session-key
-                      :session_value (str value)
-                      :updated_on (current-time)
-                      :accessed_on_day (current-time)}]
+(defn- write-sql-session [session-key value]
+  (let [session-map {:session_key session-key
+                     :session_value (str value)
+                     :updated_on (current-time)
+                     :accessed_on_day (current-time)}]
     (if (get-sql-session session-key)
       (query/update-session! session-map)
       (query/create-session! session-map))))
 
-(deftype SQLStore [ ]
+(deftype SQLStore []
   store/SessionStore
 
   (read-session [_ session-key]
@@ -72,15 +72,15 @@
     (query/delete-session! {:session_key session-key})
     nil))
 
-(deftype StoreMemoryCache [ underlying cache ]
+(deftype StoreMemoryCache [underlying cache]
   store/SessionStore
 
   (read-session [_ session-key]
-    (let [ session (or (aand (@cache session-key)
-                             (if (session-stale? it)
-                               (.read-session underlying session-key)
-                               it))
-                       (.read-session underlying session-key))]
+    (let [session (or (aand (@cache session-key)
+                            (if (session-stale? it)
+                              (.read-session underlying session-key)
+                              it))
+                      (.read-session underlying session-key))]
       (swap! cache assoc session-key session)
       session))
 
@@ -92,12 +92,12 @@
     (swap! cache dissoc session-key)
     (.delete-session underlying session-key)))
 
-(defn session-store [  ]
+(defn session-store []
   (StoreMemoryCache. (SQLStore.) (atom {})))
 
-(defn delete-old-web-sessions [ session-store ]
+(defn delete-old-web-sessions [session-store]
   (let [stale-sessions
-        (query/get-old-sessions {:max_session_age_hours (config/cval :web-session :max-age-hours)}) ]
+        (query/get-old-sessions {:max_session_age_hours (config/cval :web-session :max-age-hours)})]
     (log/info (count stale-sessions) "stale web session(s) to be deleted.")
-    (doseq [ session stale-sessions ]
+    (doseq [session stale-sessions]
       (.delete-session session-store (:session_key session)))))

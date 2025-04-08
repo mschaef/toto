@@ -28,33 +28,33 @@
 (def ^:dynamic *current-uri* nil)
 (def ^:dynamic *current-modal* nil)
 
-(defn wrap-remember-query[ app ]
-  (fn [ req ]
+(defn wrap-remember-query [app]
+  (fn [req]
     (binding [*query* (:query-params req)
               *current-uri* (:uri req)
               *current-modal* (:modal (:params req))]
       (app req))))
 
-(defn- normalize-param-map [ params ]
-  (into {} (map (fn [[ param val]] [ (keyword param) val ])
+(defn- normalize-param-map [params]
+  (into {} (map (fn [[param val]] [(keyword param) val])
                 params)))
 
-(defn- merge-param-maps [ param-maps ]
-  (into {} (remove (fn [[ _ val]] (= val :remove))
-                (apply merge (map normalize-param-map param-maps)))))
+(defn- merge-param-maps [param-maps]
+  (into {} (remove (fn [[_ val]] (= val :remove))
+                   (apply merge (map normalize-param-map param-maps)))))
 
-(defn- shref* [ & args ]
+(defn- shref* [& args]
   (let [url-param (apply str (remove map? args))
         url (if (> (count url-param) 0)
               url-param
               *current-uri*)
         query-params (merge-param-maps (filter map? args))]
-    (let [query-string (clojure.string/join "&" (map (fn [[ param val ]] (str (name param) "=" val)) query-params))]
+    (let [query-string (clojure.string/join "&" (map (fn [[param val]] (str (name param) "=" val)) query-params))]
       (if (> (.length query-string) 0)
         (str url "?" query-string)
         url))))
 
-(defn shref [ & args ]
+(defn shref [& args]
   (apply shref* (or *query* {}) args))
 
 (defn current-modal []

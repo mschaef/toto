@@ -24,20 +24,20 @@
   (:require [playbook.hashid :as hashid]
             [playbook.config :as config]))
 
-(defn encode-item-id [ list-id ]
+(defn encode-item-id [list-id]
   (hashid/encode :ti list-id))
 
-(defn decode-item-id [ list-id ]
+(defn decode-item-id [list-id]
   (or (try-parse-integer list-id)
       (hashid/decode :ti list-id)))
 
-(defn encode-list-id [ list-id ]
+(defn encode-list-id [list-id]
   (hashid/encode :tl list-id))
 
-(defn decode-list-id [ list-id ]
+(defn decode-list-id [list-id]
   (or (try-parse-integer list-id)
       (hashid/decode :tl list-id)))
 
-(defn todo-list-link [ list-id ]
+(defn todo-list-link [list-id]
   (str (config/cval :base-url) "/list/" (encode-list-id list-id)))
 

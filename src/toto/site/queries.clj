@@ -21,7 +21,7 @@
 
 (ns toto.site.queries
   (:use sql-file.middleware)
-  (:require [yesql.core :refer [ defqueries ]]
+  (:require [yesql.core :refer [defqueries]]
             [yesql.middleware :as middleware]
             [toto.data.queries :as queries]))
 

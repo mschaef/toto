@@ -22,7 +22,8 @@
                  [com.mschaef/playbook "0.1.4"]
                  [software.amazon.awssdk/s3  "2.29.19"]]
 
-  :plugins [[lein-tar "3.3.0"]]
+  :plugins [[lein-tar "3.3.0"]
+            [dev.weavejester/lein-cljfmt "0.13.0"]]
 
   :tar {:uberjar true
         :format :tar-gz
@@ -40,7 +41,8 @@
   :jar-name "toto.jar"
   :uberjar-name "toto-standalone.jar"
 
-  :release-tasks [["vcs" "assert-committed"]
+  :release-tasks [["cljfmt" "check"]
+                  ["vcs" "assert-committed"]
                   ["change" "version" "leiningen.release/bump-version" "release"]
                   ["vcs" "commit"]
                   ["vcs" "tag" "--no-sign"]

@@ -27,8 +27,8 @@
             [compojure.route :as route]
             [playbook.config :as config]))
 
-(defn error-page [ & { :keys [ uuid ]}]
-  (render-page { :title "Unexpected Error"}
+(defn error-page [& {:keys [uuid]}]
+  (render-page {:title "Unexpected Error"}
                [:div.page-message
                 [:h1 "Unexpected Error"]
                 [:p
@@ -41,9 +41,9 @@
                    "Error reference code: " [:code uuid]
                    (copy-button uuid "Copy Code")])]))
 
-(defn page-not-found [ req ]
+(defn page-not-found [req]
   (log/info "Page not found:" (:uri req))
-  (render-page { :title "Page Not Found"}
+  (render-page {:title "Page Not Found"}
                [:div.page-message
                 [:h1 "Page Not Found"]
                 [:p
@@ -52,7 +52,7 @@
                  " and try again."]]))
 
 (defroutes all-routes
-  (GET "/error" { params :params }
+  (GET "/error" {params :params}
     (error-page params))
 
   (GET "/induce-error" []

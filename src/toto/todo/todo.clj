@@ -40,23 +40,23 @@
             [toto.todo.todo-list-details :as todo-list-details]
             [toto.todo.todo-list-manager :as todo-list-manager]))
 
-(defn- update-list-description [ list-id list-description ]
+(defn- update-list-description [list-id list-description]
   (when (not (string-empty? list-description))
-    (data/update-list-description list-id list-description ))
+    (data/update-list-description list-id list-description))
   (redirect-to-list list-id))
 
-(defn- delete-list [ list-id ]
+(defn- delete-list [list-id]
   (if (<= (data/get-user-list-count (auth/current-user-id)) 1)
     (log/warn "Attempt to delete user's last visible list" list-id)
     (data/delete-list list-id))
   (redirect-to-home-list))
 
-(defn- restore-list [ list-id ]
+(defn- restore-list [list-id]
   (data/restore-list list-id)
   (redirect-to-list list-id))
 
-(defn- sort-list [ list-id params ]
-  (let [{ sort-by :sort-by } params]
+(defn- sort-list [list-id params]
+  (let [{sort-by :sort-by} params]
     (case sort-by
       "desc" (data/order-list-items-by-description! list-id)
       "created-on" (data/order-list-items-by-updated-on! list-id)
@@ -64,33 +64,33 @@
       "snoozed-until" (data/order-list-items-by-snoozed-until! list-id))
     (redirect-to-list list-id without-modal)))
 
-(defn- copy-list [ list-id params ]
-  (let [ copy-from-list-id (accept-authorized-list-id (:copy-from-list-id params)) ]
+(defn- copy-list [list-id params]
+  (let [copy-from-list-id (accept-authorized-list-id (:copy-from-list-id params))]
     (data/copy-list (auth/current-user-id) list-id copy-from-list-id)
     (redirect-to-list list-id)))
 
-(defn- add-list [ params ]
+(defn- add-list [params]
   (let [{list-description :list-description
          list-type :list-type} params
         list-description (string-leftmost list-description 32)
         is-view (= list-type "view")]
     (if (string-empty? list-description)
       (redirect-to-home-list)
-      (let [ list-id (data/add-list list-description is-view) ]
-        (data/set-list-ownership list-id #{ (auth/current-user-id) })
+      (let [list-id (data/add-list list-description is-view)]
+        (data/set-list-ownership list-id #{(auth/current-user-id)})
         (redirect-to-lists)))))
 
-(defn- selected-user-ids-from-params [ params ]
+(defn- selected-user-ids-from-params [params]
   (set
    (map #(Integer/parseInt (.substring % 5))
         (filter #(.startsWith % "user_") (map name (keys params))))))
 
-(defn- selected-sublist-ids-from-params [ params ]
+(defn- selected-sublist-ids-from-params [params]
   (set
    (map #(Integer/parseInt (.substring % 5))
         (filter #(.startsWith % "list_") (map name (keys params))))))
 
-(defn- update-view-details [ list-id params ]
+(defn- update-view-details [list-id params]
   (let [user-id (auth/current-user-id)
         possible-sublist-ids (data/get-todo-list-ids-by-user user-id)
         selected-sublist-ids (filter #(in? possible-sublist-ids %)
@@ -99,19 +99,19 @@
     (update-list-description list-id (string-leftmost (:list-name params) 32))
     (redirect-to-list list-id without-modal)))
 
-(defn- update-list-details [ list-id params ]
+(defn- update-list-details [list-id params]
   (update-list-description list-id (string-leftmost (:list-name params) 32))
-  (if-let [ max-item-age (try-parse-integer (:max-item-age params)) ]
+  (if-let [max-item-age (try-parse-integer (:max-item-age params))]
     (data/set-list-max-item-age list-id max-item-age)
     (data/clear-list-max-item-age list-id))
-    (redirect-to-list list-id without-modal))
+  (redirect-to-list list-id without-modal))
 
-(defn- update-list-or-view-details [ list-id params ]
+(defn- update-list-or-view-details [list-id params]
   (if (:is_view (data/get-todo-list-by-id list-id))
     (update-view-details list-id params)
     (update-list-details list-id params)))
 
-(defn- update-list-sharing [ list-id params ]
+(defn- update-list-sharing [list-id params]
   (let [share-with-email (parsable-string? (:share-with-email params))
         share-with-email-id (and share-with-email
                                  (auth/get-user-id-by-email share-with-email))
@@ -127,26 +127,26 @@
         (data/set-list-public list-id (boolean (:is-public params)))
         (redirect-to-list list-id without-modal)))))
 
-(defn- update-list-or-view-sharing [ list-id params ]
+(defn- update-list-or-view-sharing [list-id params]
   (if (:is_view (data/get-todo-list-by-id list-id))
     (ring/bad-request "Cannot update view sharing.")
     (update-list-sharing list-id params)))
 
-(defn- update-list-priority [ list-id new-priority ]
+(defn- update-list-priority [list-id new-priority]
   (data/set-list-priority list-id (auth/current-user-id) new-priority)
   (redirect-to-lists))
 
-(defn- add-item [ list-id params ]
+(defn- add-item [list-id params]
   (let [{item-list-id :item-list-id
          item-description :item-description
-         item-priority :item-priority } params
+         item-priority :item-priority} params
         item-description (string-leftmost item-description 1024)]
     (let [item-list-id (accept-authorized-list-id item-list-id)]
       (when (not (string-empty? item-description))
         (data/add-todo-item (auth/current-user-id) item-list-id item-description item-priority))
       (redirect-to-list list-id {:last-item-list-id (encode-list-id item-list-id)}))))
 
-(defn- update-item-ordinal [ item-id params ]
+(defn- update-item-ordinal [item-id params]
   (let [{target-list-id :target-list
          new-ordinal :new-ordinal
          new-priority :new-priority} params]
@@ -157,21 +157,20 @@
       (data/update-item-priority-by-id (auth/current-user-id) item-id new-priority)))
   (success))
 
-
-(defn complete-item [ item-id ]
+(defn complete-item [item-id]
   (data/complete-item-by-id (auth/current-user-id) item-id)
   (success))
 
-(defn delete-item [ item-id ]
-  (let [ list-id (data/get-list-id-by-item-id item-id)]
+(defn delete-item [item-id]
+  (let [list-id (data/get-list-id-by-item-id item-id)]
     (data/delete-item-by-id (auth/current-user-id) item-id)
     (redirect-to-list list-id)))
 
-(defn restore-item [ item-id ]
+(defn restore-item [item-id]
   (data/restore-item (auth/current-user-id) item-id)
   (success))
 
-(defn- update-item-desc [ item-id params ]
+(defn- update-item-desc [item-id params]
   (let [{description :description
          action :action} params
         description (string-leftmost description 1024)]
@@ -184,7 +183,7 @@
         (log/warn "Unknown action while updating item " item-id ": " action)))
     (success)))
 
-(defn- update-item-snooze-days [ item-id params ]
+(defn- update-item-snooze-days [item-id params]
   (let [snooze-days (or (try-parse-integer (:snooze-days params)) 0)
         user-id (auth/current-user-id)]
     (if (= snooze-days 0)
@@ -192,8 +191,8 @@
       (data/update-item-snooze-by-id user-id item-id (add-days (current-time) snooze-days)))
     (success)))
 
-(defn- update-item-list [ item-id params ]
-  (let [ { target-list :target-list } params ]
+(defn- update-item-list [item-id params]
+  (let [{target-list :target-list} params]
     (let [target-list (accept-authorized-list-id target-list)]
       (if (:is_view (data/get-todo-list-by-id target-list))
         (ring/bad-request "Cannot move list item directly to view.")
@@ -201,12 +200,12 @@
           (data/update-item-list (auth/current-user-id) item-id target-list)
           (success))))))
 
-(defn update-item-priority [ item-id params ]
-  (let [ { new-priority :new-priority } params]
+(defn update-item-priority [item-id params]
+  (let [{new-priority :new-priority} params]
     (data/update-item-priority-by-id (auth/current-user-id) item-id new-priority)
     (success)))
 
-(defn- render-launch-page [ params ]
+(defn- render-launch-page [params]
   (if (auth/current-identity)
     (redirect-to-home-list)
     (landing-page/render-landing-page params)))
@@ -216,95 +215,95 @@
           :total-item-history-count (data/get-total-item-history-count)
           :user-count (data/get-user-count)}})
 
-(defn- list-routes [ list-id ]
+(defn- list-routes [list-id]
   (when-let-route [list-id (accept-authorized-list-id list-id)]
-    (GET "/" { params :params }
-      (todo-list/render-todo-list-page list-id params))
+                  (GET "/" {params :params}
+                    (todo-list/render-todo-list-page list-id params))
 
-    (GET "/completions" { params :params }
-      (todo-list/render-todo-list-completions-page list-id params))
+                  (GET "/completions" {params :params}
+                    (todo-list/render-todo-list-completions-page list-id params))
 
-    (GET "/delayed" []
-      (todo-list/render-todo-list-delayed-page list-id))
+                  (GET "/delayed" []
+                    (todo-list/render-todo-list-delayed-page list-id))
 
-    (POST "/" { params :params }
-      (add-item list-id params))
+                  (POST "/" {params :params}
+                    (add-item list-id params))
 
-    (POST "/details" { params :params }
-      (update-list-or-view-details list-id params))
+                  (POST "/details" {params :params}
+                    (update-list-or-view-details list-id params))
 
-    (POST "/sharing" { params :params }
-      (update-list-or-view-sharing list-id params))
+                  (POST "/sharing" {params :params}
+                    (update-list-or-view-sharing list-id params))
 
-    (POST "/priority" { params :params }
-      (update-list-priority list-id (:new-priority params)))
+                  (POST "/priority" {params :params}
+                    (update-list-priority list-id (:new-priority params)))
 
-    (POST "/delete" []
-      (delete-list list-id))
+                  (POST "/delete" []
+                    (delete-list list-id))
 
-    (POST "/restore" []
-      (restore-list list-id))
+                  (POST "/restore" []
+                    (restore-list list-id))
 
-    (POST "/sort" { params :params }
-      (sort-list list-id params))
+                  (POST "/sort" {params :params}
+                    (sort-list list-id params))
 
-    (POST "/copy-from" { params :params }
-      (copy-list list-id params))))
+                  (POST "/copy-from" {params :params}
+                    (copy-list list-id params))))
 
-(defn- item-routes [ item-id ]
-  (when-let-route [ item-id (accept-authorized-item-id item-id)]
-    (POST "/" { params :params }
-      (update-item-desc item-id params))
+(defn- item-routes [item-id]
+  (when-let-route [item-id (accept-authorized-item-id item-id)]
+                  (POST "/" {params :params}
+                    (update-item-desc item-id params))
 
-    (POST "/snooze" { params :params }
-      (update-item-snooze-days item-id params))
+                  (POST "/snooze" {params :params}
+                    (update-item-snooze-days item-id params))
 
-    (POST "/priority" { params :params }
-      (update-item-priority item-id params))
+                  (POST "/priority" {params :params}
+                    (update-item-priority item-id params))
 
-    (POST "/complete" [ ]
-      (complete-item item-id))
+                  (POST "/complete" []
+                    (complete-item item-id))
 
-    (POST "/delete" [ ]
-      (delete-item item-id))
+                  (POST "/delete" []
+                    (delete-item item-id))
 
-    (POST "/restore" [ ]
-      (restore-item item-id))
+                  (POST "/restore" []
+                    (restore-item item-id))
 
-    (POST "/list" { params :params }
-      (update-item-list item-id params))
+                  (POST "/list" {params :params}
+                    (update-item-list item-id params))
 
-    (POST "/ordinal" { params :params }
-      (update-item-ordinal item-id params))))
+                  (POST "/ordinal" {params :params}
+                    (update-item-ordinal item-id params))))
 
 (defroutes private-routes
-  (POST "/list" { params :params }
+  (POST "/list" {params :params}
     (add-list params))
 
-  (GET "/lists" { params :params }
+  (GET "/lists" {params :params}
     (todo-list-manager/render-list-manager-page params))
 
-  (context "/list/:list-id" [ list-id ]
+  (context "/list/:list-id" [list-id]
     (list-routes list-id))
 
-  (context "/item/:item-id" [ item-id ]
+  (context "/item/:item-id" [item-id]
     (item-routes item-id)))
 
 (defroutes public-routes
-  (GET "/" { params :params }
+  (GET "/" {params :params}
     (render-launch-page params))
 
   (GET "/item-counts" []
     (render-item-counts))
 
-  (GET "/list/:list-id/public" { { list-id :list-id } :params }
+  (GET "/list/:list-id/public" {{list-id :list-id} :params}
     ;; Retain backward compatibility with older public list URL scheme
     (redirect-to-list list-id))
 
-  (GET "/list/:list-id" { params :params }
+  (GET "/list/:list-id" {params :params}
     (todo-list/render-todo-list-public-page params)))
 
-(defn all-routes [ ]
+(defn all-routes []
   (routes
    public-routes
    (auth/authorize-valid-user private-routes)))

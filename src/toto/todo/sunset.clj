@@ -25,9 +25,9 @@
   (:require [taoensso.timbre :as log]
             [toto.todo.data.data :as data]))
 
-(defn sunset-items-by-age [ list-id age-limit ]
-  (let [ toto-user-id (data/get-system-user-id)]
-    (doseq [ item (data/get-sunset-items-by-id list-id age-limit)]
+(defn sunset-items-by-age [list-id age-limit]
+  (let [toto-user-id (data/get-system-user-id)]
+    (doseq [item (data/get-sunset-items-by-id list-id age-limit)]
       (data/delete-item-by-id toto-user-id (:item_id item)))))
 
 (defn item-sunset-job []

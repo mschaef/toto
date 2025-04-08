@@ -36,7 +36,7 @@
             [toto.todo.data.data :as data]
             [toto.todo.sunset :as sunset]))
 
-(defn- start-scheduled-jobs [ db-conn-pool session-store ]
+(defn- start-scheduled-jobs [db-conn-pool session-store]
   (-> (scheduler/start)
       (backup/schedule-backup db-conn-pool)
       (scheduler/schedule-job :web-session-cull
@@ -49,18 +49,18 @@
                               #(with-db-connection db-conn-pool
                                  (core-data/delete-old-verification-links)))))
 
-(defn- db-conn-spec [ config ]
+(defn- db-conn-spec [config]
   {:name (or (config/property "db.subname")
              (get-in config [:db :subname] "toto"))
-   :schema-path [ "sql/" ]
-   :schemas [[ "toto" 12 ]]})
+   :schema-path ["sql/"]
+   :schemas [["toto" 12]]})
 
-(defn- app-start [ app-routes ]
+(defn- app-start [app-routes]
   (let [config (config/cval)]
     (sql-file/with-pool [db-conn (db-conn-spec config)]
-      (let [ session-store (session/session-store)]
+      (let [session-store (session/session-store)]
         (start-scheduled-jobs db-conn session-store)
         (web/start-site db-conn session-store (routes/all-routes app-routes))))))
 
-(defmain [ & args ]
+(defmain [& args]
   (app-start (todo/all-routes)))

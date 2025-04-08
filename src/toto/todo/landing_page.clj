@@ -29,7 +29,7 @@
   (:require [taoensso.timbre :as log]
             [hiccup.form :as form]))
 
-(defn render-landing-page [ params ]
+(defn render-landing-page [params]
   (render-page {:page-title "The Todo List Manager"}
                [:div.page-message
                 [:h1 "Toto"]

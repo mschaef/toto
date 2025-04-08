@@ -33,14 +33,14 @@
   (auth/authorize-expected-roles
    (first (data/get-todo-list-ids-by-user (auth/current-user-id)))))
 
-(defn accept-authorized-list-id [ list-id ]
+(defn accept-authorized-list-id [list-id]
   (aand (decode-list-id list-id)
         (auth/authorize-expected-roles
          (if (data/list-owned-by-user-id? it (auth/current-user-id))
            it
            (auth/report-unauthorized)))))
 
-(defn accept-authorized-item-id [ item-id ]
+(defn accept-authorized-item-id [item-id]
   (aand (decode-item-id item-id)
         (auth/authorize-expected-roles
          (if (data/item-owned-by-user-id? it (auth/current-user-id))
@@ -48,10 +48,10 @@
            (auth/report-unauthorized)))))
 
 (defn redirect-to-list
-  ([ list-id ]
+  ([list-id]
    (redirect-to-list list-id {}))
 
-  ([ list-id params ]
+  ([list-id params]
    (ring/redirect (shref "/list/" (encode-list-id list-id) params))))
 
 (defn redirect-to-home-list []

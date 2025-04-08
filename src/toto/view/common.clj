@@ -25,18 +25,18 @@
 
 ;;; Ring Responses
 
-(defn unprocessable-entity [ body ]
+(defn unprocessable-entity [body]
   {:status  422
    :headers {}
    :body    body})
 
 ;;; HTML Utilities
 
-(defn class-set [ classes ]
+(defn class-set [classes]
   (clojure.string/join " " (map str (filter #(classes %)
                                             (keys classes)))))
 
 ;;; Resource Paths
 
-(defn resource [ path ]
+(defn resource [path]
   (str "/" (util/get-version) "/" path))

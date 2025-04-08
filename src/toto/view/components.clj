@@ -28,15 +28,15 @@
             [hiccup.form :as hiccup-form]
             [toto.view.auth :as auth]))
 
-(defelem scroll-column [ id title & contents ]
+(defelem scroll-column [id title & contents]
   [:div.scroll-column
    (when title
      [:div.fixed title])
-   [:div.scrollable { :id id :data-preserve-scroll "true" }
+   [:div.scrollable {:id id :data-preserve-scroll "true"}
     contents]])
 
-(defn post-button [ attrs body ]
-  (let [ target (:target attrs)]
+(defn post-button [attrs body]
+  (let [target (:target attrs)]
     [:span.clickable.post-button
      (cond-> {:onclick (if-let [next-url (:next-url attrs)]
                          (str "window._toto.doPost('" target "'," (json/write-str (get attrs :args {})) ", '" next-url "')")
@@ -58,26 +58,26 @@
         verify-n-1 " + " verify-n-2 " = "
         (hiccup-form/text-field {:class "verify-response"} "verify-response")]])))
 
-(defn verify-response-correct [ params ]
+(defn verify-response-correct [params]
   (or (auth/current-identity)
       (let [{:keys [:verify-n-1 :verify-n-2 :verify-response]} params]
         (= (or (try-parse-integer verify-response) -1)
            (+ (or (try-parse-integer verify-n-1) -1)
               (or (try-parse-integer verify-n-2) -1))))))
 
-(defn render-duration-select [ id current-value query-durations autosubmit? ]
-  [:select (cond-> { :id id :name id }
+(defn render-duration-select [id current-value query-durations autosubmit?]
+  [:select (cond-> {:id id :name id}
              autosubmit? (merge {:onchange "this.form.submit()"}))
    (hiccup-form/select-options (conj
-                                (map (fn [ duration ]
+                                (map (fn [duration]
                                        [(str duration "d") (str duration)])
                                      query-durations)
-                                [ "-" "-"])
+                                ["-" "-"])
                                (if (nil? current-value)
                                  "-"
                                  (str current-value)))])
 
-(defn- copyable-text-base [ text label-text input-attrs ]
+(defn- copyable-text-base [text label-text input-attrs]
   [:div.copyable-text
    [:input (merge input-attrs {:value text})]
    [:span.clickable
@@ -85,11 +85,11 @@
     label-text]])
 
 (defn copyable-text
-  ([ text label-text ]
+  ([text label-text]
    (copyable-text-base text label-text {:type "text" :readonly true}))
 
-  ([ text ]
-   (copyable-text text "Copy"))  )
+  ([text]
+   (copyable-text text "Copy")))
 
-(defn copy-button [ text label-text ]
+(defn copy-button [text label-text]
   (copyable-text-base text label-text {:type "hidden"}))

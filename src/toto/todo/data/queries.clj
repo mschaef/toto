@@ -21,7 +21,7 @@
 
 (ns toto.todo.data.queries
   (:require [taoensso.timbre :as log]
-            [yesql.core :refer [ defqueries ]]
+            [yesql.core :refer [defqueries]]
             [toto.data.queries :as queries]))
 
 (defqueries "toto/todo/data/queries.sql"

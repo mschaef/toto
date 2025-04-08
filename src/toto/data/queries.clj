@@ -22,16 +22,16 @@
 (ns toto.data.queries
   (:use sql-file.middleware)
   (:require [taoensso.timbre :as log]
-            [yesql.core :refer [ defqueries ]]
+            [yesql.core :refer [defqueries]]
             [yesql.middleware :as middleware]))
 
-(defn log-query-middleware [ query-fn ]
+(defn log-query-middleware [query-fn]
   (fn [args call-options]
     (let [begin-t (System/currentTimeMillis)
           query-name (get-in call-options [:query :name])]
-      (log/debug [ :begin query-name args ])
-      (let [ result (query-fn args call-options) ]
-        (log/debug [ :end query-name (- (System/currentTimeMillis) begin-t)])
+      (log/debug [:begin query-name args])
+      (let [result (query-fn args call-options)]
+        (log/debug [:end query-name (- (System/currentTimeMillis) begin-t)])
         result))))
 
 (def query-middleware (comp (middleware/set-connection current-db-connection)

@@ -4,7 +4,12 @@ build:
 
 .PHONY: run
 run:
+	lein cljfmt check
 	lein run
+
+.PHONY: format
+format:
+	lein cljfmt fix
 
 .PHONY: clean
 clean:

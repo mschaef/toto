@@ -35,18 +35,18 @@
             [toto.view.auth :as auth]
             [toto.todo.sidebar :as sidebar]))
 
-(defn- list-priority-button [ list-id new-priority image-spec ]
+(defn- list-priority-button [list-id new-priority image-spec]
   (post-button {:target (str "/list/" (encode-list-id list-id) "/priority")
                 :args {:new-priority new-priority}
                 :desc "Set List Priority"}
                image-spec))
 
-(defn render-list-star-control [ list-id priority ]
+(defn render-list-star-control [list-id priority]
   (if (<= priority 0)
     (list-priority-button list-id 1 img-star-gray)
     (list-priority-button list-id 0 img-star-yellow)))
 
-(defn render-new-list-form [ ]
+(defn render-new-list-form []
   (hiccup-form/form-to
    {:class "new-item-form"}
    [:post (shref "/list")]
@@ -62,12 +62,12 @@
   [:div.query-settings
    [:div.control-segment
     [:a {:href (shref "/lists" {:deleted "yes"})}
-     "[include deleted]" ]]
+     "[include deleted]"]]
    [:div.control-segment
     [:a {:href (str "/lists")}
      " [default view]"]]])
 
-(defn- render-list-manager-entry [ list-info ]
+(defn- render-list-manager-entry [list-info]
   (let [list-id (:todo_list_id list-info)
         priority (:priority list-info)
         desc (:desc list-info)
@@ -85,8 +85,7 @@
       (if (< priority 0)
         (list-priority-button list-id 0 "Unhide List")
         (list-priority-button list-id -1 "Hide List"))
-            (sidebar/render-list-visibility-flag list-info)
-]
+      (sidebar/render-list-visibility-flag list-info)]
 
      [:a.details-link {:href (shref "/list/" (encode-list-id list-id)
                                     {:modal "details"})}
@@ -97,10 +96,7 @@
                                     {:modal "share-with"})}
       "Sharing"]]))
 
-
-
-
-(defn render-list-manager-page [ params ]
+(defn render-list-manager-page [params]
   (let [include-deleted (= (:deleted params) "yes")]
     (render-page
      {:title "Manage Todo Lists"}
