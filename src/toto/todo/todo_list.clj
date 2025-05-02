@@ -351,3 +351,16 @@
       (render-page {:title ((data/get-todo-list-by-id list-id) :desc)
                     :page-data-class "todo-list"}
                    (render-todo-list list-id nil false 0 0 nil 0)))))
+
+(defn render-todo-list-counts [params]
+  (let [list-id (decode-list-id (:list-id params))
+        list-info (and list-id (data/get-todo-list-by-id list-id))]
+    (when (and list-info (not (:is_deleted list-info)))
+      (let [is-view (:is_view list-info)]
+        {:body {:is-view is-view
+                :item-count (if is-view
+                              (data/get-todo-list-view-item-count list-id false)
+                              (data/get-todo-list-item-count list-id false))
+                :item-count-with-snoozed (if is-view
+                              (data/get-todo-list-view-item-count list-id true)
+                              (data/get-todo-list-item-count list-id true))}}))))

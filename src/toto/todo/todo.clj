@@ -299,6 +299,9 @@
     ;; Retain backward compatibility with older public list URL scheme
     (redirect-to-list list-id))
 
+  (GET "/list/:list-id/counts" {params :params}
+    (todo-list/render-todo-list-counts params))
+
   (GET "/list/:list-id" {params :params}
     (todo-list/render-todo-list-public-page params)))
 
