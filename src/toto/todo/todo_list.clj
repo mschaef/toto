@@ -55,11 +55,7 @@
                                       :autocomplete "off"
                                       :onkeydown "window._toto.onNewItemInputKeydown(event)"}
                                (not editing-item?) (assoc "autofocus" "on"))
-                             "item-description")
-     (hiccup-form/hidden-field "item-priority" "0")
-     [:button.high-priority-submit {:type "button"
-                                    :onclick "window._toto.submitHighPriority()"}
-      img-star-yellow])))
+                             "item-description"))))
 
 (def query-durations [1 7 30 90 365 730])
 

@@ -317,15 +317,6 @@ function setupItemDragging() {
     });
 }
 
-
-function submitHighPriority() {
-    var form = elemBySelector('.new-item-form');
-    var priorityField = elemBySelector('.new-item-form #item-priority');
-
-    priorityField.value = "1";
-    form.submit();
-}
-
 function selectNavigate(id, direction) {
     var s = elemById(id);
 
@@ -345,15 +336,7 @@ function selectNavigate(id, direction) {
 }
 
 function onNewItemInputKeydown(event) {
-
-    if (event.ctrlKey) {
-        if (event.keyCode == 13) {
-            event.preventDefault();
-            event.stopPropagation();
-            submitHighPriority();
-        }
-
-    } else if (event.shiftKey) {
+    if (event.shiftKey) {
         if (event.keyCode == 38) {
             event.preventDefault();
             event.stopPropagation();
