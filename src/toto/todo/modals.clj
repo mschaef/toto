@@ -108,9 +108,6 @@
    [:div.config-panel
     [:h1 "Sharing Link"]
     (copyable-text (todo-list-link list-id))]
-   [:div.config-panel
-    [:h1 "Delayed Link"]
-    (copyable-text (str (todo-list-link list-id) "/delayed"))]
    [:div.modal-controls
     [:input {:type "submit" :value "Share"}]]))
 
