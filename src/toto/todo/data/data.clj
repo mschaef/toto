@@ -52,15 +52,25 @@
   (map :todo_list_id
        (query/get-todo-list-ids-by-user {:user_id user-id})))
 
-(defn get-todo-list-view-item-count [todo-list-view-id include-snoozed]
-  (scalar-result
-   (query/get-todo-list-view-item-count {:todo_list_view_id todo-list-view-id
-                                         :include_snoozed include-snoozed})))
+(defn get-todo-list-view-item-count
+  ([todo-list-view-id include-snoozed minimum-priority]
+   (scalar-result
+    (query/get-todo-list-view-item-count {:todo_list_view_id todo-list-view-id
+                                          :include_snoozed include-snoozed
+                                          :minimum_priority minimum-priority})))
 
-(defn get-todo-list-item-count [todo-list-id include-snoozed]
-  (scalar-result
-   (query/get-todo-list-item-count {:todo_list_id todo-list-id
-                                    :include_snoozed include-snoozed})))
+  ([todo-list-view-id include-snoozed]
+   (get-todo-list-view-item-count todo-list-view-id include-snoozed -9999)))
+
+(defn get-todo-list-item-count
+  ([todo-list-id include-snoozed minimum-priority]
+   (scalar-result
+    (query/get-todo-list-item-count {:todo_list_id todo-list-id
+                                     :include_snoozed include-snoozed
+                                     :minimum_priority minimum-priority})))
+
+  ([todo-list-id include-snoozed]
+   (get-todo-list-item-count todo-list-id include-snoozed -9999)))
 
 (defn get-todo-lists-by-user [user-id include-deleted]
   (query/get-todo-lists-by-user {:user_id user-id

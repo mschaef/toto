@@ -357,10 +357,12 @@
         list-info (and list-id (data/get-todo-list-by-id list-id))]
     (when (and list-info (not (:is_deleted list-info)))
       (let [is-view (:is_view list-info)]
-        {:body {:is-view is-view
-                :item-count (if is-view
-                              (data/get-todo-list-view-item-count list-id false)
-                              (data/get-todo-list-item-count list-id false))
-                :item-count-with-snoozed (if is-view
-                              (data/get-todo-list-view-item-count list-id true)
-                              (data/get-todo-list-item-count list-id true))}}))))
+        {:body {:active-items (if is-view
+                                (data/get-todo-list-view-item-count list-id false)
+                                (data/get-todo-list-item-count list-id false))
+                :active-starred-items (if is-view
+                                (data/get-todo-list-view-item-count list-id false 1)
+                                (data/get-todo-list-item-count list-id false 1))
+                :total-items (if is-view
+                               (data/get-todo-list-view-item-count list-id true)
+                               (data/get-todo-list-item-count list-id true))}}))))
