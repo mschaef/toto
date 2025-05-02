@@ -78,6 +78,9 @@
                            [:a {:href (shref "/list/" (encode-list-id list-id)
                                              {:modal "details"})}
                             "[list details]"]]
+                          [:div.control-segment
+                           [:a.details-link {:href (shref "/list/" (encode-list-id list-id) "/completions")}
+                            "[completed items]"]]
                           (when (not is-view)
                             [:div.control-segment
                              [:a {:href (shref "/list/" (encode-list-id list-id)
