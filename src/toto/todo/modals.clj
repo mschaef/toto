@@ -17,10 +17,10 @@
 (defn render-snooze-modal [params list-id]
   (let [snoozing-item-id (decode-item-id  (:snoozing-item-id params))
         item-info (data/get-item-by-id snoozing-item-id)]
-    (defn render-snooze-choice [label snooze-days shortcut-key]
+    (defn render-snooze-choice [label snooze-hours shortcut-key]
       (post-button {:desc (str label " (" shortcut-key ")")
                     :target (str "/item/" (encode-item-id snoozing-item-id) "/snooze")
-                    :args {:snooze-days snooze-days}
+                    :args {:snooze-hours snooze-hours}
                     :shortcut-key shortcut-key
                     :next-url (shref "/list/" (encode-list-id list-id) without-modal)}
                    (str label " (" shortcut-key ")")))
@@ -30,12 +30,13 @@
       [:p.snooze-item-text
        (todo-item/render-item-text (:desc item-info))]]
      [:div.snooze-choices
-      (map (fn [[label snooze-days shortcut-key]]
-             (render-snooze-choice label snooze-days shortcut-key))
-           [["Tomorrow" 1 "1"]
-            ["In Three Days" 3 "2"]
-            ["Next Week"  7 "3"]
-            ["Next Month" 30 "4"]])]
+      (map (fn [[label snooze-hours shortcut-key]]
+             (render-snooze-choice label snooze-hours shortcut-key))
+           [["Later Today" 3 "1"]
+            ["Tomorrow" 24 "2"]
+            ["In Three Days" 72 "3"]
+            ["Next Week"  168 "4"]
+            ["Next Month" 720 "5"]])]
      (when (:currently_snoozed item-info)
        [:div.snooze-choices
         [:hr]

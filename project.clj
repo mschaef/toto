@@ -19,7 +19,7 @@
                  [joda-time/joda-time "2.13.0"]
                  [com.draines/postal "2.0.5"]
                  [it.sauronsoftware.cron4j/cron4j "2.2.5"]
-                 [com.mschaef/playbook "0.1.4"]
+                 [com.mschaef/playbook "0.1.5"]
                  [software.amazon.awssdk/s3  "2.29.19"]]
 
   :plugins [[lein-tar "3.3.0"]

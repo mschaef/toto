@@ -188,12 +188,12 @@
         (log/warn "Unknown action while updating item " item-id ": " action)))
     (success)))
 
-(defn- update-item-snooze-days [item-id params]
-  (let [snooze-days (or (try-parse-integer (:snooze-days params)) 0)
+(defn- update-item-snooze-hours [item-id params]
+  (let [snooze-hours (or (try-parse-integer (:snooze-hours params)) 0)
         user-id (auth/current-user-id)]
-    (if (= snooze-days 0)
+    (if (= snooze-hours 0)
       (data/remove-item-snooze-by-id user-id item-id)
-      (data/update-item-snooze-by-id user-id item-id (add-days (current-time) snooze-days)))
+      (data/update-item-snooze-by-id user-id item-id (add-hours (current-time) snooze-hours)))
     (success)))
 
 (defn- update-item-list [item-id params]
@@ -264,7 +264,7 @@
                     (update-item-desc item-id params))
 
                   (POST "/snooze" {params :params}
-                    (update-item-snooze-days item-id params))
+                    (update-item-snooze-hours item-id params))
 
                   (POST "/priority" {params :params}
                     (update-item-priority item-id params))
