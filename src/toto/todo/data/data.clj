@@ -326,3 +326,11 @@
 (defn get-list-id-by-item-id [item-id]
   (scalar-result
    (query/get-list-id-by-item-id {:item_id item-id})))
+
+(defn reset-view-stars [user-id list-id]
+  (doseq [item (query/get-todo-list-view-starred-item-ids {:todo_list_view_id list-id})]
+    (update-item-priority-by-id user-id (:item_id item) 0)))
+
+(defn reset-list-stars [user-id list-id]
+  (doseq [item (query/get-todo-list-starred-item-ids {:todo_list_id list-id})]
+    (update-item-priority-by-id user-id (:item_id item) 0)))

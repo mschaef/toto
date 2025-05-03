@@ -71,6 +71,10 @@
                                              {:min-item-priority 1})}
                             "[only starred]"]]
                           [:div.control-segment
+                           [:a {:href (shref "/list/" (encode-list-id list-id)
+                                             {:modal "reset-stars"})}
+                            "[reset stars]"]]
+                          [:div.control-segment
                            [:label {:for "cwithin"}
                             "Completed within: "]
                            (render-duration-select "cwithin" completed-within-days query-durations true)]
@@ -334,12 +338,13 @@
     (render-page {:title (:desc list-info)
                   :page-data-class "todo-list"
                   :sidebar (sidebar/render-sidebar selected-list-id min-list-priority snoozed-for-days)
-                  :modals {"snoozing" #(modals/render-snooze-modal params selected-list-id)
-                           "update-from" #(modals/render-update-from-modal params selected-list-id)
-                           "share-with" #(modals/render-share-with-modal params selected-list-id)
+                  :modals {"delete-list" #(modals/render-list-delete-modal selected-list-id)
                            "details" #(todo-list-details/render-todo-list-details-modal selected-list-id)
-                           "delete-list" #(modals/render-list-delete-modal selected-list-id)
-                           "sort-list" #(modals/render-list-sort-modal selected-list-id)}}
+                           "reset-stars" #(modals/render-reset-stars-modal params selected-list-id)
+                           "share-with" #(modals/render-share-with-modal params selected-list-id)
+                           "snoozing" #(modals/render-snooze-modal params selected-list-id)
+                           "sort-list" #(modals/render-list-sort-modal selected-list-id)
+                           "update-from" #(modals/render-update-from-modal params selected-list-id)}}
                  (if (:is_deleted list-info)
                    (render-deleted-todo-list selected-list-id)
                    (render-todo-list selected-list-id edit-item-id true completed-within-days snoozed-for-days last-item-list-id min-item-priority)))))
@@ -361,8 +366,8 @@
                                 (data/get-todo-list-view-item-count list-id false)
                                 (data/get-todo-list-item-count list-id false))
                 :active-starred-items (if is-view
-                                (data/get-todo-list-view-item-count list-id false 1)
-                                (data/get-todo-list-item-count list-id false 1))
+                                        (data/get-todo-list-view-item-count list-id false 1)
+                                        (data/get-todo-list-item-count list-id false 1))
                 :total-items (if is-view
                                (data/get-todo-list-view-item-count list-id true)
                                (data/get-todo-list-item-count list-id true))}}))))

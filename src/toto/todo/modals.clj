@@ -137,3 +137,13 @@
                                  ["Snoozed Until" "snoozed-until"]])]
    [:div.modal-controls
     [:input {:type "submit" :value "Sort List"}]]))
+
+(defn render-reset-stars-modal [params list-id]
+  (render-modal
+   {:title "Reset Stars"
+    :form-post-to (shref "/list/" (encode-list-id list-id) "/reset-stars")}
+   [:span.warning
+    "This will clear stars on all active list items, including those that are "
+    "snoozed and not visible."]
+   [:div.modal-controls
+    [:input {:type "submit" :value "Reset Stars"}]]))

@@ -136,6 +136,14 @@ SELECT count(item.item_id)
     AND item.priority >= :minimum_priority
     AND (:include_snoozed OR (CURRENT_TIMESTAMP >= NVL(item.snoozed_until, CURRENT_TIMESTAMP)))
 
+-- name: get-todo-list-starred-item-ids
+SELECT item.item_id
+  FROM todo_item item
+ WHERE (item.todo_list_id=:todo_list_id)
+    AND NOT item.is_deleted
+    AND NOT item.is_complete
+    AND item.priority >= 1
+
 -- name: get-todo-list-view-item-count
 SELECT count(item.item_id)
   FROM todo_item item
@@ -146,6 +154,16 @@ SELECT count(item.item_id)
     AND NOT item.is_complete
     AND item.priority >= :minimum_priority
     AND (:include_snoozed OR (CURRENT_TIMESTAMP >= NVL(item.snoozed_until, CURRENT_TIMESTAMP)))
+
+-- name: get-todo-list-view-starred-item-ids
+SELECT item.item_id
+  FROM todo_item item
+ WHERE (item.todo_list_id in (SELECT todo_view_sublist.sublist_id
+                                FROM todo_view_sublist
+                               WHERE todo_view_sublist.todo_list_id=:todo_list_view_id))
+    AND NOT item.is_deleted
+    AND NOT item.is_complete
+    AND item.priority >= 1
 
 -- name: get-todo-lists-by-user
 SELECT todo_list.todo_list_id,

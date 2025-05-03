@@ -576,6 +576,5 @@ window._toto = {
     doPost,
     doCopy,
     onItemEditKeydown,
-    onNewItemInputKeydown,
-    submitHighPriority
+    onNewItemInputKeydown
 };

@@ -69,6 +69,12 @@
     (data/copy-list (auth/current-user-id) list-id copy-from-list-id)
     (redirect-to-list list-id)))
 
+(defn- reset-stars [list-id params]
+  (if (:is_view (data/get-todo-list-by-id list-id))
+    (data/reset-view-stars (auth/current-user-id) list-id)
+    (data/reset-list-stars (auth/current-user-id) list-id))
+  (redirect-to-list list-id without-modal))
+
 (defn- add-list [params]
   (let [{list-description :list-description
          list-type :list-type} params
@@ -247,7 +253,10 @@
                     (sort-list list-id params))
 
                   (POST "/copy-from" {params :params}
-                    (copy-list list-id params))))
+                    (copy-list list-id params))
+
+                  (POST "/reset-stars" {params :params}
+                    (reset-stars list-id params))))
 
 (defn- item-routes [item-id]
   (when-let-route [item-id (accept-authorized-item-id item-id)]
