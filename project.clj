@@ -25,6 +25,8 @@
   :plugins [[lein-tar "3.3.0"]
             [dev.weavejester/lein-cljfmt "0.13.0"]]
 
+  :cljfmt {:load-config-file? true}
+
   :tar {:uberjar true
         :format :tar-gz
         :output-dir "."

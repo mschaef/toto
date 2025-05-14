@@ -222,67 +222,67 @@
 
 (defn- list-routes [list-id]
   (when-let-route [list-id (accept-authorized-list-id list-id)]
-                  (GET "/" {params :params}
-                    (todo-list/render-todo-list-page list-id params))
+    (GET "/" {params :params}
+      (todo-list/render-todo-list-page list-id params))
 
-                  (GET "/completions" {params :params}
-                    (todo-list/render-todo-list-completions-page list-id params))
+    (GET "/completions" {params :params}
+      (todo-list/render-todo-list-completions-page list-id params))
 
-                  (GET "/delayed" []
-                    (todo-list/render-todo-list-delayed-page list-id))
+    (GET "/delayed" []
+      (todo-list/render-todo-list-delayed-page list-id))
 
-                  (POST "/" {params :params}
-                    (add-item list-id params))
+    (POST "/" {params :params}
+      (add-item list-id params))
 
-                  (POST "/details" {params :params}
-                    (update-list-or-view-details list-id params))
+    (POST "/details" {params :params}
+      (update-list-or-view-details list-id params))
 
-                  (POST "/sharing" {params :params}
-                    (update-list-or-view-sharing list-id params))
+    (POST "/sharing" {params :params}
+      (update-list-or-view-sharing list-id params))
 
-                  (POST "/priority" {params :params}
-                    (update-list-priority list-id (:new-priority params)))
+    (POST "/priority" {params :params}
+      (update-list-priority list-id (:new-priority params)))
 
-                  (POST "/delete" []
-                    (delete-list list-id))
+    (POST "/delete" []
+      (delete-list list-id))
 
-                  (POST "/restore" []
-                    (restore-list list-id))
+    (POST "/restore" []
+      (restore-list list-id))
 
-                  (POST "/sort" {params :params}
-                    (sort-list list-id params))
+    (POST "/sort" {params :params}
+      (sort-list list-id params))
 
-                  (POST "/copy-from" {params :params}
-                    (copy-list list-id params))
+    (POST "/copy-from" {params :params}
+      (copy-list list-id params))
 
-                  (POST "/reset-stars" {params :params}
-                    (reset-stars list-id params))))
+    (POST "/reset-stars" {params :params}
+      (reset-stars list-id params))))
 
 (defn- item-routes [item-id]
   (when-let-route [item-id (accept-authorized-item-id item-id)]
-                  (POST "/" {params :params}
-                    (update-item-desc item-id params))
+    (POST "/" {params :params}
+      (update-item-desc item-id params))
 
-                  (POST "/snooze" {params :params}
-                    (update-item-snooze-hours item-id params))
+    (POST "/snooze" {params :params}
+      (update-item-snooze-hours item-id params))
 
-                  (POST "/priority" {params :params}
-                    (update-item-priority item-id params))
+    (POST "/priority" {params :params}
+      (update-item-priority item-id params))
 
-                  (POST "/complete" []
-                    (complete-item item-id))
+    (POST "/complete" []
+      (complete-item item-id))
 
-                  (POST "/delete" []
-                    (delete-item item-id))
+    (POST "/delete" []
+      (delete-item item-id))
 
-                  (POST "/restore" []
-                    (restore-item item-id))
+    (POST "/restore" []
+      (restore-item item-id))
 
-                  (POST "/list" {params :params}
-                    (update-item-list item-id params))
+    (POST "/list" {params :params}
+      (update-item-list item-id params))
 
-                  (POST "/ordinal" {params :params}
-                    (update-item-ordinal item-id params))))
+    (POST "/ordinal" {params :params}
+      (update-item-ordinal item-id params))))
 
 (defroutes private-routes
   (POST "/list" {params :params}
