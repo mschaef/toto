@@ -282,7 +282,12 @@
                    (.format date-format (or (:last_login_on user) (current-time)))]
 
                   [:div.config-panel
-                   [:a {:href "/user/password"} "Change Password"]]))))
+                   [:h1 "Change Password"]
+                   [:a {:href "/user/password"} "Change Password"]]
+
+                  [:div.config-panel
+                   [:h1 "Log Out"]
+                   [:a.warning {:href "/logout"} "Log Out"]]))))
 
 (defn validate-name [name]
   (if name

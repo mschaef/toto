@@ -36,9 +36,7 @@
 (defn session-controls []
   (if-let [username (auth/current-identity)]
     [:div.session-controls
-     [:a {:href "/user/info"} username]
-     " - "
-     [:a.warning {:href "/logout"} "Log Out"]]
+     [:a {:href "/user/info"} username]]
     [:div.session-controls
      [:a {:href "/login"} "Sign In"]
      [:a.emphasize {:href "/user"} "Sign Up"]]))

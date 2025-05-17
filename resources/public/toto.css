@@ -1072,6 +1072,10 @@ p.new-user {
     color: blue;
 }
 
+.config-panel A.warning {
+    color: red;
+}
+
 .config-panel A:not(:last-child) {
     margin-bottom: 16px;
 }
