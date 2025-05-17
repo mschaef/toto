@@ -53,7 +53,7 @@
   {:name (or (config/property "db.subname")
              (get-in config [:db :subname] "toto"))
    :schema-path ["sql/"]
-   :schemas [["toto" 12]]})
+   :schemas [["toto" 13]]})
 
 (defn- app-start [app-routes]
   (let [config (config/cval)]
