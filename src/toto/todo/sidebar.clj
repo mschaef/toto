@@ -72,12 +72,13 @@
                                                  "low-priority" (and include-low-priority (< priority 0))})
                               :listid drop-target-list-id}
                [:a.item {:href (shref "/list/" (encode-list-id list-id))}
-                (hiccup.util/escape-html list-desc)
-                (render-list-visibility-flag list)]
-               [:span.pill
-                (if is-view
-                  (data/get-todo-list-view-item-count list-id (> snoozed-for-days 0))
-                  (data/get-todo-list-item-count list-id (> snoozed-for-days 0)))]]))
+                (hiccup.util/escape-html list-desc)]
+               (let [item-count (if is-view
+                                  (data/get-todo-list-view-item-count list-id (> snoozed-for-days 0))
+                                  (data/get-todo-list-item-count list-id (> snoozed-for-days 0)))]
+                 (when (> item-count 0)
+                   [:span
+                    item-count]))]))
 
           (remove #(and (< (:priority %) min-list-priority)
                         (not (= (Integer. selected-list-id) (:todo_list_id %))))
