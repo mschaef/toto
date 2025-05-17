@@ -126,6 +126,11 @@
         (query/insert-list-owner! {:user_id user-id
                                    :todo_list_id todo-list-id})))))
 
+(defn get-list-priority [todo-list-id user-id]
+  (scalar-result
+   (query/get-list-priority {:todo_list_id todo-list-id
+                             :user_id user-id})))
+
 (defn set-list-priority [todo-list-id user-id list-priority]
   (query/set-list-priority! {:todo_list_id todo-list-id
                              :user_id user-id

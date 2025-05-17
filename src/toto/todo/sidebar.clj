@@ -90,4 +90,4 @@
         [:a {:href (shref "" {:min-list-priority -1})} "Show All Lists"])]
 
      [:div.control-row
-      [:a {:href "/lists"} "Manage Todo Lists"]]]))
+      [:a {:href (shref {:modal "new-list"})} "Create List"]]]))

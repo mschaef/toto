@@ -105,6 +105,12 @@ UPDATE todo_list
    SET max_item_age = :max_item_age
  WHERE todo_list_id = :todo_list_id
 
+-- name: get-list-priority
+SELECT priority
+  FROM todo_list_owners
+ WHERE todo_list_id = :todo_list_id
+   AND user_id = :user_id
+
 -- name: set-list-priority!
 UPDATE todo_list_owners
    SET priority = :priority

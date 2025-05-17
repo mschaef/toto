@@ -54,6 +54,24 @@
             (= excluded-list-id (:todo_list_id %)))
           (data/get-todo-lists-by-user-alphabetical (auth/current-user-id) false))))])
 
+(defn render-new-list-modal [params]
+  (render-modal
+   {:title "New List"
+    :form-post-to (shref "/list")}
+   [:div.config-panel
+    [:h1 "List Name"]
+    (hiccup-form/text-field {:maxlength "32"
+                             :placeholder "New List Name"
+                             :autofocus "autofocus"}
+                            "list-description")]
+   [:div.config-panel
+    [:h1 "List Type"]
+    [:select {:id "list-type" :name "list-type"}
+     (hiccup-form/select-options [["List" "list"]
+                                  ["View" "view"]])]]
+   [:div.modal-controls
+    [:input {:type "submit" :value "Create List"}]]))
+
 (defn render-update-from-modal [params list-id]
   (render-modal
    {:title "Update From"

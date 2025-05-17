@@ -340,6 +340,7 @@
                   :sidebar (sidebar/render-sidebar selected-list-id min-list-priority snoozed-for-days)
                   :modals {"delete-list" #(modals/render-list-delete-modal selected-list-id)
                            "details" #(todo-list-details/render-todo-list-details-modal selected-list-id)
+                           "new-list" #(modals/render-new-list-modal params)
                            "reset-stars" #(modals/render-reset-stars-modal params selected-list-id)
                            "share-with" #(modals/render-share-with-modal params selected-list-id)
                            "snoozing" #(modals/render-snooze-modal params selected-list-id)

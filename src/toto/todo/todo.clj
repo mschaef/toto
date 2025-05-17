@@ -37,8 +37,7 @@
             [toto.view.auth :as auth]
             [toto.todo.landing-page :as landing-page]
             [toto.todo.todo-list :as todo-list]
-            [toto.todo.todo-list-details :as todo-list-details]
-            [toto.todo.todo-list-manager :as todo-list-manager]))
+            [toto.todo.todo-list-details :as todo-list-details]))
 
 (defn- update-list-description [list-id list-description]
   (when (not (string-empty? list-description))
@@ -84,7 +83,7 @@
       (redirect-to-home-list)
       (let [list-id (data/add-list list-description is-view)]
         (data/set-list-ownership list-id #{(auth/current-user-id)})
-        (redirect-to-lists)))))
+        (redirect-to-list list-id without-modal)))))
 
 (defn- selected-user-ids-from-params [params]
   (set
@@ -110,6 +109,8 @@
   (if-let [max-item-age (try-parse-integer (:max-item-age params))]
     (data/set-list-max-item-age list-id max-item-age)
     (data/clear-list-max-item-age list-id))
+  (when-let [list-priority (try-parse-integer (:list-priority params))]
+    (data/set-list-priority list-id (auth/current-user-id) list-priority))
   (redirect-to-list list-id without-modal))
 
 (defn- update-list-or-view-details [list-id params]
@@ -287,9 +288,6 @@
 (defroutes private-routes
   (POST "/list" {params :params}
     (add-list params))
-
-  (GET "/lists" {params :params}
-    (todo-list-manager/render-list-manager-page params))
 
   (context "/list/:list-id" [list-id]
     (list-routes list-id))

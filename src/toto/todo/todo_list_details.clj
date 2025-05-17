@@ -62,8 +62,19 @@
      "this number of days will automatically be deleted."]
     (render-duration-select "max-item-age" max-item-age [7 14 30 90] false)]])
 
+(defn- render-list-priority-panel [list-priority]
+  [:div.config-panel
+   [:h1 "List Priority"]
+   [:div
+    [:select {:id "list-priority" :name "list-priority"}
+     (hiccup-form/select-options [["High Priority" "1"]
+                                  ["Normal" "0"]
+                                  ["Hidden" "-1"]]
+                                 (str list-priority))]]])
+
 (defn render-todo-list-details-modal [list-id]
-  (let [list-details (data/get-todo-list-by-id list-id)
+  (let [list-details  (data/get-todo-list-by-id list-id)
+        list-priority (data/get-list-priority list-id (auth/current-user-id))
         list-name (:desc list-details)
         is-view (:is_view list-details)
         list-type (if is-view "View" "List")
@@ -77,6 +88,8 @@
      (if is-view
        (render-todo-list-view-editor list-id)
        (render-item-sunset-panel max-item-age))
+     (when (not is-view)
+       (render-list-priority-panel list-priority))
      [:div.config-panel
       [:h1 "Delete List"]
       "This list may be deleted and archived "
