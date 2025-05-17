@@ -68,6 +68,7 @@
   (let [backup-filename (get-backup-filename backup-path)]
     (log/report "Backing database up to: " backup-filename)
     (with-db-connection db-conn-pool
+      (sql-file/checkpoint-defragment (current-db-connection))
       (sql-file/backup-to-file-online (current-db-connection) backup-filename))
     (archive-backup-file backup-filename)
     (log/report "Database backup complete")))
