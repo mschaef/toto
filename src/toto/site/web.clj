@@ -38,7 +38,6 @@
             [compojure.handler :as handler]
             [playbook.config :as config]
             [toto.site.session :as session]
-            [toto.site.gdpr :as gdpr]
             [toto.view.common :as view-common]
             [toto.view.query :as view-query]
             [toto.site.user :as user]))
@@ -98,7 +97,6 @@
       (extend-session-duration 30)
       (include-requesting-ip)
       (view-query/wrap-remember-query)
-      (gdpr/wrap-gdpr-filter)
       (handler/site {:session {:store session-store}})
       (wrap-db-connection db-conn-pool)
       (wrap-request-thread-naming)

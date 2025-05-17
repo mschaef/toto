@@ -31,7 +31,6 @@
             [hiccup.form :as hiccup-form]
             [hiccup.util :as hiccup-util]
             [playbook.config :as config]
-            [toto.site.gdpr :as gdpr]
             [toto.view.auth :as auth]))
 
 (defn session-controls []
@@ -160,22 +159,8 @@
         (log/error "Invalid modal for this page:" modal-name
                    "(known:" (keys modal-defns) ")")))))
 
-(defn- render-gdpr-consent-banner []
-  (when (not gdpr/*gdpr-consent*)
-    (render-modal
-     {:title "Cookie Consent"
-      :form-post-to "/user/gdpr-consent"
-      :data-turbo "false"}
-     [:div
-      "This website uses a cookie to remember who you are from visit "
-      "to visit. This information is not shared "
-      "or used for tracking or advertising purposes."]
-     [:div.modal-controls
-      [:a {:href "/user/gdpr-consent-decline"} "Decline"]
-      (hiccup-form/submit-button {} "Accept")])))
-
 (defn- render-page-body [attrs contents]
-  (let [{:keys [title page-data-class sidebar suppress-gdpr-consent]} attrs]
+  (let [{:keys [title page-data-class sidebar]} attrs]
     [:body (if page-data-class
              {:data-class page-data-class})
      (render-header title (not (nil? sidebar)))
@@ -183,9 +168,6 @@
        (render-sidebar sidebar))
      [:div.contents {:class (class-set {"with-sidebar" sidebar})}
       (render-page-modal attrs)
-      (when (not suppress-gdpr-consent)
-        (render-gdpr-consent-banner))
-
       contents]]))
 
 (defn render-page [attrs & contents]
