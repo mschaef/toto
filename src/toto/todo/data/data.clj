@@ -197,10 +197,6 @@
   (scalar-result
    (query/get-total-active-item-count {})))
 
-(defn get-total-item-history-count []
-  (scalar-result
-   (query/get-total-item-history-count {})))
-
 (defn get-user-count []
   (scalar-result
    (query/get-user-count {})))
@@ -276,26 +272,6 @@
                       from-items)]
       (add-todo-item user-id list-id (:desc new-item) (:priority new-item)))))
 
-(defn update-item-by-id! [user-id item-id values]
-  (with-db-transaction
-    (jdbc/insert! (current-db-connection)
-                  :todo_item_history
-                  (first
-                   (query/get-todo-item-by-id {:item_id item-id})))
-    (jdbc/update! (current-db-connection)
-                  :todo_item
-                  (merge
-                   values
-                   {:updated_by user-id
-                    :updated_on (current-time)})
-                  ["item_id=?" item-id])))
-
-(defn complete-item-by-id [user-id item-id]
-  (update-item-by-id! user-id item-id {:is_complete true}))
-
-(defn delete-item-by-id [user-id item-id]
-  (update-item-by-id! user-id item-id {:is_deleted true}))
-
 (defn get-system-user-id []
   (:user_id (core-data/get-user-by-email "toto@mschaef.com")))
 
@@ -303,30 +279,48 @@
   (query/get-sunset-items-by-id {:todo_list_id list-id
                                  :age_limit age-limit}))
 
-(defn restore-item [user-id item-id]
-  (update-item-by-id! user-id item-id
-                      {:is_deleted false
-                       :is_complete false}))
+(defn- item-update-map
+  ([user-id item-id]
+   (item-update-map user-id item-id {}))
+
+  ([user-id item-id values]
+   (merge
+    values
+    {:item_id item-id
+     :updated_by user-id
+     :updated_on (current-time)})))
+
+(defn complete-item-by-id [user-id item-id]
+  (query/complete-item-by-id!
+   (item-update-map user-id item-id)))
+
+(defn delete-item-by-id [user-id item-id]
+  (query/delete-item-by-id!
+   (item-update-map user-id item-id)))
+
+(defn restore-item-by-id [user-id item-id]
+  (query/restore-item-by-id!
+   (item-update-map user-id item-id)))
 
 (defn update-item-snooze-by-id [user-id item-id snoozed-until]
-  (update-item-by-id! user-id item-id
-                      {:snoozed_until snoozed-until}))
+  (query/set-item-snoozed-until-by-id!
+   (item-update-map user-id item-id {:snoozed_until snoozed-until})))
 
 (defn remove-item-snooze-by-id [user-id item-id]
-  (update-item-by-id! user-id item-id
-                      {:snoozed_until nil}))
+  (query/set-item-snoozed-until-by-id!
+   (item-update-map user-id item-id {:snoozed_until nil})))
 
 (defn update-item-desc-by-id [user-id item-id item-description]
-  (update-item-by-id! user-id item-id
-                      {:desc item-description}))
+  (query/set-item-desc-by-id!
+   (item-update-map user-id item-id {:desc item-description})))
 
 (defn update-item-priority-by-id [user-id item-id item-priority]
-  (update-item-by-id! user-id item-id
-                      {:priority item-priority}))
+  (query/set-item-priority-by-id!
+   (item-update-map user-id item-id {:priority item-priority})))
 
-(defn update-item-list [user-id item-id list-id]
-  (update-item-by-id! user-id item-id
-                      {:todo_list_id list-id}))
+(defn update-item-list-by-id [user-id item-id todo-list-id]
+  (query/set-item-list-by-id!
+   (item-update-map user-id item-id {:todo_list_id todo-list-id})))
 
 (defn get-list-id-by-item-id [item-id]
   (scalar-result

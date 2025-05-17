@@ -236,10 +236,6 @@ SELECT COUNT(*)
   FROM todo_item
  WHERE NOT (is_deleted OR is_complete)
 
--- name: get-total-item-history-count
-SELECT count(*)
-  FROM todo_item_history
-
 -- name: get-user-count
 SELECT count(*)
   FROM user;
@@ -390,4 +386,54 @@ MERGE INTO todo_item_completion
 -- name: set-item-ordinal!
 UPDATE todo_item
    SET item_ordinal = :item_ordinal
+ WHERE item_id = :item_id
+
+-- name: complete-item-by-id!
+UPDATE todo_item
+   SET is_complete = true,
+       updated_by = :updated_by,
+       updated_on = :updated_on
+ WHERE item_id = :item_id
+
+-- name: delete-item-by-id!
+UPDATE todo_item
+   SET is_deleted = true,
+       updated_by = :updated_by,
+       updated_on = :updated_on
+ WHERE item_id = :item_id
+
+-- name: restore-item-by-id!
+UPDATE todo_item
+   SET is_complete = false,
+       is_deleted = false,
+       updated_by = :updated_by,
+       updated_on = :updated_on
+ WHERE item_id = :item_id
+
+-- name: set-item-snoozed-until-by-id!
+UPDATE todo_item
+   SET snoozed_until = :snoozed_until,
+       updated_by = :updated_by,
+       updated_on = :updated_on
+ WHERE item_id = :item_id
+
+-- name: set-item-desc-by-id!
+UPDATE todo_item
+   SET desc = :desc,
+       updated_by = :updated_by,
+       updated_on = :updated_on
+ WHERE item_id = :item_id
+
+-- name: set-item-priority-by-id!
+UPDATE todo_item
+   SET priority = :priority,
+       updated_by = :updated_by,
+       updated_on = :updated_on
+ WHERE item_id = :item_id
+
+-- name: set-item-list-by-id!
+UPDATE todo_item
+   SET todo_list_id = :todo_list_id,
+       updated_by = :updated_by,
+       updated_on = :updated_on
  WHERE item_id = :item_id

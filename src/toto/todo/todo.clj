@@ -157,7 +157,7 @@
          new-ordinal :new-ordinal
          new-priority :new-priority} params]
     (let [target-list-id (accept-authorized-list-id target-list-id)]
-      (data/update-item-list (auth/current-user-id) item-id target-list-id)
+      (data/update-item-list-by-id (auth/current-user-id) item-id target-list-id)
       (data/shift-list-items! target-list-id new-ordinal)
       (data/update-item-ordinal! item-id new-ordinal)
       (data/update-item-priority-by-id (auth/current-user-id) item-id new-priority)))
@@ -173,7 +173,7 @@
     (redirect-to-list list-id)))
 
 (defn restore-item [item-id]
-  (data/restore-item (auth/current-user-id) item-id)
+  (data/restore-item-by-id (auth/current-user-id) item-id)
   (success))
 
 (defn- update-item-desc [item-id params]
@@ -203,7 +203,7 @@
       (if (:is_view (data/get-todo-list-by-id target-list))
         (ring/bad-request "Cannot move list item directly to view.")
         (do
-          (data/update-item-list (auth/current-user-id) item-id target-list)
+          (data/update-item-list-by-id (auth/current-user-id) item-id target-list)
           (success))))))
 
 (defn update-item-priority [item-id params]
@@ -218,7 +218,6 @@
 
 (defn- render-item-counts []
   {:body {:total-active-item-count (data/get-total-active-item-count)
-          :total-item-history-count (data/get-total-item-history-count)
           :user-count (data/get-user-count)}})
 
 (defn- list-routes [list-id]
