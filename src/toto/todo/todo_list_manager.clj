@@ -80,13 +80,13 @@
       (render-list-star-control list-id priority)]
      [:div.item-description
       [:a.list-link {:href (shref "/list/" (encode-list-id list-id) without-modal)}
-       (hiccup.util/escape-html desc)
-       [:span.pill item-count]]
+       (hiccup.util/escape-html desc)]
+      (sidebar/render-list-visibility-flag list-info)]
+
       (if (< priority 0)
         (list-priority-button list-id 0 "Unhide List")
         (list-priority-button list-id -1 "Hide List"))
-      (sidebar/render-list-visibility-flag list-info)]
-
+     "&nbsp;"
      [:a.details-link {:href (shref "/list/" (encode-list-id list-id)
                                     {:modal "details"})}
       "Details"]
