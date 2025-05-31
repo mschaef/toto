@@ -114,3 +114,13 @@
 
 (defn delete-old-verification-links []
   (query/delete-old-verification-links!))
+
+(defn get-unverified-users-by-id [max-unverified-age]
+  (map :user_id
+       (query/get-unverified-users-by-id {:max_unverified_age max-unverified-age})))
+
+(defn delete-user-by-id! [user-id]
+  (query/delete-user-by-id! {:user_id user-id}))
+
+(defn delete-user-lists-by-user-id! [user-id]
+  (query/delete-user-lists-by-user-id! {:user_id user-id}))

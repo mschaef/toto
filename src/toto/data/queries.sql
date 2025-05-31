@@ -14,6 +14,24 @@ GROUP BY user.user_id
 INSERT INTO user(email_addr, password, account_created_on, password_created_on, friendly_name)
   VALUES(:email_addr, :password, :account_created_on, :password_created_on, :friendly_name)
 
+-- name: get-unverified-users-by-id
+SELECT user_id
+  FROM user
+ WHERE DATEADD('day', :max_unverified_age, account_created_on) < CURRENT_TIMESTAMP
+   AND user_id NOT IN (SELECT user_id
+                         FROM user_role
+                        WHERE role_id = (SELECT role_id
+                                           FROM role
+                                          WHERE role_name = 'verified'))
+
+-- name: delete-user-by-id!
+DELETE FROM user
+  where user_id = :user_id
+
+-- name: delete-user-lists-by-user-id!
+DELETE FROM todo_list_owners
+  WHERE user_id = :user_id
+
 -- name: set-user-password!
 UPDATE user
    SET password = :password,

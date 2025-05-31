@@ -14,4 +14,7 @@
  :job-schedule {:web-session-cull "32 */1 * * *"
                 :item-sunset "13 */1 * * *"
                 :verification-link-cull "*/15 * * * *"
-                :db-backup "0 2 * * *"}}
+                :unverified-user-cull "0 5 * * *"
+                :db-backup "0 2 * * *"}
+
+ :max-unverified-user-age 365}
