@@ -90,6 +90,10 @@ UPDATE todo_list
    SET is_deleted = :is_deleted
  WHERE todo_list_id = :todo_list_id
 
+-- name: obliterate-list!
+DELETE FROM todo_list
+ WHERE todo_list_id = :todo_list_id
+
 -- name: set-list-description!
 UPDATE todo_list
    SET desc = :desc
@@ -129,7 +133,7 @@ INSERT INTO todo_list_owners(user_id, todo_list_id)
 -- name: get-todo-list-ids-by-user
 SELECT DISTINCT todo_list_owners.todo_list_id
   FROM todo_list_owners, todo_list
- WHERE NOT(todo_list.is_deleted)
+ WHERE (:include_deleted OR NOT(todo_list.is_deleted))
    AND todo_list.todo_list_id=todo_list_owners.todo_list_id
    AND user_id = :user_id
 
@@ -190,6 +194,10 @@ SELECT todo_list.todo_list_id,
           todo_list_owners.priority DESC,
           todo_list.desc
 
+-- name: get-todo-list-owner-count
+SELECT count(user_id)
+  FROM todo_list_owners
+ WHERE todo_list_id = :todo_list_id
 
 -- name: get-todo-lists-by-user-alphabetical
 SELECT todo_list.todo_list_id,

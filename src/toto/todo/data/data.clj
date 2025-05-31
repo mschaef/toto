@@ -50,7 +50,13 @@
 
 (defn get-todo-list-ids-by-user [user-id]
   (map :todo_list_id
-       (query/get-todo-list-ids-by-user {:user_id user-id})))
+       (query/get-todo-list-ids-by-user {:user_id user-id
+                                         :include_deleted false})))
+
+(defn get-all-todo-list-ids-by-user [user-id]
+  (map :todo_list_id
+       (query/get-todo-list-ids-by-user {:user_id user-id
+                                         :include_deleted true})))
 
 (defn get-todo-list-view-item-count
   ([todo-list-view-id include-snoozed minimum-priority]
@@ -75,6 +81,10 @@
 (defn get-todo-lists-by-user [user-id include-deleted]
   (query/get-todo-lists-by-user {:user_id user-id
                                  :include_deleted include-deleted}))
+
+(defn get-todo-list-owner-count [todo-list-id]
+  (scalar-result
+   (query/get-todo-list-owner-count {:todo_list_id todo-list-id})))
 
 (defn get-todo-lists-by-user-alphabetical [user-id include-deleted]
   (query/get-todo-lists-by-user-alphabetical {:user_id user-id
@@ -112,6 +122,14 @@
     (query/delete-view-sublist! {:todo_list_id containing-todo-list-id
                                  :sublist_id sublist-id})))
 
+(defn delete-list-owner! [todo-list-id user-id]
+  (query/delete-list-owner!  {:todo_list_id todo-list-id
+                              :user_id user-id}))
+
+(defn insert-list-owner! [todo-list-id user-id]
+  (query/insert-list-owner! {:todo_list_id todo-list-id
+                             :user_id user-id}))
+
 (defn set-list-ownership [todo-list-id user-ids]
   (with-db-transaction
     (let [next-owners (set user-ids)
@@ -120,11 +138,9 @@
           remove-user-ids (clojure.set/difference current-owners next-owners)]
       (doseq [user-id remove-user-ids]
         (delete-sublist-from-users-views user-id todo-list-id)
-        (query/delete-list-owner! {:todo_list_id todo-list-id
-                                   :user_id user-id}))
+        (delete-list-owner! todo-list-id user-id))
       (doseq [user-id add-user-ids]
-        (query/insert-list-owner! {:user_id user-id
-                                   :todo_list_id todo-list-id})))))
+        (insert-list-owner! todo-list-id user-id)))))
 
 (defn get-list-priority [todo-list-id user-id]
   (scalar-result
@@ -139,6 +155,10 @@
 (defn delete-list [todo-list-id]
   (query/set-list-deleted! {:todo_list_id todo-list-id
                             :is_deleted true}))
+
+(defn obliterate-list! [todo-list-id]
+  (log/warn "Obliterating list: " todo-list-id)
+  (query/obliterate-list! {:todo_list_id todo-list-id}))
 
 (defn restore-list [todo-list-id]
   (query/set-list-deleted! {:todo_list_id todo-list-id

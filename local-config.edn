@@ -9,4 +9,5 @@
         :from "mike@mschaef.com"}
  :admin-mails ["mike@mschaef.com"]
 
- :job-schedule {:db-backup "0 */1 * * *"}}
+ :job-schedule {:db-backup "15 */1 * * *"
+                :unverified-user-cull "0 */1 * * *"}}
