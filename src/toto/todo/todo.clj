@@ -145,11 +145,12 @@
 
 (defn- add-item [list-id params]
   (let [{item-list-id :item-list-id
-         item-description :item-description} params
+         item-description :item-description
+         item-priority :item-priority} params
         item-description (string-leftmost item-description 1024)]
     (let [item-list-id (accept-authorized-list-id item-list-id)]
       (when (not (string-empty? item-description))
-        (data/add-todo-item (auth/current-user-id) item-list-id item-description 0))
+        (data/add-todo-item (auth/current-user-id) item-list-id item-description item-priority))
       (redirect-to-list list-id {:last-item-list-id (encode-list-id item-list-id)}))))
 
 (defn- update-item-ordinal [item-id params]
