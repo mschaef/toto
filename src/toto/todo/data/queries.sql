@@ -137,6 +137,12 @@ SELECT DISTINCT todo_list_owners.todo_list_id
    AND todo_list.todo_list_id=todo_list_owners.todo_list_id
    AND user_id = :user_id
 
+-- name: get-todo-list-complete-item-count
+SELECT count(item.item_id)
+  FROM todo_item item
+ WHERE (item.todo_list_id=:todo_list_id)
+    AND item.is_complete
+
 -- name: get-todo-list-item-count
 SELECT count(item.item_id)
   FROM todo_item item
@@ -153,6 +159,14 @@ SELECT item.item_id
     AND NOT item.is_deleted
     AND NOT item.is_complete
     AND item.priority >= 1
+
+-- name: get-todo-list-view-complete-item-count
+SELECT count(item.item_id)
+  FROM todo_item item
+ WHERE (item.todo_list_id in (SELECT todo_view_sublist.sublist_id
+                                FROM todo_view_sublist
+                               WHERE todo_view_sublist.todo_list_id=:todo_list_view_id))
+    AND item.is_complete
 
 -- name: get-todo-list-view-item-count
 SELECT count(item.item_id)

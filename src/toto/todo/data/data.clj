@@ -58,6 +58,14 @@
        (query/get-todo-list-ids-by-user {:user_id user-id
                                          :include_deleted true})))
 
+(defn get-todo-list-view-complete-item-count [todo-list-view-id]
+  (scalar-result
+   (query/get-todo-list-view-complete-item-count {:todo_list_view_id todo-list-view-id})))
+
+(defn get-todo-list-complete-item-count [todo-list-id]
+  (scalar-result
+   (query/get-todo-list-complete-item-count {:todo_list_id todo-list-id})))
+
 (defn get-todo-list-view-item-count
   ([todo-list-view-id include-snoozed minimum-priority]
    (scalar-result

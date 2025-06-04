@@ -369,6 +369,9 @@
                 :active-starred-items (if is-view
                                         (data/get-todo-list-view-item-count list-id false 1)
                                         (data/get-todo-list-item-count list-id false 1))
+                :complete-items  (if is-view
+                                   (data/get-todo-list-view-complete-item-count list-id)
+                                   (data/get-todo-list-complete-item-count list-id))
                 :total-items (if is-view
                                (data/get-todo-list-view-item-count list-id true)
                                (data/get-todo-list-item-count list-id true))}}))))
