@@ -1,6 +1,9 @@
 {:app {:name "toto"
        :title "Toto"}
  :http-port 8080
+ :base-url "http://localhost:8080"
+ :alternative-base-urls #{}
+ 
  :development-mode false
  :db {:backup-path false
       :subname "toto"}

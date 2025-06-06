@@ -72,7 +72,9 @@
                   ":"
                   (if-let [authority (.getAuthority url)]
                     (str "//" authority)))
-        is-self-link? (= base (config/cval :base-url))
+        is-self-link? ((conj (config/cval :alternative-base-urls)
+                             (config/cval :base-url))
+                       base)
         url-text (if is-self-link?
                    (render-self-link (.getPath url))
 
