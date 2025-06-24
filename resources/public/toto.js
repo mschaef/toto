@@ -579,6 +579,16 @@ function doCopy(event) {
         });
 }
 
+// Modals
+
+function showModal(modalName) {
+    elemBySelector("turbo-frame#modal-container").src = "/modal/" + modalName;
+}
+
+function dismissModal(modalName) {
+    elemBySelector("turbo-frame#modal-container").innerHTML = "";
+}
+
 // startup
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -594,5 +604,7 @@ window._toto = {
     doCopy,
     onItemEditKeydown,
     onNewItemInputKeydown,
-    submitHighPriority
+    submitHighPriority,
+    showModal,
+    dismissModal
 };

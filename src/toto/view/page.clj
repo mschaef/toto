@@ -165,6 +165,7 @@
      (if sidebar
        (render-sidebar sidebar))
      [:div.contents {:class (class-set {"with-sidebar" sidebar})}
+      [:turbo-frame#modal-container]
       (render-page-modal attrs)
       contents]]))
 

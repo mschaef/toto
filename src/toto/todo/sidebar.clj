@@ -90,4 +90,4 @@
         [:a {:href (shref "" {:min-list-priority -1})} "Show All Lists"])]
 
      [:div.control-row
-      [:a {:href (shref {:modal "new-list"})} "Create List"]]]))
+      [:a {:onclick "window._toto.showModal('new-list')"} "Create List"]]]))

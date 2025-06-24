@@ -34,6 +34,7 @@
             [toto.data.data :as core-data]
             [toto.site.routes :as routes]
             [toto.todo.data.data :as data]
+            [toto.todo.modals :as todo-modals]
             [toto.todo.sunset :as sunset]
             [toto.todo.user :as user]))
 
@@ -60,12 +61,12 @@
    :schema-path ["sql/"]
    :schemas [["toto" 13]]})
 
-(defn- app-start [app-routes]
+(defn- app-start [app-routes app-modals]
   (let [config (config/cval)]
     (sql-file/with-pool [db-conn (db-conn-spec config)]
       (let [session-store (session/session-store)]
         (start-scheduled-jobs db-conn session-store)
-        (web/start-site db-conn session-store (routes/all-routes app-routes))))))
+        (web/start-site db-conn session-store (routes/all-routes app-routes app-modals))))))
 
 (defmain [& args]
-  (app-start (todo/all-routes)))
+  (app-start (todo/all-routes) todo-modals/all-modals))

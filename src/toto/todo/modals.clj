@@ -166,3 +166,5 @@
     "snoozed and not visible."]
    [:div.modal-controls
     [:input {:type "submit" :value "Reset Stars"}]]))
+
+(def all-modals {"new-list" render-new-list-modal})

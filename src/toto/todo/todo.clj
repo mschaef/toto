@@ -317,3 +317,5 @@
   (routes
    public-routes
    (auth/authorize-valid-user private-routes)))
+
+(def all-modals {:a "modal-aaa"})

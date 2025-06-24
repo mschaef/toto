@@ -24,16 +24,27 @@
         compojure.core)
   (:require [taoensso.timbre :as log]
             [compojure.route :as route]
+            [hiccup.core :as hiccup-core]
             [playbook.config :as config]
             [toto.util :as util]
             [toto.site.user :as user]
             [toto.site.error-handling :as error-handling]))
 
-(defn all-routes [app-routes]
+(defn modal-routes [modal-map]
+  (routes
+   (context "/modal/:modal-id" [modal-id]
+     (GET "/" params
+       (when-let [modal-fn (get modal-map modal-id)]
+         (hiccup-core/html
+          [:turbo-frame#modal-container
+           (modal-fn params)]))))))
+
+(defn all-routes [app-routes app-modals]
   (let [resources-path (str "/" (util/get-version))]
     (log/info "Resources on path: " resources-path)
     (routes
      (route/resources resources-path)
      user/all-routes
      app-routes
+     (modal-routes app-modals)
      error-handling/all-routes)))
